@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { TikTok_Sans } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/provider/theme-provider";
+import HeaderSection from "@/components/molecules/HeaderSection";
+import FooterSection from "@/components/organisms/FooterSection";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const tikTokSans = TikTok_Sans({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-tiktok-sans",
 });
 
 export const metadata: Metadata = {
@@ -23,11 +22,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="vi" suppressHydrationWarning>
+      <body className={`${tikTokSans.className}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange>
+          <div className="min-h-screen p-2">
+            <HeaderSection />
+            {children}
+            <FooterSection />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
