@@ -25,16 +25,16 @@ import { useThemeContext } from "@/provider/theme-provider";
 import Logo from "../atoms/Logo";
 
 export default function FooterSection() {
-  const { theme } = useThemeContext();
-  const [isDarkMode, setIsDarkMode] = React.useState(theme === "dark");
+  const { setTheme, isDarkMode } = useThemeContext();
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
+    setMounted(true);
+  }, []);
+
+  const handleThemeChange = React.useCallback(() => {
+    setTheme(isDarkMode ? "light" : "dark");
+  }, [isDarkMode, setTheme]);
 
   return (
     <footer className="relative border-t mt-16 bg-background text-foreground transition-colors duration-300">
@@ -171,11 +171,16 @@ export default function FooterSection() {
             </div>
             <div className="flex items-center space-x-2">
               <Sun className="h-4 w-4" />
-              <Switch
-                id="dark-mode"
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
-              />
+              {mounted ? (
+                <Switch
+                  id="dark-mode"
+                  checked={isDarkMode}
+                  onCheckedChange={handleThemeChange}
+                />
+              ) : (
+                // Placeholder during SSR to prevent layout shift
+                <div className="h-6 w-11 rounded-full bg-input" />
+              )}
               <Moon className="h-4 w-4" />
               <Label htmlFor="dark-mode" className="sr-only">
                 Toggle dark mode
@@ -186,7 +191,7 @@ export default function FooterSection() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground flex items-center gap-x-1">
             <Copyright size={15} className="-mt-1" /> {new Date().getFullYear()}{" "}
-            FayeDark. All rights reserved.
+            Examio. All rights reserved.
           </p>
           <nav className="flex gap-4 text-sm">
             <a href="#" className="transition-colors hover:text-primary">
