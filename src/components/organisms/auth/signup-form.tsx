@@ -6,14 +6,18 @@ import { cn } from "@/lib/utils";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import Link from "next/link";
 import { FacebookIcon } from "lucide-react";
+import { useScreenBreakpoint } from "@/hooks/useDevices";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export function SignupForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
   };
+  const { isMobile } = useScreenBreakpoint();
+  const { signup } = useAuthStore();
+
   return (
-    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black shadow-xl">
+    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black shadow-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200 mb-[10px]">
         Chào Mừng Đến Với Examio
       </h2>
@@ -58,7 +62,10 @@ export function SignupForm() {
           <hr className="flex-grow border-t border-neutral-300 dark:border-neutral-700" />
         </div>
 
-        <div className="flex flex-col space-y-4">
+        <div
+          className={`grid gap-2 mb-[10px] ${
+            isMobile ? "grid-cols-1" : "grid-cols-3"
+          }`}>
           <button
             className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
             type="submit">
@@ -86,14 +93,14 @@ export function SignupForm() {
             </span>
             <BottomGradient />
           </button>
-          <div className="text-muted-foreground flex justify-center gap-1 text-sm">
-            <p>Đã có tài khoản? </p>
-            <Link
-              href="/login"
-              className="text-primary font-medium hover:underline">
-              Đăng Nhập
-            </Link>
-          </div>
+        </div>
+        <div className="text-muted-foreground flex justify-center gap-1 text-sm mt-4">
+          <p>Đã có tài khoản? </p>
+          <Link
+            href="/login"
+            className="text-primary font-medium hover:underline">
+            Đăng Nhập
+          </Link>
         </div>
       </form>
     </div>

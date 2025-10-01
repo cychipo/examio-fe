@@ -109,7 +109,7 @@ export default function HeaderSection() {
                     isScrolled ? "lg:inline-flex" : "hidden",
                     "bg-blue-600 hover:bg-blue-700 text-white"
                   )}>
-                  <Link href="#">
+                  <Link href="/login">
                     <span>Bắt đầu ngay</span>
                   </Link>
                 </Button>

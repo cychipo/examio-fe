@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { Eye, EyeOff, FacebookIcon } from "lucide-react";
+import { useScreenBreakpoint } from "@/hooks/useDevices";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 const BottomGradient = () => {
   return (
@@ -17,9 +19,12 @@ const BottomGradient = () => {
 
 export const SigninForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const { isMobile } = useScreenBreakpoint();
+  const { loginWithGoogle, loginWithFacebook, loginWithGithub } =
+    useAuthStore();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative">
         <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-blue-100 via-blue-50 to-transparent opacity-40 blur-3xl -mt-20"></div>
         <div className="p-8">
@@ -81,10 +86,14 @@ export const SigninForm = () => {
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 mb-[10px]">
+            <div
+              className={`grid gap-2 mb-[10px] ${
+                isMobile ? "grid-cols-1" : "grid-cols-3"
+              }`}>
               <button
-                className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
-                type="submit">
+                className=" relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
+                type="submit"
+                onClick={loginWithGithub}>
                 <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   GitHub
@@ -93,8 +102,9 @@ export const SigninForm = () => {
               </button>
 
               <button
-                className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
-                type="submit">
+                className=" relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
+                type="submit"
+                onClick={loginWithGoogle}>
                 <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   Google
@@ -102,9 +112,10 @@ export const SigninForm = () => {
                 <BottomGradient />
               </button>
               <button
-                className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
-                type="submit">
-                <FacebookIcon className="h-4 w-4 text-neutral-800 dark:text-neutral-300 scale-[1.6]" />
+                className=" relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
+                type="submit"
+                onClick={loginWithFacebook}>
+                <FacebookIcon className="h-3 w-3 text-neutral-800 dark:text-neutral-300 scale-[1.5]" />
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                   Facebook
                 </span>
@@ -113,7 +124,7 @@ export const SigninForm = () => {
             </div>
           </div>
 
-          <div className="text-muted-foreground flex justify-center gap-1 text-sm">
+          <div className="text-muted-foreground flex justify-center gap-1 text-sm mt-4">
             <p>Bạn chưa có tài khoản? </p>
             <Link
               href="/register"
