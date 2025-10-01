@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { TikTok_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/provider/theme-provider";
-import HeaderSection from "@/components/molecules/HeaderSection";
-import FooterSection from "@/components/organisms/FooterSection";
+import { ToastProvider } from "@/components/ui/toast";
 
 const tikTokSans = TikTok_Sans({
   subsets: ["latin"],
@@ -29,11 +28,9 @@ export default function RootLayout({
           defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange>
-          <div className="min-h-screen p-2">
-            <HeaderSection />
-            {children}
-            <FooterSection />
-          </div>
+          <ToastProvider>
+            <div className="min-h-screen p-2">{children}</div>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
