@@ -94,6 +94,7 @@ export const loginWithGooglePopup = (): Promise<{
 
     const messageHandler = (event: MessageEvent) => {
       const { token, user } = event.data;
+      console.log("User", user);
       if (token && user) {
         resolve({ token, user });
       } else {
