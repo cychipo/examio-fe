@@ -1,24 +1,9 @@
-import axios, {
-  InternalAxiosRequestConfig,
-  AxiosResponse,
-  AxiosError,
-} from "axios";
-import { LOCALSTORAGE_KEY } from "@/types/localstorage";
+import axios, { AxiosResponse, AxiosError } from "axios";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
 });
-
-api.interceptors.request.use(authRequestInterceptor);
-function authRequestInterceptor(config: InternalAxiosRequestConfig) {
-  if (config.headers) {
-    const token = localStorage.getItem(LOCALSTORAGE_KEY.ACCESS_TOKEN);
-    if (token) {
-      config.headers.authorization = `Bearer ${token.replace(/"/g, "")}`;
-    }
-  }
-  return config;
-}
 
 api.interceptors.response.use(
   (response: AxiosResponse) => {
