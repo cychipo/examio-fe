@@ -5,15 +5,11 @@ import {
   signupApi,
   sendCodeResetPasswordApi,
   resetPasswordApi,
-  loginWithGooglePopup,
-  loginWithFacebookPopup,
-  loginWithGithubPopup,
   CredentialsLogin,
   CredentialsSignup,
   SendCodeResetPassWordCredentials,
   ResetPasswordCredentials,
 } from "@/apis/authApi";
-import { LOCALSTORAGE_KEY } from "@/types/localstorage";
 import { toast } from "@/components/ui/toast";
 
 interface AuthState {
@@ -42,15 +38,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true });
     try {
       const response = await loginApi(credentials);
-      if (response.token && response.user) {
-        localStorage.setItem(
-          LOCALSTORAGE_KEY.ACCESS_TOKEN,
-          JSON.stringify(response.token)
-        );
-        localStorage.setItem(
-          LOCALSTORAGE_KEY.USER,
-          JSON.stringify(response.user)
-        );
+      if (response.success) {
         set({ user: response.user, isAuthenticated: true });
         toast.success("Đăng nhập thành công");
       } else {
@@ -127,15 +115,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
-    localStorage.removeItem(LOCALSTORAGE_KEY.ACCESS_TOKEN);
-    localStorage.removeItem(LOCALSTORAGE_KEY.USER);
     set({ user: null, isAuthenticated: false });
   },
 
   getUser: () => {
-    const user = localStorage.getItem(LOCALSTORAGE_KEY.USER);
-    const token = localStorage.getItem(LOCALSTORAGE_KEY.ACCESS_TOKEN);
-    if (user && token) {
+    const user = localStorage.getItem("examio_user");
+    if (user) {
       set({ user: JSON.parse(user), isAuthenticated: true });
     } else {
       set({ user: null, isAuthenticated: false });
@@ -143,56 +128,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loginWithGoogle: async () => {
-    set({ loading: true });
-    try {
-      const { token, user } = await loginWithGooglePopup();
-
-      localStorage.setItem(LOCALSTORAGE_KEY.ACCESS_TOKEN, token);
-      localStorage.setItem(LOCALSTORAGE_KEY.USER, JSON.stringify(user));
-      set({ user, isAuthenticated: true });
-
-      toast.success("Đăng nhập Google thành công");
-    } catch (error) {
-      toast.error("Đăng nhập Google thất bại");
-      console.error("Đăng nhập Google thất bại:", error);
-    } finally {
-      set({ loading: false });
-    }
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   },
 
   loginWithFacebook: async () => {
-    set({ loading: true });
-    try {
-      const { token, user } = await loginWithFacebookPopup();
-
-      localStorage.setItem(LOCALSTORAGE_KEY.ACCESS_TOKEN, token);
-      localStorage.setItem(LOCALSTORAGE_KEY.USER, JSON.stringify(user));
-      set({ user, isAuthenticated: true });
-
-      toast.success("Đăng nhập Facebook thành công");
-    } catch (error) {
-      toast.error("Đăng nhập Facebook thất bại");
-      console.error("Đăng nhập Facebook thất bại:", error);
-    } finally {
-      set({ loading: false });
-    }
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
   },
 
   loginWithGithub: async () => {
-    set({ loading: true });
-    try {
-      const { token, user } = await loginWithGithubPopup();
-
-      localStorage.setItem(LOCALSTORAGE_KEY.ACCESS_TOKEN, token);
-      localStorage.setItem(LOCALSTORAGE_KEY.USER, JSON.stringify(user));
-      set({ user, isAuthenticated: true });
-
-      toast.success("Đăng nhập GitHub thành công");
-    } catch (error) {
-      toast.error("Đăng nhập GitHub thất bại");
-      console.error("Đăng nhập GitHub thất bại:", error);
-    } finally {
-      set({ loading: false });
-    }
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github`;
   },
 }));

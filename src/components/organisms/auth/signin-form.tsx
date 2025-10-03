@@ -20,8 +20,18 @@ const BottomGradient = () => {
 export const SigninForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { isMobile } = useScreenBreakpoint();
-  const { loginWithGoogle, loginWithFacebook, loginWithGithub } =
+  const { loginWithGoogle, loginWithFacebook, loginWithGithub, login } =
     useAuthStore();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const credential = formData.get("credential") as string;
+    const password = formData.get("password") as string;
+
+    login({ credential, password });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -40,43 +50,49 @@ export const SigninForm = () => {
           </div>
 
           <div className="space-y-6 p-0">
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
-                Tên Đăng Nhập
-              </label>
-              <input
-                className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 h-12 rounded-lg focus-visible:ring-2 w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="Tên Đăng Nhập"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between items-center">
+            <form onSubmit={handleSubmit} className="space-y-6 p-0">
+              <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700">
-                  Mật Khẩu
+                  Tên Đăng Nhập hoặc Email
                 </label>
-                <Link href="#" className="text-xs hover:underline">
-                  Quên mật khẩu?
-                </Link>
-              </div>
-              <div className="relative">
                 <input
-                  type={showPassword ? "text" : "password"}
-                  className="bg-gray-50 border-gray-200 text-gray-900 pr-12 h-12 rounded-lg focus-visible:ring-2   w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  placeholder="••••••••"
+                  name="credential"
+                  className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 h-12 rounded-lg focus-visible:ring-2 w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Tên Đăng Nhập hoặc Email"
                 />
-                <button
-                  type="button"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:bg-gray-100 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 px-3 cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <EyeOff /> : <Eye />}
-                </button>
               </div>
-            </div>
 
-            <button className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] cursor-pointer">
-              Đăng Nhập
-            </button>
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium text-gray-700">
+                    Mật Khẩu
+                  </label>
+                  <Link href="#" className="text-xs hover:underline">
+                    Quên mật khẩu?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    className="bg-gray-50 border-gray-200 text-gray-900 pr-12 h-12 rounded-lg focus-visible:ring-2   w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="••••••••"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:bg-gray-100 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 px-3 cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff /> : <Eye />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] cursor-pointer">
+                Đăng Nhập
+              </button>
+            </form>
 
             <div className="flex items-center my-4">
               <div className="flex-1 h-px bg-gray-200"></div>
