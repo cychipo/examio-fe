@@ -157,7 +157,10 @@ export default function FeedbackSection() {
     setTimeout(() => setIsAutoPlaying(true), 8000);
   };
 
-  const handleDragEnd = (event: any, info: any) => {
+  const handleDragEnd = (
+    _: unknown,
+    info: { offset: { x: number; y: number } }
+  ) => {
     const { offset } = info;
     const swipeThreshold = 30;
 
