@@ -1,0 +1,85 @@
+name: Build and Deploy to Server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Check required secrets and variables
+        run: |
+          [[ -n "${{ secrets.SERVER_HOST }}" ]] || { echo "❌ SERVER_HOST secret missing"; exit 1; }
+          [[ -n "${{ secrets.SERVER_SSH_PORT }}" ]] || { echo "❌ SERVER_SSH_PORT secret missing"; exit 1; }
+          [[ -n "${{ secrets.SERVER_USER }}" ]] || { echo "❌ SERVER_USER secret missing"; exit 1; }
+          [[ -n "${{ secrets.SERVER_SSH_KEY }}" ]] || { echo "❌ SERVER_SSH_KEY secret missing"; exit 1; }
+          [[ -n "${{ vars.DOCKER_COMPOSE_DIR }}" ]] || { echo "❌ DOCKER_COMPOSE_DIR variable missing"; exit 1; }
+          [[ -n "${{ vars.DOCKER_COMPOSE_SERVICE }}" ]] || { echo "❌ DOCKER_COMPOSE_SERVICE variable missing"; exit 1; }
+          [[ -n "${{ vars.NEXT_PUBLIC_API_URL }}" ]] || { echo "❌ NEXT_PUBLIC_API_URL variable missing"; exit 1; }
+          echo "✅ All secrets and variables configured"
+
+  build:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+          echo -e "\n" >> .env
+          echo -e "NEXT_PUBLIC_API_URL=${{vars.NEXT_PUBLIC_API_URL}}\n" >> .env
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: examio-fe-build-gha:latest
+          cache-from: type=gha
+          cache-to: type=gha
+
+      - name: Save Docker image to tarball
+        run: |
+          docker save -o examio-fe-build-gha.tar examio-fe-build-gha:latest
+          chmod +r examio-fe-build-gha.tar
+
+      - name: Copy image to remote server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: examio-fe-build-gha.tar
+          target: /tmp
+
+  deploy:
+    needs: [validate, build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: SSH and deploy to test environment
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_SSH_PORT }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ${{ vars.DOCKER_COMPOSE_DIR }}
+            docker load -i /tmp/examio-fe-build-gha.tar
+            docker compose stop ${{ vars.DOCKER_COMPOSE_SERVICE }} || true
+            docker compose rm ${{ vars.DOCKER_COMPOSE_SERVICE }} || true
+            docker compose up -d ${{ vars.DOCKER_COMPOSE_SERVICE }}
