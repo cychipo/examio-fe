@@ -42,7 +42,7 @@ export function SidebarKit() {
     <div className="flex flex-col items-center justify-between gap-y-2 border border-1/2 rounded-lg h-full p-2">
       <div className="flex flex-col items-center ">
         <LogoOnly sizeIcon={30} />
-        <SeparatorPro variant="dots" className="w-8" />
+        <SeparatorPro variant="dots" className="w-10" />
         <div className="flex flex-col gap-y-3 h-fit">
           {itemSiderbar.map((item) => (
             <Link

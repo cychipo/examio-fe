@@ -18,6 +18,7 @@ import {
   FaFileSignature,
   FaFileMedical,
 } from "react-icons/fa";
+import Image from "next/image";
 
 const iconConfigs = [
   { Icon: FaGoogleDrive, color: "#61DAFB" },
@@ -115,8 +116,8 @@ export default function StackSection() {
                             style={{ color: cfg.color }}
                           />
                         ) : (
-                          <img
-                            src={cfg.img}
+                          <Image
+                            src={cfg.Icon}
                             alt="icon"
                             className="w-8 h-8 object-contain"
                           />
