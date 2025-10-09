@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import {
   Mic,
   Plus,
-  ArrowUpRight,
   CheckCircle2,
   Clock,
   Sparkles,
@@ -22,7 +21,6 @@ import {
   useTransform,
   type Variants,
 } from "motion/react";
-import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { SparklesText } from "../magicui/sparkles-text";
 
@@ -129,7 +127,7 @@ const staggerContainer: Variants = {
   },
 };
 
-const SpotlightFeature = ({ items }: { items: string[] }) => {
+function SpotlightFeature({ items }: { items: string[] }) {
   return (
     <ul className="mt-2 space-y-1.5">
       {items.map((item, index) => (
@@ -138,7 +136,8 @@ const SpotlightFeature = ({ items }: { items: string[] }) => {
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 * index }}
-          className="flex items-center gap-2">
+          className="flex items-center gap-2"
+        >
           <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
           <span className="text-sm text-neutral-700 dark:text-neutral-300">
             {item}
@@ -147,9 +146,9 @@ const SpotlightFeature = ({ items }: { items: string[] }) => {
       ))}
     </ul>
   );
-};
+}
 
-const CounterAnimation = ({
+function CounterAnimation({
   start,
   end,
   suffix = "",
@@ -157,7 +156,7 @@ const CounterAnimation = ({
   start: number;
   end: number;
   suffix?: string;
-}) => {
+}) {
   const [count, setCount] = useState(start);
 
   useEffect(() => {
@@ -192,9 +191,9 @@ const CounterAnimation = ({
       </span>
     </div>
   );
-};
+}
 
-const ChartAnimation = ({ value }: { value: number }) => {
+function ChartAnimation({ value }: { value: number }) {
   return (
     <div className="mt-2 w-full h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
       <motion.div
@@ -205,9 +204,9 @@ const ChartAnimation = ({ value }: { value: number }) => {
       />
     </div>
   );
-};
+}
 
-const IconsFeature = () => {
+function IconsFeature() {
   return (
     <div className="grid grid-cols-3 gap-4 mt-4">
       <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
@@ -262,13 +261,13 @@ const IconsFeature = () => {
       </motion.div>
     </div>
   );
-};
+}
 
-const TimelineFeature = ({
+function TimelineFeature({
   timeline,
 }: {
   timeline: Array<{ year: string; event: string }>;
-}) => {
+}) {
   return (
     <div className="mt-3 relative">
       <div className="absolute top-0 bottom-0 left-[9px] w-[2px] bg-neutral-200 dark:bg-neutral-700" />
@@ -282,7 +281,8 @@ const TimelineFeature = ({
           animate={{ opacity: 1, x: 0 }}
           transition={{
             delay: (0.15 * Number.parseInt(item.year)) % 10,
-          }}>
+          }}
+        >
           <div className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-600 flex-shrink-0 z-10 mt-0.5" />
           <div>
             <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
@@ -296,9 +296,9 @@ const TimelineFeature = ({
       ))}
     </div>
   );
-};
+}
 
-const TypingCodeFeature = ({ text }: { text: string }) => {
+function TypingCodeFeature({ text }: { text: string }) {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -322,7 +322,6 @@ const TypingCodeFeature = ({ text }: { text: string }) => {
   useEffect(() => {
     setDisplayedText("");
     setCurrentIndex(0);
-     
   }, []);
 
   return (
@@ -334,7 +333,8 @@ const TypingCodeFeature = ({ text }: { text: string }) => {
       </div>
       <div
         ref={terminalRef}
-        className="bg-neutral-900 dark:bg-black text-neutral-100 p-3 rounded-md text-xs font-mono h-[150px] overflow-y-auto">
+        className="bg-neutral-900 dark:bg-black text-neutral-100 p-3 rounded-md text-xs font-mono h-[150px] overflow-y-auto"
+      >
         <pre className="whitespace-pre-wrap">
           {displayedText}
           <span className="animate-pulse">|</span>
@@ -342,9 +342,9 @@ const TypingCodeFeature = ({ text }: { text: string }) => {
       </div>
     </div>
   );
-};
+}
 
-const MetricsFeature = ({
+function MetricsFeature({
   metrics,
 }: {
   metrics: Array<{
@@ -353,7 +353,7 @@ const MetricsFeature = ({
     suffix?: string;
     color?: string;
   }>;
-}) => {
+}) {
   const getColorClass = (color = "emerald") => {
     const colors = {
       emerald: "bg-emerald-500 dark:bg-emerald-400",
@@ -373,7 +373,8 @@ const MetricsFeature = ({
           className="space-y-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 * index }}>
+          transition={{ delay: 0.15 * index }}
+        >
           <div className="flex justify-between items-center text-sm">
             <div className="text-neutral-700 dark:text-neutral-300 font-medium flex items-center gap-1.5">
               {metric.label === "Uptime" && <Clock className="w-3.5 h-3.5" />}
@@ -408,7 +409,7 @@ const MetricsFeature = ({
       ))}
     </div>
   );
-};
+}
 
 function AIInput_Voice() {
   const [submitted, setSubmitted] = useState(false);
@@ -443,7 +444,8 @@ function AIInput_Voice() {
   };
 
   useEffect(() => {
-    if (!isDemo) return;
+    if (!isDemo)
+      return;
 
     let timeoutId: NodeJS.Timeout;
     const runAnimation = () => {
@@ -478,18 +480,21 @@ function AIInput_Voice() {
             "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
             submitted
               ? "bg-none"
-              : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
+              : "bg-none hover:bg-black/10 dark:hover:bg-white/10",
           )}
           type="button"
-          onClick={handleClick}>
-          {submitted ? (
-            <div
-              className="w-6 h-6 rounded-sm animate-spin bg-black  dark:bg-white cursor-pointer pointer-events-auto"
-              style={{ animationDuration: "3s" }}
-            />
-          ) : (
-            <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
-          )}
+          onClick={handleClick}
+        >
+          {submitted
+            ? (
+                <div
+                  className="w-6 h-6 rounded-sm animate-spin bg-black  dark:bg-white cursor-pointer pointer-events-auto"
+                  style={{ animationDuration: "3s" }}
+                />
+              )
+            : (
+                <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
+              )}
         </button>
 
         <span
@@ -497,20 +502,21 @@ function AIInput_Voice() {
             "font-mono text-sm transition-opacity duration-300",
             submitted
               ? "text-black/70 dark:text-white/70"
-              : "text-black/30 dark:text-white/30"
-          )}>
+              : "text-black/30 dark:text-white/30",
+          )}
+        >
           {formatTime(time)}
         </span>
 
         <div className="h-4 w-64 flex items-center justify-center gap-0.5">
-          {[...Array(48)].map((_, i) => (
+          {[...Array.from({ length: 48 })].map((_, i) => (
             <div
               key={`voice-bar-${i}`}
               className={cn(
                 "w-0.5 rounded-full transition-all duration-300",
                 submitted
                   ? "bg-black/50 dark:bg-white/50 animate-pulse"
-                  : "bg-black/10 dark:bg-white/10 h-1"
+                  : "bg-black/10 dark:bg-white/10 h-1",
               )}
               style={
                 submitted && isClient
@@ -532,7 +538,7 @@ function AIInput_Voice() {
   );
 }
 
-const BentoCard = ({ item }: { item: BentoItem }) => {
+function BentoCard({ item }: { item: BentoItem }) {
   const [isHovered, setIsHovered] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -570,7 +576,8 @@ const BentoCard = ({ item }: { item: BentoItem }) => {
         rotateX,
         rotateY,
         transformStyle: "preserve-3d",
-      }}>
+      }}
+    >
       <div
         className={`
                     group relative flex flex-col gap-4 h-full rounded-xl p-5
@@ -592,10 +599,12 @@ const BentoCard = ({ item }: { item: BentoItem }) => {
                     transition-all duration-500 ease-out ${item.className}
                 `}
         tabIndex={0}
-        aria-label={`${item.title} - ${item.description}`}>
+        aria-label={`${item.title} - ${item.description}`}
+      >
         <div
           className="relative z-10 flex flex-col gap-3 h-full"
-          style={{ transform: "translateZ(20px)" }}>
+          style={{ transform: "translateZ(20px)" }}
+        >
           <div className="space-y-2 flex-1 flex flex-col">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors duration-300">
@@ -663,13 +672,14 @@ const BentoCard = ({ item }: { item: BentoItem }) => {
       </div>
     </motion.div>
   );
-};
+}
 
 export default function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative py-24 sm:py-36 bg-white dark:bg-black overflow-hidden">
+      className="relative py-24 sm:py-36 bg-white dark:bg-black overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div variants={fadeInUp}>
           <SparklesText className="text-5xl text-center pb-12">
@@ -682,7 +692,8 @@ export default function FeaturesSection() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
-          className="grid gap-6">
+          className="grid gap-6"
+        >
           <div className="grid md:grid-cols-3 gap-6">
             <motion.div variants={fadeInUp} className="md:col-span-1">
               <BentoCard item={bentoItems[0]} />
@@ -697,7 +708,8 @@ export default function FeaturesSection() {
             </motion.div>
             <motion.div
               variants={fadeInUp}
-              className="md:col-span-1 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-neutral-50 dark:from-neutral-900/80 dark:to-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 hover:border-neutral-400/30 dark:hover:border-neutral-600/30 hover:shadow-lg hover:shadow-neutral-200/20 dark:hover:shadow-neutral-900/20 transition-all duration-300">
+              className="md:col-span-1 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-neutral-50 dark:from-neutral-900/80 dark:to-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 hover:border-neutral-400/30 dark:hover:border-neutral-600/30 hover:shadow-lg hover:shadow-neutral-200/20 dark:hover:shadow-neutral-900/20 transition-all duration-300"
+            >
               <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">

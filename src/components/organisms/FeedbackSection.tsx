@@ -59,11 +59,13 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-const getVisibleCount = (width: number): number => {
-  if (width >= 1280) return 3;
-  if (width >= 768) return 2;
+function getVisibleCount(width: number): number {
+  if (width >= 1280)
+    return 3;
+  if (width >= 768)
+    return 2;
   return 1;
-};
+}
 
 export default function FeedbackSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -81,7 +83,8 @@ export default function FeedbackSection() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined")
+      return;
 
     const handleResize = () => {
       const newWidth = window.innerWidth;
@@ -103,7 +106,8 @@ export default function FeedbackSection() {
   }, [windowWidth, currentIndex]);
 
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying)
+      return;
 
     const startAutoPlay = () => {
       autoPlayRef.current = setInterval(() => {
@@ -152,14 +156,14 @@ export default function FeedbackSection() {
     }
   };
 
-  const pauseAutoPlay = () => {
+  function pauseAutoPlay() {
     setIsAutoPlaying(false);
     setTimeout(() => setIsAutoPlaying(true), 8000);
-  };
+  }
 
   const handleDragEnd = (
     _: unknown,
-    info: { offset: { x: number; y: number } }
+    info: { offset: { x: number; y: number } },
   ) => {
     const { offset } = info;
     const swipeThreshold = 30;
@@ -183,7 +187,8 @@ export default function FeedbackSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-8 sm:mb-12 md:mb-16">
+          className="text-center mb-8 sm:mb-12 md:mb-16"
+        >
           <span className="inline-block py-1 px-3 rounded-full bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light font-medium text-xs sm:text-sm uppercase tracking-wider">
             Người dùng nói gì
           </span>
@@ -200,12 +205,12 @@ export default function FeedbackSection() {
               whileTap={{ scale: 0.95 }}
               onClick={goPrev}
               disabled={!canGoPrev}
-              className={`p-2 rounded-full ${
-                canGoPrev
-                  ? "bg-white dark:bg-gray-700 shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 text-primary dark:text-primary-light"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+              className={`p-2 rounded-full ${canGoPrev
+                ? "bg-white dark:bg-gray-700 shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 text-primary dark:text-primary-light"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
               } transition-all duration-300`}
-              aria-label="Previous testimonial">
+              aria-label="Previous testimonial"
+            >
               <ChevronLeft size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
             <motion.button
@@ -213,12 +218,12 @@ export default function FeedbackSection() {
               whileTap={{ scale: 0.95 }}
               onClick={goNext}
               disabled={!canGoNext}
-              className={`p-2 rounded-full ${
-                canGoNext
-                  ? "bg-white dark:bg-gray-700 shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 text-primary dark:text-primary-light"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+              className={`p-2 rounded-full ${canGoNext
+                ? "bg-white dark:bg-gray-700 shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 text-primary dark:text-primary-light"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
               } transition-all duration-300`}
-              aria-label="Next testimonial">
+              aria-label="Next testimonial"
+            >
               <ChevronRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </div>
@@ -231,14 +236,14 @@ export default function FeedbackSection() {
                 type: "spring",
                 stiffness: 70,
                 damping: 20,
-              }}>
+              }}
+            >
               {testimonials.map((testimonial) => (
                 <motion.div
                   key={testimonial.id}
-                  className={`flex-shrink-0 w-full ${
-                    visibleCount === 3
-                      ? "md:w-1/3"
-                      : visibleCount === 2
+                  className={`flex-shrink-0 w-full ${visibleCount === 3
+                    ? "md:w-1/3"
+                    : visibleCount === 2
                       ? "md:w-1/2"
                       : "w-full"
                   } p-2`}
@@ -251,13 +256,15 @@ export default function FeedbackSection() {
                   onDragEnd={handleDragEnd}
                   whileHover={{ y: -5 }}
                   whileTap={{ scale: 0.98, cursor: "grabbing" }}
-                  style={{ cursor: "grab" }}>
+                  style={{ cursor: "grab" }}
+                >
                   <motion.div
                     className="relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg shadow-primary/5 dark:shadow-primary-light/5"
                     whileHover={{
                       boxShadow:
                         "0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -2px rgba(79, 70, 229, 0.05)",
-                    }}>
+                    }}
+                  >
                     <div className="absolute -top-4 -left-4 opacity-10 dark:opacity-20">
                       <Quote
                         size={windowWidth < 640 ? 40 : 60}
@@ -267,7 +274,9 @@ export default function FeedbackSection() {
 
                     <div className="relative z-10 h-full flex flex-col">
                       <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium mb-4 sm:mb-6 leading-relaxed">
-                        &ldquo;{testimonial.quote}&rdquo;
+                        &ldquo;
+                        {testimonial.quote}
+                        &rdquo;
                       </p>
 
                       <div className="mt-auto pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
@@ -280,8 +289,8 @@ export default function FeedbackSection() {
                               alt={testimonial.name}
                               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "/api/placeholder/48/48";
+                                (e.target as HTMLImageElement).src
+                                  = "/api/placeholder/48/48";
                               }}
                             />
                             <motion.div
@@ -315,8 +324,8 @@ export default function FeedbackSection() {
           </div>
 
           <div className="flex justify-center mt-6 sm:mt-8">
-            {isMounted &&
-              Array.from(
+            {isMounted
+              && Array.from(
                 { length: testimonials.length - visibleCount + 1 },
                 (_, index: number) => (
                   <motion.button
@@ -325,12 +334,12 @@ export default function FeedbackSection() {
                     className="relative mx-1 focus:outline-none"
                     whileHover={{ scale: 1.2 }}
                     whileTap={{ scale: 0.9 }}
-                    aria-label={`Go to testimonial ${index + 1}`}>
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  >
                     <motion.div
-                      className={`w-2 h-2 rounded-full ${
-                        index === currentIndex
-                          ? "bg-primary dark:bg-primary-light"
-                          : "bg-gray-300 dark:bg-gray-600"
+                      className={`w-2 h-2 rounded-full ${index === currentIndex
+                        ? "bg-primary dark:bg-primary-light"
+                        : "bg-gray-300 dark:bg-gray-600"
                       }`}
                       animate={{
                         scale: index === currentIndex ? [1, 1.2, 1] : 1,
@@ -355,7 +364,7 @@ export default function FeedbackSection() {
                       />
                     )}
                   </motion.button>
-                )
+                ),
               )}
           </div>
         </div>

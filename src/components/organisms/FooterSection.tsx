@@ -55,7 +55,8 @@ export default function FooterSection() {
               <Button
                 type="submit"
                 size="icon"
-                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105">
+                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105"
+              >
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Đăng ký</span>
               </Button>
@@ -67,27 +68,32 @@ export default function FooterSection() {
             <nav className="space-y-2 text-sm">
               <a
                 href="#"
-                className="block transition-colors hover:text-primary">
+                className="block transition-colors hover:text-primary"
+              >
                 Home
               </a>
               <a
                 href="#"
-                className="block transition-colors hover:text-primary">
+                className="block transition-colors hover:text-primary"
+              >
                 About Us
               </a>
               <a
                 href="#"
-                className="block transition-colors hover:text-primary">
+                className="block transition-colors hover:text-primary"
+              >
                 Services
               </a>
               <a
                 href="#"
-                className="block transition-colors hover:text-primary">
+                className="block transition-colors hover:text-primary"
+              >
                 Products
               </a>
               <a
                 href="#"
-                className="block transition-colors hover:text-primary">
+                className="block transition-colors hover:text-primary"
+              >
                 Contact
               </a>
             </nav>
@@ -110,7 +116,8 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full"
+                    >
                       <Facebook className="h-4 w-4" />
                       <span className="sr-only">Facebook</span>
                     </Button>
@@ -126,7 +133,8 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full"
+                    >
                       <Twitter className="h-4 w-4" />
                       <span className="sr-only">Twitter</span>
                     </Button>
@@ -142,7 +150,8 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full"
+                    >
                       <Instagram className="h-4 w-4" />
                       <span className="sr-only">Instagram</span>
                     </Button>
@@ -158,7 +167,8 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full"
+                    >
                       <Linkedin className="h-4 w-4" />
                       <span className="sr-only">LinkedIn</span>
                     </Button>
@@ -171,16 +181,18 @@ export default function FooterSection() {
             </div>
             <div className="flex items-center space-x-2">
               <Sun className="h-4 w-4" />
-              {mounted ? (
-                <Switch
-                  id="dark-mode"
-                  checked={isDarkMode}
-                  onCheckedChange={handleThemeChange}
-                />
-              ) : (
-                // Placeholder during SSR to prevent layout shift
-                <div className="h-6 w-11 rounded-full bg-input" />
-              )}
+              {mounted
+                ? (
+                    <Switch
+                      id="dark-mode"
+                      checked={isDarkMode}
+                      onCheckedChange={handleThemeChange}
+                    />
+                  )
+                : (
+                  // Placeholder during SSR to prevent layout shift
+                    <div className="h-6 w-11 rounded-full bg-input" />
+                  )}
               <Moon className="h-4 w-4" />
               <Label htmlFor="dark-mode" className="sr-only">
                 Toggle dark mode
@@ -190,7 +202,10 @@ export default function FooterSection() {
         </div>
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground flex items-center gap-x-1">
-            <Copyright size={15} className="-mt-1" /> {new Date().getFullYear()}{" "}
+            <Copyright size={15} className="-mt-1" />
+            {" "}
+            {new Date().getFullYear()}
+            {" "}
             Examio. All rights reserved.
           </p>
           <nav className="flex gap-4 text-sm">
