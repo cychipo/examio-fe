@@ -27,7 +27,8 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="light"
           enableSystem={false}
-          disableTransitionOnChange>
+          disableTransitionOnChange
+        >
           <ToastProvider>
             <div className="min-h-screen [&::-webkit-scrollbar]:w-2">
               {children}

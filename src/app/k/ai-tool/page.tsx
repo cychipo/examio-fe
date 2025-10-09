@@ -16,7 +16,8 @@ export default function AIGeneratorPage() {
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold text-balance leading-tight">
-            Tạo đề kiểm tra và flashcard{" "}
+            Tạo đề kiểm tra và flashcard
+            {" "}
             <span className="text-primary">từ PDF</span>
           </h2>
 
@@ -34,13 +35,15 @@ export default function AIGeneratorPage() {
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-14 p-1 bg-card border border-border">
               <TabsTrigger
                 value="test"
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
                 <FileText className="w-4 h-4" />
                 <span className="font-medium">Đề kiểm tra</span>
               </TabsTrigger>
               <TabsTrigger
                 value="flashcard"
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
                 <SquareSplitVertical className="w-4 h-4" />
                 <span className="font-medium">Flashcard</span>
               </TabsTrigger>

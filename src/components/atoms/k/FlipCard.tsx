@@ -20,17 +20,20 @@ export function FlipCard({ front, back, className = "" }: FlipCardProps) {
     <div
       className={`relative h-80 cursor-pointer ${className}`}
       style={{ perspective: "1000px" }}
-      onClick={() => setIsFlipped(!isFlipped)}>
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
       <div
         className="relative w-full h-full transition-transform duration-500"
         style={{
           transformStyle: "preserve-3d",
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        }}>
+        }}
+      >
         {/* Front */}
         <div
           className="absolute inset-0"
-          style={{ backfaceVisibility: "hidden" }}>
+          style={{ backfaceVisibility: "hidden" }}
+        >
           <div className="w-full h-full p-8 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/30 flex items-center justify-center">
             <div className="text-center space-y-4">
               <div className="text-sm font-medium text-primary uppercase tracking-wide">
@@ -52,7 +55,8 @@ export function FlipCard({ front, back, className = "" }: FlipCardProps) {
           style={{
             backfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
-          }}>
+          }}
+        >
           <div className="w-full h-full p-8 rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 border-2 border-accent/30 flex items-center justify-center">
             <div className="text-center space-y-4">
               <div className="text-sm font-medium text-accent uppercase tracking-wide">

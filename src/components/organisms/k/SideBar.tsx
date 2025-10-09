@@ -48,7 +48,8 @@ export function SidebarKit() {
             <Link
               key={item.name}
               href={item.href}
-              className="flex flex-col items-center transition-colors p-1 rounded-md group max-w-14">
+              className="flex flex-col items-center transition-colors p-1 rounded-md group max-w-14"
+            >
               <span className="p-1 rounded-md transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
                 {item.icon}
               </span>
@@ -66,7 +67,8 @@ export function SidebarKit() {
             <Button
               variant="secondary"
               size="icon"
-              className="p-1 rounded-md cursor-pointer">
+              className="p-1 rounded-md cursor-pointer"
+            >
               <span className="p-1 rounded-md transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
                 <Gem size={20} className="text-blue-500" />
               </span>

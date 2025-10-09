@@ -18,7 +18,6 @@ import {
   FaFileSignature,
   FaFileMedical,
 } from "react-icons/fa";
-import Image from "next/image";
 
 const iconConfigs = [
   { Icon: FaGoogleDrive, color: "#61DAFB" },
@@ -57,7 +56,8 @@ export default function StackSection() {
         <div className="flex items-center gap-3">
           <Button
             variant="default"
-            className="bg-blue-600 hover:bg-blue-700 text-white">
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             <Link href="https://ruixen.com" target="_blank">
               {" "}
               Bắt đầu ngay
@@ -76,7 +76,7 @@ export default function StackSection() {
           </div>
 
           {/* Generate Orbits */}
-          {[...Array(orbitCount)].map((_, orbitIdx) => {
+          {[...Array.from({ length: orbitCount })].map((_, orbitIdx) => {
             const size = `${12 + orbitGap * (orbitIdx + 1)}rem`; // equal spacing
             const angleStep = (2 * Math.PI) / iconsPerOrbit;
 
@@ -88,18 +88,19 @@ export default function StackSection() {
                   width: size,
                   height: size,
                   animation: `spin ${12 + orbitIdx * 6}s linear infinite`,
-                }}>
+                }}
+              >
                 {iconConfigs
                   .slice(
                     orbitIdx * iconsPerOrbit,
-                    orbitIdx * iconsPerOrbit + iconsPerOrbit
+                    orbitIdx * iconsPerOrbit + iconsPerOrbit,
                   )
                   .map((cfg, iconIdx) => {
                     const angle = iconIdx * angleStep;
-                    const x =
-                      Math.round((50 + 50 * Math.cos(angle)) * 100) / 100;
-                    const y =
-                      Math.round((50 + 50 * Math.sin(angle)) * 100) / 100;
+                    const x
+                      = Math.round((50 + 50 * Math.cos(angle)) * 100) / 100;
+                    const y
+                      = Math.round((50 + 50 * Math.sin(angle)) * 100) / 100;
 
                     return (
                       <div
@@ -109,19 +110,22 @@ export default function StackSection() {
                           left: `${x}%`,
                           top: `${y}%`,
                           transform: "translate(-50%, -50%)",
-                        }}>
-                        {cfg.Icon ? (
-                          <cfg.Icon
-                            className="w-8 h-8"
-                            style={{ color: cfg.color }}
-                          />
-                        ) : (
-                          <Image
-                            src={cfg.Icon}
-                            alt="icon"
-                            className="w-8 h-8 object-contain"
-                          />
-                        )}
+                        }}
+                      >
+                        {cfg.Icon
+                          ? (
+                              <cfg.Icon
+                                className="w-8 h-8"
+                                style={{ color: cfg.color }}
+                              />
+                            )
+                          : (
+                              <img
+                                src=""
+                                alt="icon"
+                                className="w-8 h-8 object-contain"
+                              />
+                            )}
                       </div>
                     );
                   })}
@@ -132,7 +136,8 @@ export default function StackSection() {
       </div>
 
       {/* Animation keyframes */}
-      <style jsx>{`
+      <style jsx>
+        {`
         @keyframes spin {
           from {
             transform: rotate(0deg);
@@ -141,7 +146,8 @@ export default function StackSection() {
             transform: rotate(360deg);
           }
         }
-      `}</style>
+      `}
+      </style>
     </section>
   );
 }

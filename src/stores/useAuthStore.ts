@@ -67,7 +67,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } catch (error) {
       toast.error(
-        (error as Error).message || "Có lỗi xảy ra, vui lòng thử lại!"
+        (error as Error).message || "Có lỗi xảy ra, vui lòng thử lại!",
       );
       console.error("Có lỗi xảy ra, vui lòng thử lại!:", error);
       throw error;

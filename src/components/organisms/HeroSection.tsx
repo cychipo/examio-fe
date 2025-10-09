@@ -57,7 +57,8 @@ export function HeroSection() {
                   },
                 },
               }}
-              className="absolute inset-0 -z-20">
+              className="absolute inset-0 -z-20"
+            >
               {" "}
             </AnimatedGroup>
             <div
@@ -72,14 +73,18 @@ export function HeroSection() {
                   </h1>
                   <div className="text-center mx-auto mt-8 max-w-2xl text-balance text-lg">
                     <p className="leading-relaxed">
-                      Nền tảng của chúng tôi mang sức mạnh{" "}
+                      Nền tảng của chúng tôi mang sức mạnh
+                      {" "}
                       <Highlighter action="underline" color="#FF9800">
                         trí tuệ nhân tạo
-                      </Highlighter>{" "}
-                      để biến tài liệu thành{" "}
+                      </Highlighter>
+                      {" "}
+                      để biến tài liệu thành
+                      {" "}
                       <Highlighter action="highlight" color="#87CEFA">
                         bài kiểm tra, flashcard và tóm tắt
-                      </Highlighter>{" "}
+                      </Highlighter>
+                      {" "}
                       giúp học tập hiệu quả hơn.
                     </p>
                   </div>
@@ -97,15 +102,18 @@ export function HeroSection() {
                     },
                     ...transitionVariants,
                   }}
-                  className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row">
+                  className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row"
+                >
                   <div
                     key={1}
-                    className="bg-foreground/10 rounded-[14px] border p-0.5">
+                    className="bg-foreground/10 rounded-[14px] border p-0.5"
+                  >
                     <Button
-                      variant={"default"}
+                      variant="default"
                       asChild
                       size="lg"
-                      className="rounded-xl px-5 text-base bg-blue-600 hover:bg-blue-700 text-white">
+                      className="rounded-xl px-5 text-base bg-blue-600 hover:bg-blue-700 text-white"
+                    >
                       <Link href="#link">
                         <span className="text-nowrap">Bắt đầu ngay</span>
                       </Link>
@@ -116,7 +124,8 @@ export function HeroSection() {
                     asChild
                     size="lg"
                     variant="ghost"
-                    className="h-10.5 rounded-xl px-5">
+                    className="h-10.5 rounded-xl px-5"
+                  >
                     <Link href="#link">
                       <span className="text-nowrap text-base">Xem thêm</span>
                     </Link>
@@ -136,7 +145,8 @@ export function HeroSection() {
                   },
                 },
                 ...transitionVariants,
-              }}>
+              }}
+            >
               <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
                 <div
                   aria-hidden
