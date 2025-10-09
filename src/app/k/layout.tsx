@@ -26,8 +26,9 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col"
-      )}>
+        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col",
+      )}
+    >
       <div className="fixed bg-background h-[calc(100%)] md:w-20 w-0">
         <SidebarKit />
       </div>
@@ -35,7 +36,8 @@ export default function RootLayout({
         {/* Header */}
         <header
           className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80 "
-          style={{ width: "100%" }}>
+          style={{ width: "100%" }}
+        >
           <div className="container mx-auto py-4 px-2 w-full">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3">

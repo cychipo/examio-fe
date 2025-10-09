@@ -30,9 +30,10 @@ export function FloatingDock({ items, className }: FloatingDockProps) {
         "fixed bottom-0 left-1/2 -translate-x-1/2",
         "flex items-center gap-2 w-full justify-center",
         "bg-background border-t border-border shadow-lg",
-        className
+        className,
       )}
-      style={{ zIndex: 99999 }}>
+      style={{ zIndex: 99999 }}
+    >
       <AnimatePresence>
         {items.map((item, index) => (
           <motion.div
@@ -40,30 +41,35 @@ export function FloatingDock({ items, className }: FloatingDockProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            transition={{ delay: index * 0.05 }}>
-            {item.onClick ? (
-              <button
-                onClick={item.onClick}
-                className={cn(
-                  "flex flex-col items-center justify-center",
-                  "w-14 h-14 rounded-xl mx-auto",
-                  "transition-all duration-200",
-                  "active:scale-95"
-                )}>
-                <span className="text-foreground">{item.icon}</span>
-              </button>
-            ) : (
-              <Link
-                href={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center",
-                  "w-14 h-14 rounded-xl",
-                  "transition-all duration-200",
-                  "active:scale-95"
-                )}>
-                <span className="text-foreground">{item.icon}</span>
-              </Link>
-            )}
+            transition={{ delay: index * 0.05 }}
+          >
+            {item.onClick
+              ? (
+                  <button
+                    onClick={item.onClick}
+                    className={cn(
+                      "flex flex-col items-center justify-center",
+                      "w-14 h-14 rounded-xl mx-auto",
+                      "transition-all duration-200",
+                      "active:scale-95",
+                    )}
+                  >
+                    <span className="text-foreground">{item.icon}</span>
+                  </button>
+                )
+              : (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex flex-col items-center justify-center",
+                      "w-14 h-14 rounded-xl",
+                      "transition-all duration-200",
+                      "active:scale-95",
+                    )}
+                  >
+                    <span className="text-foreground">{item.icon}</span>
+                  </Link>
+                )}
           </motion.div>
         ))}
       </AnimatePresence>
@@ -71,6 +77,7 @@ export function FloatingDock({ items, className }: FloatingDockProps) {
   );
 
   // Render to body using portal to escape stacking context
-  if (!mounted) return null;
+  if (!mounted)
+    return null;
   return createPortal(dockContent, document.body);
 }

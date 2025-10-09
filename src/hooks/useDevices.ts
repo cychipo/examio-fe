@@ -40,68 +40,68 @@ export function useScreenBreakpoint() {
 
   const isSmallerThanSm = useMemo(
     () => (isMounted ? width < breakpoints.sm : false),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isSmallerThanMd = useMemo(
     () => (isMounted ? width < breakpoints.md : false),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isSmallerThanLg = useMemo(
     () => (isMounted ? width < breakpoints.lg : false),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isSmallerThanXl = useMemo(
     () => (isMounted ? width < breakpoints.xl : false),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isSmallerThan2xl = useMemo(
     () => (isMounted ? width < breakpoints["2xl"] : false),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isGreaterThanSm = useMemo(
     () => (isMounted ? width >= breakpoints.sm : true),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isGreaterThanMd = useMemo(
     () => (isMounted ? width >= breakpoints.md : true),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isGreaterThanLg = useMemo(
     () => (isMounted ? width >= breakpoints.lg : true),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isGreaterThanXl = useMemo(
     () => (isMounted ? width >= breakpoints.xl : true),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isGreaterThan2xl = useMemo(
     () => (isMounted ? width >= breakpoints["2xl"] : true),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isMobile = useMemo(
     () => (isMounted ? width < breakpoints.md : false),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isTablet = useMemo(
     () =>
       isMounted ? width >= breakpoints.md && width < breakpoints.lg : false,
-    [isMounted, width]
+    [isMounted, width],
   );
 
   const isDesktop = useMemo(
     () => (isMounted ? width >= breakpoints.lg : true),
-    [isMounted, width]
+    [isMounted, width],
   );
 
   return {

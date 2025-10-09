@@ -69,13 +69,17 @@ export function SidebarKit() {
       {
         name: "Theme",
         href: "#",
-        icon: !mounted ? (
-          <Sun size={20} />
-        ) : isDarkMode ? (
-          <Sun size={20} />
-        ) : (
-          <Moon size={20} />
-        ),
+        icon: !mounted
+          ? (
+              <Sun size={20} />
+            )
+          : isDarkMode
+            ? (
+                <Sun size={20} />
+              )
+            : (
+                <Moon size={20} />
+              ),
         label: "Theme",
         onClick: handleThemeChange,
       },
@@ -104,7 +108,8 @@ export function SidebarKit() {
             <Link
               key={item.name}
               href={item.href}
-              className="flex flex-col items-center transition-colors p-1 rounded-md group max-w-14">
+              className="flex flex-col items-center transition-colors p-1 rounded-md group max-w-14"
+            >
               <span className="p-1 rounded-md transition-colors group-hover:bg-accent group-hover:text-accent-foreground">
                 {item.icon}
               </span>
@@ -123,15 +128,20 @@ export function SidebarKit() {
               variant="outline"
               size="icon"
               className="p-1 rounded-md cursor-pointer hover:bg-transparent"
-              onClick={handleThemeChange}>
+              onClick={handleThemeChange}
+            >
               <span className="p-1 rounded-md transition-colors">
-                {!mounted ? (
-                  <Sun size={20} className="text-blue-500" />
-                ) : isDarkMode ? (
-                  <Sun size={20} className="text-blue-500" />
-                ) : (
-                  <Moon size={20} className="text-blue-500" />
-                )}
+                {!mounted
+                  ? (
+                      <Sun size={20} className="text-blue-500" />
+                    )
+                  : isDarkMode
+                    ? (
+                        <Sun size={20} className="text-blue-500" />
+                      )
+                    : (
+                        <Moon size={20} className="text-blue-500" />
+                      )}
               </span>
             </Button>
           </TooltipTrigger>
@@ -144,7 +154,8 @@ export function SidebarKit() {
             <Button
               variant="outline"
               size="icon"
-              className="p-1 rounded-md cursor-pointer hover:bg-transparent">
+              className="p-1 rounded-md cursor-pointer hover:bg-transparent"
+            >
               <span className="p-1 rounded-md transition-colors">
                 <Gem size={20} className="text-blue-500" />
               </span>

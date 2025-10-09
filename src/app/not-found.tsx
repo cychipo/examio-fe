@@ -28,7 +28,7 @@ export default function NotFound() {
             Trang này đã rơi vào hư không.
           </p>
           <p className="text-sm md:text-base glitch-subtitle font-extralight text-red-600">
-            {"// LỖI: Reality.exe đã ngừng hoạt động"}
+            // LỖI: Reality.exe đã ngừng hoạt động
           </p>
         </div>
 
