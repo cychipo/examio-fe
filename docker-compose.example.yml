@@ -1,9 +1,10 @@
 services:
   examio-fe:
-    image: examio-fe-build-gha
+    build:
+      context: .
     container_name: examio-fe
     ports:
-      - "6368:80"
+      - "6368:3000"
     environment:
       - NODE_ENV=production
     restart: unless-stopped
