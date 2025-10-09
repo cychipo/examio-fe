@@ -5,15 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
 
     steps:
       - name: Check required secrets and variables
@@ -58,7 +52,6 @@ jobs:
 
             git fetch "$GIT_URL" "$BRANCH"
             git reset --hard FETCH_HEAD
-            git clean -fd
 
             echo "🚀 $BRANCH → $COMPOSE_FILE"
             docker compose -f "$COMPOSE_FILE" build
