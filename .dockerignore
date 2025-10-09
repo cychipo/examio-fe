@@ -43,4 +43,10 @@ next-env.d.ts
 # docker compose files
 docker-compose.yml
 docker-compose.*.yml
-!docker-compose.example.yml
+
+# misc
+.git
+.gitignore
+.dockerignore
+.github
+.vscode

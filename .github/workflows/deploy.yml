@@ -5,72 +5,30 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  validate:
+  deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
 
     steps:
       - name: Check required secrets and variables
         run: |
-          [[ -n "${{ secrets.SERVER_HOST }}" ]] || { echo "❌ SERVER_HOST secret missing"; exit 1; }
-          [[ -n "${{ secrets.SERVER_SSH_PORT }}" ]] || { echo "❌ SERVER_SSH_PORT secret missing"; exit 1; }
-          [[ -n "${{ secrets.SERVER_USER }}" ]] || { echo "❌ SERVER_USER secret missing"; exit 1; }
-          [[ -n "${{ secrets.SERVER_SSH_KEY }}" ]] || { echo "❌ SERVER_SSH_KEY secret missing"; exit 1; }
-          [[ -n "${{ vars.DOCKER_COMPOSE_DIR }}" ]] || { echo "❌ DOCKER_COMPOSE_DIR variable missing"; exit 1; }
-          [[ -n "${{ vars.DOCKER_COMPOSE_SERVICE }}" ]] || { echo "❌ DOCKER_COMPOSE_SERVICE variable missing"; exit 1; }
-          [[ -n "${{ vars.NEXT_PUBLIC_API_URL }}" ]] || { echo "❌ NEXT_PUBLIC_API_URL variable missing"; exit 1; }
-          echo "✅ All secrets and variables configured"
+          MISSING=()
+          [[ -z "${{ secrets.SERVER_HOST }}" ]] && MISSING+=("secrets.SERVER_HOST")
+          [[ -z "${{ secrets.SERVER_SSH_PORT }}" ]] && MISSING+=("secrets.SERVER_SSH_PORT")
+          [[ -z "${{ secrets.SERVER_USER }}" ]] && MISSING+=("secrets.SERVER_USER")
+          [[ -z "${{ secrets.SERVER_SSH_KEY }}" ]] && MISSING+=("secrets.SERVER_SSH_KEY")
+          [[ -z "${{ secrets.SERVER_DEPLOY_DIR }}" ]] && MISSING+=("secrets.SERVER_DEPLOY_DIR")
 
-  build:
-    needs: validate
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+          [ ${#MISSING[@]} -gt 0 ] && { echo "❌ Missing: ${MISSING[*]}"; exit 1; }
+          echo "✅ All configured"
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Create .env file
-        run: |
-          cp .env.example .env
-          echo -e "\n" >> .env
-          echo -e "NEXT_PUBLIC_API_URL=${{vars.NEXT_PUBLIC_API_URL}}\n" >> .env
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          load: true
-          tags: examio-fe-build-gha:latest
-          cache-from: type=gha
-          cache-to: type=gha
-
-      - name: Save Docker image to tarball
-        run: |
-          docker save -o examio-fe-build-gha.tar examio-fe-build-gha:latest
-          chmod +r examio-fe-build-gha.tar
-
-      - name: Copy image to remote server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          port: ${{ secrets.SERVER_SSH_PORT }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          source: examio-fe-build-gha.tar
-          target: /tmp
-
-  deploy:
-    needs: [validate, build]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: SSH and deploy to test environment
+      - name: Build and deploy on server
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -78,8 +36,30 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd ${{ vars.DOCKER_COMPOSE_DIR }}
-            docker load -i /tmp/examio-fe-build-gha.tar
-            docker compose stop ${{ vars.DOCKER_COMPOSE_SERVICE }} || true
-            docker compose rm ${{ vars.DOCKER_COMPOSE_SERVICE }} || true
-            docker compose up -d ${{ vars.DOCKER_COMPOSE_SERVICE }}
+            set -e
+            DEPLOY_DIR="${{ secrets.SERVER_DEPLOY_DIR }}"
+            TOKEN="${{ secrets.PAT_TOKEN }}"
+            BRANCH="${{ github.ref_name }}"
+            REPO="${{ github.repository }}"
+
+            cd "$DEPLOY_DIR" || exit 1
+            [ -d ".git" ] || { echo "❌ Not a git repo"; exit 1; }
+
+            # Determine which docker-compose file to use
+            # If branch is main, use docker-compose.yml
+            # Otherwise, use docker-compose.<branch-name>.yml, with slashes replaced by dashes
+            # e.g., feature/abc -> docker-compose.feature-abc.yml
+            COMPOSE_FILE="docker-compose.yml"
+            [ "$BRANCH" != "main" ] && COMPOSE_FILE="docker-compose.${BRANCH//\//-}.yml"
+            [ -f "$COMPOSE_FILE" ] || { echo "❌ $COMPOSE_FILE not found"; exit 1; }
+
+            GIT_URL="https://github.com/$REPO.git"
+            [ -n "$TOKEN" ] && GIT_URL="https://$TOKEN@github.com/$REPO.git"
+
+            git fetch "$GIT_URL" "$BRANCH"
+            git reset --hard FETCH_HEAD
+
+            echo "🚀 $BRANCH → $COMPOSE_FILE"
+            docker compose -f "$COMPOSE_FILE" build
+            docker compose -f "$COMPOSE_FILE" down
+            docker compose -f "$COMPOSE_FILE" up -d
