@@ -2,13 +2,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestGenerator } from "@/components/organisms/k/TestGenerator";
 import { FlashcardGenerator } from "@/components/organisms/k/FlashcardGenerator";
-import { Sparkles, FileText, Brain } from "lucide-react";
+import { Sparkles, FileText, SquareSplitVertical } from "lucide-react";
 
 export default function AIGeneratorPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-12 md:py-20">
+      <section className="container mx-auto px-4 mt-4">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
             <Sparkles className="w-4 h-4" />
@@ -28,7 +28,7 @@ export default function AIGeneratorPage() {
       </section>
 
       {/* Main Content */}
-      <section className="container mx-auto px-4 pb-20">
+      <section className="container mx-auto px-4 pb-20 mt-4">
         <div className="max-w-5xl mx-auto">
           <Tabs defaultValue="test" className="w-full">
             <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-14 p-1 bg-card border border-border">
@@ -41,7 +41,7 @@ export default function AIGeneratorPage() {
               <TabsTrigger
                 value="flashcard"
                 className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Brain className="w-4 h-4" />
+                <SquareSplitVertical className="w-4 h-4" />
                 <span className="font-medium">Flashcard</span>
               </TabsTrigger>
             </TabsList>
