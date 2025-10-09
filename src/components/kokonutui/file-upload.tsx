@@ -425,7 +425,8 @@ export default function FileUpload({
     <div
       className={cn("relative w-full h-full mx-auto", className || "")}
       role="complementary"
-      aria-label="File upload">
+      aria-label="File upload"
+      style={{ zIndex: 10 }}>
       <div className="group relative w-full rounded-xl bg-white dark:bg-black ring-1 ring-gray-200 dark:ring-white/10 p-0.5">
         <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
 
