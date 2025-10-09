@@ -9,7 +9,8 @@ export default function Logo({ className }: { className?: string }) {
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black dark:text-white">
+        className="font-medium whitespace-pre text-black dark:text-white"
+      >
         <p className="text-2xl">Examio</p>
       </motion.span>
     </div>

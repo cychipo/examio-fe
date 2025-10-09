@@ -45,10 +45,7 @@ interface GeneratedCards {
 }
 
 // Mock data generator
-const generateMockFlashcards = (
-  count: number,
-  keyword?: string
-): Flashcard[] => {
+function generateMockFlashcards(count: number, keyword?: string): Flashcard[] {
   const topics = [
     {
       front: "Photosynthesis là gì?",
@@ -108,7 +105,7 @@ const generateMockFlashcards = (
   }
 
   return cards;
-};
+}
 
 export function FlashcardGenerator() {
   const [file, setFile] = useState<File | null>(null);
@@ -117,7 +114,7 @@ export function FlashcardGenerator() {
   const [isNarrow, setIsNarrow] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [generatedCards, setGeneratedCards] = useState<GeneratedCards | null>(
-    null
+    null,
   );
   const [currentCard, setCurrentCard] = useState(0);
   const { toast } = useToast();
@@ -127,9 +124,9 @@ export function FlashcardGenerator() {
     toast({
       title: "File đã được tải lên",
       description: `${uploadedFile.name} (${(
-        uploadedFile.size /
-        1024 /
-        1024
+        uploadedFile.size
+        / 1024
+        / 1024
       ).toFixed(2)} MB)`,
     });
   };
@@ -176,7 +173,7 @@ export function FlashcardGenerator() {
     setTimeout(() => {
       const mockCards = generateMockFlashcards(
         cardCount[0],
-        isNarrow ? keyword : undefined
+        isNarrow ? keyword : undefined,
       );
       setGeneratedCards({ cards: mockCards });
       setCurrentCard(0);
@@ -215,28 +212,32 @@ export function FlashcardGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {!file ? (
-            <FileUpload
-              acceptedFileTypes={[".pdf", "application/pdf"]}
-              maxFileSize={10485760}
-              className="w-full h-full"
-              onUploadSuccess={handleFileUpload}
-              onUploadError={handleFileError}
-              uploadDelay={2000}
-            />
-          ) : (
-            <ItemFileDetail
-              fileName={file.name}
-              fileSize={file.size}
-              onRemove={handleRemoveFile}
-            />
-          )}
+          {!file
+            ? (
+                <FileUpload
+                  acceptedFileTypes={[".pdf", "application/pdf"]}
+                  maxFileSize={10485760}
+                  className="w-full h-full"
+                  onUploadSuccess={handleFileUpload}
+                  onUploadError={handleFileError}
+                  uploadDelay={2000}
+                />
+              )
+            : (
+                <ItemFileDetail
+                  fileName={file.name}
+                  fileSize={file.size}
+                  onRemove={handleRemoveFile}
+                />
+              )}
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label>Số lượng câu hỏi</Label>
               <span className="text-sm font-medium text-primary">
-                {cardCount[0]} câu
+                {cardCount[0]}
+                {" "}
+                câu
               </span>
             </div>
             <Slider
@@ -252,7 +253,8 @@ export function FlashcardGenerator() {
           <div className="flex items-center justify-between">
             <Label
               htmlFor="narrow-toggle"
-              className="flex items-center gap-2 cursor-pointer">
+              className="flex items-center gap-2 cursor-pointer"
+            >
               Định dạng thẻ hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -292,18 +294,21 @@ export function FlashcardGenerator() {
             onClick={handleGenerate}
             disabled={!file || isGenerating}
             className="w-full h-12 text-base font-medium"
-            size="lg">
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Đang tạo flashcard...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5 mr-2" />
-                Tạo flashcard
-              </>
-            )}
+            size="lg"
+          >
+            {isGenerating
+              ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Đang tạo flashcard...
+                  </>
+                )
+              : (
+                  <>
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Tạo flashcard
+                  </>
+                )}
           </Button>
         </CardContent>
       </Card>
@@ -320,62 +325,74 @@ export function FlashcardGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isGenerating ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <AILoadingState />
-            </div>
-          ) : !generatedCards ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <SquareSplitVertical className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">
-                Tải lên file PDF và nhấn Tạo flashcard để xem kết quả
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {/* Card Counter */}
-              <div className="text-center text-sm text-muted-foreground">
-                Thẻ {currentCard + 1} / {generatedCards.cards.length}
-              </div>
+          {isGenerating
+            ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <AILoadingState />
+                </div>
+              )
+            : !generatedCards
+                ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <SquareSplitVertical className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <p className="text-muted-foreground">
+                        Tải lên file PDF và nhấn Tạo flashcard để xem kết quả
+                      </p>
+                    </div>
+                  )
+                : (
+                    <div className="space-y-4">
+                      {/* Card Counter */}
+                      <div className="text-center text-sm text-muted-foreground">
+                        Thẻ
+                        {" "}
+                        {currentCard + 1}
+                        {" "}
+                        /
+                        {" "}
+                        {generatedCards.cards.length}
+                      </div>
 
-              {/* Flashcard */}
-              <FlipCard
-                front={{
-                  label: "Câu hỏi",
-                  content: generatedCards.cards[currentCard].front,
-                  hint: "Nhấn để xem câu trả lời",
-                }}
-                back={{
-                  label: "Câu trả lời",
-                  content: generatedCards.cards[currentCard].back,
-                }}
-              />
+                      {/* Flashcard */}
+                      <FlipCard
+                        front={{
+                          label: "Câu hỏi",
+                          content: generatedCards.cards[currentCard].front,
+                          hint: "Nhấn để xem câu trả lời",
+                        }}
+                        back={{
+                          label: "Câu trả lời",
+                          content: generatedCards.cards[currentCard].back,
+                        }}
+                      />
 
-              {/* Navigation */}
-              <div className="flex items-center justify-between gap-4">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={prevCard}
-                  disabled={currentCard === 0}
-                  className="flex-1 bg-transparent">
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Trước
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={nextCard}
-                  disabled={currentCard === generatedCards.cards.length - 1}
-                  className="flex-1 bg-transparent">
-                  Sau
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            </div>
-          )}
+                      {/* Navigation */}
+                      <div className="flex items-center justify-between gap-4">
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          onClick={prevCard}
+                          disabled={currentCard === 0}
+                          className="flex-1 bg-transparent"
+                        >
+                          <ChevronLeft className="w-4 h-4 mr-2" />
+                          Trước
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          onClick={nextCard}
+                          disabled={currentCard === generatedCards.cards.length - 1}
+                          className="flex-1 bg-transparent"
+                        >
+                          Sau
+                          <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
         </CardContent>
       </Card>
     </div>

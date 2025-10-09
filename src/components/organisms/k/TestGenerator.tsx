@@ -46,7 +46,7 @@ interface GeneratedTest {
 }
 
 // Mock data generator
-const generateMockTest = (count: number, keyword?: string): GeneratedTest => {
+function generateMockTest(count: number, keyword?: string): GeneratedTest {
   const allQuestions = [
     {
       question: "React được phát triển bởi công ty nào?",
@@ -148,7 +148,7 @@ const generateMockTest = (count: number, keyword?: string): GeneratedTest => {
       : "Đề kiểm tra được tạo từ AI",
     questions,
   };
-};
+}
 
 export function TestGenerator() {
   const [file, setFile] = useState<File | null>(null);
@@ -157,7 +157,7 @@ export function TestGenerator() {
   const [isNarrow, setIsNarrow] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [generatedTest, setGeneratedTest] = useState<GeneratedTest | null>(
-    null
+    null,
   );
   const { toast } = useToast();
 
@@ -166,9 +166,9 @@ export function TestGenerator() {
     toast({
       title: "File đã được tải lên",
       description: `${uploadedFile.name} (${(
-        uploadedFile.size /
-        1024 /
-        1024
+        uploadedFile.size
+        / 1024
+        / 1024
       ).toFixed(2)} MB)`,
     });
   };
@@ -215,7 +215,7 @@ export function TestGenerator() {
     setTimeout(() => {
       const mockTest = generateMockTest(
         questionCount[0],
-        isNarrow ? keyword : undefined
+        isNarrow ? keyword : undefined,
       );
       setGeneratedTest(mockTest);
       setIsGenerating(false);
@@ -241,29 +241,33 @@ export function TestGenerator() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* File Upload */}
-          {!file ? (
-            <FileUpload
-              acceptedFileTypes={[".pdf", "application/pdf"]}
-              maxFileSize={10485760}
-              className="w-full h-full"
-              onUploadSuccess={handleFileUpload}
-              onUploadError={handleFileError}
-              uploadDelay={2000}
-            />
-          ) : (
-            <ItemFileDetail
-              fileName={file.name}
-              fileSize={file.size}
-              onRemove={handleRemoveFile}
-            />
-          )}
+          {!file
+            ? (
+                <FileUpload
+                  acceptedFileTypes={[".pdf", "application/pdf"]}
+                  maxFileSize={10485760}
+                  className="w-full h-full"
+                  onUploadSuccess={handleFileUpload}
+                  onUploadError={handleFileError}
+                  uploadDelay={2000}
+                />
+              )
+            : (
+                <ItemFileDetail
+                  fileName={file.name}
+                  fileSize={file.size}
+                  onRemove={handleRemoveFile}
+                />
+              )}
 
           {/* Question Count */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label>Số lượng câu hỏi</Label>
               <span className="text-sm font-medium text-primary">
-                {questionCount[0]} câu
+                {questionCount[0]}
+                {" "}
+                câu
               </span>
             </div>
             <Slider
@@ -280,7 +284,8 @@ export function TestGenerator() {
           <div className="flex items-center justify-between">
             <Label
               htmlFor="narrow-toggle-test"
-              className="flex items-center gap-2 cursor-pointer">
+              className="flex items-center gap-2 cursor-pointer"
+            >
               Định dạng hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -322,18 +327,21 @@ export function TestGenerator() {
             onClick={handleGenerate}
             disabled={!file || isGenerating}
             className="w-full h-12 text-base font-medium"
-            size="lg">
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Đang tạo đề...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5 mr-2" />
-                Tạo đề kiểm tra
-              </>
-            )}
+            size="lg"
+          >
+            {isGenerating
+              ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Đang tạo đề...
+                  </>
+                )
+              : (
+                  <>
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Tạo đề kiểm tra
+                  </>
+                )}
           </Button>
         </CardContent>
       </Card>
@@ -348,54 +356,63 @@ export function TestGenerator() {
           <CardDescription>Kết quả đề kiểm tra được tạo bởi AI</CardDescription>
         </CardHeader>
         <CardContent>
-          {isGenerating ? (
-            <div className="flex items-center justify-center min-h-[400px]">
-              <AILoadingState />
-            </div>
-          ) : !generatedTest ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FileText className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <p className="text-muted-foreground">
-                Tải lên file PDF và nhấn Tạo đề kiểm tra để xem kết quả
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">{generatedTest.title}</h3>
-                <Button variant="outline" size="sm">
-                  <Download className="w-4 h-4 mr-2" />
-                  Tải xuống
-                </Button>
-              </div>
-
-              <ScrollArea className=" rounded-md border">
-                <div className="space-y-4 max-h-[500px] p-2">
-                  {generatedTest.questions.slice(0, 3).map((q) => (
-                    <div
-                      key={q.id}
-                      className="p-4 rounded-lg bg-secondary/50 border border-border space-y-2">
-                      <p className="font-medium text-foreground">
-                        {q.question}
-                      </p>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        {q.options.map((opt: string, idx: number) => (
-                          <div key={idx}>{opt}</div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  {generatedTest.questions.length > 3 && (
-                    <p className="text-center text-sm text-muted-foreground">
-                      ... và {generatedTest.questions.length - 3} câu hỏi khác
-                    </p>
-                  )}
+          {isGenerating
+            ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <AILoadingState />
                 </div>
-              </ScrollArea>
-            </div>
-          )}
+              )
+            : !generatedTest
+                ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center">
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                        <FileText className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <p className="text-muted-foreground">
+                        Tải lên file PDF và nhấn Tạo đề kiểm tra để xem kết quả
+                      </p>
+                    </div>
+                  )
+                : (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-lg">{generatedTest.title}</h3>
+                        <Button variant="outline" size="sm">
+                          <Download className="w-4 h-4 mr-2" />
+                          Tải xuống
+                        </Button>
+                      </div>
+
+                      <ScrollArea className=" rounded-md border">
+                        <div className="space-y-4 max-h-[500px] p-2">
+                          {generatedTest.questions.slice(0, 3).map((q) => (
+                            <div
+                              key={q.id}
+                              className="p-4 rounded-lg bg-secondary/50 border border-border space-y-2"
+                            >
+                              <p className="font-medium text-foreground">
+                                {q.question}
+                              </p>
+                              <div className="space-y-1 text-sm text-muted-foreground">
+                                {q.options.map((opt: string, idx: number) => (
+                                  <div key={idx}>{opt}</div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                          {generatedTest.questions.length > 3 && (
+                            <p className="text-center text-sm text-muted-foreground">
+                              ... và
+                              {" "}
+                              {generatedTest.questions.length - 3}
+                              {" "}
+                              câu hỏi khác
+                            </p>
+                          )}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  )}
         </CardContent>
       </Card>
     </div>
