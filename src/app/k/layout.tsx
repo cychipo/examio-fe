@@ -32,7 +32,7 @@ export default function RootLayout({
       <div className="fixed bg-background h-[calc(100%)] md:w-20 w-0">
         <SidebarKit />
       </div>
-      <div className="w-full md:ml-20 m-0">
+      <div className="w-full md:ml-20 m-0 md:p-1 pb-20">
         {/* Header */}
         <header
           className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80 "
@@ -46,9 +46,11 @@ export default function RootLayout({
                 </div>
                 <div>
                   <h1 className="md:text-xl font-bold text-foreground text-sm">
-                    AI Study Generator
+                    Tạo đề kiểm tra/flashcard
                   </h1>
-                  <p className="text-xs text-muted-foreground">Powered by AI</p>
+                  <p className="text-xs text-muted-foreground">
+                    Sử dụng AI để tạo
+                  </p>
                 </div>
               </div>
 
