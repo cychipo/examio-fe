@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { TestCard } from "@/components/organisms/k/TestCard";
+import type { DifficultyLevel } from "@/components/atoms/k/DifficultyBadge";
 
 // Mock data
 const mockTests = [
@@ -34,7 +35,7 @@ const mockTests = [
     questionCount: 25,
     createdAt: "2024-01-15",
     category: "Toán học",
-    difficulty: "Trung bình",
+    difficulty: "intermediate" as DifficultyLevel,
     duration: 45,
     completionRate: 85,
     lastAttempt: "2024-01-20",
@@ -49,7 +50,7 @@ const mockTests = [
     questionCount: 30,
     createdAt: "2024-01-14",
     category: "Vật lý",
-    difficulty: "Khó",
+    difficulty: "advanced" as DifficultyLevel,
     duration: 60,
     completionRate: 70,
     lastAttempt: "2024-01-19",
@@ -64,7 +65,7 @@ const mockTests = [
     questionCount: 20,
     createdAt: "2024-01-13",
     category: "Hóa học",
-    difficulty: "Dễ",
+    difficulty: "beginner" as DifficultyLevel,
     duration: 30,
     completionRate: 95,
     lastAttempt: "2024-01-18",
@@ -79,7 +80,7 @@ const mockTests = [
     questionCount: 40,
     createdAt: "2024-01-12",
     category: "Tiếng Anh",
-    difficulty: "Khó",
+    difficulty: "advanced" as DifficultyLevel,
     duration: 50,
     completionRate: 60,
     lastAttempt: "2024-01-17",
@@ -94,7 +95,7 @@ const mockTests = [
     questionCount: 35,
     createdAt: "2024-01-11",
     category: "Lịch sử",
-    difficulty: "Trung bình",
+    difficulty: "intermediate" as DifficultyLevel,
     duration: 40,
     completionRate: 80,
     lastAttempt: "2024-01-16",
@@ -109,7 +110,7 @@ const mockTests = [
     questionCount: 28,
     createdAt: "2024-01-10",
     category: "Sinh học",
-    difficulty: "Trung bình",
+    difficulty: "intermediate" as DifficultyLevel,
     duration: 45,
     completionRate: 75,
     lastAttempt: null,
