@@ -25,15 +25,21 @@ export function SigninForm() {
     useAuthStore();
   const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
     const credential = formData.get("credential") as string;
     const password = formData.get("password") as string;
 
-    login({ credential, password });
-    router.push("/k");
+    try {
+      await login({ credential, password });
+      // Đợi một chút để cookie được set
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      router.push("/k");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
   };
 
   return (
