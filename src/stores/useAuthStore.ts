@@ -44,9 +44,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (response.success) {
         set({ user: response.user, isAuthenticated: true });
         toast.success("Đăng nhập thành công");
+        return Promise.resolve(); // Resolve successfully
       } else {
         toast.error(response.message || "Đăng nhập thất bại");
         console.error(response.message || "Đăng nhập thất bại");
+        return Promise.reject(
+          new Error(response.message || "Đăng nhập thất bại")
+        );
       }
     } catch (error) {
       toast.error((error as Error).message || "Đăng nhập thất bại");
