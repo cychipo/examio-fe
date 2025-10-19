@@ -16,4 +16,7 @@ export interface User {
   password?: string;
   createdAt: Date;
   updatedAt: Date;
+  wallet: {
+    balance: number;
+  };
 }

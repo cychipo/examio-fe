@@ -1,17 +1,7 @@
 import { SidebarKit } from "@/components/organisms/k/SideBar";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
-import { Sparkles, LogOut, Settings, CreditCard, User } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Examio - Quản lý",
@@ -26,18 +16,14 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col",
-      )}
-    >
-      <div className="fixed bg-background h-[calc(100%)] md:w-20 w-0">
+        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col"
+      )}>
+      <div className="fixed bg-background h-[calc(100%)] md:w-[288px] w-0 z-[100]">
         <SidebarKit />
       </div>
-      <div className="w-full md:ml-20 m-0 md:p-1 pb-20">
+      <div className="w-full m-0 md:p-1 pb-20  md:ml-[288px]">
         {/* Header */}
-        <header
-          className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80 "
-          style={{ width: "100%" }}
-        >
+        <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80 ">
           <div className="container mx-auto py-4 px-2 w-full">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3">
@@ -58,38 +44,6 @@ export default function RootLayout({
                 <div className="border p-2 rounded-xl md:text-sm text-xs text-nowrap font-semibold cursor-pointer">
                   200 Credits
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Avatar className="w-10 h-10 cursor-pointer">
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-fit" align="center">
-                    <DropdownMenuLabel className="font-semibold">
-                      Tài khoản
-                    </DropdownMenuLabel>
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem>
-                        <User className="h-4 w-4" />
-                        Hồ sơ
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <CreditCard className="h-4 w-4" />
-                        Thanh toán
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Settings className="h-4 w-4" />
-                        Cài đặt
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">
-                      <LogOut className="h-4 w-4" />
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
           </div>

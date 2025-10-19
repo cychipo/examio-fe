@@ -15,15 +15,15 @@ api.interceptors.response.use(
       const errorData = error.response.data as ErrorResponseData;
 
       if (errorData.message) {
-        console.error("Backend Error:", errorData.message);
-        throw new Error(errorData.message);
+        console.log("Backend Error:", errorData.message);
+        return errorData.message;
       }
 
       if (errorData.error) {
-        console.error("Backend Error:", errorData.error);
-        throw new Error(errorData.error);
+        console.log("Backend Error:", errorData.error);
+        return errorData.error;
       }
     }
     return Promise.reject(error);
-  },
+  }
 );
