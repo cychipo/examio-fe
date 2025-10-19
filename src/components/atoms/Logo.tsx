@@ -2,16 +2,28 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { motion } from "motion/react";
 
-export default function Logo({ className }: { className?: string }) {
+interface LogoProps {
+  className?: string;
+  sizeLogo?: number;
+  sizeText?: number;
+}
+
+export default function Logo({ className, sizeLogo, sizeText }: LogoProps) {
   return (
     <div className={cn("flex items-center space-x-2", className)}>
-      <Image src="/favicon.svg" alt="Logo" width={32} height={32} />
+      <Image
+        src="/favicon.svg"
+        alt="Logo"
+        width={sizeLogo ?? 32}
+        height={sizeLogo ?? 32}
+      />
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black dark:text-white"
-      >
-        <p className="text-2xl">Examio</p>
+        className="font-medium whitespace-pre text-black dark:text-white">
+        <p className={cn(sizeText ? `text-[${sizeText}px]` : "text-2xl")}>
+          Examio
+        </p>
       </motion.span>
     </div>
   );

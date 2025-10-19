@@ -9,6 +9,7 @@ import {
   CredentialsSignup,
   SendCodeResetPassWordCredentials,
   ResetPasswordCredentials,
+  getUserApi,
 } from "@/apis/authApi";
 import { toast } from "@/components/ui/toast";
 
@@ -16,6 +17,7 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
+  initializing: boolean; // Track initial user check to prevent flash
   login: (credentials: CredentialsLogin) => Promise<void>;
   signup: (credentials: CredentialsSignup) => Promise<void>;
   sendCodeResetPassword: (
@@ -33,6 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
   loading: false,
+  initializing: true, // Start as true to prevent flash
 
   login: async (credentials) => {
     set({ loading: true });
@@ -67,7 +70,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       }
     } catch (error) {
       toast.error(
-        (error as Error).message || "Có lỗi xảy ra, vui lòng thử lại!",
+        (error as Error).message || "Có lỗi xảy ra, vui lòng thử lại!"
       );
       console.error("Có lỗi xảy ra, vui lòng thử lại!:", error);
       throw error;
@@ -118,12 +121,20 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, isAuthenticated: false });
   },
 
-  getUser: () => {
-    const user = localStorage.getItem("examio_user");
-    if (user) {
-      set({ user: JSON.parse(user), isAuthenticated: true });
-    } else {
+  getUser: async () => {
+    set({ initializing: true });
+    try {
+      const user = await getUserApi();
+      if (user) {
+        set({ user: user.user, isAuthenticated: true });
+      } else {
+        set({ user: null, isAuthenticated: false });
+      }
+    } catch (error) {
+      console.error("Failed to get user:", error);
       set({ user: null, isAuthenticated: false });
+    } finally {
+      set({ initializing: false });
     }
   },
 

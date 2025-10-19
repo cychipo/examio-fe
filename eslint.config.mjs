@@ -3,11 +3,8 @@ import antfu from "@antfu/eslint-config";
 export default antfu(
   {
     type: "app",
-    stylistic: {
-      semi: true,
-      indent: 2,
-      quotes: "double",
-    },
+    // Disable the built-in stylistic rules (these can produce strict JSX line-break errors)
+    stylistic: false,
     imports: true,
     unicorn: true,
     typescript: {
@@ -61,6 +58,9 @@ export default antfu(
       "style/brace-style": "off",
       "style/quote-props": "off",
       "import/consistent-type-specifier-style": "off",
+      // disable trailing-comma checks (some configs call it `comma-dangle` or `style/comma-dangle`)
+      "comma-dangle": "off",
+      "style/comma-dangle": "off",
     },
-  },
+  }
 );

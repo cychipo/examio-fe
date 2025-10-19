@@ -1,3 +1,6 @@
+import { redirect } from "next/navigation";
+
 export default function Page() {
-  return <div className="flex flex-1 flex-col p-4">Content</div>;
+  redirect("/k/ai-tool");
+  return <div className="flex flex-1 flex-col p-4"></div>;
 }

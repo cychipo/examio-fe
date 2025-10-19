@@ -41,25 +41,38 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
-export async function loginApi(credentials: CredentialsLogin): Promise<LoginResponse> {
+export async function loginApi(
+  credentials: CredentialsLogin
+): Promise<LoginResponse> {
   const response = await api.post("/auth/login", credentials);
   return response.data;
 }
 
-export async function signupApi(credentials: CredentialsSignup): Promise<SignupResponse> {
+export async function signupApi(
+  credentials: CredentialsSignup
+): Promise<SignupResponse> {
   const response = await api.post("/auth/register", credentials);
   return response.data;
 }
 
-export async function sendCodeResetPasswordApi(credentials: SendCodeResetPassWordCredentials): Promise<SendCodeResetPassWordResponse> {
+export async function sendCodeResetPasswordApi(
+  credentials: SendCodeResetPassWordCredentials
+): Promise<SendCodeResetPassWordResponse> {
   const response = await api.post(
     "/auth/send-code-reset-password",
-    credentials,
+    credentials
   );
   return response.data;
 }
 
-export async function resetPasswordApi(credentials: ResetPasswordCredentials): Promise<ResetPasswordResponse> {
+export async function resetPasswordApi(
+  credentials: ResetPasswordCredentials
+): Promise<ResetPasswordResponse> {
   const response = await api.post("/auth/reset-password", credentials);
+  return response.data;
+}
+
+export async function getUserApi(): Promise<{ user: User }> {
+  const response = await api.get("/auth/me");
   return response.data;
 }
