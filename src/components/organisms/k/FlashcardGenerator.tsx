@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -18,6 +17,7 @@ import {
   CircleQuestionMark,
   Sparkles,
   Loader2,
+  Download,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import FileUpload from "@/components/kokonutui/file-upload";
@@ -32,101 +32,41 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
-import AILoadingState from "@/components/kokonutui/ai-loading";
+import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
-
-interface Flashcard {
-  front: string;
-  back: string;
-}
-
-interface GeneratedCards {
-  cards: Flashcard[];
-}
-
-// Mock data generator
-function generateMockFlashcards(count: number, keyword?: string): Flashcard[] {
-  const topics = [
-    {
-      front: "Photosynthesis là gì?",
-      back: "Là quá trình mà thực vật sử dụng ánh sáng mặt trời để chuyển đổi CO2 và nước thành glucose và oxy.",
-    },
-    {
-      front: "DNA viết tắt của từ gì?",
-      back: "Deoxyribonucleic Acid - Axit Deoxyribonucleic, chứa thông tin di truyền của sinh vật.",
-    },
-    {
-      front: "Định luật Newton thứ nhất là gì?",
-      back: "Một vật sẽ giữ nguyên trạng thái đứng yên hoặc chuyển động thẳng đều nếu không có ngoại lực tác dụng.",
-    },
-    {
-      front: "Mitosis là gì?",
-      back: "Là quá trình phân chia tế bào nhân thực tạo ra hai tế bào con giống hệt tế bào mẹ.",
-    },
-    {
-      front: "React là gì?",
-      back: "Là thư viện JavaScript để xây dựng giao diện người dùng, được phát triển bởi Facebook.",
-    },
-    {
-      front: "Machine Learning là gì?",
-      back: "Là nhánh của trí tuệ nhân tạo cho phép máy tính học hỏi từ dữ liệu mà không cần lập trình cụ thể.",
-    },
-    {
-      front: "HTTP viết tắt của gì?",
-      back: "HyperText Transfer Protocol - Giao thức truyền tải siêu văn bản.",
-    },
-    {
-      front: "Algorithm là gì?",
-      back: "Là một tập hợp các bước hoặc quy tắc được xác định rõ ràng để giải quyết một vấn đề.",
-    },
-    {
-      front: "RESTful API là gì?",
-      back: "Là kiến trúc thiết kế API tuân theo các nguyên tắc REST, sử dụng các phương thức HTTP chuẩn.",
-    },
-    {
-      front: "Blockchain là gì?",
-      back: "Là công nghệ sổ cái phân tán cho phép lưu trữ dữ liệu an toàn, minh bạch và không thể thay đổi.",
-    },
-  ];
-
-  const cards: Flashcard[] = [];
-  const keywordLower = keyword?.toLowerCase();
-
-  for (let i = 0; i < count; i++) {
-    const baseCard = topics[i % topics.length];
-    if (keyword && keywordLower) {
-      cards.push({
-        front: `${baseCard.front} (liên quan đến "${keyword}")`,
-        back: `${baseCard.back} Từ khóa: ${keyword}`,
-      });
-    } else {
-      cards.push({ ...baseCard });
-    }
-  }
-
-  return cards;
-}
+import { cn } from "@/lib/utils";
+import { useScreenBreakpoint } from "@/hooks/useDevices";
+import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
 
 export function FlashcardGenerator() {
-  const [file, setFile] = useState<File | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [cardCount, setCardCount] = useState([15]);
-  const [isNarrow, setIsNarrow] = useState(false);
-  const [keyword, setKeyword] = useState("");
-  const [generatedCards, setGeneratedCards] = useState<GeneratedCards | null>(
-    null,
-  );
-  const [currentCard, setCurrentCard] = useState(0);
+  const {
+    file,
+    cardCount,
+    isNarrow,
+    keyword,
+    generatedCards,
+    currentCard,
+    isGenerating,
+    setFile,
+    setCardCount,
+    setIsNarrow,
+    setKeyword,
+    setCurrentCard,
+    generateFlashcards,
+    clearFlashcards,
+  } = useFlashcardGeneratorStore();
+
   const { toast } = useToast();
+  const { isMobile } = useScreenBreakpoint();
 
   const handleFileUpload = (uploadedFile: File) => {
     setFile(uploadedFile);
     toast({
       title: "File đã được tải lên",
       description: `${uploadedFile.name} (${(
-        uploadedFile.size
-        / 1024
-        / 1024
+        uploadedFile.size /
+        1024 /
+        1024
       ).toFixed(2)} MB)`,
     });
   };
@@ -140,8 +80,7 @@ export function FlashcardGenerator() {
   };
 
   const handleRemoveFile = () => {
-    setFile(null);
-    setGeneratedCards(null);
+    clearFlashcards();
     toast({
       title: "Đã xóa file",
       description: "Vui lòng tải lên file mới",
@@ -149,45 +88,11 @@ export function FlashcardGenerator() {
   };
 
   const handleGenerate = async () => {
-    if (!file) {
-      toast({
-        title: "Chưa có file",
-        description: "Vui lòng tải lên file PDF trước",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (isNarrow && !keyword.trim()) {
-      toast({
-        title: "Chưa nhập từ khóa",
-        description: "Vui lòng nhập từ khóa khi sử dụng định dạng thẻ hẹp",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsGenerating(true);
-
-    // Simulate AI generation
-    setTimeout(() => {
-      const mockCards = generateMockFlashcards(
-        cardCount[0],
-        isNarrow ? keyword : undefined,
-      );
-      setGeneratedCards({ cards: mockCards });
-      setCurrentCard(0);
-      setIsGenerating(false);
-
-      toast({
-        title: "Tạo flashcard thành công!",
-        description: `Đã tạo ${cardCount[0]} thẻ flashcard từ tài liệu của bạn`,
-      });
-    }, 3000);
+    await generateFlashcards();
   };
 
   const nextCard = () => {
-    if (generatedCards && currentCard < generatedCards.cards.length - 1) {
+    if (generatedCards && currentCard < generatedCards.length - 1) {
       setCurrentCard(currentCard + 1);
     }
   };
@@ -198,10 +103,23 @@ export function FlashcardGenerator() {
     }
   };
 
+  const handleDownload = () => {
+    // TODO: Implement download logic
+    toast({
+      title: "Tính năng đang phát triển",
+      description: "Chức năng tải xuống sẽ được cập nhật sớm",
+    });
+  };
+
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div
+      className={cn("gap-6 flex w-full", isMobile ? "flex-col" : "flex-row")}>
       {/* Upload & Settings */}
-      <Card className="h-fit">
+      <Card
+        className={cn(
+          "border-border bg-card h-fit",
+          isMobile ? "w-full" : "w-2/5"
+        )}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5 text-primary" />
@@ -212,37 +130,33 @@ export function FlashcardGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {!file
-            ? (
-                <FileUpload
-                  acceptedFileTypes={[".pdf", "application/pdf"]}
-                  maxFileSize={10485760}
-                  className="w-full h-full"
-                  onUploadSuccess={handleFileUpload}
-                  onUploadError={handleFileError}
-                  uploadDelay={2000}
-                />
-              )
-            : (
-                <ItemFileDetail
-                  fileName={file.name}
-                  fileSize={file.size}
-                  onRemove={handleRemoveFile}
-                />
-              )}
+          {!file ? (
+            <FileUpload
+              acceptedFileTypes={[".pdf", "application/pdf"]}
+              maxFileSize={10485760}
+              className="w-full h-full"
+              onUploadSuccess={handleFileUpload}
+              onUploadError={handleFileError}
+              uploadDelay={2000}
+            />
+          ) : (
+            <ItemFileDetail
+              fileName={file.name}
+              fileSize={file.size}
+              onRemove={handleRemoveFile}
+            />
+          )}
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label>Số lượng câu hỏi</Label>
               <span className="text-sm font-medium text-primary">
-                {cardCount[0]}
-                {" "}
-                câu
+                {cardCount} câu
               </span>
             </div>
             <Slider
-              value={cardCount}
-              onValueChange={setCardCount}
+              value={[cardCount]}
+              onValueChange={(value) => setCardCount(value[0])}
               min={5}
               max={50}
               step={5}
@@ -253,8 +167,7 @@ export function FlashcardGenerator() {
           <div className="flex items-center justify-between">
             <Label
               htmlFor="narrow-toggle"
-              className="flex items-center gap-2 cursor-pointer"
-            >
+              className="flex items-center gap-2 cursor-pointer">
               Định dạng thẻ hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -294,27 +207,25 @@ export function FlashcardGenerator() {
             onClick={handleGenerate}
             disabled={!file || isGenerating}
             className="w-full h-12 text-base font-medium"
-            size="lg"
-          >
-            {isGenerating
-              ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Đang tạo flashcard...
-                  </>
-                )
-              : (
-                  <>
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Tạo flashcard
-                  </>
-                )}
+            size="lg">
+            {isGenerating ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Đang tạo flashcard...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5 mr-2" />
+                Tạo flashcard
+              </>
+            )}
           </Button>
         </CardContent>
       </Card>
 
       {/* Flashcard Preview */}
-      <Card className="border-border bg-card">
+      <Card
+        className={cn("border-border bg-card", isMobile ? "w-full" : "w-3/5")}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <SquareSplitVertical className="w-5 h-5 text-primary" />
@@ -325,74 +236,89 @@ export function FlashcardGenerator() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isGenerating
-            ? (
-                <div className="flex items-center justify-center min-h-[400px]">
-                  <AILoadingState />
+          {isGenerating ? (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <ModernLoader
+                words={[
+                  "Đang phân tích tài liệu…",
+                  "Trích xuất thông tin…",
+                  "Hiểu nội dung…",
+                  "Xác minh dữ liệu…",
+                  "Suy nghĩ về chủ đề…",
+                  "Lập kế hoạch flashcard…",
+                  "Tạo flashcard…",
+                  "Đánh giá đáp án…",
+                  "Kiểm tra độ chính xác…",
+                  "Đảm bảo tính đa dạng…",
+                  "Tối ưu hóa định dạng…",
+                  "Chuẩn bị để hiển thị…",
+                ]}
+              />
+            </div>
+          ) : !generatedCards ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                <SquareSplitVertical className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground">
+                Tải lên file PDF và nhấn Tạo flashcard để xem kết quả
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Header with Download Button */}
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  {file?.name} • {cardCount} flashcards
+                  {isNarrow && keyword && ` • Từ khóa: ${keyword}`}
                 </div>
-              )
-            : !generatedCards
-                ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                        <SquareSplitVertical className="w-8 h-8 text-muted-foreground" />
-                      </div>
-                      <p className="text-muted-foreground">
-                        Tải lên file PDF và nhấn Tạo flashcard để xem kết quả
-                      </p>
-                    </div>
-                  )
-                : (
-                    <div className="space-y-4">
-                      {/* Card Counter */}
-                      <div className="text-center text-sm text-muted-foreground">
-                        Thẻ
-                        {" "}
-                        {currentCard + 1}
-                        {" "}
-                        /
-                        {" "}
-                        {generatedCards.cards.length}
-                      </div>
+                <Button variant="outline" size="sm" onClick={handleDownload}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Tải xuống
+                </Button>
+              </div>
 
-                      {/* Flashcard */}
-                      <FlipCard
-                        front={{
-                          label: "Câu hỏi",
-                          content: generatedCards.cards[currentCard].front,
-                          hint: "Nhấn để xem câu trả lời",
-                        }}
-                        back={{
-                          label: "Câu trả lời",
-                          content: generatedCards.cards[currentCard].back,
-                        }}
-                      />
+              {/* Card Counter */}
+              <div className="text-center text-sm text-muted-foreground">
+                Thẻ {currentCard + 1} / {generatedCards.length}
+              </div>
 
-                      {/* Navigation */}
-                      <div className="flex items-center justify-between gap-4">
-                        <Button
-                          variant="outline"
-                          size="lg"
-                          onClick={prevCard}
-                          disabled={currentCard === 0}
-                          className="flex-1 bg-transparent"
-                        >
-                          <ChevronLeft className="w-4 h-4 mr-2" />
-                          Trước
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="lg"
-                          onClick={nextCard}
-                          disabled={currentCard === generatedCards.cards.length - 1}
-                          className="flex-1 bg-transparent"
-                        >
-                          Sau
-                          <ChevronRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+              {/* Flashcard */}
+              <FlipCard
+                front={{
+                  label: "Câu hỏi",
+                  content: generatedCards[currentCard].question,
+                  hint: "Nhấn để xem câu trả lời",
+                }}
+                back={{
+                  label: "Câu trả lời",
+                  content: generatedCards[currentCard].answer,
+                }}
+              />
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between gap-4">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={prevCard}
+                  disabled={currentCard === 0}
+                  className="flex-1 bg-transparent">
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Trước
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={nextCard}
+                  disabled={currentCard === generatedCards.length - 1}
+                  className="flex-1 bg-transparent">
+                  Sau
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -82,7 +82,7 @@ export default function ProfileDropdown({
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 p-0.5">
                   <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-zinc-900">
                     <img
-                      src={data.avatar || "/default-avatar.png"}
+                      src={data.avatar || "/avt-default.webp"}
                       alt={data.name}
                       width={36}
                       height={36}

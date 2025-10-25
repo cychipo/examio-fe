@@ -18,7 +18,7 @@ export default function RootLayout({
       className={cn(
         "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col"
       )}>
-      <div className="fixed bg-background h-[calc(100%)] md:w-[288px] w-0 z-[100]">
+      <div className="fixed bg-background h-[calc(100%)] md:w-[288px] w-0">
         <SidebarKit />
       </div>
       <div className="w-full m-0 md:p-1 pb-20  md:ml-[288px]">
