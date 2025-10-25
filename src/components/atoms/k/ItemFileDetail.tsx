@@ -21,8 +21,7 @@ export function ItemFileDetail({
   onRemove,
 }: ItemFileDetailProps) {
   const formatBytes = (bytes: number, decimals = 2): string => {
-    if (!+bytes)
-      return "0 Bytes";
+    if (!+bytes) return "0 Bytes";
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
     const sizes = ["Bytes", "KB", "MB", "GB"];
@@ -36,7 +35,7 @@ export function ItemFileDetail({
         <FileText className="size-5 text-primary" />
       </ItemMedia>
       <ItemContent>
-        <ItemTitle className="text-sm font-medium truncate">
+        <ItemTitle className="text-sm font-medium line-clamp-2 break-words">
           {fileName}
         </ItemTitle>
         <ItemDescription className="text-xs">
@@ -48,8 +47,7 @@ export function ItemFileDetail({
           variant="ghost"
           size="icon"
           onClick={onRemove}
-          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-        >
+          className="h-8 w-8 text-muted-foreground hover:text-destructive">
           <X className="size-4" />
         </Button>
       </ItemActions>

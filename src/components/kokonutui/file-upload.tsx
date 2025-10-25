@@ -479,7 +479,7 @@ export default function FileUpload({
                         {acceptedFileTypes?.length
                           ? `${acceptedFileTypes
                               .map((t) => t.split("/")[1])
-                              .join(", ")
+                              .join(" ")
                               .toUpperCase()}`
                           : "SVG, PNG, JPG or GIF"}{" "}
                         {maxFileSize && `up to ${formatBytes(maxFileSize)}`}
@@ -514,7 +514,7 @@ export default function FileUpload({
                     </div>
 
                     <div className="text-center space-y-1.5 mb-4">
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white break-words line-clamp-2 w-full">
                         {file?.name}
                       </h3>
                       <div className="flex items-center justify-center gap-2 text-xs">

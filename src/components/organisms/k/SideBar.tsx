@@ -40,8 +40,6 @@ export function SidebarKit() {
   });
   const pathname = usePathname();
 
-  console.log("Pathname in Sidebar:", pathname);
-
   useLayoutEffect(() => {
     getUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
