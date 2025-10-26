@@ -9,7 +9,7 @@ import { PlusIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import { Item, ItemActions } from "@/components/ui/item";
+import { Item } from "@/components/ui/item";
 
 interface FormSelectQuizSetProps {
   selectedIds: string[];
