@@ -1,13 +1,12 @@
-export interface Quizz {
+export interface Flashcard {
   id: string;
   question: string;
-  options: string[];
   answer: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface QuizSet {
+export interface FlashcardSet {
   id: string;
   title: string;
   description: string;
@@ -18,5 +17,5 @@ export interface QuizSet {
   tags: string[];
   createdAt: string;
   updatedAt: string;
-  questions?: Quizz[];
+  flashcards?: Flashcard[];
 }

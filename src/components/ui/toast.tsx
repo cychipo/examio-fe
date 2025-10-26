@@ -18,13 +18,7 @@ interface ToastProps {
   id?: string;
   title?: string;
   description?: string;
-  variant?:
-    | "default"
-    | "success"
-    | "destructive"
-    | "warning"
-    | "info"
-    | "loading";
+  variant?: "default" | "success" | "destructive" | "warning" | "info" | "loading";
   position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
   duration?: number;
   action?: React.ReactNode | ToastAction;
@@ -48,13 +42,7 @@ interface ToastOptions {
   id?: string;
   title?: string;
   description?: string;
-  variant?:
-    | "default"
-    | "success"
-    | "destructive"
-    | "warning"
-    | "info"
-    | "loading";
+  variant?: "default" | "success" | "destructive" | "warning" | "info" | "loading";
   position?: "top-right" | "top-left" | "bottom-right" | "bottom-left";
   duration?: number;
   action?: React.ReactNode | ToastAction;
@@ -204,20 +192,16 @@ toast.dismiss = (id?: string) => {
 };
 
 const toastVariants = cva(
-  "toast-base fixed z-[100] pointer-events-auto flex w-[calc(100%-2rem)] max-w-sm h-fit items-center justify-between space-x-4 rounded-lg p-4 pr-8 shadow-lg",
+  "toast-base fixed z-[100] pointer-events-auto flex w-[calc(100%-2rem)] max-w-sm h-20 items-center justify-between space-x-4 rounded-lg p-4 pr-8 shadow-lg",
   {
     variants: {
       variant: {
         default: "bg-background text-foreground border border-border",
-        success:
-          "bg-green-100 text-green-900 border-green-200 dark:bg-green-950 dark:text-green-50 dark:border-green-800",
-        destructive:
-          "bg-red-100 text-red-900 border-red-200 dark:bg-red-950 dark:text-red-50 dark:border-red-800",
-        warning:
-          "bg-yellow-100 text-yellow-900 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-50 dark:border-yellow-800",
+        success: "bg-green-100 text-green-900 border-green-200 dark:bg-green-950 dark:text-green-50 dark:border-green-800",
+        destructive: "bg-red-100 text-red-900 border-red-200 dark:bg-red-950 dark:text-red-50 dark:border-red-800",
+        warning: "bg-yellow-100 text-yellow-900 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-50 dark:border-yellow-800",
         info: "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-950 dark:text-blue-50 dark:border-blue-800",
-        loading:
-          "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-950 dark:text-blue-50 dark:border-blue-800",
+        loading: "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-950 dark:text-blue-50 dark:border-blue-800",
       },
       position: {
         "top-right": "top-4 right-4",
@@ -535,7 +519,8 @@ const ToastComponent: React.FC<ToastProps> = ({
               actionObj.onClick();
               handleClose();
             }}
-            className="text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 rounded transition-colors">
+            className="text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 rounded transition-colors"
+          >
             {actionObj.label}
           </button>
         </div>
@@ -582,7 +567,8 @@ const ToastComponent: React.FC<ToastProps> = ({
       style={{
         zIndex: getZIndex(),
         pointerEvents: "auto",
-      }}>
+      }}
+    >
       <div className="flex items-center space-x-3 w-full min-w-0">
         {variant !== "default" &&
           ToastIcons[variant as keyof typeof ToastIcons]}
@@ -603,7 +589,8 @@ const ToastComponent: React.FC<ToastProps> = ({
           className="absolute -top-1 -right-1 bg-muted-foreground text-muted rounded-full w-5 h-5 flex items-center justify-center font-medium text-xs z-20"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2 }}>
+          transition={{ delay: 0.2 }}
+        >
           +{totalCount - 3}
         </motion.div>
       )}
@@ -618,7 +605,8 @@ const ToastComponent: React.FC<ToastProps> = ({
               cancel.onClick();
               handleClose();
             }}
-            className="text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80 px-3 py-1 rounded transition-colors">
+            className="text-xs font-medium bg-muted text-muted-foreground hover:bg-muted/80 px-3 py-1 rounded transition-colors"
+          >
             {cancel.label}
           </button>
         </div>
@@ -628,7 +616,8 @@ const ToastComponent: React.FC<ToastProps> = ({
         ref={closeButtonRef}
         onClick={handleClose}
         className="absolute top-2 right-2 hover:opacity-75 transition-opacity z-10 p-1 rounded-full hover:bg-black hover:bg-opacity-10"
-        aria-label="Close">
+        aria-label="Close"
+      >
         <X className="w-4 h-4" />
       </button>
     </motion.div>
@@ -759,12 +748,14 @@ const ToastStack: React.FC<ToastStackProps> = ({
       style={{
         [position.includes("top") ? "top" : "bottom"]: "1rem",
         [position.includes("right") ? "right" : "left"]: "1rem",
-      }}>
+      }}
+    >
       <div
         className="pointer-events-auto"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        onClick={handleStackInteraction}>
+        onClick={handleStackInteraction}
+      >
         <AnimatePresence mode="popLayout">
           {visibleToasts.map((toastProps, index) => (
             <ToastComponent
@@ -810,9 +801,9 @@ export function ToastContainer() {
     toastManager.remove(id);
   }, []);
 
-  const processedToasts = toasts.map((toast) => {
-    if (isMobile && toast.variant !== "info") {
-      return { ...toast, position: "top-right" as const };
+  const processedToasts = toasts.map(toast => {
+    if (isMobile && toast.variant !== 'info') {
+      return { ...toast, position: 'top-right' as const };
     }
     return toast;
   });

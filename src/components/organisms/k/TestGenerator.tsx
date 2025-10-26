@@ -11,9 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Sparkles, SaveAll } from "lucide-react";
 import {
-  CubeIcon,
   UploadIcon,
   FileTextIcon,
   QuestionMarkCircledIcon,
@@ -39,6 +38,7 @@ import {
   DialogAddExam,
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
+import { Item, ItemContent, ItemTitle } from "@/components/ui/item";
 
 export function TestGenerator() {
   const {
@@ -259,35 +259,38 @@ export function TestGenerator() {
                   description="Lưu đề kiểm tra vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
                   type={DialogAddExamType.QUIZZ}>
                   <Button variant="outline" size="sm">
-                    <CubeIcon className="w-4 h-4 mr-2" />
+                    <SaveAll size={15} className="mr-2" />
                     Lưu
                   </Button>
                 </DialogAddExam>
               </div>
 
-              <ScrollArea className=" rounded-md border">
-                <div className="space-y-4 max-h-[500px] p-2">
+              <ScrollArea className=" rounded-md p-2">
+                <div className="space-y-4 max-h-[500px]">
                   {generatedTest.map((q: Quizz, idx: number) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-lg bg-secondary/50 border border-border space-y-2">
-                      <p className="font-medium text-foreground">
-                        Câu {idx + 1}: {q.question}
-                      </p>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        {q.options.map((opt: string, optIdx: number) => (
-                          <div key={optIdx} className="flex items-start gap-2">
-                            <span className="font-medium min-w-[20px]">
-                              {String.fromCharCode(65 + optIdx)}.
-                            </span>
-                            <span>{opt}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="text-xs text-primary font-medium mt-2">
-                        Đáp án đúng: {q.answer}
-                      </div>
-                    </div>
+                    <Item key={idx} variant="outline">
+                      <ItemContent>
+                        <ItemTitle>
+                          {" "}
+                          Câu {idx + 1}: {q.question}
+                        </ItemTitle>
+                        <div className="space-y-1 text-sm text-muted-foreground">
+                          {q.options.map((opt: string, optIdx: number) => (
+                            <div
+                              key={optIdx}
+                              className="flex items-start gap-2">
+                              <span className="font-medium min-w-[20px]">
+                                {String.fromCharCode(65 + optIdx)}.
+                              </span>
+                              <span>{opt}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-xs text-primary font-medium mt-2">
+                          Đáp án đúng: {q.answer}
+                        </div>
+                      </ItemContent>
+                    </Item>
                   ))}
                 </div>
               </ScrollArea>

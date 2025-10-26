@@ -17,7 +17,7 @@ import {
   CircleQuestionMark,
   Sparkles,
   Loader2,
-  Download,
+  SaveAll,
 } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import FileUpload from "@/components/kokonutui/file-upload";
@@ -37,6 +37,10 @@ import { FlipCard } from "@/components/atoms/k/FlipCard";
 import { cn } from "@/lib/utils";
 import { useScreenBreakpoint } from "@/hooks/useDevices";
 import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
+import {
+  DialogAddExam,
+  DialogAddExamType,
+} from "@/components/organisms/k/DialogAddExam";
 
 export function FlashcardGenerator() {
   const {
@@ -101,14 +105,6 @@ export function FlashcardGenerator() {
     if (currentCard > 0) {
       setCurrentCard(currentCard - 1);
     }
-  };
-
-  const handleDownload = () => {
-    // TODO: Implement download logic
-    toast({
-      title: "Tính năng đang phát triển",
-      description: "Chức năng tải xuống sẽ được cập nhật sớm",
-    });
   };
 
   return (
@@ -266,16 +262,23 @@ export function FlashcardGenerator() {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Header with Download Button */}
+              {/* Header with Download and Save Buttons */}
               <div className="flex items-center justify-between">
                 <div className="text-sm text-muted-foreground">
                   {file?.name} • {cardCount} flashcards
                   {isNarrow && keyword && ` • Từ khóa: ${keyword}`}
                 </div>
-                <Button variant="outline" size="sm" onClick={handleDownload}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Tải xuống
-                </Button>
+                <div className="flex gap-2">
+                  <DialogAddExam
+                    title="Lưu vào flashcard set"
+                    description="Lưu flashcard vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
+                    type={DialogAddExamType.FLASH_CARD}>
+                    <Button variant="outline" size="sm">
+                      <SaveAll size={15} className="mr-2" />
+                      Lưu
+                    </Button>
+                  </DialogAddExam>
+                </div>
               </div>
 
               {/* Card Counter */}
