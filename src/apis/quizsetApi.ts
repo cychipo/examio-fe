@@ -11,6 +11,11 @@ export type CredentialsSetQuizToQuizset = {
   quizzes: Omit<Quizz, "id" | "quizSetId" | "createdAt" | "updatedAt">[];
 };
 
+export type CredentialSetHistoryToQuizset = {
+  quizsetIds: string[];
+  historyId: string;
+};
+
 export type ResponseSetQuizzesToQuizset = {
   message?: string;
   createdCount: number;
@@ -58,6 +63,16 @@ export async function setQuizzesToQuizset(
 ): Promise<ResponseSetQuizzesToQuizset> {
   const response = await api.post(
     "/quizsets/set-quizzes-to-quizset",
+    credentials
+  );
+  return response.data;
+}
+
+export async function setHistoryQuizzesToQuizset(
+  credentials: CredentialSetHistoryToQuizset
+): Promise<ResponseSetQuizzesToQuizset> {
+  const response = await api.post(
+    `/quizsets/save-history-to-quizset`,
     credentials
   );
   return response.data;

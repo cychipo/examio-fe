@@ -9,6 +9,7 @@ interface TestGeneratorState {
   isNarrow: boolean;
   keyword: string;
   generatedTest: Quizz[] | null;
+  generatedTestId: string | null; // ID của bản generate
   isGenerating: boolean;
   setFile: (file: File | null) => void;
   setQuestionCount: (count: number) => void;
@@ -24,6 +25,7 @@ interface FlashcardGeneratorState {
   isNarrow: boolean;
   keyword: string;
   generatedCards: Flashcard[] | null;
+  generatedCardsId: string | null; // ID của bản generate
   currentCard: number;
   isGenerating: boolean;
   setFile: (file: File | null) => void;
@@ -42,6 +44,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
   isNarrow: false,
   keyword: "",
   generatedTest: null,
+  generatedTestId: null,
   isGenerating: false,
 
   setFile: (file) => set({ file }),
@@ -77,9 +80,15 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
         keyword: isNarrow ? keyword : undefined,
       });
 
-      set({ generatedTest: result as Quizz[], isGenerating: false });
+      set({
+        generatedTest: result.quizzes || [],
+        generatedTestId: result.id,
+        isGenerating: false,
+      });
       toast.success("Tạo đề thành công!", {
-        description: `Đã tạo ${questionCount} câu hỏi từ tài liệu của bạn`,
+        description: `Đã tạo ${
+          result.quizzes?.length || 0
+        } câu hỏi từ tài liệu của bạn`,
       });
     } catch (error) {
       set({ isGenerating: false });
@@ -97,6 +106,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
     set({
       file: null,
       generatedTest: null,
+      generatedTestId: null,
       questionCount: 10,
       isNarrow: false,
       keyword: "",
@@ -111,6 +121,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
     isNarrow: false,
     keyword: "",
     generatedCards: null,
+    generatedCardsId: null,
     currentCard: 0,
     isGenerating: false,
 
@@ -149,12 +160,15 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
         });
 
         set({
-          generatedCards: result as Flashcard[],
+          generatedCards: result.flashcards || [],
+          generatedCardsId: result.id,
           currentCard: 0,
           isGenerating: false,
         });
         toast.success("Tạo flashcard thành công!", {
-          description: `Đã tạo ${cardCount} thẻ flashcard từ tài liệu của bạn`,
+          description: `Đã tạo ${
+            result.flashcards?.length || 0
+          } thẻ flashcard từ tài liệu của bạn`,
         });
       } catch (error) {
         set({ isGenerating: false });
@@ -172,6 +186,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
       set({
         file: null,
         generatedCards: null,
+        generatedCardsId: null,
         currentCard: 0,
         cardCount: 15,
         isNarrow: false,

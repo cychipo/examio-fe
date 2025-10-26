@@ -10,9 +10,19 @@ export interface CredentialsGenerateExam {
   keyword?: string; // valuable when valuable isNarrowSearch is true
 }
 
+export interface ResponseGenerateExam {
+  id: string;
+  userId: string;
+  userStorageId: string;
+  quizzes?: Quizz[];
+  flashcards?: Flashcard[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export async function generateExamApi(
   credentials: CredentialsGenerateExam
-): Promise<Quizz[] | Flashcard[]> {
+): Promise<ResponseGenerateExam> {
   const formData = new FormData();
   formData.append("file", credentials.file);
   formData.append("typeResult", credentials.typeResult.toString());

@@ -1,29 +1,29 @@
 "use client";
-import { useQuizSetStore } from "@/stores/useQuizSetStore";
+import { useFlashcardSetStore } from "@/stores/useFlashcardSetStore";
 import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlusIcon, Cross2Icon, TrashIcon } from "@radix-ui/react-icons";
+import { PlusIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import { Item, ItemActions } from "@/components/ui/item";
+import { Item } from "@/components/ui/item";
 
-interface FormSelectQuizSetProps {
+interface FormSelectFlashcardSetProps {
   selectedIds: string[];
   onSelectionChange: (ids: string[]) => void;
   onCreateSuccess?: () => void; // Callback khi tạo thành công
 }
 
-export function FormSelectQuizSet({
+export function FormSelectFlashcardSet({
   selectedIds,
   onSelectionChange,
   onCreateSuccess,
-}: FormSelectQuizSetProps) {
-  const { quizSetsK, fetchQuizSets, createQuizSet, loading } =
-    useQuizSetStore();
+}: FormSelectFlashcardSetProps) {
+  const { flashcardSetsK, fetchFlashcardSets, createFlashcardSet, loading } =
+    useFlashcardSetStore();
 
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,18 +35,18 @@ export function FormSelectQuizSet({
     thumbnail: null as string | null,
   });
 
-  const handleCheckboxChange = (quizSetId: string, checked: boolean) => {
+  const handleCheckboxChange = (flashcardSetId: string, checked: boolean) => {
     if (checked) {
-      onSelectionChange([...selectedIds, quizSetId]);
+      onSelectionChange([...selectedIds, flashcardSetId]);
     } else {
-      onSelectionChange(selectedIds.filter((id) => id !== quizSetId));
+      onSelectionChange(selectedIds.filter((id) => id !== flashcardSetId));
     }
   };
 
   useEffect(() => {
     // Chỉ fetch khi chưa có data trong store
-    if (quizSetsK.length === 0) {
-      fetchQuizSets({ page: 1, limit: 10 });
+    if (flashcardSetsK.length === 0) {
+      fetchFlashcardSets({ page: 1, limit: 10 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -59,14 +59,14 @@ export function FormSelectQuizSet({
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
-    await createQuizSet({
+    await createFlashcardSet({
       title: formData.title,
       description: formData.description,
       tags: tagsArray,
       isPublic: formData.isPublic,
       isPinned: formData.isPinned,
       thumbnail: formData.thumbnail,
-      questions: [],
+      flashcards: [],
     });
 
     // Reset form
@@ -101,9 +101,9 @@ export function FormSelectQuizSet({
       {/* Nút tạo mới - luôn hiển thị khi không đang tạo */}
       {!showCreateForm && (
         <div className="flex items-center justify-between gap-4">
-          {quizSetsK.length === 0 && (
+          {flashcardSetsK.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              Không có bộ câu hỏi nào. Vui lòng tạo bộ câu hỏi mới.
+              Không có bộ flashcard nào. Vui lòng tạo bộ flashcard mới.
             </p>
           )}
           <Button
@@ -117,27 +117,27 @@ export function FormSelectQuizSet({
         </div>
       )}
 
-      {/* Danh sách quiz sets */}
-      {quizSetsK.length > 0 && !showCreateForm && (
+      {/* Danh sách flashcard sets */}
+      {flashcardSetsK.length > 0 && !showCreateForm && (
         <>
-          {quizSetsK.map((quizSet) => (
+          {flashcardSetsK.map((flashcardSet) => (
             <Item
-              key={quizSet.id}
+              key={flashcardSet.id}
               variant="outline"
               className="flex items-center justify-between space-y-0 space-x-4">
               <div className="flex flex-1 items-center space-x-4">
                 <Checkbox
-                  id={quizSet.id}
-                  checked={selectedIds.includes(quizSet.id)}
+                  id={flashcardSet.id}
+                  checked={selectedIds.includes(flashcardSet.id)}
                   onCheckedChange={(checked) =>
-                    handleCheckboxChange(quizSet.id, checked as boolean)
+                    handleCheckboxChange(flashcardSet.id, checked as boolean)
                   }
                 />
-                <Label htmlFor={quizSet.id} className="font-medium">
-                  {quizSet.title}
+                <Label htmlFor={flashcardSet.id} className="font-medium">
+                  {flashcardSet.title}
                 </Label>
                 <p className="font-medium text-muted-foreground truncate w-full">
-                  {quizSet.description}
+                  {flashcardSet.description}
                 </p>
               </div>
             </Item>
@@ -156,7 +156,7 @@ export function FormSelectQuizSet({
                 </Label>
                 <Input
                   id="title"
-                  placeholder="VD: Bộ câu hỏi Toán lớp 12"
+                  placeholder="VD: Bộ flashcard Toán lớp 12"
                   value={formData.title}
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
@@ -172,7 +172,7 @@ export function FormSelectQuizSet({
                 </Label>
                 <Input
                   id="description"
-                  placeholder="Mô tả ngắn về bộ câu hỏi"
+                  placeholder="Mô tả ngắn về bộ flashcard"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({
@@ -251,7 +251,7 @@ export function FormSelectQuizSet({
                   onClick={handleCreateSubmit}
                   className="flex-1 cursor-pointer"
                   disabled={loading || !formData.title.trim()}>
-                  {loading ? "Đang tạo..." : "Tạo bộ câu hỏi"}
+                  {loading ? "Đang tạo..." : "Tạo bộ flashcard"}
                 </Button>
               </div>
             </div>
