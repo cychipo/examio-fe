@@ -1,326 +1,165 @@
 "use client";
 
-import { FlashcardGroupCard } from "@/components/organisms/k/FlashCardGroup";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import {
-  Plus,
-  Search,
-  Grid3x3,
-  List,
-  TrendingUp,
-  Clock,
-  Target,
-  Layers,
-} from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FlashcardManagementTemplate } from "@/templates/FlashcardManagementTemplate";
+import type { FlashcardTableData } from "@/components/organisms/k/FlashcardTable";
+import type { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 
-const flashcardGroups = [
+// Mock data
+const mockFlashcards: FlashcardTableData[] = [
   {
     id: "1",
-    fileName: "Introduction to Machine Learning.pdf",
+    icon: "🤖",
+    fileName: "Introduction to Machine Learning",
+    description: "AI fundamentals and ML algorithms",
     cardCount: 45,
-    createdAt: new Date("2024-01-15"),
+    status: "public" as ExamStatus,
+    createdAt: "15 Th01, 2024",
+    lastStudied: "20 Th01, 2024",
     tags: ["AI", "Machine Learning"],
-    progress: 75,
-    lastStudied: new Date("2024-01-20"),
-    difficulty: "intermediate" as const,
-    isPinned: true,
   },
   {
     id: "2",
-    fileName: "React Hooks Complete Guide.pdf",
+    icon: "⚛️",
+    fileName: "React Hooks Complete Guide",
+    description: "Modern React development patterns",
     cardCount: 32,
-    createdAt: new Date("2024-01-14"),
+    status: "public" as ExamStatus,
+    createdAt: "14 Th01, 2024",
+    lastStudied: "19 Th01, 2024",
     tags: ["React", "Frontend"],
-    progress: 100,
-    lastStudied: new Date("2024-01-19"),
-    difficulty: "beginner" as const,
-    isPinned: false,
   },
   {
     id: "3",
-    fileName: "Database Design Principles.pdf",
+    icon: "💾",
+    fileName: "Database Design Principles",
+    description: "Relational and NoSQL databases",
     cardCount: 28,
-    createdAt: new Date("2024-01-13"),
+    status: "private" as ExamStatus,
+    createdAt: "13 Th01, 2024",
+    lastStudied: "18 Th01, 2024",
     tags: ["Database", "SQL"],
-    progress: 45,
-    lastStudied: new Date("2024-01-18"),
-    difficulty: "intermediate" as const,
-    isPinned: false,
   },
   {
     id: "4",
-    fileName: "Advanced TypeScript Patterns.pdf",
+    icon: "📘",
+    fileName: "Advanced TypeScript Patterns",
+    description: "Type system and advanced features",
     cardCount: 56,
-    createdAt: new Date("2024-01-12"),
+    status: "public" as ExamStatus,
+    createdAt: "12 Th01, 2024",
+    lastStudied: "17 Th01, 2024",
     tags: ["TypeScript", "Programming"],
-    progress: 30,
-    lastStudied: new Date("2024-01-17"),
-    difficulty: "advanced" as const,
-    isPinned: true,
   },
   {
     id: "5",
-    fileName: "Web Security Best Practices.pdf",
+    icon: "🔒",
+    fileName: "Web Security Best Practices",
+    description: "Authentication, encryption & HTTPS",
     cardCount: 41,
-    createdAt: new Date("2024-01-11"),
+    status: "private" as ExamStatus,
+    createdAt: "11 Th01, 2024",
+    lastStudied: "16 Th01, 2024",
     tags: ["Security", "Web Dev"],
-    progress: 60,
-    lastStudied: new Date("2024-01-16"),
-    difficulty: "intermediate" as const,
-    isPinned: false,
   },
   {
     id: "6",
-    fileName: "System Design Interview Prep.pdf",
+    icon: "🏗️",
+    fileName: "System Design Interview Prep",
+    description: "Scalable architecture patterns",
     cardCount: 67,
-    createdAt: new Date("2024-01-10"),
+    status: "public" as ExamStatus,
+    createdAt: "10 Th01, 2024",
+    lastStudied: null,
     tags: ["System Design", "Interview"],
-    progress: 20,
-    lastStudied: new Date("2024-01-15"),
-    difficulty: "advanced" as const,
-    isPinned: false,
   },
 ];
 
 export default function FlashcardsPage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("recent");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const totalCards = flashcardGroups.reduce(
+  const totalCards = mockFlashcards.reduce(
     (sum, group) => sum + group.cardCount,
-    0,
+    0
   );
   const avgProgress = Math.round(
-    flashcardGroups.reduce((sum, group) => sum + group.progress, 0)
-    / flashcardGroups.length,
+    mockFlashcards.reduce((sum, group) => sum + group.cardCount, 0) /
+      mockFlashcards.length
   );
-  const studiedToday = flashcardGroups.filter(
-    (g) => g.lastStudied.toDateString() === new Date().toDateString(),
-  ).length;
+
+  const stats = {
+    totalGroups: mockFlashcards.length,
+    totalGroupsTrend: 12,
+    totalCards,
+    totalCardsTrend: 15,
+    avgProgress,
+    avgProgressTrend: 8,
+    studiedToday: 3,
+    studiedTodayTrend: 2,
+  };
+
+  const sortOptions = [
+    { value: "recent", label: "Mới nhất" },
+    { value: "name", label: "Tên A-Z" },
+    { value: "cards", label: "Số thẻ" },
+    { value: "progress", label: "Tiến độ" },
+  ];
+
+  const statusOptions = [
+    { value: "all", label: "Tất cả trạng thái" },
+    { value: "public", label: "Public" },
+    { value: "private", label: "Private" },
+  ];
+
+  const totalResults = mockFlashcards.length;
+  const totalPages = Math.ceil(totalResults / 10);
+
+  const handleCreateFlashcard = () => {
+    router.push("/k/ai-tool");
+  };
+
+  const handleExport = () => {
+    console.log("Export flashcards");
+  };
+
+  const handleStudyFlashcard = (id: string) => {
+    console.log("Study flashcard:", id);
+  };
+
+  const handleEditFlashcard = (id: string) => {
+    console.log("Edit flashcard:", id);
+  };
+
+  const handleDeleteFlashcard = (id: string) => {
+    console.log("Delete flashcard:", id);
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <div className="flex items-start justify-between">
-            <div className="flex gap-2">
-              <Button className="gap-2 " asChild>
-                <Link href="/k/ai-tool">
-                  <Plus className="h-4 w-4" />
-                  Tạo mới
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
-            <div className="absolute right-4 top-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 p-3">
-              <Layers className="h-5 w-5 text-blue-500" />
-            </div>
-            <div className="relative">
-              <p className="text-sm font-medium text-muted-foreground">
-                Tổng số nhóm
-              </p>
-              <p className="mt-2 bg-gradient-to-r from-gradient-from to-gradient-via bg-clip-text text-3xl font-bold text-transparent">
-                {flashcardGroups.length}
-              </p>
-              <Badge variant="outline" className="mt-2">
-                +2 tuần này
-              </Badge>
-            </div>
-          </div>
-
-          <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
-            <div className="absolute right-4 top-4 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 p-3">
-              <Target className="h-5 w-5 text-purple-500" />
-            </div>
-            <div className="relative">
-              <p className="text-sm font-medium text-muted-foreground">
-                Tổng số thẻ
-              </p>
-              <p className="mt-2 bg-gradient-to-r from-gradient-via to-gradient-to bg-clip-text text-3xl font-bold text-transparent">
-                {totalCards}
-              </p>
-              <Badge variant="outline" className="mt-2">
-                {Math.round(totalCards / flashcardGroups.length)}
-                {" "}
-                thẻ/nhóm
-              </Badge>
-            </div>
-          </div>
-
-          <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
-            <div className="absolute right-4 top-4 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 p-3">
-              <TrendingUp className="h-5 w-5 text-green-500" />
-            </div>
-            <div className="relative">
-              <p className="text-sm font-medium text-muted-foreground">
-                Tiến độ trung bình
-              </p>
-              <p className="mt-2 bg-gradient-to-r from-green-500 to-emerald-500 bg-clip-text text-3xl font-bold text-transparent">
-                {avgProgress}
-                %
-              </p>
-              <Badge variant="outline" className="mt-2">
-                +12% so với tuần trước
-              </Badge>
-            </div>
-          </div>
-
-          <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 transition-all hover:shadow-lg">
-            <div className="absolute right-4 top-4 rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 p-3">
-              <Clock className="h-5 w-5 text-orange-500" />
-            </div>
-            <div className="relative">
-              <p className="text-sm font-medium text-muted-foreground">
-                Học hôm nay
-              </p>
-              <p className="mt-2 bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-3xl font-bold text-transparent">
-                {studiedToday}
-              </p>
-              <Badge variant="outline" className="mt-2">
-                Streak: 7 ngày 🔥
-              </Badge>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative flex-1 sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Tìm kiếm flashcard..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-transparent"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sắp xếp theo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Mới nhất</SelectItem>
-                <SelectItem value="name">Tên A-Z</SelectItem>
-                <SelectItem value="cards">Số thẻ</SelectItem>
-                <SelectItem value="progress">Tiến độ</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Tabs
-              value={viewMode}
-              onValueChange={(v) => setViewMode(v as "grid" | "list")}
-            >
-              <TabsList>
-                <TabsTrigger value="grid" className="gap-2">
-                  <Grid3x3 className="h-4 w-4" />
-                  Grid
-                </TabsTrigger>
-                <TabsTrigger value="list" className="gap-2">
-                  <List className="h-4 w-4" />
-                  List
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
-
-        {flashcardGroups.some((g) => g.isPinned) && (
-          <div className="mb-8">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="h-1 w-1 rounded-full bg-gradient-to-r from-gradient-from to-gradient-via" />
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Đã ghim
-              </h2>
-            </div>
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                  : "space-y-4"
-              }
-            >
-              {flashcardGroups
-                .filter((g) => g.isPinned)
-                .map((group) => (
-                  <FlashcardGroupCard
-                    key={group.id}
-                    group={group}
-                    viewMode={viewMode}
-                  />
-                ))}
-            </div>
-          </div>
-        )}
-
-        <div>
-          <div className="mb-4 flex items-center gap-2">
-            <div className="h-1 w-1 rounded-full bg-gradient-to-r from-gradient-via to-gradient-to" />
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Tất cả flashcards
-            </h2>
-          </div>
-          <div
-            className={
-              viewMode === "grid"
-                ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                : "space-y-4"
-            }
-          >
-            {flashcardGroups
-              .filter((g) => !g.isPinned)
-              .map((group) => (
-                <FlashcardGroupCard
-                  key={group.id}
-                  group={group}
-                  viewMode={viewMode}
-                />
-              ))}
-          </div>
-        </div>
-
-        {/* Empty State */}
-        {flashcardGroups.length === 0 && (
-          <div className="flex min-h-[400px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 p-8 text-center backdrop-blur-sm">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-gradient-from/20 to-gradient-to/20">
-              <Plus className="h-8 w-8 text-gradient-from" />
-            </div>
-            <h3 className="mt-6 text-xl font-semibold text-card-foreground">
-              Chưa có flashcard nào
-            </h3>
-            <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-              Bắt đầu hành trình học tập của bạn bằng cách tạo nhóm flashcard
-              đầu tiên từ file PDF
-            </p>
-            <Button
-              className="mt-6 gap-2 bg-gradient-to-r from-gradient-from via-gradient-via to-gradient-to hover:opacity-90"
-              asChild
-            >
-              <Link href="/k/ai-tool">
-                <Plus className="h-4 w-4" />
-                Tạo flashcard mới
-              </Link>
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
+    <FlashcardManagementTemplate
+      stats={stats}
+      flashcards={mockFlashcards}
+      searchQuery={searchQuery}
+      sortBy={sortBy}
+      statusFilter={statusFilter}
+      sortOptions={sortOptions}
+      statusOptions={statusOptions}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      totalResults={totalResults}
+      onSearchChange={setSearchQuery}
+      onSortChange={setSortBy}
+      onStatusChange={setStatusFilter}
+      onCreateFlashcard={handleCreateFlashcard}
+      onExport={handleExport}
+      onStudyFlashcard={handleStudyFlashcard}
+      onEditFlashcard={handleEditFlashcard}
+      onDeleteFlashcard={handleDeleteFlashcard}
+      onPageChange={setCurrentPage}
+    />
   );
 }

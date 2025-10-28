@@ -92,13 +92,6 @@ export function SidebarKit() {
       active: pathname === "/k/schedule",
     },
     {
-      name: "Analytics",
-      href: "/k/analytics",
-      icon: <ArrowTrendingUpIcon className="w-5 h-5" />,
-      label: "Phân tích",
-      active: pathname === "/k/analytics",
-    },
-    {
       name: "History",
       href: "/k/history",
       icon: <ClockIcon className="w-5 h-5" />,
