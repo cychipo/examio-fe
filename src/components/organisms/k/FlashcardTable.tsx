@@ -12,6 +12,8 @@ export interface FlashcardTableData {
   createdDate: string;
   lastStudied: string | null;
   tags: string[];
+  fileName?: string;
+  createdAt?: string;
 }
 
 interface FlashcardTableProps {
