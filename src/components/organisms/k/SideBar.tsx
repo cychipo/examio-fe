@@ -12,6 +12,7 @@ import {
   ChatBubbleIcon,
   BellIcon,
   GearIcon,
+  Pencil2Icon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -92,18 +93,18 @@ export function SidebarKit() {
       active: pathname === "/k/schedule",
     },
     {
-      name: "Analytics",
-      href: "/k/analytics",
-      icon: <ArrowTrendingUpIcon className="w-5 h-5" />,
-      label: "Phân tích",
-      active: pathname === "/k/analytics",
-    },
-    {
       name: "History",
       href: "/k/history",
       icon: <ClockIcon className="w-5 h-5" />,
       label: "Lịch sử",
       active: pathname === "/k/history",
+    },
+    {
+      name: "Forum",
+      href: "/k/forum",
+      icon: <Pencil2Icon className="w-5 h-5" />,
+      label: "Diễn đàn",
+      active: pathname === "/k/forum",
     },
   ];
 
