@@ -12,6 +12,7 @@ import {
   getUserApi,
 } from "@/apis/authApi";
 import { toast } from "@/components/ui/toast";
+import { setAuthToken, clearAuthToken } from "@/hooks/useAuthSync";
 
 interface AuthState {
   user: User | null;
@@ -45,15 +46,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ user: response.user, isAuthenticated: true });
         toast.success("Đăng nhập thành công");
 
-        // Fallback set token
+        // Set token to both localStorage and cookie
         if (response.token && typeof window !== "undefined") {
-          const hasCookie = document.cookie.includes("token=");
-          if (!hasCookie) {
-            console.warn("Cookie không hoạt động, fallback sang localStorage");
-            localStorage.setItem("auth_token", response.token);
-          } else {
-            localStorage.removeItem("auth_token");
-          }
+          setAuthToken(response.token);
         }
 
         return Promise.resolve(); // Resolve successfully
@@ -135,7 +130,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     set({ user: null, isAuthenticated: false });
-    localStorage.removeItem("auth_token");
+    clearAuthToken();
   },
 
   getUser: async () => {
