@@ -192,9 +192,12 @@ export function SidebarKit() {
                   asChild
                   key={index}
                   variant="ghost"
-                  className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] rounded-sm ${
-                    item.active ? "bg-[#EFF6FF] text-[#2D68FE]" : ""
-                  }`}>
+                  className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] dark:hover:bg-[#1A1B1C] dark:hover:text-[#608CFC]
+                     rounded-sm ${
+                       item.active
+                         ? "bg-[#EFF6FF] text-[#2D68FE] dark:bg-[#1A1B1C] dark:text-[#608CFC]"
+                         : ""
+                     }`}>
                   <Link href={item.href} className="flex items-center gap-x-3">
                     {item.icon}
                     {item.label}
@@ -210,8 +213,10 @@ export function SidebarKit() {
                 asChild
                 key={index}
                 variant="ghost"
-                className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] rounded-sm ${
-                  item.active ? "bg-[#EFF6FF] text-[#2D68FE]" : ""
+                className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] dark:hover:bg-[#1A1B1C] dark:hover:text-[#608CFC] rounded-sm ${
+                  item.active
+                    ? "bg-[#EFF6FF] text-[#2D68FE] dark:bg-[#1A1B1C] dark:text-[#608CFC]"
+                    : ""
                 }`}>
                 <Link href={item.href} className="flex items-center gap-x-3">
                   {item.icon}
