@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import Link from "next/link";
 import { FacebookIcon } from "lucide-react";
-import { useScreenBreakpoint } from "@/hooks/useDevices";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "@/components/ui/toast";
 
@@ -28,7 +27,6 @@ export function SignupForm() {
 
     signup({ username, email, password });
   };
-  const { isMobile } = useScreenBreakpoint();
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black shadow-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -92,10 +90,7 @@ export function SignupForm() {
           <hr className="flex-grow border-t border-neutral-300 dark:border-neutral-700" />
         </div>
 
-        <div
-          className={`grid gap-2 mb-[10px] ${
-            isMobile ? "grid-cols-1" : "grid-cols-3"
-          }`}>
+        <div className="grid gap-2 mb-[10px] grid-cols-1 md:grid-cols-3">
           <button
             className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
             type="submit">

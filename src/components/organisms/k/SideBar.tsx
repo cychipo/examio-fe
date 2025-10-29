@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
 import Logo from "@/components/atoms/Logo";
-import { ArrowTrendingUpIcon } from "@heroicons/react/24/solid";
 import {
   TokensIcon,
   ReaderIcon,
@@ -16,12 +15,12 @@ import {
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useScreenBreakpoint } from "@/hooks/useDevices";
 import { FloatingDock } from "@/components/atoms/k/FloatingDock";
 import ProfileDropdown from "@/components/atoms/ProfileDropdown";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useLayoutEffect, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useIsDesktop } from "@/hooks/useMediaQuery";
 
 interface Profile {
   name: string;
@@ -32,7 +31,6 @@ interface Profile {
 }
 
 export function SidebarKit() {
-  const { isMobile } = useScreenBreakpoint();
   const { user, getUser } = useAuthStore();
   const [profile, setProfile] = React.useState<Profile>({
     name: "",
@@ -40,6 +38,12 @@ export function SidebarKit() {
     avatar: "",
   });
   const pathname = usePathname();
+  const isDesktop = useIsDesktop();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useLayoutEffect(() => {
     getUser();
@@ -132,89 +136,95 @@ export function SidebarKit() {
     },
   ];
 
-  // Mobile: Show FloatingDock at bottom
-  if (isMobile) {
-    // Primary items for main dock (5 items)
-    const primaryDockItems = itemSiderbar
-      .slice(0, 5)
-      .map(({ name, href, icon, label, active }) => ({
-        name,
-        href,
-        icon,
-        label,
-        active,
-      }));
+  // For mobile FloatingDock
+  const primaryDockItems = itemSiderbar
+    .slice(0, 5)
+    .map(({ name, href, icon, label, active }) => ({
+      name,
+      href,
+      icon,
+      label,
+      active,
+    }));
 
-    // Secondary items (remaining primary + all secondary)
-    const secondaryDockItems = [
-      ...itemSiderbar.slice(5).map(({ name, href, icon, label, active }) => ({
-        name,
-        href,
-        icon,
-        label,
-        active,
-      })),
-      ...itemSecondarySiderbar.map(({ name, href, icon, label, active }) => ({
-        name,
-        href,
-        icon,
-        label,
-        active,
-      })),
-    ];
+  const secondaryDockItems = [
+    ...itemSiderbar.slice(5).map(({ name, href, icon, label, active }) => ({
+      name,
+      href,
+      icon,
+      label,
+      active,
+    })),
+    ...itemSecondarySiderbar.map(({ name, href, icon, label, active }) => ({
+      name,
+      href,
+      icon,
+      label,
+      active,
+    })),
+  ];
 
-    return (
-      <FloatingDock
-        className="z-[1000]"
-        items={primaryDockItems}
-        secondaryItems={secondaryDockItems}
-      />
-    );
+  // Don't render anything until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return null;
   }
 
-  // Desktop: Show Sidebar
   return (
-    <div className="flex flex-col justify-between gap-y-3 border border-1/2 h-full px-4 pt-4 py-1">
-      <div className="flex flex-col gap-y-4 mt-2">
-        <Logo sizeLogo={28} sizeText={20} />
+    <>
+      {/* Mobile: FloatingDock - Only render on mobile */}
+      {!isDesktop && (
+        <FloatingDock
+          className="z-[1000]"
+          items={primaryDockItems}
+          secondaryItems={secondaryDockItems}
+        />
+      )}
 
-        <div className="flex flex-col gap-y-2 mb-2 w-full">
-          {itemSiderbar.map((item, index) => (
-            <Button
-              asChild
-              key={index}
-              variant="ghost"
-              className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] rounded-sm ${
-                item.active ? "bg-[#EFF6FF] text-[#2D68FE]" : ""
-              }`}>
-              <Link href={item.href} className="flex items-center gap-x-3">
-                {item.icon}
-                {item.label}
-              </Link>
-            </Button>
-          ))}
-        </div>
-      </div>
+      {/* Desktop: Sidebar - Only render on desktop */}
+      {isDesktop && (
+        <div className="fixed bg-background h-[calc(100%)] w-[288px] flex flex-col justify-between gap-y-3 border border-1/2 px-4 pt-4 py-1">
+          <div className="flex flex-col gap-y-4 mt-2">
+            <Logo sizeLogo={28} sizeText={20} />
 
-      <div className="flex flex-col gap-y-2 mb-2 w-full">
-        {itemSecondarySiderbar.map((item, index) => (
-          <Button
-            asChild
-            key={index}
-            variant="ghost"
-            className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] rounded-sm ${
-              item.active ? "bg-[#EFF6FF] text-[#2D68FE]" : ""
-            }`}>
-            <Link href={item.href} className="flex items-center gap-x-3">
-              {item.icon}
-              {item.label}
-            </Link>
-          </Button>
-        ))}
-        <div className="mt-2">
-          <ProfileDropdown data={profile} />
+            <div className="flex flex-col gap-y-2 mb-2 w-full">
+              {itemSiderbar.map((item, index) => (
+                <Button
+                  asChild
+                  key={index}
+                  variant="ghost"
+                  className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] rounded-sm ${
+                    item.active ? "bg-[#EFF6FF] text-[#2D68FE]" : ""
+                  }`}>
+                  <Link href={item.href} className="flex items-center gap-x-3">
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-y-2 mb-2 w-full">
+            {itemSecondarySiderbar.map((item, index) => (
+              <Button
+                asChild
+                key={index}
+                variant="ghost"
+                className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] rounded-sm ${
+                  item.active ? "bg-[#EFF6FF] text-[#2D68FE]" : ""
+                }`}>
+                <Link href={item.href} className="flex items-center gap-x-3">
+                  {item.icon}
+                  {item.label}
+                </Link>
+              </Button>
+            ))}
+            <div className="mt-2">
+              <ProfileDropdown data={profile} />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }

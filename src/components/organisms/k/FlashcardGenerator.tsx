@@ -34,8 +34,6 @@ import {
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
 import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
-import { cn } from "@/lib/utils";
-import { useScreenBreakpoint } from "@/hooks/useDevices";
 import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
 import {
   DialogAddExam,
@@ -61,7 +59,6 @@ export function FlashcardGenerator() {
   } = useFlashcardGeneratorStore();
 
   const { toast } = useToast();
-  const { isMobile } = useScreenBreakpoint();
 
   const handleFileUpload = (uploadedFile: File) => {
     setFile(uploadedFile);
@@ -108,14 +105,9 @@ export function FlashcardGenerator() {
   };
 
   return (
-    <div
-      className={cn("gap-6 flex w-full", isMobile ? "flex-col" : "flex-row")}>
+    <div className="gap-6 flex w-full flex-col md:flex-row">
       {/* Upload & Settings */}
-      <Card
-        className={cn(
-          "border-border bg-card h-fit",
-          isMobile ? "w-full" : "w-2/5"
-        )}>
+      <Card className="border-border bg-card h-fit w-full md:w-2/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5 text-primary" />
@@ -220,8 +212,7 @@ export function FlashcardGenerator() {
       </Card>
 
       {/* Flashcard Preview */}
-      <Card
-        className={cn("border-border bg-card", isMobile ? "w-full" : "w-3/5")}>
+      <Card className="border-border bg-card w-full md:w-3/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <SquareSplitVertical className="w-5 h-5 text-primary" />
