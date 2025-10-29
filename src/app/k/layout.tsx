@@ -1,18 +1,17 @@
+"use client";
+
 import { SidebarKit } from "@/components/organisms/k/SideBar";
 import { cn } from "@/lib/utils";
-import type { Metadata } from "next";
 import { Sparkles } from "lucide-react";
-
-export const metadata: Metadata = {
-  title: "Examio - Quản lý",
-  description: "Nền tảng ôn tập và thi trực tuyến hỗ trợ bởi AI",
-};
+import { useAuthSync } from "@/hooks/useAuthSync";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Sync token from localStorage to cookie on mount
+  useAuthSync();
   return (
     <div
       className={cn(
