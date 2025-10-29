@@ -3,6 +3,7 @@ import { TikTok_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { ToastProvider } from "@/components/ui/toast";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const tikTokSans = TikTok_Sans({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
+      <GoogleAnalytics />
       <body className={`${tikTokSans.className}`}>
         <ThemeProvider
           attribute="class"
