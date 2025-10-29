@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { Eye, EyeOff, FacebookIcon } from "lucide-react";
-import { useScreenBreakpoint } from "@/hooks/useDevices";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRouter } from "next/navigation";
 
@@ -20,7 +19,6 @@ function BottomGradient() {
 
 export function SigninForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const { isMobile } = useScreenBreakpoint();
   const { loginWithGoogle, loginWithFacebook, loginWithGithub, login } =
     useAuthStore();
   const router = useRouter();
@@ -111,10 +109,7 @@ export function SigninForm() {
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
 
-            <div
-              className={`grid gap-2 mb-[10px] ${
-                isMobile ? "grid-cols-1" : "grid-cols-3"
-              }`}>
+            <div className="grid gap-2 mb-[10px] grid-cols-1 md:grid-cols-3">
               <button
                 className=" relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
                 type="submit"

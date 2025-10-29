@@ -3,22 +3,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestGenerator } from "@/components/organisms/k/TestGenerator";
 import { FlashcardGenerator } from "@/components/organisms/k/FlashcardGenerator";
 import { FileText, SquareSplitVertical } from "lucide-react";
-import { useScreenBreakpoint } from "@/hooks/useDevices";
-import { cn } from "@/lib/utils";
 
 export default function AIGeneratorPage() {
-  const { isMobile } = useScreenBreakpoint();
   return (
     <div className="min-h-screen bg-background">
       {/* Main Content */}
       <section className="container mx-auto px-4 pb-20 mt-4">
         <div className="w-full mx-auto">
           <Tabs defaultValue="test" className="w-full">
-            <TabsList
-              className={cn(
-                "grid grid-cols-2 h-12 bg-card border border-border",
-                isMobile ? "w-full" : "w-fit"
-              )}>
+            <TabsList className="grid grid-cols-2 h-12 bg-card border border-border w-full md:w-fit">
               <TabsTrigger
                 value="test"
                 className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">

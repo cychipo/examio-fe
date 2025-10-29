@@ -30,8 +30,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import ModernLoader from "@/components/ui/modern-loader";
-import { useScreenBreakpoint } from "@/hooks/useDevices";
-import { cn } from "@/lib/utils";
 import { Quizz } from "@/types/exam";
 import { useTestGeneratorStore } from "@/stores/useAIGeneratorStore";
 import {
@@ -57,7 +55,6 @@ export function TestGenerator() {
   } = useTestGeneratorStore();
 
   const { toast } = useToast();
-  const { isMobile } = useScreenBreakpoint();
 
   const handleFileUpload = (uploadedFile: File) => {
     setFile(uploadedFile);
@@ -91,14 +88,9 @@ export function TestGenerator() {
     await generateTest();
   };
   return (
-    <div
-      className={cn("gap-6 flex w-full", isMobile ? "flex-col" : "flex-row")}>
+    <div className="gap-6 flex w-full flex-col md:flex-row">
       {/* Upload & Settings */}
-      <Card
-        className={cn(
-          "border-border bg-card h-fit",
-          isMobile ? "w-full" : "w-2/5"
-        )}>
+      <Card className="border-border bg-card h-fit w-full md:w-2/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UploadIcon className="w-5 h-5 text-primary" />
@@ -208,8 +200,7 @@ export function TestGenerator() {
       </Card>
 
       {/* Preview */}
-      <Card
-        className={cn("border-border bg-card", isMobile ? "w-full" : "w-3/5")}>
+      <Card className="border-border bg-card w-full md:w-3/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileTextIcon className="w-5 h-5 text-primary" />
