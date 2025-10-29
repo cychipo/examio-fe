@@ -44,6 +44,18 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (response.success) {
         set({ user: response.user, isAuthenticated: true });
         toast.success("Đăng nhập thành công");
+
+        // Fallback set token
+        if (response.token && typeof window !== "undefined") {
+          const hasCookie = document.cookie.includes("token=");
+          if (!hasCookie) {
+            console.warn("Cookie không hoạt động, fallback sang localStorage");
+            localStorage.setItem("auth_token", response.token);
+          } else {
+            localStorage.removeItem("auth_token");
+          }
+        }
+
         return Promise.resolve(); // Resolve successfully
       } else {
         toast.error(response.message || "Đăng nhập thất bại");
@@ -123,6 +135,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     set({ user: null, isAuthenticated: false });
+    localStorage.removeItem("auth_token");
   },
 
   getUser: async () => {
