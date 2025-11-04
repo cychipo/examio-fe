@@ -1,4 +1,4 @@
-import { FileText, CheckCircle, Target, TrendingUp } from "lucide-react";
+import { FileText, CheckCircle, CircleQuestionMark, TrendingUp } from "lucide-react";
 import { StatCard } from "@/components/molecules/StatCard";
 
 interface ExamStatsData {
@@ -38,7 +38,7 @@ export function ExamStatsSection({ stats }: ExamStatsSectionProps) {
       <StatCard
         title="Tổng câu hỏi"
         value={stats.totalQuestions}
-        icon={Target}
+        icon={CircleQuestionMark}
         iconColor="text-purple-600"
         iconBgColor="bg-purple-100 dark:bg-purple-950"
         trend={stats.totalQuestionsTrend}

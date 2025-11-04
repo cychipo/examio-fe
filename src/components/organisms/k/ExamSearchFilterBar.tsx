@@ -40,7 +40,7 @@ export function ExamSearchFilterBar({
           options={statusOptions}
           placeholder="Trạng thái"
           onValueChange={onStatusChange}
-          className="w-[140px]"
+          className="w-[160px]"
         />
         <FilterSelect
           value={categoryFilter}
