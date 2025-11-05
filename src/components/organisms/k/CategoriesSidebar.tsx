@@ -1,5 +1,4 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   CategoryItem,
   type Category,
@@ -24,18 +23,17 @@ export function CategoriesSidebar({
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-250px)]">
-          <div className="space-y-2 px-4 pb-4">
-            {categories.map((category) => (
-              <CategoryItem
-                key={category.id}
-                category={category}
-                isActive={activeCategory === category.id}
-                onClick={() => onCategoryChange(category.id)}
-              />
-            ))}
-          </div>
-        </ScrollArea>
+        {/* XÓA SCROLLAREA VÀ HEIGHT CỐ ĐỊNH */}
+        <div className="space-y-2 px-4 pb-4">
+          {categories.map((category) => (
+            <CategoryItem
+              key={category.id}
+              category={category}
+              isActive={activeCategory === category.id}
+              onClick={() => onCategoryChange(category.id)}
+            />
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

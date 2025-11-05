@@ -21,7 +21,7 @@ export function ExamManagementHeader({
       <div className="flex gap-2">
         <Button variant="outline" onClick={onExport}>
           <Upload className="h-4 w-4 mr-2" />
-          Export
+          Xuất file
         </Button>
         <Button
           onClick={onCreateExam}

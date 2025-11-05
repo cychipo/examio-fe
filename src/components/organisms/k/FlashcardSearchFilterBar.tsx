@@ -47,7 +47,7 @@ export function FlashcardSearchFilterBar({
           options={statusOptions}
           placeholder="Trạng thái"
           onValueChange={onStatusChange}
-          className="w-[140px]"
+          className="w-[160px]"
         />
         <Button variant="outline" size="icon" className="shrink-0">
           <SlidersHorizontal className="h-4 w-4" />
