@@ -41,16 +41,16 @@ export function SigninForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative">
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-md rounded-2xl shadow-xl overflow-hidden border relative">
         <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-blue-100 via-blue-50 to-transparent opacity-40 blur-3xl -mt-20"></div>
         <div className="p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-white p-4 rounded-2xl ">
+            <div>
               <Image src="/examio.svg" alt="Logo" width={80} height={80} />
             </div>
             <div className="p-0">
-              <h2 className="text-2xl font-bold text-gray-900 text-center">
+              <h2 className="text-2xl font-bold text-center">
                 Chào Mừng Trở Lại
               </h2>
             </div>
@@ -59,7 +59,7 @@ export function SigninForm() {
           <div className="space-y-6 p-0">
             <form onSubmit={handleSubmit} className="space-y-6 p-0">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium">
                   Tên Đăng Nhập hoặc Email
                 </label>
                 <input
@@ -71,9 +71,7 @@ export function SigninForm() {
 
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium text-gray-700">
-                    Mật Khẩu
-                  </label>
+                  <label className="text-sm font-medium">Mật Khẩu</label>
                   <Link href="#" className="text-xs hover:underline">
                     Quên mật khẩu?
                   </Link>

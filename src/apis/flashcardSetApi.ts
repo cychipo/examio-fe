@@ -77,3 +77,29 @@ export async function setHistoryFlashcardsToFlashcardSet(
   );
   return response.data;
 }
+
+export type ResponseDeleteFlashcardSet = {
+  message: string;
+};
+
+export async function deleteFlashcardSetApi(
+  id: string
+): Promise<ResponseDeleteFlashcardSet> {
+  const response = await api.delete(`/flashcardsets/${id}`);
+  return response.data;
+}
+
+export async function getFlashcardSetByIdApi(
+  id: string
+): Promise<FlashcardSet> {
+  const response = await api.get(`/flashcardsets/${id}`);
+  return response.data;
+}
+
+export async function updateFlashcardSetApi(
+  id: string,
+  credentials: CredentialsFlashcardSet
+): Promise<ResponseCreateFlashcardSet> {
+  const response = await api.put(`/flashcardsets/${id}`, credentials);
+  return response.data;
+}

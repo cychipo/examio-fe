@@ -77,3 +77,27 @@ export async function setHistoryQuizzesToQuizset(
   );
   return response.data;
 }
+
+export type ResponseDeleteQuizset = {
+  message: string;
+};
+
+export async function deleteQuizSetApi(
+  id: string
+): Promise<ResponseDeleteQuizset> {
+  const response = await api.delete(`/quizsets/${id}`);
+  return response.data;
+}
+
+export async function getQuizSetByIdApi(id: string): Promise<QuizSet> {
+  const response = await api.get(`/quizsets/${id}`);
+  return response.data;
+}
+
+export async function updateQuizSetApi(
+  id: string,
+  credentials: CredentialsQuizSet
+): Promise<ResponseCreateQuizset> {
+  const response = await api.put(`/quizsets/${id}`, credentials);
+  return response.data;
+}

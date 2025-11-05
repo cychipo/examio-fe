@@ -1,69 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ExamManagementTemplate } from "@/templates/ExamManagementTemplate";
 import type { ExamTableData } from "@/components/organisms/k/ExamTable";
 import type { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
-
-// Mock data
-const mockExams: ExamTableData[] = [
-  {
-    id: "1",
-    icon: "📘",
-    name: "Toán học nâng cao",
-    description: "Calculus and Linear Algebra",
-    questionCount: 45,
-    status: "public" as ExamStatus,
-    createdDate: "Oct 15, 2024",
-    lastStudied: "2 ngày trước",
-    tags: ["Toán học", "Giải tích"],
-  },
-  {
-    id: "2",
-    icon: "🧪",
-    name: "Kiến thức cơ bản về Hóa học",
-    description: "Periodic Table and Reactions",
-    questionCount: 32,
-    status: "private" as ExamStatus,
-    createdDate: "Oct 12, 2024",
-    lastStudied: "1 tuần trước",
-    tags: ["Hóa học", "Phản ứng"],
-  },
-  {
-    id: "3",
-    icon: "📜",
-    name: "Lịch sử Thế giới",
-    description: "Ancient to Modern Times",
-    questionCount: 28,
-    status: "public" as ExamStatus,
-    createdDate: "Oct 10, 2024",
-    lastStudied: null,
-    tags: ["Lịch sử", "Thế giới"],
-  },
-];
+import { useQuizSetStore } from "@/stores/useQuizSetStore";
 
 export default function ManageExamPage() {
+  const router = useRouter();
+  const { quizSetsK, loading, fetchQuizSets, deleteQuizSet } =
+    useQuizSetStore();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+  const limit = 10;
 
+  // Fetch quiz sets khi component mount hoặc khi filter thay đổi
+  useEffect(() => {
+    const loadQuizSets = async () => {
+      const isPublic =
+        statusFilter === "public"
+          ? true
+          : statusFilter === "private"
+          ? false
+          : undefined;
+
+      const response = await fetchQuizSets({
+        page: currentPage,
+        limit,
+        search: searchQuery || undefined,
+        isPublic,
+      });
+
+      if (response) {
+        setTotalResults(response.total);
+      }
+    };
+
+    loadQuizSets();
+  }, [currentPage, searchQuery, statusFilter, fetchQuizSets]);
+
+  // Transform quiz sets data to table data format
+  const transformedExams: ExamTableData[] = quizSetsK.map((quizSet) => ({
+    id: quizSet.id,
+    icon: "📘", // Default icon, có thể custom theo tags
+    name: quizSet.title,
+    description: quizSet.description || "",
+    questionCount: 0, // Backend chưa trả về thông tin số câu hỏi, cần update sau
+    status: (quizSet.isPublic ? "public" : "private") as ExamStatus,
+    createdDate: new Date(quizSet.createdAt).toLocaleDateString("vi-VN"),
+    lastStudied: null, // Backend chưa có thông tin này
+    tags: quizSet.tags || [],
+  }));
+
+  const totalPages = Math.ceil(totalResults / limit);
+
+  // Tính stats từ dữ liệu thực
   const stats = {
-    totalExams: 24,
-    totalExamsTrend: 12,
-    activeExams: 18,
-    activeExamsTrend: 8,
-    totalQuestions: 486,
-    totalQuestionsTrend: 24,
-    completionRate: 87,
-    completionRateTrend: 5,
+    totalExams: totalResults,
+    totalExamsTrend: 0, // Cần API riêng để lấy trend
+    activeExams: quizSetsK.filter((qs) => qs.isPublic).length,
+    activeExamsTrend: 0,
+    totalQuestions: 0, // Cần tính từ tất cả quizSet
+    totalQuestionsTrend: 0,
+    completionRate: 0, // Cần API riêng để lấy completion rate
+    completionRateTrend: 0,
   };
 
   const statusOptions = [
     { value: "all", label: "Tất cả trạng thái" },
     { value: "public", label: "Public" },
     { value: "private", label: "Private" },
-    { value: "draft", label: "Draft" },
   ];
 
   const categoryOptions = [
@@ -75,33 +86,47 @@ export default function ManageExamPage() {
     { value: "history", label: "Lịch sử" },
   ];
 
-  const totalResults = mockExams.length;
-  const totalPages = Math.ceil(totalResults / 10);
-
   const handleCreateExam = () => {
-    console.log("Create new exam");
+    router.push("/k/ai-tool");
   };
 
   const handleExport = () => {
-    console.log("Export exams");
+    console.log("Export quiz sets");
   };
 
   const handleViewExam = (id: string) => {
-    console.log("View exam:", id);
+    router.push(`/k/quiz/${id}`);
   };
 
   const handleEditExam = (id: string) => {
-    console.log("Edit exam:", id);
+    router.push(`/k/quiz/edit/${id}`);
   };
 
-  const handleDeleteExam = (id: string) => {
-    console.log("Delete exam:", id);
+  const handleDeleteExam = async (id: string) => {
+    if (confirm("Bạn có chắc chắn muốn xóa bộ đề thi này?")) {
+      try {
+        await deleteQuizSet(id);
+      } catch (error) {
+        console.error("Delete quiz set error:", error);
+      }
+    }
   };
+
+  if (loading && quizSetsK.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ExamManagementTemplate
       stats={stats}
-      exams={mockExams}
+      exams={transformedExams}
       searchQuery={searchQuery}
       statusFilter={statusFilter}
       categoryFilter={categoryFilter}
