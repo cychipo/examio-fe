@@ -1,0 +1,304 @@
+"use client";
+
+import { use, useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useFlashcardSetStore } from "@/stores/useFlashcardSetStore";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft, Plus, Edit, Trash2, CreditCard, Eye } from "lucide-react";
+import { Flashcard as FlashCard } from "@/types/flashcardSet";
+import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
+import { FlashcardInlineForm } from "@/components/organisms/FlashcardInlineForm";
+
+/**
+ * Flashcard Set Detail Page
+ * Hiển thị chi tiết bộ flashcard và danh sách thẻ
+ * Cho phép thêm, sửa, xóa flashcard với inline form
+ */
+export default function FlashcardSetDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const router = useRouter();
+  const {
+    currentFlashcardSet,
+    loading,
+    fetchFlashcardSetById,
+    addFlashcard,
+    updateFlashcard,
+    deleteFlashcard,
+  } = useFlashcardSetStore();
+
+  // States
+  const [selectedCard, setSelectedCard] = useState<FlashCard | null>(null);
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
+
+  // Fetch flashcard set by ID
+  useEffect(() => {
+    if (id) {
+      fetchFlashcardSetById(id);
+    }
+  }, [id, fetchFlashcardSetById]);
+
+  // Handlers
+  const handleBack = useCallback(() => {
+    router.back();
+  }, [router]);
+
+  const handleAddCard = useCallback(() => {
+    setSelectedCard(null);
+    setShowCardForm(true);
+    // Scroll to top to show form
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const handleEditCard = useCallback((card: FlashCard) => {
+    setSelectedCard(card);
+    setShowCardForm(true);
+    // Scroll to top to show form
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const handleCancelForm = useCallback(() => {
+    setShowCardForm(false);
+    setSelectedCard(null);
+  }, []);
+
+  const handleDeleteCard = useCallback((cardId: string) => {
+    setCardToDelete(cardId);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (cardToDelete && id) {
+      await deleteFlashcard(id, cardToDelete);
+      setIsDeleteDialogOpen(false);
+      setCardToDelete(null);
+    }
+  }, [cardToDelete, id, deleteFlashcard]);
+
+  const handleSaveCard = useCallback(
+    async (cardData: any) => {
+      if (!id) return;
+
+      if (selectedCard) {
+        // Update existing flashcard
+        await updateFlashcard(id, selectedCard.id, cardData);
+      } else {
+        // Add new flashcard
+        await addFlashcard(id, cardData);
+      }
+      setShowCardForm(false);
+      setSelectedCard(null);
+    },
+    [selectedCard, id, addFlashcard, updateFlashcard]
+  );
+
+  // Loading state
+  if (loading || !currentFlashcardSet) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <Skeleton className="h-10 w-full mb-6" />
+          <div className="grid gap-6 md:grid-cols-3 mb-8">
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+          </div>
+          <Skeleton className="h-96" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Button variant="ghost" size="icon" onClick={handleBack}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold tracking-tight">
+                {currentFlashcardSet.title}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                {currentFlashcardSet.description || "Không có mô tả"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant={
+                  currentFlashcardSet.isPublic ? "default" : "secondary"
+                }>
+                {currentFlashcardSet.isPublic ? "Công khai" : "Riêng tư"}
+              </Badge>
+              {currentFlashcardSet.isPinned && (
+                <Badge variant="outline">📌 Đã ghim</Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Tags */}
+          {currentFlashcardSet.tags && currentFlashcardSet.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {currentFlashcardSet.tags.map((tag: string) => (
+                <Badge key={tag} variant="outline">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-3 mb-8">
+          <Card className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <CreditCard className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Tổng số thẻ
+                </p>
+                <p className="text-2xl font-bold">
+                  {currentFlashcardSet.flashcards?.length || 0}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <Eye className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Lượt xem
+                </p>
+                <p className="text-2xl font-bold">0</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <CreditCard className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Ngày tạo
+                </p>
+                <p className="text-sm font-medium">
+                  {new Date(currentFlashcardSet.createdAt).toLocaleDateString(
+                    "vi-VN"
+                  )}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Inline Flashcard Form */}
+        {showCardForm && (
+          <div className="mb-8">
+            <FlashcardInlineForm
+              flashcard={selectedCard}
+              onSave={handleSaveCard}
+              onCancel={handleCancelForm}
+              loading={loading}
+            />
+          </div>
+        )}
+
+        {/* Flashcards List */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold">Danh sách thẻ nhớ</h2>
+            <Button onClick={handleAddCard} disabled={showCardForm}>
+              <Plus className="mr-2 h-4 w-4" />
+              Thêm thẻ
+            </Button>
+          </div>
+
+          {currentFlashcardSet.flashcards &&
+          currentFlashcardSet.flashcards.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {currentFlashcardSet.flashcards.map((card, index) => (
+                <Card
+                  key={card.id}
+                  className="p-4 hover:shadow-md transition-shadow">
+                  <div className="flex flex-col h-full">
+                    <div className="flex items-center justify-between mb-3">
+                      <Badge variant="outline">Thẻ {index + 1}</Badge>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditCard(card)}
+                          disabled={showCardForm}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteCard(card.id)}
+                          disabled={showCardForm}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Câu hỏi:
+                        </p>
+                        <p className="font-medium text-sm">{card.question}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Trả lời:
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {card.answer}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <CreditCard className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Chưa có thẻ nhớ nào</p>
+              <p className="text-sm mt-2">
+                Nhấn "Thêm thẻ" để bắt đầu tạo bộ flashcard
+              </p>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Xóa thẻ nhớ"
+        description="Bạn có chắc chắn muốn xóa thẻ nhớ này? Hành động này không thể hoàn tác."
+        onConfirm={handleConfirmDelete}
+      />
+    </div>
+  );
+}

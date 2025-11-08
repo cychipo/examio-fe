@@ -20,7 +20,7 @@ export function UpcomingExamsSection({ exams }: UpcomingExamsSectionProps) {
         Kỳ thi sắp tới
       </h2>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {exams.map((exam) => (
           <UpcomingExamItem
             key={exam.id}

@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Users, Clock } from "lucide-react";
+import { Lock, Users, Clock, Edit, Trash2 } from "lucide-react";
 import { RoomInfoRow } from "./RoomInfoRow";
 
 interface ExamRoomCardItemProps {
@@ -14,6 +14,8 @@ interface ExamRoomCardItemProps {
   status: "active" | "upcoming" | "ended";
   isPrivate?: boolean;
   onViewDetails?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const statusConfig = {
@@ -44,38 +46,42 @@ export function ExamRoomCardItem({
   status,
   isPrivate = false,
   onViewDetails,
+  onEdit,
+  onDelete,
 }: ExamRoomCardItemProps) {
   const config = statusConfig[status];
 
   return (
-    <Card className="group relative overflow-hidden p-4 transition-all hover:shadow-md">
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <div className="mb-2 flex items-center gap-2">
-            {isPrivate && (
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
-                <Lock className="h-4 w-4 text-blue-500" />
-              </div>
-            )}
-            <h3 className="truncate font-semibold text-foreground">{name}</h3>
+    <Card className="group relative overflow-hidden p-3 transition-all hover:shadow-sm">
+      {/* Header */}
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {isPrivate && (
+            <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-blue-500/10">
+              <Lock className="h-3.5 w-3.5 text-blue-500" />
+            </div>
+          )}
+          <div className="min-w-0">
+            <h3 className="truncate font-medium text-foreground text-sm">{name}</h3>
+            <p className="text-xs text-muted-foreground">{roomType}</p>
           </div>
-          <p className="text-sm text-muted-foreground">{roomType}</p>
         </div>
-        <Badge variant="secondary" className={config.badgeClass}>
+        <Badge variant="secondary" className={`text-[11px] ${config.badgeClass}`}>
           {config.badge}
         </Badge>
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+      {/* Info rows */}
+      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
         <RoomInfoRow
           icon={Clock}
-          label="Duration"
+          label="Thời lượng"
           value={`${duration}m`}
           iconColor="text-blue-500"
         />
         <RoomInfoRow
           icon={Users}
-          label="Participants"
+          label="Thí sinh"
           value={participants}
           iconColor="text-purple-500"
         />
@@ -87,13 +93,37 @@ export function ExamRoomCardItem({
         />
       </div>
 
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-full"
-        onClick={onViewDetails}>
-        Xem chi tiết
-      </Button>
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 text-xs flex-1"
+          onClick={onViewDetails}
+        >
+          Xem chi tiết
+        </Button>
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={onEdit}
+          >
+            <Edit className="h-3.5 w-3.5" />
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+            onClick={onDelete}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
     </Card>
   );
 }

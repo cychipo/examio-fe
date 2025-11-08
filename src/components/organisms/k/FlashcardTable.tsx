@@ -1,4 +1,4 @@
-import { Play } from "lucide-react";
+import { Eye } from "lucide-react";
 import { ManagementTable, ManagementTableData } from "./ManagementTable";
 import { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 
@@ -34,7 +34,7 @@ export function FlashcardTable({
     icon: flashcard.icon,
     name: flashcard.name,
     description: flashcard.description,
-    count: flashcard.cardCount,
+    questionCount: flashcard.cardCount,
     countLabel: "thẻ",
     status: flashcard.status,
     createdDate: flashcard.createdDate,
@@ -46,8 +46,8 @@ export function FlashcardTable({
     <ManagementTable
       title="Tất cả bộ thẻ"
       data={tableData}
-      primaryActionIcon={Play}
-      primaryActionLabel="Học ngay"
+      primaryActionIcon={Eye}
+      primaryActionLabel="Xem chi tiết"
       countColumnLabel="Số thẻ"
       onPrimaryAction={onStudy}
       onEdit={onEdit}

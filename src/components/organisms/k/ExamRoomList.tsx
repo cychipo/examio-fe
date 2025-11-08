@@ -26,6 +26,8 @@ interface ExamRoomListProps {
   filter: string;
   onFilterChange: (value: string) => void;
   onViewRoom: (id: string) => void;
+  onEditRoom?: (id: string) => void;
+  onDeleteRoom?: (id: string) => void;
 }
 
 export function ExamRoomList({
@@ -33,6 +35,8 @@ export function ExamRoomList({
   filter,
   onFilterChange,
   onViewRoom,
+  onEditRoom,
+  onDeleteRoom,
 }: ExamRoomListProps) {
   return (
     <Card className="p-6">
@@ -52,7 +56,7 @@ export function ExamRoomList({
         </Select>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-col gap-4">
         {rooms.map((room) => (
           <ExamRoomCardItem
             key={room.id}
@@ -65,6 +69,8 @@ export function ExamRoomList({
             status={room.status}
             isPrivate={room.isPrivate}
             onViewDetails={() => onViewRoom(room.id)}
+            onEdit={onEditRoom ? () => onEditRoom(room.id) : undefined}
+            onDelete={onDeleteRoom ? () => onDeleteRoom(room.id) : undefined}
           />
         ))}
       </div>

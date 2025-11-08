@@ -19,15 +19,12 @@ interface ExamManagementTemplateProps {
   exams: ExamTableData[];
   searchQuery: string;
   statusFilter: string;
-  categoryFilter: string;
   statusOptions: FilterOption[];
-  categoryOptions: FilterOption[];
   currentPage: number;
   totalPages: number;
   totalResults: number;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: string) => void;
-  onCategoryChange: (value: string) => void;
   onCreateExam: () => void;
   onExport: () => void;
   onViewExam: (id: string) => void;
@@ -41,15 +38,12 @@ export function ExamManagementTemplate({
   exams,
   searchQuery,
   statusFilter,
-  categoryFilter,
   statusOptions,
-  categoryOptions,
   currentPage,
   totalPages,
   totalResults,
   onSearchChange,
   onStatusChange,
-  onCategoryChange,
   onCreateExam,
   onExport,
   onViewExam,
@@ -59,7 +53,7 @@ export function ExamManagementTemplate({
 }: ExamManagementTemplateProps) {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <ExamManagementHeader onCreateExam={onCreateExam} onExport={onExport} />
 
         <ExamStatsSection stats={stats} />
@@ -68,11 +62,8 @@ export function ExamManagementTemplate({
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
           statusFilter={statusFilter}
-          categoryFilter={categoryFilter}
           statusOptions={statusOptions}
-          categoryOptions={categoryOptions}
           onStatusChange={onStatusChange}
-          onCategoryChange={onCategoryChange}
         />
 
         <ExamTable

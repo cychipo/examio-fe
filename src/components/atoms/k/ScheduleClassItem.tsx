@@ -11,22 +11,26 @@ interface ScheduleClassItemProps {
 
 const typeConfig = {
   class: {
-    color: "border-l-blue-500",
+    bgColor: "bg-blue-50", // THÊM MÀU NỀN
+    borderColor: "border-l-blue-500", // GIỮ VIỀN TRÁI
     badgeClass: "bg-blue-500/10 text-blue-600",
     label: "Class",
   },
   lab: {
-    color: "border-l-green-500",
+    bgColor: "bg-green-50", // THÊM MÀU NỀN
+    borderColor: "border-l-green-500", // GIỮ VIỀN TRÁI
     badgeClass: "bg-green-500/10 text-green-600",
     label: "Lab",
   },
   study: {
-    color: "border-l-orange-500",
+    bgColor: "bg-orange-50", // THÊM MÀU NỀN
+    borderColor: "border-l-orange-500", // GIỮ VIỀN TRÁI
     badgeClass: "bg-orange-500/10 text-orange-600",
     label: "Study",
   },
   task: {
-    color: "border-l-purple-500",
+    bgColor: "bg-purple-50", // THÊM MÀU NỀN
+    borderColor: "border-l-purple-500", // GIỮ VIỀN TRÁI
     badgeClass: "bg-purple-500/10 text-purple-600",
     label: "Task",
   },
@@ -44,13 +48,14 @@ export function ScheduleClassItem({
   return (
     <div
       className={cn(
-        "flex items-start gap-3 rounded-lg border border-border bg-card p-3 transition-all hover:shadow-sm",
-        config.color,
-        "border-l-4",
+        "flex items-start gap-3 rounded-lg border border-border p-3 transition-all hover:shadow-sm",
+        config.bgColor, // MÀU NỀN
+        config.borderColor, // VIỀN TRÁI MÀU
+        "border-l-4", // ĐỘ DÀY VIỀN TRÁI
         className
       )}>
       <div className="min-w-[60px]">
-        <p className="text-xs font-medium text-muted-foreground">{time}</p>
+        <p className="text-xs font-medium text-foreground">{time}</p>
       </div>
       <div className="flex-1 space-y-1">
         <div className="flex items-center justify-between gap-2">
