@@ -15,6 +15,11 @@ import {
   deleteQuizSetApi,
   getQuizSetByIdApi,
   updateQuizSetApi,
+  addQuestionToQuizSet,
+  updateQuestionInQuizSet,
+  deleteQuestionFromQuizSet,
+  CreateQuestionData,
+  UpdateQuestionData,
 } from "@/apis/quizsetApi";
 import { toast } from "@/components/ui/toast";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
@@ -38,6 +43,17 @@ interface QuizSetState {
   setHistoryQuizzesToQuizset: (
     credentials: CredentialSetHistoryToQuizset
   ) => Promise<void>;
+  // Question CRUD methods
+  addQuestion: (
+    quizSetId: string,
+    questionData: CreateQuestionData
+  ) => Promise<void>;
+  updateQuestion: (
+    quizSetId: string,
+    questionId: string,
+    questionData: UpdateQuestionData
+  ) => Promise<void>;
+  deleteQuestion: (quizSetId: string, questionId: string) => Promise<void>;
 }
 
 export const useQuizSetStore = create<QuizSetState>((set) => ({
@@ -210,5 +226,110 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
 
   invalidateCache: () => {
     storeCache.clear();
+  },
+
+  // ========== QUESTION CRUD METHODS ==========
+
+  addQuestion: async (quizSetId: string, questionData: CreateQuestionData) => {
+    set({ loading: true });
+    try {
+      await addQuestionToQuizSet(quizSetId, questionData);
+
+      // Refetch quiz set to get updated questions
+      await useQuizSetStore.getState().fetchQuizSetById(quizSetId);
+
+      toast.success("Thêm câu hỏi thành công");
+
+      // Invalidate cache
+      storeCache.invalidate("quizsets");
+    } catch (error) {
+      toast.error("Thêm câu hỏi thất bại", {
+        description: (error as Error).message,
+      });
+      console.error("Thêm câu hỏi thất bại:", error);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  updateQuestion: async (
+    quizSetId: string,
+    questionId: string,
+    questionData: UpdateQuestionData
+  ) => {
+    set({ loading: true });
+    try {
+      await updateQuestionInQuizSet(quizSetId, questionId, questionData);
+
+      // Optimistic update
+      set((state) => {
+        if (!state.currentQuizSet || !state.currentQuizSet.questions) {
+          return state;
+        }
+
+        return {
+          currentQuizSet: {
+            ...state.currentQuizSet,
+            questions: state.currentQuizSet.questions.map((q) =>
+              q.id === questionId ? { ...q, ...questionData } : q
+            ),
+          },
+        };
+      });
+
+      toast.success("Cập nhật câu hỏi thành công");
+
+      // Invalidate cache
+      storeCache.invalidate("quizsets");
+    } catch (error) {
+      toast.error("Cập nhật câu hỏi thất bại", {
+        description: (error as Error).message,
+      });
+      console.error("Cập nhật câu hỏi thất bại:", error);
+
+      // Refetch on error to restore correct state
+      await useQuizSetStore.getState().fetchQuizSetById(quizSetId);
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  deleteQuestion: async (quizSetId: string, questionId: string) => {
+    set({ loading: true });
+    try {
+      await deleteQuestionFromQuizSet(quizSetId, questionId);
+
+      // Optimistic update
+      set((state) => {
+        if (!state.currentQuizSet || !state.currentQuizSet.questions) {
+          return state;
+        }
+
+        return {
+          currentQuizSet: {
+            ...state.currentQuizSet,
+            questions: state.currentQuizSet.questions.filter(
+              (q) => q.id !== questionId
+            ),
+            questionCount: state.currentQuizSet.questionCount - 1,
+          },
+        };
+      });
+
+      toast.success("Xóa câu hỏi thành công");
+
+      // Invalidate cache
+      storeCache.invalidate("quizsets");
+    } catch (error) {
+      toast.error("Xóa câu hỏi thất bại", {
+        description: (error as Error).message,
+      });
+      console.error("Xóa câu hỏi thất bại:", error);
+
+      // Refetch on error to restore correct state
+      await useQuizSetStore.getState().fetchQuizSetById(quizSetId);
+    } finally {
+      set({ loading: false });
+    }
   },
 }));

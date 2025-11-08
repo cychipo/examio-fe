@@ -27,8 +27,6 @@ export function useAuthSync() {
         expiryDate.setDate(expiryDate.getDate() + 7);
 
         document.cookie = `${AUTH_COOKIE_NAME}=${storageToken}; path=/; expires=${expiryDate.toUTCString()}; SameSite=Lax`;
-
-        console.log("Token synced from localStorage to cookie");
       }
     }
   }, []);

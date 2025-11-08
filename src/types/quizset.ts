@@ -19,4 +19,5 @@ export interface QuizSet {
   createdAt: string;
   updatedAt: string;
   questions?: Quizz[];
+  questionCount: number;
 }

@@ -1,0 +1,243 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Plus, X } from "lucide-react";
+import { Quizz } from "@/types/quizset";
+
+interface QuestionEditorDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  question: Quizz | null;
+  onSave: (data: QuestionFormData) => void;
+}
+
+export interface QuestionFormData {
+  question: string;
+  options: string[];
+  answer: string;
+}
+
+/**
+ * Question Editor Dialog Component
+ * Modal/Drawer responsive để thêm/sửa câu hỏi
+ * Hỗ trợ rich text (textarea) cho câu hỏi và đáp án
+ */
+export function QuestionEditorDialog({
+  open,
+  onOpenChange,
+  question,
+  onSave,
+}: QuestionEditorDialogProps) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  // Form state
+  const [questionText, setQuestionText] = useState("");
+  const [options, setOptions] = useState<string[]>(["", "", "", ""]);
+  const [correctAnswer, setCorrectAnswer] = useState("");
+
+  // Initialize form khi dialog mở hoặc question thay đổi
+  useEffect(() => {
+    if (open) {
+      if (question) {
+        setQuestionText(question.question);
+        const filledOptions =
+          question.options.length >= 4
+            ? question.options
+            : ([
+                ...question.options,
+                ...Array.from({
+                  length: 4 - question.options.length,
+                }).fill(""),
+              ] as string[]);
+        setOptions(filledOptions);
+        setCorrectAnswer(question.answer);
+      } else {
+        // Reset form
+        setQuestionText("");
+        setOptions(["", "", "", ""]);
+        setCorrectAnswer("");
+      }
+    }
+  }, [open, question]);
+
+  const handleAddOption = () => {
+    setOptions([...options, ""]);
+  };
+
+  const handleRemoveOption = (index: number) => {
+    if (options.length > 2) {
+      const newOptions = options.filter((_, i) => i !== index);
+      setOptions(newOptions);
+      // If removed option was the correct answer, reset
+      if (correctAnswer === options[index]) {
+        setCorrectAnswer("");
+      }
+    }
+  };
+
+  const handleOptionChange = (index: number, value: string) => {
+    const newOptions = [...options];
+    newOptions[index] = value;
+    setOptions(newOptions);
+  };
+
+  const handleSave = () => {
+    // Validate
+    if (!questionText.trim()) {
+      alert("Vui lòng nhập câu hỏi");
+      return;
+    }
+
+    const filledOptions = options.filter((opt) => opt.trim());
+    if (filledOptions.length < 2) {
+      alert("Vui lòng nhập ít nhất 2 đáp án");
+      return;
+    }
+
+    if (!correctAnswer || !filledOptions.includes(correctAnswer)) {
+      alert("Vui lòng chọn đáp án đúng");
+      return;
+    }
+
+    onSave({
+      question: questionText,
+      options: filledOptions,
+      answer: correctAnswer,
+    });
+  };
+
+  const formContent = (
+    <div className="space-y-6">
+      {/* Question Text */}
+      <div className="space-y-2">
+        <Label htmlFor="question">
+          Câu hỏi <span className="text-destructive">*</span>
+        </Label>
+        <Textarea
+          id="question"
+          placeholder="Nhập nội dung câu hỏi (hỗ trợ markdown cho công thức toán)"
+          value={questionText}
+          onChange={(e) => setQuestionText(e.target.value)}
+          rows={4}
+          className="resize-none"
+        />
+        <p className="text-xs text-muted-foreground">
+          💡 Gợi ý: Sử dụng $x^2$ cho công thức toán, ![](url) cho hình ảnh
+        </p>
+      </div>
+
+      {/* Options */}
+      <div className="space-y-4">
+        <Label>
+          Đáp án <span className="text-destructive">*</span>
+        </Label>
+
+        <RadioGroup value={correctAnswer} onValueChange={setCorrectAnswer}>
+          {options.map((option, index) => (
+            <div key={index} className="flex items-start gap-2">
+              <RadioGroupItem
+                value={option}
+                id={`option-${index}`}
+                disabled={!option.trim()}
+                className="mt-3"
+              />
+              <div className="flex-1">
+                <Textarea
+                  placeholder={`Đáp án ${String.fromCharCode(65 + index)}`}
+                  value={option}
+                  onChange={(e) => handleOptionChange(index, e.target.value)}
+                  rows={2}
+                  className="resize-none"
+                />
+              </div>
+              {options.length > 2 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleRemoveOption(index)}
+                  className="mt-2">
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </RadioGroup>
+
+        {options.length < 6 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAddOption}
+            className="w-full">
+            <Plus className="mr-2 h-4 w-4" />
+            Thêm đáp án
+          </Button>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2 justify-end pt-4">
+        <Button variant="outline" onClick={() => onOpenChange(false)}>
+          Hủy
+        </Button>
+        <Button onClick={handleSave}>
+          {question ? "Cập nhật" : "Thêm câu hỏi"}
+        </Button>
+      </div>
+    </div>
+  );
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {question ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
+            </DialogTitle>
+            <DialogDescription>
+              Nhập nội dung câu hỏi và các đáp án. Chọn đáp án đúng bằng radio
+              button.
+            </DialogDescription>
+          </DialogHeader>
+          {formContent}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="max-h-[90vh] px-4 pb-8">
+        <DrawerHeader>
+          <DrawerTitle>
+            {question ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}
+          </DrawerTitle>
+          <DrawerDescription>
+            Nhập nội dung câu hỏi và các đáp án
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="overflow-y-auto px-1 pb-4">{formContent}</div>
+      </DrawerContent>
+    </Drawer>
+  );
+}

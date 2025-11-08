@@ -1,4 +1,10 @@
-import { FileText, CheckCircle, CircleQuestionMark, TrendingUp } from "lucide-react";
+import { memo } from "react";
+import {
+  FileText,
+  CheckCircle,
+  CircleQuestionMark,
+  TrendingUp,
+} from "lucide-react";
 import { StatCard } from "@/components/molecules/StatCard";
 
 interface ExamStatsData {
@@ -16,7 +22,7 @@ interface ExamStatsSectionProps {
   stats: ExamStatsData;
 }
 
-export function ExamStatsSection({ stats }: ExamStatsSectionProps) {
+const ExamStatsSectionComponent = ({ stats }: ExamStatsSectionProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <StatCard
@@ -53,4 +59,8 @@ export function ExamStatsSection({ stats }: ExamStatsSectionProps) {
       />
     </div>
   );
-}
+};
+
+ExamStatsSectionComponent.displayName = "ExamStatsSection";
+
+export const ExamStatsSection = memo(ExamStatsSectionComponent);

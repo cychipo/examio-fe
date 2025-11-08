@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Users, Clock } from "lucide-react";
+import { Lock, Users, Clock, Edit, Trash2 } from "lucide-react";
 import { RoomInfoRow } from "./RoomInfoRow";
 
 interface ExamRoomCardItemProps {
@@ -14,6 +14,8 @@ interface ExamRoomCardItemProps {
   status: "active" | "upcoming" | "ended";
   isPrivate?: boolean;
   onViewDetails?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 const statusConfig = {
@@ -44,6 +46,8 @@ export function ExamRoomCardItem({
   status,
   isPrivate = false,
   onViewDetails,
+  onEdit,
+  onDelete,
 }: ExamRoomCardItemProps) {
   const config = statusConfig[status];
 
@@ -89,15 +93,37 @@ export function ExamRoomCardItem({
         />
       </div>
 
-      {/* Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="h-7 text-xs w-full"
-        onClick={onViewDetails}
-      >
-        Xem chi tiết
-      </Button>
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-7 text-xs flex-1"
+          onClick={onViewDetails}
+        >
+          Xem chi tiết
+        </Button>
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={onEdit}
+          >
+            <Edit className="h-3.5 w-3.5" />
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+            onClick={onDelete}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
     </Card>
   );
 }

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 
@@ -6,10 +7,10 @@ interface ExamManagementHeaderProps {
   onExport: () => void;
 }
 
-export function ExamManagementHeader({
+const ExamManagementHeaderComponent = ({
   onCreateExam,
   onExport,
-}: ExamManagementHeaderProps) {
+}: ExamManagementHeaderProps) => {
   return (
     <div className="flex items-center justify-between mb-6">
       <div>
@@ -32,4 +33,8 @@ export function ExamManagementHeader({
       </div>
     </div>
   );
-}
+};
+
+ExamManagementHeaderComponent.displayName = "ExamManagementHeader";
+
+export const ExamManagementHeader = memo(ExamManagementHeaderComponent);

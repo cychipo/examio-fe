@@ -18,4 +18,7 @@ export interface FlashcardSet {
   createdAt: string;
   updatedAt: string;
   flashcards?: Flashcard[];
+  _count?: {
+    detailsFlashCard: number;
+  };
 }

@@ -1,23 +1,83 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ExamManagementTemplate } from "@/templates/ExamManagementTemplate";
 import type { ExamTableData } from "@/components/organisms/k/ExamTable";
 import type { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
+import { useDebounce } from "@/hooks/useDebounce";
+import { useExportPDF } from "@/hooks/useExportPDF";
+import { QuizSetModal } from "@/components/organisms/QuizSetModal";
+import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
+import type { QuizSetFormData } from "@/components/molecules/QuizSetForm";
+import { TableSkeletonLoader } from "@/components/organisms/TableSkeletonLoader";
 
 export default function ManageExamPage() {
   const router = useRouter();
-  const { quizSetsK, loading, fetchQuizSets, deleteQuizSet } =
-    useQuizSetStore();
+  const {
+    quizSetsK,
+    loading,
+    fetchQuizSets,
+    deleteQuizSet,
+    createQuizSet,
+    updateQuizSet,
+  } = useQuizSetStore();
+  const { exportQuizSetsToPDF } = useExportPDF();
 
+  // State cho UI
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const limit = 10;
+
+  // State cho modals
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedQuizSetId, setSelectedQuizSetId] = useState<string | null>(
+    null
+  );
+  const [editFormData, setEditFormData] = useState<QuizSetFormData | undefined>(
+    undefined
+  );
+
+  // State để lưu stats ban đầu (không bị ảnh hưởng bởi filter/search)
+  const [originalStats, setOriginalStats] = useState({
+    totalExams: 0,
+    activeExams: 0,
+    totalQuestions: 0,
+    completionRate: 0,
+  });
+
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
+
+  // Fetch quiz sets lần đầu để lấy stats tổng thể (không filter)
+  useEffect(() => {
+    const loadInitialStats = async () => {
+      const response = await fetchQuizSets({
+        page: 1,
+        limit: 9999, // Lấy tất cả để tính stats
+      });
+
+      if (response) {
+        const totalQuestions = response.quizSets.reduce(
+          (sum, qs) => sum + (qs.questionCount || 0),
+          0
+        );
+        setOriginalStats({
+          totalExams: response.total,
+          activeExams: response.quizSets.filter((qs) => qs.isPublic).length,
+          totalQuestions,
+          completionRate: 0, // Cần API riêng
+        });
+      }
+    };
+
+    loadInitialStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Chỉ chạy 1 lần khi mount
 
   // Fetch quiz sets khi component mount hoặc khi filter thay đổi
   useEffect(() => {
@@ -32,7 +92,7 @@ export default function ManageExamPage() {
       const response = await fetchQuizSets({
         page: currentPage,
         limit,
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
         isPublic,
       });
 
@@ -42,108 +102,206 @@ export default function ManageExamPage() {
     };
 
     loadQuizSets();
-  }, [currentPage, searchQuery, statusFilter, fetchQuizSets]);
+  }, [currentPage, debouncedSearchQuery, statusFilter, fetchQuizSets]);
 
-  // Transform quiz sets data to table data format
-  const transformedExams: ExamTableData[] = quizSetsK.map((quizSet) => ({
-    id: quizSet.id,
-    icon: "📘", // Default icon, có thể custom theo tags
-    name: quizSet.title,
-    description: quizSet.description || "",
-    questionCount: 0, // Backend chưa trả về thông tin số câu hỏi, cần update sau
-    status: (quizSet.isPublic ? "public" : "private") as ExamStatus,
-    createdDate: new Date(quizSet.createdAt).toLocaleDateString("vi-VN"),
-    lastStudied: null, // Backend chưa có thông tin này
-    tags: quizSet.tags || [],
-  }));
+  // Transform quiz sets data to table data format - useMemo để tránh re-calculate
+  const transformedExams: ExamTableData[] = useMemo(
+    () =>
+      quizSetsK.map((quizSet) => ({
+        id: quizSet.id,
+        icon: "📘", // Default icon, có thể custom theo tags
+        name: quizSet.title,
+        description: quizSet.description || "",
+        questionCount: quizSet.questionCount,
+        status: (quizSet.isPublic ? "public" : "private") as ExamStatus,
+        createdDate: new Date(quizSet.createdAt).toLocaleDateString("vi-VN"),
+        lastStudied: null, // Backend chưa có thông tin này
+        tags: quizSet.tags || [],
+      })),
+    [quizSetsK]
+  );
 
   const totalPages = Math.ceil(totalResults / limit);
 
-  // Tính stats từ dữ liệu thực
-  const stats = {
-    totalExams: totalResults,
-    totalExamsTrend: 0, // Cần API riêng để lấy trend
-    activeExams: quizSetsK.filter((qs) => qs.isPublic).length,
-    activeExamsTrend: 0,
-    totalQuestions: 0, // Cần tính từ tất cả quizSet
-    totalQuestionsTrend: 0,
-    completionRate: 0, // Cần API riêng để lấy completion rate
-    completionRateTrend: 0,
-  };
+  // Tính stats từ dữ liệu thực - useMemo để tránh re-calculate
+  // Sử dụng originalStats thay vì tính từ filtered data
+  const stats = useMemo(
+    () => ({
+      totalExams: originalStats.totalExams,
+      totalExamsTrend: 0, // Cần API riêng để lấy trend
+      activeExams: originalStats.activeExams,
+      activeExamsTrend: 0,
+      totalQuestions: originalStats.totalQuestions,
+      totalQuestionsTrend: 0,
+      completionRate: originalStats.completionRate,
+      completionRateTrend: 0,
+    }),
+    [originalStats]
+  );
 
-  const statusOptions = [
-    { value: "all", label: "Tất cả trạng thái" },
-    { value: "public", label: "Public" },
-    { value: "private", label: "Private" },
-  ];
+  const statusOptions = useMemo(
+    () => [
+      { value: "all", label: "Tất cả trạng thái" },
+      { value: "public", label: "Công khai" },
+      { value: "private", label: "Riêng tư" },
+    ],
+    []
+  );
 
-  const categoryOptions = [
-    { value: "all", label: "Tất cả danh mục" },
-    { value: "math", label: "Toán học" },
-    { value: "physics", label: "Vật lý" },
-    { value: "chemistry", label: "Hóa học" },
-    { value: "english", label: "Tiếng Anh" },
-    { value: "history", label: "Lịch sử" },
-  ];
+  // useCallback để tránh tạo lại function mỗi lần render
+  const handleCreateExam = useCallback(() => {
+    setIsCreateModalOpen(true);
+  }, []);
 
-  const handleCreateExam = () => {
-    router.push("/k/ai-tool");
-  };
+  const handleExport = useCallback(() => {
+    exportQuizSetsToPDF(quizSetsK, `quiz-sets-${Date.now()}`);
+  }, [quizSetsK, exportQuizSetsToPDF]);
 
-  const handleExport = () => {
-    console.log("Export quiz sets");
-  };
+  const handleViewExam = useCallback(
+    (id: string) => {
+      router.push(`/k/manage-quiz-set/${id}`);
+    },
+    [router]
+  );
 
-  const handleViewExam = (id: string) => {
-    router.push(`/k/quiz/${id}`);
-  };
+  const handleEditExam = useCallback(
+    (id: string) => {
+      const quizSet = quizSetsK.find((qs) => qs.id === id);
+      if (quizSet) {
+        setEditFormData({
+          title: quizSet.title,
+          description: quizSet.description || "",
+          isPublic: quizSet.isPublic,
+          isPinned: quizSet.isPinned,
+          tags: quizSet.tags || [],
+          thumbnail: quizSet.thumbnail || "",
+        });
+        setSelectedQuizSetId(id);
+        setIsEditModalOpen(true);
+      }
+    },
+    [quizSetsK]
+  );
 
-  const handleEditExam = (id: string) => {
-    router.push(`/k/quiz/edit/${id}`);
-  };
+  const handleDeleteExam = useCallback((id: string) => {
+    setSelectedQuizSetId(id);
+    setIsDeleteDialogOpen(true);
+  }, []);
 
-  const handleDeleteExam = async (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa bộ đề thi này?")) {
+  const handleConfirmDelete = useCallback(async () => {
+    if (selectedQuizSetId) {
       try {
-        await deleteQuizSet(id);
+        await deleteQuizSet(selectedQuizSetId);
+        setIsDeleteDialogOpen(false);
+        setSelectedQuizSetId(null);
+        // Store đã tự động xóa item và stats sẽ tự update qua useMemo
       } catch (error) {
         console.error("Delete quiz set error:", error);
       }
     }
-  };
+  }, [selectedQuizSetId, deleteQuizSet]);
+
+  const handleCreateSubmit = useCallback(
+    async (data: QuizSetFormData) => {
+      try {
+        await createQuizSet({
+          title: data.title,
+          description: data.description || "",
+          isPublic: data.isPublic,
+          isPinned: data.isPinned,
+          tags: data.tags,
+          thumbnail: data.thumbnail || null,
+          questionCount: 0,
+          questions: [],
+        });
+        setIsCreateModalOpen(false);
+        // Store đã tự động thêm item mới và stats sẽ tự update qua useMemo
+      } catch (error) {
+        console.error("Create quiz set error:", error);
+      }
+    },
+    [createQuizSet]
+  );
+
+  const handleEditSubmit = useCallback(
+    async (data: QuizSetFormData) => {
+      if (selectedQuizSetId) {
+        try {
+          await updateQuizSet(selectedQuizSetId, {
+            title: data.title,
+            description: data.description || "",
+            isPublic: data.isPublic,
+            isPinned: data.isPinned,
+            tags: data.tags,
+            thumbnail: data.thumbnail || null,
+            questionCount: 0,
+            questions: [],
+          });
+          setIsEditModalOpen(false);
+          setSelectedQuizSetId(null);
+          setEditFormData(undefined);
+          // Store đã tự động update item và stats sẽ tự update qua useMemo
+        } catch (error) {
+          console.error("Update quiz set error:", error);
+        }
+      }
+    },
+    [selectedQuizSetId, updateQuizSet]
+  );
 
   if (loading && quizSetsK.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      </div>
-    );
+    return <TableSkeletonLoader rows={10} />;
   }
 
   return (
-    <ExamManagementTemplate
-      stats={stats}
-      exams={transformedExams}
-      searchQuery={searchQuery}
-      statusFilter={statusFilter}
-      categoryFilter={categoryFilter}
-      statusOptions={statusOptions}
-      categoryOptions={categoryOptions}
-      currentPage={currentPage}
-      totalPages={totalPages}
-      totalResults={totalResults}
-      onSearchChange={setSearchQuery}
-      onStatusChange={setStatusFilter}
-      onCategoryChange={setCategoryFilter}
-      onCreateExam={handleCreateExam}
-      onExport={handleExport}
-      onViewExam={handleViewExam}
-      onEditExam={handleEditExam}
-      onDeleteExam={handleDeleteExam}
-      onPageChange={setCurrentPage}
-    />
+    <>
+      <ExamManagementTemplate
+        stats={stats}
+        exams={transformedExams}
+        searchQuery={searchQuery}
+        statusFilter={statusFilter}
+        statusOptions={statusOptions}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalResults={totalResults}
+        onSearchChange={setSearchQuery}
+        onStatusChange={setStatusFilter}
+        onCreateExam={handleCreateExam}
+        onExport={handleExport}
+        onViewExam={handleViewExam}
+        onEditExam={handleEditExam}
+        onDeleteExam={handleDeleteExam}
+        onPageChange={setCurrentPage}
+      />
+
+      {/* Create Quiz Set Modal/Drawer */}
+      <QuizSetModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        mode="create"
+        isLoading={loading}
+        onSubmit={handleCreateSubmit}
+      />
+
+      {/* Edit Quiz Set Modal/Drawer */}
+      <QuizSetModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        mode="edit"
+        initialData={editFormData}
+        isLoading={loading}
+        onSubmit={handleEditSubmit}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        title="Xác nhận xóa đề thi"
+        description="Bạn có chắc chắn muốn xóa đề thi này? Tất cả câu hỏi trong đề thi sẽ bị xóa. Hành động này không thể hoàn tác."
+        isLoading={loading}
+        onConfirm={handleConfirmDelete}
+      />
+    </>
   );
 }

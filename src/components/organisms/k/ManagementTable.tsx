@@ -8,6 +8,11 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ExamStatusBadge,
   ExamStatus,
 } from "@/components/atoms/k/ExamStatusBadge";
@@ -19,7 +24,7 @@ export interface ManagementTableData {
   icon: string;
   name: string;
   description: string;
-  count: number;
+  questionCount: number;
   countLabel: string; // "câu hỏi" hoặc "thẻ"
   status: ExamStatus;
   createdDate: string;
@@ -118,7 +123,7 @@ export function ManagementTable({
                 </TableCell>
                 <TableCell>
                   <span className="text-foreground font-medium">
-                    {item.count} {item.countLabel}
+                    {item.questionCount} {item.countLabel}
                   </span>
                 </TableCell>
                 <TableCell>
@@ -134,30 +139,48 @@ export function ManagementTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={() => onPrimaryAction(item.id)}
-                      title={primaryActionLabel}>
-                      <PrimaryIcon className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                      onClick={() => onEdit(item.id)}
-                      title="Chỉnh sửa">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => onDelete(item.id)}
-                      title="Xóa">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          onClick={() => onPrimaryAction(item.id)}>
+                          <PrimaryIcon className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{primaryActionLabel}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={() => onEdit(item.id)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Chỉnh sửa</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => onDelete(item.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Xóa</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </TableCell>
               </TableRow>

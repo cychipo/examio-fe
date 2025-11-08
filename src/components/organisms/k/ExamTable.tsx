@@ -1,4 +1,5 @@
-import { Play } from "lucide-react";
+import { memo } from "react";
+import { Eye } from "lucide-react";
 import { ManagementTable, ManagementTableData } from "./ManagementTable";
 import { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 
@@ -21,13 +22,18 @@ interface ExamTableProps {
   onDelete: (id: string) => void;
 }
 
-export function ExamTable({ exams, onView, onEdit, onDelete }: ExamTableProps) {
+const ExamTableComponent = ({
+  exams,
+  onView,
+  onEdit,
+  onDelete,
+}: ExamTableProps) => {
   const tableData: ManagementTableData[] = exams.map((exam) => ({
     id: exam.id,
     icon: exam.icon,
     name: exam.name,
     description: exam.description,
-    count: exam.questionCount,
+    questionCount: exam.questionCount,
     countLabel: "câu hỏi",
     status: exam.status,
     createdDate: exam.createdDate,
@@ -39,8 +45,8 @@ export function ExamTable({ exams, onView, onEdit, onDelete }: ExamTableProps) {
     <ManagementTable
       title="Tất cả đề thi"
       data={tableData}
-      primaryActionIcon={Play}
-      primaryActionLabel="Làm bài"
+      primaryActionIcon={Eye}
+      primaryActionLabel="Xem chi tiết"
       countColumnLabel="Số câu hỏi"
       onPrimaryAction={onView}
       onEdit={onEdit}
@@ -48,4 +54,8 @@ export function ExamTable({ exams, onView, onEdit, onDelete }: ExamTableProps) {
       emptyMessage="Không có đề thi nào"
     />
   );
-}
+};
+
+ExamTableComponent.displayName = "ExamTable";
+
+export const ExamTable = memo(ExamTableComponent);

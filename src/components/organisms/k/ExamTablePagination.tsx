@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -8,12 +9,12 @@ interface ExamTablePaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export function ExamTablePagination({
+const ExamTablePaginationComponent = ({
   currentPage,
   totalPages,
   totalResults,
   onPageChange,
-}: ExamTablePaginationProps) {
+}: ExamTablePaginationProps) => {
   const startResult = (currentPage - 1) * 10 + 1;
   const endResult = Math.min(currentPage * 10, totalResults);
 
@@ -80,4 +81,8 @@ export function ExamTablePagination({
       </div>
     </div>
   );
-}
+};
+
+ExamTablePaginationComponent.displayName = "ExamTablePagination";
+
+export const ExamTablePagination = memo(ExamTablePaginationComponent);

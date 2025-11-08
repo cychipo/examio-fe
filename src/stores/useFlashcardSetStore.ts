@@ -6,9 +6,14 @@ import {
   deleteFlashcardSetApi,
   getFlashcardSetByIdApi,
   updateFlashcardSetApi,
+  addFlashcardToFlashcardSet,
+  updateFlashcardInFlashcardSet,
+  deleteFlashcardFromFlashcardSet,
   type CredentialsFlashcardSet,
   type CredentialsGetFlashcardSets,
   type CredentialSetHistoryToFlashcardSet,
+  type CreateFlashcardData,
+  type UpdateFlashcardData,
 } from "@/apis/flashcardSetApi";
 import { FlashcardSet } from "@/types/flashcardSet";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
@@ -36,6 +41,20 @@ interface FlashcardSetStore {
     credentials: CredentialSetHistoryToFlashcardSet
   ) => Promise<void>;
   invalidateCache: () => void;
+  // Flashcard CRUD methods
+  addFlashcard: (
+    flashcardSetId: string,
+    flashcardData: CreateFlashcardData
+  ) => Promise<void>;
+  updateFlashcard: (
+    flashcardSetId: string,
+    flashcardId: string,
+    flashcardData: UpdateFlashcardData
+  ) => Promise<void>;
+  deleteFlashcard: (
+    flashcardSetId: string,
+    flashcardId: string
+  ) => Promise<void>;
 }
 
 export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
@@ -247,5 +266,158 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
   invalidateCache: () => {
     storeCache.invalidate("flashcardsets:");
+  },
+
+  // ========== FLASHCARD CRUD METHODS ==========
+
+  addFlashcard: async (
+    flashcardSetId: string,
+    flashcardData: CreateFlashcardData
+  ) => {
+    try {
+      set({ loading: true, error: null });
+
+      await addFlashcardToFlashcardSet(flashcardSetId, flashcardData);
+
+      // Refetch flashcard set to get updated flashcards
+      await useFlashcardSetStore
+        .getState()
+        .fetchFlashcardSetById(flashcardSetId);
+
+      toast.success("Thêm flashcard thành công");
+
+      // Invalidate cache
+      storeCache.invalidate("flashcardsets:");
+
+      set({ loading: false });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      set({
+        error: errorMessage,
+        loading: false,
+      });
+      toast.error("Thêm flashcard thất bại", {
+        description: errorMessage,
+      });
+      console.error("Thêm flashcard thất bại:", error);
+      throw error;
+    }
+  },
+
+  updateFlashcard: async (
+    flashcardSetId: string,
+    flashcardId: string,
+    flashcardData: UpdateFlashcardData
+  ) => {
+    try {
+      set({ loading: true, error: null });
+
+      await updateFlashcardInFlashcardSet(
+        flashcardSetId,
+        flashcardId,
+        flashcardData
+      );
+
+      // Optimistic update
+      set((state) => {
+        if (
+          !state.currentFlashcardSet ||
+          !state.currentFlashcardSet.flashcards
+        ) {
+          return { loading: false };
+        }
+
+        return {
+          currentFlashcardSet: {
+            ...state.currentFlashcardSet,
+            flashcards: state.currentFlashcardSet.flashcards.map((f) =>
+              f.id === flashcardId ? { ...f, ...flashcardData } : f
+            ),
+          },
+          loading: false,
+        };
+      });
+
+      toast.success("Cập nhật flashcard thành công");
+
+      // Invalidate cache
+      storeCache.invalidate("flashcardsets:");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      set({
+        error: errorMessage,
+        loading: false,
+      });
+      toast.error("Cập nhật flashcard thất bại", {
+        description: errorMessage,
+      });
+      console.error("Cập nhật flashcard thất bại:", error);
+
+      // Refetch on error to restore correct state
+      await useFlashcardSetStore
+        .getState()
+        .fetchFlashcardSetById(flashcardSetId);
+      throw error;
+    }
+  },
+
+  deleteFlashcard: async (flashcardSetId: string, flashcardId: string) => {
+    try {
+      set({ loading: true, error: null });
+
+      await deleteFlashcardFromFlashcardSet(flashcardSetId, flashcardId);
+
+      // Optimistic update
+      set((state) => {
+        if (
+          !state.currentFlashcardSet ||
+          !state.currentFlashcardSet.flashcards
+        ) {
+          return { loading: false };
+        }
+
+        const newFlashcards = state.currentFlashcardSet.flashcards.filter(
+          (f) => f.id !== flashcardId
+        );
+
+        return {
+          currentFlashcardSet: {
+            ...state.currentFlashcardSet,
+            flashcards: newFlashcards,
+            _count: state.currentFlashcardSet._count
+              ? {
+                  detailsFlashCard:
+                    state.currentFlashcardSet._count.detailsFlashCard - 1,
+                }
+              : undefined,
+          },
+          loading: false,
+        };
+      });
+
+      toast.success("Xóa flashcard thành công");
+
+      // Invalidate cache
+      storeCache.invalidate("flashcardsets:");
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      set({
+        error: errorMessage,
+        loading: false,
+      });
+      toast.error("Xóa flashcard thất bại", {
+        description: errorMessage,
+      });
+      console.error("Xóa flashcard thất bại:", error);
+
+      // Refetch on error to restore correct state
+      await useFlashcardSetStore
+        .getState()
+        .fetchFlashcardSetById(flashcardSetId);
+      throw error;
+    }
   },
 }));
