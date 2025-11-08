@@ -107,7 +107,7 @@ export function FormSelectFlashcardSet({
             </p>
           )}
           <Button
-            variant="soft"
+            variant="outline"
             size="sm"
             onClick={() => setShowCreateForm(true)}
             className="cursor-pointer ml-auto flex-1">
