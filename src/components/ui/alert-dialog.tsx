@@ -54,7 +54,7 @@ const AlertDialogContent = React.forwardRef<
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
-      <AlertDialogPrimitive.Content asChild>
+      <AlertDialogPrimitive.Content asChild {...props}>
         <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 sm:rounded-lg">
           <motion.div
             key={shakeKey}
@@ -64,9 +64,7 @@ const AlertDialogContent = React.forwardRef<
             className={cn(
               "grid gap-4 border bg-background p-6 shadow-lg",
               className
-            )}
-            {...props}
-          >
+            )}>
             {children}
           </motion.div>
         </div>
@@ -148,8 +146,7 @@ const AlertDialogAction = React.forwardRef<
         scale: 1.1,
         boxShadow: "0px 20px 50px rgba(0, 102, 255, 0.4)",
       }}
-      transition={{ type: "spring", stiffness: 150, damping: 10 }}
-    >
+      transition={{ type: "spring", stiffness: 150, damping: 10 }}>
       {children}
     </motion.button>
   </AlertDialogPrimitive.Action>
@@ -183,5 +180,5 @@ export {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogAction,
-  AlertDialogCancel
+  AlertDialogCancel,
 };
