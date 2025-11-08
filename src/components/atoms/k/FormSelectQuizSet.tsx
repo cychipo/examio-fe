@@ -67,6 +67,7 @@ export function FormSelectQuizSet({
       isPinned: formData.isPinned,
       thumbnail: formData.thumbnail,
       questions: [],
+      questionCount: 0,
     });
 
     // Reset form
@@ -107,7 +108,7 @@ export function FormSelectQuizSet({
             </p>
           )}
           <Button
-            variant="soft"
+            variant="outline"
             size="sm"
             onClick={() => setShowCreateForm(true)}
             className="cursor-pointer ml-auto flex-1">
