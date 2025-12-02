@@ -46,7 +46,9 @@ export default function FlashcardStudyPage({
     autoAdvance: false,
     soundEffects: false,
   });
-  const [studiedCards, setStudiedCards] = useState<Set<string>>(new Set());
+  const [studiedCards, setStudiedCards] = useState<Set<string>>(
+    () => new Set()
+  );
 
   // Fetch flashcard set on mount
   useEffect(() => {

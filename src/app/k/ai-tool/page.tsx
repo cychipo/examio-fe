@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestGenerator } from "@/components/organisms/k/TestGenerator";
@@ -12,13 +12,12 @@ import {
   Sparkles,
   Cpu,
   Zap,
-  History,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { RecentUpload } from "@/apis/aiApi";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
 
-export default function AIGeneratorPage() {
+function AIGeneratorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab") || "test";
@@ -37,8 +36,7 @@ export default function AIGeneratorPage() {
 
   const handleSelectUpload = (upload: RecentUpload) => {
     // Load upload data into BOTH generators (already handled in loadFromUpload)
-    const type = activeTab === "test" ? "quiz" : "flashcard";
-    loadFromUpload(upload, type);
+    loadFromUpload(upload);
   };
 
   return (
@@ -124,5 +122,13 @@ export default function AIGeneratorPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function AIGeneratorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AIGeneratorContent />
+    </Suspense>
   );
 }

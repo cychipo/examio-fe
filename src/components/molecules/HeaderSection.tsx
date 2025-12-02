@@ -32,7 +32,7 @@ export default function HeaderSection() {
 
   useLayoutEffect(() => {
     getUser();
-  }, []);
+  }, [getUser]);
 
   React.useEffect(() => {
     const handleScroll = () => {
