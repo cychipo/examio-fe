@@ -14,7 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Upload,
-  CircleQuestionMark,
+  CircleHelp,
   Sparkles,
   Loader2,
   SaveAll,
@@ -43,6 +43,8 @@ import {
 export function FlashcardGenerator() {
   const {
     file,
+    uploadId,
+    fileInfo,
     cardCount,
     isNarrow,
     keyword,
@@ -59,6 +61,11 @@ export function FlashcardGenerator() {
   } = useFlashcardGeneratorStore();
 
   const { toast } = useToast();
+
+  // File info cho hiển thị (từ file upload hoặc từ recent files)
+  const displayFileName = file?.name || fileInfo?.name;
+  const displayFileSize = file?.size || fileInfo?.size;
+  const hasFile = !!file || !!uploadId;
 
   const handleFileUpload = (uploadedFile: File) => {
     setFile(uploadedFile);
@@ -107,18 +114,20 @@ export function FlashcardGenerator() {
   return (
     <div className="gap-6 flex w-full flex-col md:flex-row">
       {/* Upload & Settings */}
-      <Card className="border-border bg-card h-fit w-full md:w-2/5">
+      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl h-fit w-full md:w-2/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Upload className="w-5 h-5 text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+              <Upload className="w-4 h-4 text-primary" />
+            </div>
             Tải lên tài liệu
           </CardTitle>
           <CardDescription>
-            Tải lên file PDF để AI tạo đề kiểm tra tự động
+            Tải lên file PDF để AI tạo flashcard tự động
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {!file ? (
+          {!hasFile ? (
             <FileUpload
               acceptedFileTypes={[".pdf", "application/pdf"]}
               maxFileSize={10485760}
@@ -129,17 +138,17 @@ export function FlashcardGenerator() {
             />
           ) : (
             <ItemFileDetail
-              fileName={file.name}
-              fileSize={file.size}
+              fileName={displayFileName || "Unknown file"}
+              fileSize={displayFileSize || 0}
               onRemove={handleRemoveFile}
             />
           )}
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Số lượng câu hỏi</Label>
-              <span className="text-sm font-medium text-primary">
-                {cardCount} câu
+              <Label className="text-muted-foreground">Số lượng thẻ</Label>
+              <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                {cardCount} thẻ
               </span>
             </div>
             <Slider
@@ -152,14 +161,14 @@ export function FlashcardGenerator() {
             />
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
             <Label
               htmlFor="narrow-toggle"
-              className="flex items-center gap-2 cursor-pointer">
+              className="flex items-center gap-2 cursor-pointer text-muted-foreground">
               Định dạng thẻ hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <CircleQuestionMark size={15} />
+                  <CircleHelp className="w-4 h-4 text-muted-foreground/60" />
                 </TooltipTrigger>
                 <TooltipContent>
                   Bật để tạo thẻ flashcard tập trung vào từ khóa mà bạn nhập
@@ -176,7 +185,7 @@ export function FlashcardGenerator() {
           </div>
 
           {isNarrow && (
-            <div className="space-y-2">
+            <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
               <Field>
                 <FieldLabel htmlFor="keyword-input">Từ khóa</FieldLabel>
                 <FieldContent>
@@ -185,6 +194,7 @@ export function FlashcardGenerator() {
                     placeholder="Nhập từ khóa..."
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
+                    className="bg-white/5 border-white/10"
                   />
                 </FieldContent>
               </Field>
@@ -193,8 +203,8 @@ export function FlashcardGenerator() {
 
           <Button
             onClick={handleGenerate}
-            disabled={!file || isGenerating}
-            className="w-full h-12 text-base font-medium"
+            disabled={!hasFile || isGenerating}
+            className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
             size="lg">
             {isGenerating ? (
               <>
@@ -212,10 +222,12 @@ export function FlashcardGenerator() {
       </Card>
 
       {/* Flashcard Preview */}
-      <Card className="border-border bg-card w-full md:w-3/5">
+      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl w-full md:w-3/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <SquareSplitVertical className="w-5 h-5 text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center border border-green-500/20">
+              <SquareSplitVertical className="w-4 h-4 text-green-400" />
+            </div>
             Xem trước flashcard
           </CardTitle>
           <CardDescription>
@@ -243,9 +255,9 @@ export function FlashcardGenerator() {
               />
             </div>
           ) : !generatedCards ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <SquareSplitVertical className="w-8 h-8 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+                <SquareSplitVertical className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground">
                 Tải lên file PDF và nhấn Tạo flashcard để xem kết quả
@@ -255,16 +267,23 @@ export function FlashcardGenerator() {
             <div className="space-y-4">
               {/* Header with Download and Save Buttons */}
               <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  {file?.name} • {cardCount} flashcards
-                  {isNarrow && keyword && ` • Từ khóa: ${keyword}`}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>{generatedCards.length} thẻ</span>
+                  {isNarrow && keyword && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      {keyword}
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <DialogAddExam
                     title="Lưu vào flashcard set"
                     description="Lưu flashcard vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
                     type={DialogAddExamType.FLASH_CARD}>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-white/5 border-white/10 hover:bg-white/10">
                       <SaveAll size={15} className="mr-2" />
                       Lưu
                     </Button>
@@ -273,8 +292,10 @@ export function FlashcardGenerator() {
               </div>
 
               {/* Card Counter */}
-              <div className="text-center text-sm text-muted-foreground">
-                Thẻ {currentCard + 1} / {generatedCards.length}
+              <div className="text-center">
+                <span className="text-sm font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                  Thẻ {currentCard + 1} / {generatedCards.length}
+                </span>
               </div>
 
               {/* Flashcard */}
@@ -297,7 +318,7 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={prevCard}
                   disabled={currentCard === 0}
-                  className="flex-1 bg-transparent">
+                  className="flex-1 bg-white/5 border-white/10 hover:bg-white/10">
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Trước
                 </Button>
@@ -306,7 +327,7 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={nextCard}
                   disabled={currentCard === generatedCards.length - 1}
-                  className="flex-1 bg-transparent">
+                  className="flex-1 bg-white/5 border-white/10 hover:bg-white/10">
                   Sau
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
