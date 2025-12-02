@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
@@ -55,6 +54,23 @@ export function QuestionEditorDialog({
   const [options, setOptions] = useState<string[]>(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState("");
 
+  // Helper: Convert letter answer (A, B, C, D) to index
+  const letterToIndex = (letter: string): string => {
+    if (!letter) return "";
+    // If it's already a number, return as is
+    if (!Number.isNaN(Number.parseInt(letter))) return letter;
+    // Convert letter to index (A=0, B=1, C=2, D=3)
+    return (letter.charCodeAt(0) - 65).toString();
+  };
+
+  // Helper: Convert index to letter answer
+  const indexToLetter = (index: string): string => {
+    if (!index) return "";
+    const num = Number.parseInt(index);
+    if (Number.isNaN(num)) return index;
+    return String.fromCharCode(65 + num);
+  };
+
   // Initialize form khi dialog mở hoặc question thay đổi
   useEffect(() => {
     if (open) {
@@ -70,7 +86,8 @@ export function QuestionEditorDialog({
                 }).fill(""),
               ] as string[]);
         setOptions(filledOptions);
-        setCorrectAnswer(question.answer);
+        // Convert letter answer to index for radio selection
+        setCorrectAnswer(letterToIndex(question.answer));
       } else {
         // Reset form
         setQuestionText("");
@@ -91,9 +108,9 @@ export function QuestionEditorDialog({
       // If removed option was the correct answer, reset
       if (correctAnswer === index.toString()) {
         setCorrectAnswer("");
-      } else if (parseInt(correctAnswer) > index) {
+      } else if (Number.parseInt(correctAnswer) > index) {
         // Adjust the correct answer index if it's after the removed option
-        setCorrectAnswer((parseInt(correctAnswer) - 1).toString());
+        setCorrectAnswer((Number.parseInt(correctAnswer) - 1).toString());
       }
     }
   };
@@ -117,7 +134,7 @@ export function QuestionEditorDialog({
       return;
     }
 
-    if (!correctAnswer || !options[parseInt(correctAnswer)].trim()) {
+    if (!correctAnswer || !options[Number.parseInt(correctAnswer)].trim()) {
       alert("Vui lòng chọn đáp án đúng");
       return;
     }
@@ -125,7 +142,7 @@ export function QuestionEditorDialog({
     onSave({
       question: questionText,
       options: filledOptions,
-      answer: correctAnswer,
+      answer: indexToLetter(correctAnswer),
     });
 
     // Close dialog
@@ -142,12 +159,9 @@ export function QuestionEditorDialog({
         <RichTextEditor
           content={questionText}
           onChange={setQuestionText}
-          placeholder="Nhập nội dung câu hỏi (hỗ trợ markdown, LaTeX cho công thức toán)"
+          placeholder="Nhập nội dung câu hỏi..."
           minHeight="150px"
         />
-        <p className="text-xs text-muted-foreground">
-          💡 Gợi ý: Sử dụng $x^2$ cho công thức toán, ![](url) cho hình ảnh
-        </p>
       </div>
 
       {/* Options */}
@@ -220,7 +234,12 @@ export function QuestionEditorDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="!max-w-4xl max-h-[90vh] overflow-y-auto  [&::-webkit-scrollbar]:w-0.5
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           <DialogHeader>
             <DialogTitle>
               {question ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}

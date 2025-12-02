@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, Edit, Trash2, CreditCard, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Edit,
+  Trash2,
+  CreditCard,
+  Eye,
+  PlayCircle,
+} from "lucide-react";
 import { Flashcard as FlashCard } from "@/types/flashcardSet";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import { FlashcardEditorDialog } from "@/components/organisms/FlashcardEditorDialog";
@@ -136,6 +144,14 @@ export default function FlashcardSetDetailPage({
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() =>
+                  router.push(`/k/study-flashcard/${currentFlashcardSet.id}`)
+                }
+                className="gap-2">
+                <PlayCircle className="h-4 w-4" />
+                Học ngay
+              </Button>
               <Badge
                 variant={
                   currentFlashcardSet.isPublic ? "default" : "secondary"

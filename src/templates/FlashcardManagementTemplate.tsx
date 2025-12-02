@@ -56,10 +56,13 @@ export function FlashcardManagementTemplate({
   onCreateFlashcard,
   onExport,
   onStudyFlashcard,
+  onManageFlashcard,
   onEditFlashcard,
   onDeleteFlashcard,
   onPageChange,
-}: FlashcardManagementTemplateProps) {
+}: FlashcardManagementTemplateProps & {
+  onManageFlashcard: (id: string) => void;
+}) {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -84,6 +87,7 @@ export function FlashcardManagementTemplate({
         <FlashcardTable
           flashcards={flashcards}
           onStudy={onStudyFlashcard}
+          onManage={onManageFlashcard}
           onEdit={onEditFlashcard}
           onDelete={onDeleteFlashcard}
         />

@@ -130,3 +130,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+.titap {
+  min-height: 150px !important;
+}
+
+.ProseMirror {
+  outline: none;
+}

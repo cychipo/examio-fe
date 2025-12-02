@@ -6,6 +6,7 @@ import { FlashcardManagementTemplate } from "@/templates/FlashcardManagementTemp
 import type { FlashcardTableData } from "@/components/organisms/k/FlashcardTable";
 import type { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 import { useFlashcardSetStore } from "@/stores/useFlashcardSetStore";
+import { useStatsStore } from "@/stores/useStatsStore";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useExportPDF } from "@/hooks/useExportPDF";
 import { FlashcardSetModal } from "@/components/organisms/FlashcardSetModal";
@@ -23,6 +24,8 @@ export default function FlashcardsPage() {
     createFlashcardSet,
     updateFlashcardSet,
   } = useFlashcardSetStore();
+  const { flashcardStats, fetchFlashcardStats, invalidateFlashcardStats } =
+    useStatsStore();
   const { exportFlashcardSetsToPDF } = useExportPDF();
 
   // State cho UI
@@ -44,41 +47,12 @@ export default function FlashcardsPage() {
     FlashcardSetFormData | undefined
   >(undefined);
 
-  // State để lưu stats ban đầu (không bị ảnh hưởng bởi filter/search)
-  const [originalStats, setOriginalStats] = useState({
-    totalGroups: 0,
-    totalCards: 0,
-    avgProgress: 0,
-    studiedToday: 0,
-  });
-
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  // Fetch flashcard sets lần đầu để lấy stats tổng thể (không filter)
+  // Fetch stats using store
   useEffect(() => {
-    const loadInitialStats = async () => {
-      const response = await fetchFlashcardSets({
-        page: 1,
-        limit: 9999, // Lấy tất cả để tính stats
-      });
-
-      if (response) {
-        const totalCards = response.flashcardSets.reduce(
-          (sum: number, fs: any) => sum + (fs._count?.detailsFlashCard || 0),
-          0
-        );
-        setOriginalStats({
-          totalGroups: response.total,
-          totalCards,
-          avgProgress: 0, // Cần API riêng
-          studiedToday: 0, // Cần API riêng
-        });
-      }
-    };
-
-    loadInitialStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Chỉ chạy 1 lần khi mount
+    fetchFlashcardStats();
+  }, [fetchFlashcardStats]);
 
   // Fetch flashcard sets khi component mount hoặc khi filter thay đổi
   useEffect(() => {
@@ -126,19 +100,19 @@ export default function FlashcardsPage() {
 
   const totalPages = Math.ceil(totalResults / limit);
 
-  // Tính stats từ originalStats - useMemo để tránh re-calculate
+  // Stats object for template
   const stats = useMemo(
     () => ({
-      totalGroups: originalStats.totalGroups,
-      totalGroupsTrend: 0, // Cần API riêng để lấy trend
-      totalCards: originalStats.totalCards,
-      totalCardsTrend: 0,
-      avgProgress: originalStats.avgProgress,
-      avgProgressTrend: 0,
-      studiedToday: originalStats.studiedToday,
-      studiedTodayTrend: 0,
+      totalGroups: flashcardStats?.totalGroups || 0,
+      totalGroupsTrend: flashcardStats?.totalGroupsTrend || 0,
+      totalCards: flashcardStats?.totalCards || 0,
+      totalCardsTrend: flashcardStats?.totalCardsTrend || 0,
+      avgProgress: flashcardStats?.avgProgress || 0,
+      avgProgressTrend: flashcardStats?.avgProgressTrend || 0,
+      studiedToday: flashcardStats?.studiedToday || 0,
+      studiedTodayTrend: flashcardStats?.studiedTodayTrend || 0,
     }),
-    [originalStats]
+    [flashcardStats]
   );
 
   const sortOptions = useMemo(
@@ -169,6 +143,13 @@ export default function FlashcardsPage() {
   }, [flashcardSetsK, exportFlashcardSetsToPDF]);
 
   const handleStudyFlashcard = useCallback(
+    (id: string) => {
+      router.push(`/k/study-flashcard/${id}`);
+    },
+    [router]
+  );
+
+  const handleManageFlashcard = useCallback(
     (id: string) => {
       router.push(`/k/manage-flashcard-set/${id}`);
     },
@@ -203,14 +184,14 @@ export default function FlashcardsPage() {
     if (selectedFlashcardSetId) {
       try {
         await deleteFlashcardSet(selectedFlashcardSetId);
+        invalidateFlashcardStats(); // Invalidate stats cache
         setIsDeleteDialogOpen(false);
         setSelectedFlashcardSetId(null);
-        // Store đã tự động xóa item và stats sẽ tự update qua useMemo
       } catch (error) {
         console.error("Delete flashcard set error:", error);
       }
     }
-  }, [selectedFlashcardSetId, deleteFlashcardSet]);
+  }, [selectedFlashcardSetId, deleteFlashcardSet, invalidateFlashcardStats]);
 
   const handleCreateSubmit = useCallback(
     async (data: FlashcardSetFormData) => {
@@ -223,13 +204,13 @@ export default function FlashcardsPage() {
           tags: data.tags,
           thumbnail: data.thumbnail || null,
         });
+        invalidateFlashcardStats(); // Invalidate stats cache
         setIsCreateModalOpen(false);
-        // Store đã tự động thêm item mới và stats sẽ tự update qua useMemo
       } catch (error) {
         console.error("Create flashcard set error:", error);
       }
     },
-    [createFlashcardSet]
+    [createFlashcardSet, invalidateFlashcardStats]
   );
 
   const handleEditSubmit = useCallback(
@@ -247,7 +228,6 @@ export default function FlashcardsPage() {
           setIsEditModalOpen(false);
           setSelectedFlashcardSetId(null);
           setEditFormData(undefined);
-          // Store đã tự động update item và stats sẽ tự update qua useMemo
         } catch (error) {
           console.error("Update flashcard set error:", error);
         }
@@ -279,6 +259,7 @@ export default function FlashcardsPage() {
         onCreateFlashcard={handleCreateFlashcard}
         onExport={handleExport}
         onStudyFlashcard={handleStudyFlashcard}
+        onManageFlashcard={handleManageFlashcard}
         onEditFlashcard={handleEditFlashcard}
         onDeleteFlashcard={handleDeleteFlashcard}
         onPageChange={setCurrentPage}

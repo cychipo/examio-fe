@@ -28,6 +28,7 @@ interface ExamManagementTemplateProps {
   onCreateExam: () => void;
   onExport: () => void;
   onViewExam: (id: string) => void;
+  onPracticeExam: (id: string) => void;
   onEditExam: (id: string) => void;
   onDeleteExam: (id: string) => void;
   onPageChange: (page: number) => void;
@@ -47,6 +48,7 @@ export function ExamManagementTemplate({
   onCreateExam,
   onExport,
   onViewExam,
+  onPracticeExam,
   onEditExam,
   onDeleteExam,
   onPageChange,
@@ -69,6 +71,7 @@ export function ExamManagementTemplate({
         <ExamTable
           exams={exams}
           onView={onViewExam}
+          onPractice={onPracticeExam}
           onEdit={onEditExam}
           onDelete={onDeleteExam}
         />

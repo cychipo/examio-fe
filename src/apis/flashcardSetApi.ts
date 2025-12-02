@@ -58,6 +58,18 @@ export async function getFlashcardSetsApi(
   return response.data;
 }
 
+export type ResponseFlashcardSetStats = {
+  totalGroups: number;
+  totalCards: number;
+  avgProgress: number;
+  studiedToday: number;
+};
+
+export async function getFlashcardSetStatsApi(): Promise<ResponseFlashcardSetStats> {
+  const response = await api.get("/flashcardsets/stats");
+  return response.data;
+}
+
 export async function setFlashcardsToFlashcardSet(
   credentials: CredentialsSetFlashcardsToFlashcardSet
 ): Promise<ResponseSetFlashcardsToFlashcardSet> {
@@ -119,48 +131,42 @@ export type ResponseFlashcard = {
 
 /**
  * Thêm flashcard vào flashcard set
- * Sử dụng endpoint bulk add với 1 flashcard
  */
 export async function addFlashcardToFlashcardSet(
   flashcardSetId: string,
   flashcardData: CreateFlashcardData
-): Promise<ResponseSetFlashcardsToFlashcardSet> {
+): Promise<{ message: string; flashcard: Flashcard }> {
   const response = await api.post(
-    "/flashcardsets/set-flashcards-to-flashcardset",
-    {
-      flashcardsetIds: [flashcardSetId],
-      flashcards: [flashcardData],
-    } as CredentialsSetFlashcardsToFlashcardSet
+    `/flashcardsets/${flashcardSetId}/flashcards`,
+    flashcardData
   );
   return response.data;
 }
 
 /**
  * Cập nhật flashcard trong flashcard set
- * Note: Backend cần có endpoint PUT /flashcardsets/:flashcardSetId/flashcards/:flashcardId
- * Tạm thời sử dụng workaround: xóa và thêm lại
  */
 export async function updateFlashcardInFlashcardSet(
-  _flashcardSetId: string,
-  _flashcardId: string,
-  _flashcardData: UpdateFlashcardData
-): Promise<{ success: boolean }> {
-  // TODO: Implement proper update endpoint when available
-  // For now, this is a placeholder
-  console.warn("Update flashcard API not implemented yet");
-  return { success: true };
+  flashcardSetId: string,
+  flashcardId: string,
+  flashcardData: UpdateFlashcardData
+): Promise<{ message: string; flashcard: Flashcard }> {
+  const response = await api.put(
+    `/flashcardsets/${flashcardSetId}/flashcards/${flashcardId}`,
+    flashcardData
+  );
+  return response.data;
 }
 
 /**
  * Xóa flashcard khỏi flashcard set
- * Note: Backend cần có endpoint DELETE /flashcardsets/:flashcardSetId/flashcards/:flashcardId
  */
 export async function deleteFlashcardFromFlashcardSet(
-  _flashcardSetId: string,
-  _flashcardId: string
-): Promise<{ success: boolean }> {
-  // TODO: Implement proper delete endpoint when available
-  // For now, this is a placeholder
-  console.warn("Delete flashcard API not implemented yet");
-  return { success: true };
+  flashcardSetId: string,
+  flashcardId: string
+): Promise<{ message: string }> {
+  const response = await api.delete(
+    `/flashcardsets/${flashcardSetId}/flashcards/${flashcardId}`
+  );
+  return response.data;
 }

@@ -37,8 +37,11 @@ interface ManagementTableProps {
   data: ManagementTableData[];
   primaryActionIcon: LucideIcon;
   primaryActionLabel: string;
+  secondaryActionIcon?: LucideIcon;
+  secondaryActionLabel?: string;
   countColumnLabel: string;
   onPrimaryAction: (id: string) => void;
+  onSecondaryAction?: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   emptyMessage?: string;
@@ -49,8 +52,11 @@ export function ManagementTable({
   data,
   primaryActionIcon: PrimaryIcon,
   primaryActionLabel,
+  secondaryActionIcon: SecondaryIcon,
+  secondaryActionLabel,
   countColumnLabel,
   onPrimaryAction,
+  onSecondaryAction,
   onEdit,
   onDelete,
   emptyMessage = "Không có dữ liệu",
@@ -139,20 +145,40 @@ export function ManagementTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          onClick={() => onPrimaryAction(item.id)}>
-                          <PrimaryIcon className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{primaryActionLabel}</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    {item.questionCount > 0 && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={() => onPrimaryAction(item.id)}>
+                            <PrimaryIcon className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{primaryActionLabel}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+
+                    {SecondaryIcon && onSecondaryAction && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                            onClick={() => onSecondaryAction(item.id)}>
+                            <SecondaryIcon className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{secondaryActionLabel}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button

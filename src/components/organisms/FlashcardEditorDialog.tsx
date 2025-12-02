@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Flashcard } from "@/types/flashcardSet";
@@ -96,11 +95,11 @@ export function FlashcardEditorDialog({
         <RichTextEditor
           content={question}
           onChange={setQuestion}
-          placeholder="Nhập câu hỏi hoặc thuật ngữ (hỗ trợ markdown cho công thức toán)"
+          placeholder="Nhập câu hỏi hoặc thuật ngữ..."
           minHeight="150px"
         />
         <p className="text-xs text-muted-foreground">
-          💡 Gợi ý: Sử dụng $x^2$ cho công thức toán, ![](url) cho hình ảnh
+          💡 Gợi ý: Sử dụng nút 🖼️ trên toolbar để chèn hình ảnh từ URL
         </p>
       </div>
 
@@ -112,11 +111,11 @@ export function FlashcardEditorDialog({
         <RichTextEditor
           content={answer}
           onChange={setAnswer}
-          placeholder="Nhập câu trả lời hoặc định nghĩa"
+          placeholder="Nhập câu trả lời hoặc định nghĩa..."
           minHeight="180px"
         />
         <p className="text-xs text-muted-foreground">
-          💡 Có thể sử dụng markdown để định dạng nội dung
+          💡 Sử dụng các nút định dạng để làm nổi bật nội dung
         </p>
       </div>
 
@@ -135,7 +134,12 @@ export function FlashcardEditorDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="!max-w-4xl max-h-[90vh] overflow-y-auto  [&::-webkit-scrollbar]:w-0.5
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           <DialogHeader>
             <DialogTitle>
               {flashcard ? "Chỉnh sửa thẻ nhớ" : "Thêm thẻ nhớ mới"}

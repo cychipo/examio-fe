@@ -7,7 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, Edit, Trash2, FileText, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Edit,
+  Trash2,
+  FileText,
+  Eye,
+  PlayCircle,
+} from "lucide-react";
 import { Quizz } from "@/types/quizset";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import { QuestionEditorDialog } from "@/components/organisms/QuestionEditorDialog";
@@ -124,6 +132,9 @@ export default function QuizSetDetailPage({
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
+            <Button variant="ghost" size="icon" onClick={handleBack}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <div className="flex-1">
               <h1 className="text-3xl font-bold tracking-tight">
                 {currentQuizSet.title}
@@ -133,6 +144,14 @@ export default function QuizSetDetailPage({
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() =>
+                  router.push(`/k/practice-quiz/${currentQuizSet.id}`)
+                }
+                className="gap-2">
+                <PlayCircle className="h-4 w-4" />
+                Thi thử
+              </Button>
               <Badge
                 variant={currentQuizSet.isPublic ? "default" : "secondary"}>
                 {currentQuizSet.isPublic ? "Công khai" : "Riêng tư"}
@@ -239,27 +258,36 @@ export default function QuizSetDetailPage({
                         <RichTextViewer content={question.question} />
                       </div>
                       <div className="space-y-1">
-                        {question.options.map((option, optIndex) => (
-                          <div
-                            key={optIndex}
-                            className={`text-sm p-2 rounded flex items-start gap-2 ${
-                              optIndex.toString() === question.answer
-                                ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
-                                : "bg-muted/50"
-                            }`}>
-                            <span className="font-semibold flex-shrink-0">
-                              {String.fromCharCode(65 + optIndex)}.
-                            </span>
-                            <div className="flex-1">
-                              <RichTextViewer content={option} />
-                            </div>
-                            {optIndex.toString() === question.answer && (
-                              <span className="ml-2 flex-shrink-0">
-                                ✓ Đáp án đúng
+                        {question.options.map((option, optIndex) => {
+                          // Compare with letter (A, B, C, D) or index
+                          const optionLetter = String.fromCharCode(
+                            65 + optIndex
+                          );
+                          const isCorrect =
+                            question.answer === optionLetter ||
+                            question.answer === optIndex.toString();
+                          return (
+                            <div
+                              key={optIndex}
+                              className={`text-sm p-2 rounded flex items-start gap-2 ${
+                                isCorrect
+                                  ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
+                                  : "bg-muted/50"
+                              }`}>
+                              <span className="font-medium flex-shrink-0">
+                                {optionLetter}.
                               </span>
-                            )}
-                          </div>
-                        ))}
+                              <div className="flex-1">
+                                <RichTextViewer content={option} />
+                              </div>
+                              {isCorrect && (
+                                <span className="ml-2 flex-shrink-0">
+                                  ✓ Đáp án đúng
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -271,11 +299,11 @@ export default function QuizSetDetailPage({
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="ghost"
+                        variant="errorGhost"
                         size="sm"
                         onClick={() => handleDeleteQuestion(question.id)}
                         disabled={showQuestionForm}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>

@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react";
+import { Eye, PlayCircle } from "lucide-react";
 import { ManagementTable, ManagementTableData } from "./ManagementTable";
 import { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 
@@ -19,6 +19,7 @@ export interface FlashcardTableData {
 interface FlashcardTableProps {
   flashcards: FlashcardTableData[];
   onStudy: (id: string) => void;
+  onManage: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -26,6 +27,7 @@ interface FlashcardTableProps {
 export function FlashcardTable({
   flashcards,
   onStudy,
+  onManage,
   onEdit,
   onDelete,
 }: FlashcardTableProps) {
@@ -46,10 +48,13 @@ export function FlashcardTable({
     <ManagementTable
       title="Tất cả bộ thẻ"
       data={tableData}
-      primaryActionIcon={Eye}
-      primaryActionLabel="Xem chi tiết"
+      primaryActionIcon={PlayCircle}
+      primaryActionLabel="Học ngay"
+      secondaryActionIcon={Eye}
+      secondaryActionLabel="Chi tiết"
       countColumnLabel="Số thẻ"
       onPrimaryAction={onStudy}
+      onSecondaryAction={onManage}
       onEdit={onEdit}
       onDelete={onDelete}
       emptyMessage="Không có bộ thẻ nào"

@@ -2,8 +2,8 @@
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
 import { useEffect } from "react";
-import "./tiptap.css";
 
 interface RichTextViewerProps {
   content: string;
@@ -20,7 +20,16 @@ export function RichTextViewer({
   className = "",
 }: RichTextViewerProps) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [
+      StarterKit,
+      Image.configure({
+        inline: true,
+        allowBase64: true,
+        HTMLAttributes: {
+          class: "max-w-full h-auto rounded",
+        },
+      }),
+    ],
     content,
     editable: false,
     immediatelyRender: false,
@@ -41,7 +50,7 @@ export function RichTextViewer({
     <div className={className}>
       <EditorContent
         editor={editor}
-        className="prose prose-sm max-w-none [&_.ProseMirror]:p-0 [&_.ProseMirror]:outline-none"
+        className="prose prose-sm max-w-none [&_.ProseMirror]:p-0 [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-0"
       />
     </div>
   );

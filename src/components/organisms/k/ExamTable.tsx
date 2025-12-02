@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Eye } from "lucide-react";
+import { Eye, PlayCircle } from "lucide-react";
 import { ManagementTable, ManagementTableData } from "./ManagementTable";
 import { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 
@@ -18,6 +18,7 @@ export interface ExamTableData {
 interface ExamTableProps {
   exams: ExamTableData[];
   onView: (id: string) => void;
+  onPractice: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -25,6 +26,7 @@ interface ExamTableProps {
 const ExamTableComponent = ({
   exams,
   onView,
+  onPractice,
   onEdit,
   onDelete,
 }: ExamTableProps) => {
@@ -45,10 +47,13 @@ const ExamTableComponent = ({
     <ManagementTable
       title="Tất cả đề thi"
       data={tableData}
-      primaryActionIcon={Eye}
-      primaryActionLabel="Xem chi tiết"
+      primaryActionIcon={PlayCircle}
+      primaryActionLabel="Thi thử"
+      secondaryActionIcon={Eye}
+      secondaryActionLabel="Xem chi tiết"
       countColumnLabel="Số câu hỏi"
-      onPrimaryAction={onView}
+      onPrimaryAction={onPractice}
+      onSecondaryAction={onView}
       onEdit={onEdit}
       onDelete={onDelete}
       emptyMessage="Không có đề thi nào"
