@@ -74,11 +74,6 @@ export default function QuizSetDetailPage({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleCancelForm = useCallback(() => {
-    setShowQuestionForm(false);
-    setSelectedQuestion(null);
-  }, []);
-
   const handleDeleteQuestion = useCallback((questionId: string) => {
     setQuestionToDelete(questionId);
     setIsDeleteDialogOpen(true);

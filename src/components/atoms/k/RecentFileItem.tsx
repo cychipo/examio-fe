@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  FileText,
-  Clock,
-  Brain,
-  BookOpen,
-  Trash2,
-  Loader2,
-} from "lucide-react";
+import { FileText, Clock, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RecentUpload } from "@/apis/aiApi";
 import { Badge } from "@/components/ui/badge";

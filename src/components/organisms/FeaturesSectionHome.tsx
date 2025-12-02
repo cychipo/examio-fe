@@ -7,14 +7,7 @@ import OpenAIDark from "@/components/kokonutui/open-ai-dark";
 import MistralAI from "@/components/kokonutui/mistral";
 import DeepSeek from "@/components/kokonutui/deepseek";
 import { cn } from "@/lib/utils";
-import {
-  Mic,
-  Plus,
-  CheckCircle2,
-  Clock,
-  Sparkles,
-  Zap,
-} from "lucide-react";
+import { Mic, Plus, CheckCircle2, Clock, Sparkles, Zap } from "lucide-react";
 import {
   motion,
   useMotionValue,
@@ -136,8 +129,7 @@ function SpotlightFeature({ items }: { items: string[] }) {
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 * index }}
-          className="flex items-center gap-2"
-        >
+          className="flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
           <span className="text-sm text-neutral-700 dark:text-neutral-300">
             {item}
@@ -263,41 +255,6 @@ function IconsFeature() {
   );
 }
 
-function TimelineFeature({
-  timeline,
-}: {
-  timeline: Array<{ year: string; event: string }>;
-}) {
-  return (
-    <div className="mt-3 relative">
-      <div className="absolute top-0 bottom-0 left-[9px] w-[2px] bg-neutral-200 dark:bg-neutral-700" />
-      {timeline.map((item) => (
-        <motion.div
-          key={`timeline-${item.year}-${item.event
-            .toLowerCase()
-            .replace(/\s+/g, "-")}`}
-          className="flex gap-3 mb-3 relative"
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{
-            delay: (0.15 * Number.parseInt(item.year)) % 10,
-          }}
-        >
-          <div className="w-5 h-5 rounded-full bg-neutral-100 dark:bg-neutral-800 border-2 border-neutral-300 dark:border-neutral-600 flex-shrink-0 z-10 mt-0.5" />
-          <div>
-            <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-              {item.year}
-            </div>
-            <div className="text-xs text-neutral-600 dark:text-neutral-400">
-              {item.event}
-            </div>
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
 function TypingCodeFeature({ text }: { text: string }) {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -333,8 +290,7 @@ function TypingCodeFeature({ text }: { text: string }) {
       </div>
       <div
         ref={terminalRef}
-        className="bg-neutral-900 dark:bg-black text-neutral-100 p-3 rounded-md text-xs font-mono h-[150px] overflow-y-auto"
-      >
+        className="bg-neutral-900 dark:bg-black text-neutral-100 p-3 rounded-md text-xs font-mono h-[150px] overflow-y-auto">
         <pre className="whitespace-pre-wrap">
           {displayedText}
           <span className="animate-pulse">|</span>
@@ -373,8 +329,7 @@ function MetricsFeature({
           className="space-y-1"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 * index }}
-        >
+          transition={{ delay: 0.15 * index }}>
           <div className="flex justify-between items-center text-sm">
             <div className="text-neutral-700 dark:text-neutral-300 font-medium flex items-center gap-1.5">
               {metric.label === "Uptime" && <Clock className="w-3.5 h-3.5" />}
@@ -444,8 +399,7 @@ function AIInput_Voice() {
   };
 
   useEffect(() => {
-    if (!isDemo)
-      return;
+    if (!isDemo) return;
 
     let timeoutId: NodeJS.Timeout;
     const runAnimation = () => {
@@ -480,21 +434,18 @@ function AIInput_Voice() {
             "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
             submitted
               ? "bg-none"
-              : "bg-none hover:bg-black/10 dark:hover:bg-white/10",
+              : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
           )}
           type="button"
-          onClick={handleClick}
-        >
-          {submitted
-            ? (
-                <div
-                  className="w-6 h-6 rounded-sm animate-spin bg-black  dark:bg-white cursor-pointer pointer-events-auto"
-                  style={{ animationDuration: "3s" }}
-                />
-              )
-            : (
-                <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
-              )}
+          onClick={handleClick}>
+          {submitted ? (
+            <div
+              className="w-6 h-6 rounded-sm animate-spin bg-black  dark:bg-white cursor-pointer pointer-events-auto"
+              style={{ animationDuration: "3s" }}
+            />
+          ) : (
+            <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
+          )}
         </button>
 
         <span
@@ -502,9 +453,8 @@ function AIInput_Voice() {
             "font-mono text-sm transition-opacity duration-300",
             submitted
               ? "text-black/70 dark:text-white/70"
-              : "text-black/30 dark:text-white/30",
-          )}
-        >
+              : "text-black/30 dark:text-white/30"
+          )}>
           {formatTime(time)}
         </span>
 
@@ -516,7 +466,7 @@ function AIInput_Voice() {
                 "w-0.5 rounded-full transition-all duration-300",
                 submitted
                   ? "bg-black/50 dark:bg-white/50 animate-pulse"
-                  : "bg-black/10 dark:bg-white/10 h-1",
+                  : "bg-black/10 dark:bg-white/10 h-1"
               )}
               style={
                 submitted && isClient
@@ -539,7 +489,6 @@ function AIInput_Voice() {
 }
 
 function BentoCard({ item }: { item: BentoItem }) {
-  const [isHovered, setIsHovered] = useState(false);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const rotateX = useTransform(y, [-100, 100], [2, -2]);
@@ -560,7 +509,6 @@ function BentoCard({ item }: { item: BentoItem }) {
   function handleMouseLeave() {
     x.set(0);
     y.set(0);
-    setIsHovered(false);
   }
 
   return (
@@ -569,15 +517,13 @@ function BentoCard({ item }: { item: BentoItem }) {
       whileHover={{ y: -5 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
       className="h-full"
-      onHoverStart={() => setIsHovered(true)}
       onHoverEnd={handleMouseLeave}
       onMouseMove={handleMouseMove}
       style={{
         rotateX,
         rotateY,
         transformStyle: "preserve-3d",
-      }}
-    >
+      }}>
       <div
         className={`
                     group relative flex flex-col gap-4 h-full rounded-xl p-5
@@ -599,12 +545,10 @@ function BentoCard({ item }: { item: BentoItem }) {
                     transition-all duration-500 ease-out ${item.className}
                 `}
         tabIndex={0}
-        aria-label={`${item.title} - ${item.description}`}
-      >
+        aria-label={`${item.title} - ${item.description}`}>
         <div
           className="relative z-10 flex flex-col gap-3 h-full"
-          style={{ transform: "translateZ(20px)" }}
-        >
+          style={{ transform: "translateZ(20px)" }}>
           <div className="space-y-2 flex-1 flex flex-col">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 group-hover:text-neutral-700 dark:group-hover:text-neutral-300 transition-colors duration-300">
@@ -678,8 +622,7 @@ export default function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative py-24 sm:py-36 bg-white dark:bg-black overflow-hidden"
-    >
+      className="relative py-24 sm:py-36 bg-white dark:bg-black overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div variants={fadeInUp}>
           <SparklesText className="text-5xl text-center pb-12">
@@ -692,8 +635,7 @@ export default function FeaturesSection() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
-          className="grid gap-6"
-        >
+          className="grid gap-6">
           <div className="grid md:grid-cols-3 gap-6">
             <motion.div variants={fadeInUp} className="md:col-span-1">
               <BentoCard item={bentoItems[0]} />
@@ -708,8 +650,7 @@ export default function FeaturesSection() {
             </motion.div>
             <motion.div
               variants={fadeInUp}
-              className="md:col-span-1 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-neutral-50 dark:from-neutral-900/80 dark:to-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 hover:border-neutral-400/30 dark:hover:border-neutral-600/30 hover:shadow-lg hover:shadow-neutral-200/20 dark:hover:shadow-neutral-900/20 transition-all duration-300"
-            >
+              className="md:col-span-1 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-neutral-50 dark:from-neutral-900/80 dark:to-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 hover:border-neutral-400/30 dark:hover:border-neutral-600/30 hover:shadow-lg hover:shadow-neutral-200/20 dark:hover:shadow-neutral-900/20 transition-all duration-300">
               <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">

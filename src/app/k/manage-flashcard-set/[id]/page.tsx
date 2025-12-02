@@ -74,11 +74,6 @@ export default function FlashcardSetDetailPage({
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleCancelForm = useCallback(() => {
-    setShowCardForm(false);
-    setSelectedCard(null);
-  }, []);
-
   const handleDeleteCard = useCallback((cardId: string) => {
     setCardToDelete(cardId);
     setIsDeleteDialogOpen(true);

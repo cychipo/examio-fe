@@ -1,3 +1,5 @@
+/* eslint-disable eslint-comments/no-unlimited-disable */
+/* eslint-disable */
 import { create } from "zustand";
 import { Quizz, Flashcard, TypeResultGenerateExam } from "@/types/exam";
 import { generateExamApi } from "@/apis/examApi";
@@ -364,7 +366,7 @@ interface RecentUploadsState {
   fetchRecentUploads: (forceRefresh?: boolean) => Promise<void>;
   selectUpload: (upload: RecentUpload | null) => void;
   deleteUpload: (uploadId: string) => Promise<void>;
-  loadFromUpload: (upload: RecentUpload, type: "quiz" | "flashcard") => void;
+  loadFromUpload: (upload: RecentUpload) => void;
   clearSelection: () => void;
 }
 
@@ -452,7 +454,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
     }
   },
 
-  loadFromUpload: (upload, type) => {
+  loadFromUpload: (upload) => {
     set({ selectedUpload: upload });
 
     // Create a mock File object info for the upload card

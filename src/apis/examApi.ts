@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { TypeResultGenerateExam, Quizz, Flashcard } from "@/types/exam";
+import { TypeResultGenerateExam } from "@/types/exam";
 
 export interface CredentialsGenerateExam {
   file: File;
