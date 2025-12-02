@@ -233,20 +233,33 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
   addQuestion: async (quizSetId: string, questionData: CreateQuestionData) => {
     set({ loading: true });
     try {
-      await addQuestionToQuizSet(quizSetId, questionData);
+      const response = await addQuestionToQuizSet(quizSetId, questionData);
 
-      // Refetch quiz set to get updated questions
-      await useQuizSetStore.getState().fetchQuizSetById(quizSetId);
+      // Optimistic update - add new question to state
+      set((state) => {
+        if (!state.currentQuizSet) return state;
+
+        return {
+          currentQuizSet: {
+            ...state.currentQuizSet,
+            questions: [
+              ...(state.currentQuizSet.questions || []),
+              response.question,
+            ],
+          },
+        };
+      });
 
       toast.success("Thêm câu hỏi thành công");
 
-      // Invalidate cache
-      storeCache.invalidate("quizsets");
+      // Invalidate all quizsets cache
+      storeCache.clear();
     } catch (error) {
       toast.error("Thêm câu hỏi thất bại", {
         description: (error as Error).message,
       });
       console.error("Thêm câu hỏi thất bại:", error);
+      throw error;
     } finally {
       set({ loading: false });
     }
@@ -259,9 +272,13 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
   ) => {
     set({ loading: true });
     try {
-      await updateQuestionInQuizSet(quizSetId, questionId, questionData);
+      const response = await updateQuestionInQuizSet(
+        quizSetId,
+        questionId,
+        questionData
+      );
 
-      // Optimistic update
+      // Update state with response from server
       set((state) => {
         if (!state.currentQuizSet || !state.currentQuizSet.questions) {
           return state;
@@ -271,7 +288,7 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
           currentQuizSet: {
             ...state.currentQuizSet,
             questions: state.currentQuizSet.questions.map((q) =>
-              q.id === questionId ? { ...q, ...questionData } : q
+              q.id === questionId ? response.question : q
             ),
           },
         };
@@ -279,16 +296,14 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
 
       toast.success("Cập nhật câu hỏi thành công");
 
-      // Invalidate cache
-      storeCache.invalidate("quizsets");
+      // Invalidate all cache
+      storeCache.clear();
     } catch (error) {
       toast.error("Cập nhật câu hỏi thất bại", {
         description: (error as Error).message,
       });
       console.error("Cập nhật câu hỏi thất bại:", error);
-
-      // Refetch on error to restore correct state
-      await useQuizSetStore.getState().fetchQuizSetById(quizSetId);
+      throw error;
     } finally {
       set({ loading: false });
     }
@@ -299,7 +314,7 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
     try {
       await deleteQuestionFromQuizSet(quizSetId, questionId);
 
-      // Optimistic update
+      // Optimistic update - remove question from state
       set((state) => {
         if (!state.currentQuizSet || !state.currentQuizSet.questions) {
           return state;
@@ -311,23 +326,20 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
             questions: state.currentQuizSet.questions.filter(
               (q) => q.id !== questionId
             ),
-            questionCount: state.currentQuizSet.questionCount - 1,
           },
         };
       });
 
       toast.success("Xóa câu hỏi thành công");
 
-      // Invalidate cache
-      storeCache.invalidate("quizsets");
+      // Invalidate all cache
+      storeCache.clear();
     } catch (error) {
       toast.error("Xóa câu hỏi thất bại", {
         description: (error as Error).message,
       });
       console.error("Xóa câu hỏi thất bại:", error);
-
-      // Refetch on error to restore correct state
-      await useQuizSetStore.getState().fetchQuizSetById(quizSetId);
+      throw error;
     } finally {
       set({ loading: false });
     }

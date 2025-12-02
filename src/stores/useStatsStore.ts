@@ -1,0 +1,108 @@
+import { create } from "zustand";
+
+interface StatsData {
+  totalGroups: number;
+  totalGroupsTrend: number;
+  totalCards: number;
+  totalCardsTrend: number;
+  avgProgress: number;
+  avgProgressTrend: number;
+  studiedToday: number;
+  studiedTodayTrend: number;
+}
+
+interface QuizStatsData {
+  totalGroups: number;
+  totalGroupsTrend: number;
+  totalQuestions: number;
+  totalQuestionsTrend: number;
+  avgScore: number;
+  avgScoreTrend: number;
+  testedToday: number;
+  testedTodayTrend: number;
+}
+
+interface StatsStore {
+  flashcardStats: StatsData | null;
+  quizStats: QuizStatsData | null;
+  loadingFlashcardStats: boolean;
+  loadingQuizStats: boolean;
+  fetchFlashcardStats: () => Promise<void>;
+  fetchQuizStats: () => Promise<void>;
+  invalidateFlashcardStats: () => void;
+  invalidateQuizStats: () => void;
+}
+
+export const useStatsStore = create<StatsStore>((set, get) => ({
+  flashcardStats: null,
+  quizStats: null,
+  loadingFlashcardStats: false,
+  loadingQuizStats: false,
+
+  fetchFlashcardStats: async () => {
+    // If we already have stats, don't fetch again
+    if (get().flashcardStats || get().loadingFlashcardStats) return;
+
+    set({ loadingFlashcardStats: true });
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/flashcardsets/stats`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      set({
+        flashcardStats: {
+          totalGroups: data.totalGroups || 0,
+          totalGroupsTrend: 0,
+          totalCards: data.totalCards || 0,
+          totalCardsTrend: 0,
+          avgProgress: data.avgProgress || 0,
+          avgProgressTrend: 0,
+          studiedToday: data.studiedToday || 0,
+          studiedTodayTrend: 0,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch flashcard stats:", error);
+    } finally {
+      set({ loadingFlashcardStats: false });
+    }
+  },
+
+  fetchQuizStats: async () => {
+    // If we already have stats, don't fetch again
+    if (get().quizStats || get().loadingQuizStats) return;
+
+    set({ loadingQuizStats: true });
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/quizsets/stats`,
+        {
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      set({
+        quizStats: {
+          totalGroups: data.totalGroups || 0,
+          totalGroupsTrend: 0,
+          totalQuestions: data.totalQuestions || 0,
+          totalQuestionsTrend: 0,
+          avgScore: data.avgScore || 0,
+          avgScoreTrend: 0,
+          testedToday: data.testedToday || 0,
+          testedTodayTrend: 0,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch quiz stats:", error);
+    } finally {
+      set({ loadingQuizStats: false });
+    }
+  },
+
+  invalidateFlashcardStats: () => set({ flashcardStats: null }),
+  invalidateQuizStats: () => set({ quizStats: null }),
+}));

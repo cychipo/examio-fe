@@ -37,11 +37,11 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col"
+        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col relative"
       )}>
       <SidebarKit />
 
-      <div className="w-full m-0 md:p-1 pb-20 md:ml-[288px]">
+      <div className="w-full m-0 pb-20 md:ml-[288px]">
         {/* Header */}
         <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80 ">
           <div className="container mx-auto py-1 px-2 w-full">

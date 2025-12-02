@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className={`${tikTokSans.className}`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange>
           <ToastProvider>

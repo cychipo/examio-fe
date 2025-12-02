@@ -7,10 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, Edit, Trash2, FileText, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Edit,
+  Trash2,
+  FileText,
+  Eye,
+  PlayCircle,
+} from "lucide-react";
 import { Quizz } from "@/types/quizset";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
-import { QuestionInlineForm } from "@/components/organisms/QuestionInlineForm";
+import { QuestionEditorDialog } from "@/components/organisms/QuestionEditorDialog";
+import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 
 /**
  * Quiz Set Detail Page
@@ -103,7 +112,7 @@ export default function QuizSetDetailPage({
   // Loading state
   if (loading || !currentQuizSet) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <Skeleton className="h-10 w-full mb-6" />
           <div className="grid gap-6 md:grid-cols-3 mb-8">
@@ -118,7 +127,7 @@ export default function QuizSetDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -135,6 +144,14 @@ export default function QuizSetDetailPage({
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() =>
+                  router.push(`/k/practice-quiz/${currentQuizSet.id}`)
+                }
+                className="gap-2">
+                <PlayCircle className="h-4 w-4" />
+                Thi thử
+              </Button>
               <Badge
                 variant={currentQuizSet.isPublic ? "default" : "secondary"}>
                 {currentQuizSet.isPublic ? "Công khai" : "Riêng tư"}
@@ -208,17 +225,13 @@ export default function QuizSetDetailPage({
           </Card>
         </div>
 
-        {/* Inline Question Form */}
-        {showQuestionForm && (
-          <div className="mb-8">
-            <QuestionInlineForm
-              question={selectedQuestion}
-              onSave={handleSaveQuestion}
-              onCancel={handleCancelForm}
-              loading={loading}
-            />
-          </div>
-        )}
+        {/* Question Editor Dialog */}
+        <QuestionEditorDialog
+          open={showQuestionForm}
+          onOpenChange={setShowQuestionForm}
+          question={selectedQuestion}
+          onSave={handleSaveQuestion}
+        />
 
         {/* Questions List */}
         <Card className="p-6">
@@ -241,22 +254,40 @@ export default function QuizSetDetailPage({
                       {index + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium mb-2">{question.question}</p>
+                      <div className="mb-2">
+                        <RichTextViewer content={question.question} />
+                      </div>
                       <div className="space-y-1">
-                        {question.options.map((option, optIndex) => (
-                          <div
-                            key={optIndex}
-                            className={`text-sm p-2 rounded ${
-                              option === question.answer
-                                ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
-                                : "bg-muted/50"
-                            }`}>
-                            {String.fromCharCode(65 + optIndex)}. {option}
-                            {option === question.answer && (
-                              <span className="ml-2">✓ Đáp án đúng</span>
-                            )}
-                          </div>
-                        ))}
+                        {question.options.map((option, optIndex) => {
+                          // Compare with letter (A, B, C, D) or index
+                          const optionLetter = String.fromCharCode(
+                            65 + optIndex
+                          );
+                          const isCorrect =
+                            question.answer === optionLetter ||
+                            question.answer === optIndex.toString();
+                          return (
+                            <div
+                              key={optIndex}
+                              className={`text-sm p-2 rounded flex items-start gap-2 ${
+                                isCorrect
+                                  ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
+                                  : "bg-muted/50"
+                              }`}>
+                              <span className="font-medium flex-shrink-0">
+                                {optionLetter}.
+                              </span>
+                              <div className="flex-1">
+                                <RichTextViewer content={option} />
+                              </div>
+                              {isCorrect && (
+                                <span className="ml-2 flex-shrink-0">
+                                  ✓ Đáp án đúng
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -268,11 +299,11 @@ export default function QuizSetDetailPage({
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="ghost"
+                        variant="errorGhost"
                         size="sm"
                         onClick={() => handleDeleteQuestion(question.id)}
                         disabled={showQuestionForm}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>

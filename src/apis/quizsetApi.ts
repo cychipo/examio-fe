@@ -58,6 +58,18 @@ export async function getQuizSetsApi(
   return response.data;
 }
 
+export type ResponseQuizSetStats = {
+  totalExams: number;
+  activeExams: number;
+  totalQuestions: number;
+  completionRate: number;
+};
+
+export async function getQuizSetStatsApi(): Promise<ResponseQuizSetStats> {
+  const response = await api.get("/quizsets/stats");
+  return response.data;
+}
+
 export async function setQuizzesToQuizset(
   credentials: CredentialsSetQuizToQuizset
 ): Promise<ResponseSetQuizzesToQuizset> {
@@ -112,49 +124,49 @@ export type CreateQuestionData = {
 
 export type UpdateQuestionData = CreateQuestionData;
 
-export type ResponseQuestion = Quizz;
+export type ResponseQuestion = {
+  message: string;
+  question: Quizz;
+};
 
 /**
  * Thêm câu hỏi mới vào quiz set
- * Sử dụng API set-quizzes-to-quizset với 1 quiz
  */
 export async function addQuestionToQuizSet(
   quizSetId: string,
   questionData: CreateQuestionData
-): Promise<ResponseSetQuizzesToQuizset> {
-  const response = await api.post("/quizsets/set-quizzes-to-quizset", {
-    quizsetIds: [quizSetId],
-    quizzes: [questionData],
-  });
+): Promise<ResponseQuestion> {
+  const response = await api.post(
+    `/quizsets/${quizSetId}/questions`,
+    questionData
+  );
   return response.data;
 }
 
 /**
  * Cập nhật câu hỏi trong quiz set
- * Note: Backend cần có endpoint PUT /quizsets/:quizSetId/questions/:questionId
- * Tạm thời sử dụng workaround: xóa và thêm lại
  */
 export async function updateQuestionInQuizSet(
-  _quizSetId: string,
-  _questionId: string,
-  _questionData: UpdateQuestionData
-): Promise<{ success: boolean }> {
-  // TODO: Implement proper update endpoint when available
-  // For now, this is a placeholder
-  console.warn("Update question API not implemented yet");
-  return { success: true };
+  quizSetId: string,
+  questionId: string,
+  questionData: UpdateQuestionData
+): Promise<ResponseQuestion> {
+  const response = await api.put(
+    `/quizsets/${quizSetId}/questions/${questionId}`,
+    questionData
+  );
+  return response.data;
 }
 
 /**
  * Xóa câu hỏi khỏi quiz set
- * Note: Backend cần có endpoint DELETE /quizsets/:quizSetId/questions/:questionId
  */
 export async function deleteQuestionFromQuizSet(
-  _quizSetId: string,
-  _questionId: string
-): Promise<{ success: boolean }> {
-  // TODO: Implement proper delete endpoint when available
-  // For now, this is a placeholder
-  console.warn("Delete question API not implemented yet");
-  return { success: true };
+  quizSetId: string,
+  questionId: string
+): Promise<{ message: string }> {
+  const response = await api.delete(
+    `/quizsets/${quizSetId}/questions/${questionId}`
+  );
+  return response.data;
 }

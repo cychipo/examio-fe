@@ -3,27 +3,28 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+          "border-transparent bg-primary/90 text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+          "border-white/20 dark:border-white/10 bg-white/20 dark:bg-white/10 backdrop-blur-sm text-secondary-foreground hover:bg-white/30",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground"
+          "border-transparent bg-destructive/90 text-destructive-foreground shadow-sm shadow-destructive/25 hover:bg-destructive",
+        outline:
+          "text-foreground border-white/30 dark:border-white/20 bg-white/10 backdrop-blur-sm",
       },
       shiny: {
         true: "relative overflow-hidden",
-        false: ""
-      }
+        false: "",
+      },
     },
     defaultVariants: {
       variant: "default",
-      shiny: false
-    }
+      shiny: false,
+    },
   }
 );
 
@@ -47,8 +48,7 @@ function Badge({
   return (
     <div
       className={cn(badgeVariants({ variant, shiny }), className)}
-      {...props}
-    >
+      {...props}>
       <span className={shiny ? "relative z-10" : ""}>{children}</span>
 
       {shiny && (
@@ -59,7 +59,7 @@ function Badge({
               "linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.6) 50%, transparent 60%)",
             backgroundSize: "200% 100%",
             animationDuration,
-            mixBlendMode: "screen"
+            mixBlendMode: "screen",
           }}
         />
       )}
@@ -72,7 +72,7 @@ function Badge({
               "linear-gradient(120deg, transparent 40%, rgba(0,0,150,0.25) 50%, transparent 60%)",
             backgroundSize: "200% 100%",
             animationDuration,
-            mixBlendMode: "multiply"
+            mixBlendMode: "multiply",
           }}
         />
       )}

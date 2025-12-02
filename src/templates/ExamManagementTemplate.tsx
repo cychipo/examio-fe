@@ -28,6 +28,7 @@ interface ExamManagementTemplateProps {
   onCreateExam: () => void;
   onExport: () => void;
   onViewExam: (id: string) => void;
+  onPracticeExam: (id: string) => void;
   onEditExam: (id: string) => void;
   onDeleteExam: (id: string) => void;
   onPageChange: (page: number) => void;
@@ -47,12 +48,13 @@ export function ExamManagementTemplate({
   onCreateExam,
   onExport,
   onViewExam,
+  onPracticeExam,
   onEditExam,
   onDeleteExam,
   onPageChange,
 }: ExamManagementTemplateProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <ExamManagementHeader onCreateExam={onCreateExam} onExport={onExport} />
 
@@ -69,6 +71,7 @@ export function ExamManagementTemplate({
         <ExamTable
           exams={exams}
           onView={onViewExam}
+          onPractice={onPracticeExam}
           onEdit={onEditExam}
           onDelete={onDeleteExam}
         />

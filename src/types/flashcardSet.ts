@@ -17,7 +17,7 @@ export interface FlashcardSet {
   tags: string[];
   createdAt: string;
   updatedAt: string;
-  flashcards?: Flashcard[];
+  flashcards?: Flashcard[]; // Normalized to lowercase for consistency
   _count?: {
     detailsFlashCard: number;
   };

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Plus, X } from "lucide-react";
@@ -54,6 +54,23 @@ export function QuestionEditorDialog({
   const [options, setOptions] = useState<string[]>(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState("");
 
+  // Helper: Convert letter answer (A, B, C, D) to index
+  const letterToIndex = (letter: string): string => {
+    if (!letter) return "";
+    // If it's already a number, return as is
+    if (!Number.isNaN(Number.parseInt(letter))) return letter;
+    // Convert letter to index (A=0, B=1, C=2, D=3)
+    return (letter.charCodeAt(0) - 65).toString();
+  };
+
+  // Helper: Convert index to letter answer
+  const indexToLetter = (index: string): string => {
+    if (!index) return "";
+    const num = Number.parseInt(index);
+    if (Number.isNaN(num)) return index;
+    return String.fromCharCode(65 + num);
+  };
+
   // Initialize form khi dialog mở hoặc question thay đổi
   useEffect(() => {
     if (open) {
@@ -69,7 +86,8 @@ export function QuestionEditorDialog({
                 }).fill(""),
               ] as string[]);
         setOptions(filledOptions);
-        setCorrectAnswer(question.answer);
+        // Convert letter answer to index for radio selection
+        setCorrectAnswer(letterToIndex(question.answer));
       } else {
         // Reset form
         setQuestionText("");
@@ -88,8 +106,11 @@ export function QuestionEditorDialog({
       const newOptions = options.filter((_, i) => i !== index);
       setOptions(newOptions);
       // If removed option was the correct answer, reset
-      if (correctAnswer === options[index]) {
+      if (correctAnswer === index.toString()) {
         setCorrectAnswer("");
+      } else if (Number.parseInt(correctAnswer) > index) {
+        // Adjust the correct answer index if it's after the removed option
+        setCorrectAnswer((Number.parseInt(correctAnswer) - 1).toString());
       }
     }
   };
@@ -113,7 +134,7 @@ export function QuestionEditorDialog({
       return;
     }
 
-    if (!correctAnswer || !filledOptions.includes(correctAnswer)) {
+    if (!correctAnswer || !options[Number.parseInt(correctAnswer)].trim()) {
       alert("Vui lòng chọn đáp án đúng");
       return;
     }
@@ -121,8 +142,11 @@ export function QuestionEditorDialog({
     onSave({
       question: questionText,
       options: filledOptions,
-      answer: correctAnswer,
+      answer: indexToLetter(correctAnswer),
     });
+
+    // Close dialog
+    onOpenChange(false);
   };
 
   const formContent = (
@@ -132,17 +156,12 @@ export function QuestionEditorDialog({
         <Label htmlFor="question">
           Câu hỏi <span className="text-destructive">*</span>
         </Label>
-        <Textarea
-          id="question"
-          placeholder="Nhập nội dung câu hỏi (hỗ trợ markdown cho công thức toán)"
-          value={questionText}
-          onChange={(e) => setQuestionText(e.target.value)}
-          rows={4}
-          className="resize-none"
+        <RichTextEditor
+          content={questionText}
+          onChange={setQuestionText}
+          placeholder="Nhập nội dung câu hỏi..."
+          minHeight="150px"
         />
-        <p className="text-xs text-muted-foreground">
-          💡 Gợi ý: Sử dụng $x^2$ cho công thức toán, ![](url) cho hình ảnh
-        </p>
       </div>
 
       {/* Options */}
@@ -155,19 +174,25 @@ export function QuestionEditorDialog({
           {options.map((option, index) => (
             <div key={index} className="flex items-start gap-2">
               <RadioGroupItem
-                value={option}
+                value={index.toString()}
                 id={`option-${index}`}
                 disabled={!option.trim()}
                 className="mt-3"
               />
-              <div className="flex-1">
-                <Textarea
-                  placeholder={`Đáp án ${String.fromCharCode(65 + index)}`}
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  rows={2}
-                  className="resize-none"
-                />
+              <div className="flex-1 flex gap-2">
+                <div className="flex-shrink-0 mt-3 font-semibold text-lg text-muted-foreground">
+                  {String.fromCharCode(65 + index)}.
+                </div>
+                <div className="flex-1">
+                  <RichTextEditor
+                    content={option}
+                    onChange={(value) => handleOptionChange(index, value)}
+                    placeholder={`Nhập đáp án ${String.fromCharCode(
+                      65 + index
+                    )}`}
+                    minHeight="100px"
+                  />
+                </div>
               </div>
               {options.length > 2 && (
                 <Button
@@ -209,7 +234,12 @@ export function QuestionEditorDialog({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="!max-w-4xl max-h-[90vh] overflow-y-auto  [&::-webkit-scrollbar]:w-0.5
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
           <DialogHeader>
             <DialogTitle>
               {question ? "Chỉnh sửa câu hỏi" : "Thêm câu hỏi mới"}

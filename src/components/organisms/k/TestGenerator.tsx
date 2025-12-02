@@ -11,12 +11,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Loader2, Sparkles, SaveAll } from "lucide-react";
 import {
-  UploadIcon,
-  FileTextIcon,
-  QuestionMarkCircledIcon,
-} from "@radix-ui/react-icons";
+  Loader2,
+  Sparkles,
+  SaveAll,
+  Upload,
+  FileText,
+  CircleHelp,
+  CheckCircle2,
+} from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import FileUpload from "@/components/kokonutui/file-upload";
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
@@ -36,11 +39,13 @@ import {
   DialogAddExam,
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
-import { Item, ItemContent, ItemTitle } from "@/components/ui/item";
+import { cn } from "@/lib/utils";
 
 export function TestGenerator() {
   const {
     file,
+    uploadId,
+    fileInfo,
     questionCount,
     isNarrow,
     keyword,
@@ -55,6 +60,11 @@ export function TestGenerator() {
   } = useTestGeneratorStore();
 
   const { toast } = useToast();
+
+  // File info cho hiển thị (từ file upload hoặc từ recent files)
+  const displayFileName = file?.name || fileInfo?.name;
+  const displayFileSize = file?.size || fileInfo?.size;
+  const hasFile = !!file || !!uploadId;
 
   const handleFileUpload = (uploadedFile: File) => {
     setFile(uploadedFile);
@@ -88,12 +98,14 @@ export function TestGenerator() {
     await generateTest();
   };
   return (
-    <div className="gap-6 flex w-full flex-col md:flex-row">
+    <div className="gap-6 flex w-full flex-col">
       {/* Upload & Settings */}
-      <Card className="border-border bg-card h-fit w-full md:w-2/5">
+      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl h-fit w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <UploadIcon className="w-5 h-5 text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+              <Upload className="w-4 h-4 text-primary" />
+            </div>
             Tải lên tài liệu
           </CardTitle>
           <CardDescription>
@@ -102,7 +114,7 @@ export function TestGenerator() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* File Upload */}
-          {!file ? (
+          {!hasFile ? (
             <FileUpload
               acceptedFileTypes={[".pdf", "application/pdf"]}
               maxFileSize={10485760}
@@ -113,8 +125,8 @@ export function TestGenerator() {
             />
           ) : (
             <ItemFileDetail
-              fileName={file.name}
-              fileSize={file.size}
+              fileName={displayFileName || "Unknown file"}
+              fileSize={displayFileSize || 0}
               onRemove={handleRemoveFile}
             />
           )}
@@ -122,8 +134,8 @@ export function TestGenerator() {
           {/* Question Count */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Số lượng câu hỏi</Label>
-              <span className="text-sm font-medium text-primary">
+              <Label className="text-muted-foreground">Số lượng câu hỏi</Label>
+              <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
                 {questionCount} câu
               </span>
             </div>
@@ -138,14 +150,14 @@ export function TestGenerator() {
           </div>
 
           {/* Narrow Format Toggle */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
             <Label
               htmlFor="narrow-toggle-test"
-              className="flex items-center gap-2 cursor-pointer">
+              className="flex items-center gap-2 cursor-pointer text-muted-foreground">
               Định dạng hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <QuestionMarkCircledIcon className="w-4 h-4" />
+                  <CircleHelp className="w-4 h-4 text-muted-foreground/60" />
                 </TooltipTrigger>
                 <TooltipContent>
                   Bật để tạo đề kiểm tra tập trung vào từ khóa mà bạn nhập thay
@@ -163,7 +175,7 @@ export function TestGenerator() {
 
           {/* Keyword Input */}
           {isNarrow && (
-            <div className="space-y-2">
+            <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
               <Field>
                 <FieldLabel htmlFor="keyword-input-test">Từ khóa</FieldLabel>
                 <FieldContent>
@@ -172,6 +184,7 @@ export function TestGenerator() {
                     placeholder="Nhập từ khóa..."
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
+                    className="bg-white/5 border-white/10"
                   />
                 </FieldContent>
               </Field>
@@ -181,8 +194,8 @@ export function TestGenerator() {
           {/* Generate Button */}
           <Button
             onClick={handleGenerate}
-            disabled={!file || isGenerating}
-            className="w-full h-12 text-base font-medium"
+            disabled={!hasFile || isGenerating}
+            className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
             size="lg">
             {isGenerating ? (
               <>
@@ -200,10 +213,12 @@ export function TestGenerator() {
       </Card>
 
       {/* Preview */}
-      <Card className="border-border bg-card w-full md:w-3/5">
+      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileTextIcon className="w-5 h-5 text-primary" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center border border-blue-500/20">
+              <FileText className="w-4 h-4 text-blue-400" />
+            </div>
             Xem trước
           </CardTitle>
           <CardDescription>Kết quả đề kiểm tra được tạo bởi AI</CardDescription>
@@ -229,9 +244,9 @@ export function TestGenerator() {
               />
             </div>
           ) : !generatedTest ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FileTextIcon className="w-8 h-8 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+                <FileText className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground">
                 Tải lên file PDF và nhấn Tạo đề kiểm tra để xem kết quả
@@ -239,49 +254,92 @@ export function TestGenerator() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <h3 className="font-semibold text-lg">
-                  {isNarrow && keyword
-                    ? `Đề kiểm tra - Chủ đề: ${keyword}`
-                    : "Đề kiểm tra được tạo từ AI"}
-                </h3>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {generatedTest.length} câu hỏi
+                  </span>
+                  {isNarrow && keyword && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      {keyword}
+                    </span>
+                  )}
+                </div>
                 <DialogAddExam
                   title="Lưu vào đề thi"
                   description="Lưu đề kiểm tra vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
                   type={DialogAddExamType.QUIZZ}>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/5 border-white/10 hover:bg-white/10">
                     <SaveAll size={15} className="mr-2" />
                     Lưu
                   </Button>
                 </DialogAddExam>
               </div>
 
-              <ScrollArea className=" rounded-md p-2">
-                <div className="space-y-4 max-h-[500px]">
+              <ScrollArea className="rounded-xl">
+                <div className="space-y-3 max-h-[500px] pr-2">
                   {generatedTest.map((q: Quizz, idx: number) => (
-                    <Item key={idx} variant="outline">
-                      <ItemContent>
-                        <ItemTitle>
-                          {" "}
-                          Câu {idx + 1}: {q.question}
-                        </ItemTitle>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                          {q.options.map((opt: string, optIdx: number) => (
-                            <div
-                              key={optIdx}
-                              className="flex items-start gap-2">
-                              <span className="font-medium min-w-[20px]">
-                                {String.fromCharCode(65 + optIdx)}.
-                              </span>
-                              <span>{opt}</span>
-                            </div>
-                          ))}
+                    <div
+                      key={idx}
+                      className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground mb-3">
+                            {q.question}
+                          </p>
+                          <div className="space-y-2">
+                            {q.options.map((opt: string, optIdx: number) => {
+                              // answer có thể là index (number) hoặc chữ cái (A, B, C, D)
+                              const answerIndex =
+                                typeof q.answer === "number"
+                                  ? q.answer
+                                  : ["A", "B", "C", "D"].indexOf(
+                                      q.answer.toUpperCase()
+                                    );
+                              const isCorrect = answerIndex === optIdx;
+                              return (
+                                <div
+                                  key={optIdx}
+                                  className={cn(
+                                    "flex items-start gap-2 p-2 rounded-lg transition-colors",
+                                    isCorrect
+                                      ? "bg-green-500/10 border border-green-500/20"
+                                      : "bg-white/5 border border-transparent"
+                                  )}>
+                                  <span
+                                    className={cn(
+                                      "flex-shrink-0 w-6 h-6 rounded-md text-xs font-medium flex items-center justify-center",
+                                      isCorrect
+                                        ? "bg-green-500/20 text-green-400"
+                                        : "bg-white/10 text-muted-foreground"
+                                    )}>
+                                    {String.fromCharCode(65 + optIdx)}
+                                  </span>
+                                  <span
+                                    className={cn(
+                                      "flex-1 text-sm",
+                                      isCorrect
+                                        ? "text-green-400"
+                                        : "text-muted-foreground"
+                                    )}>
+                                    {opt}
+                                  </span>
+                                  {isCorrect && (
+                                    <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
-                        <div className="text-xs text-primary font-medium mt-2">
-                          Đáp án đúng: {q.answer}
-                        </div>
-                      </ItemContent>
-                    </Item>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </ScrollArea>

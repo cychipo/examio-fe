@@ -11,13 +11,9 @@ export interface CredentialsGenerateExam {
 }
 
 export interface ResponseGenerateExam {
-  id: string;
-  userId: string;
-  userStorageId: string;
-  quizzes?: Quizz[];
-  flashcards?: Flashcard[];
-  createdAt: string;
-  updatedAt: string;
+  jobId: string;
+  status: string;
+  message: string;
 }
 
 export async function generateExamApi(

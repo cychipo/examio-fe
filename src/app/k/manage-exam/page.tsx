@@ -6,6 +6,7 @@ import { ExamManagementTemplate } from "@/templates/ExamManagementTemplate";
 import type { ExamTableData } from "@/components/organisms/k/ExamTable";
 import type { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
+import { useStatsStore } from "@/stores/useStatsStore";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useExportPDF } from "@/hooks/useExportPDF";
 import { QuizSetModal } from "@/components/organisms/QuizSetModal";
@@ -23,6 +24,7 @@ export default function ManageExamPage() {
     createQuizSet,
     updateQuizSet,
   } = useQuizSetStore();
+  const { quizStats, fetchQuizStats, invalidateQuizStats } = useStatsStore();
   const { exportQuizSetsToPDF } = useExportPDF();
 
   // State cho UI
@@ -43,41 +45,12 @@ export default function ManageExamPage() {
     undefined
   );
 
-  // State để lưu stats ban đầu (không bị ảnh hưởng bởi filter/search)
-  const [originalStats, setOriginalStats] = useState({
-    totalExams: 0,
-    activeExams: 0,
-    totalQuestions: 0,
-    completionRate: 0,
-  });
-
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  // Fetch quiz sets lần đầu để lấy stats tổng thể (không filter)
+  // Fetch stats using store
   useEffect(() => {
-    const loadInitialStats = async () => {
-      const response = await fetchQuizSets({
-        page: 1,
-        limit: 9999, // Lấy tất cả để tính stats
-      });
-
-      if (response) {
-        const totalQuestions = response.quizSets.reduce(
-          (sum, qs) => sum + (qs.questionCount || 0),
-          0
-        );
-        setOriginalStats({
-          totalExams: response.total,
-          activeExams: response.quizSets.filter((qs) => qs.isPublic).length,
-          totalQuestions,
-          completionRate: 0, // Cần API riêng
-        });
-      }
-    };
-
-    loadInitialStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Chỉ chạy 1 lần khi mount
+    fetchQuizStats();
+  }, [fetchQuizStats]);
 
   // Fetch quiz sets khi component mount hoặc khi filter thay đổi
   useEffect(() => {
@@ -115,6 +88,7 @@ export default function ManageExamPage() {
         questionCount: quizSet.questionCount,
         status: (quizSet.isPublic ? "public" : "private") as ExamStatus,
         createdDate: new Date(quizSet.createdAt).toLocaleDateString("vi-VN"),
+        createdAt: quizSet.createdAt,
         lastStudied: null, // Backend chưa có thông tin này
         tags: quizSet.tags || [],
       })),
@@ -123,20 +97,19 @@ export default function ManageExamPage() {
 
   const totalPages = Math.ceil(totalResults / limit);
 
-  // Tính stats từ dữ liệu thực - useMemo để tránh re-calculate
-  // Sử dụng originalStats thay vì tính từ filtered data
+  // Stats object for template
   const stats = useMemo(
     () => ({
-      totalExams: originalStats.totalExams,
-      totalExamsTrend: 0, // Cần API riêng để lấy trend
-      activeExams: originalStats.activeExams,
-      activeExamsTrend: 0,
-      totalQuestions: originalStats.totalQuestions,
-      totalQuestionsTrend: 0,
-      completionRate: originalStats.completionRate,
-      completionRateTrend: 0,
+      totalExams: quizStats?.totalGroups || 0,
+      totalExamsTrend: quizStats?.totalGroupsTrend || 0,
+      activeExams: quizStats?.testedToday || 0, // Using testedToday as activeExams proxy or similar
+      activeExamsTrend: quizStats?.testedTodayTrend || 0,
+      totalQuestions: quizStats?.totalQuestions || 0,
+      totalQuestionsTrend: quizStats?.totalQuestionsTrend || 0,
+      completionRate: quizStats?.avgScore || 0,
+      completionRateTrend: quizStats?.avgScoreTrend || 0,
     }),
-    [originalStats]
+    [quizStats]
   );
 
   const statusOptions = useMemo(
@@ -160,6 +133,13 @@ export default function ManageExamPage() {
   const handleViewExam = useCallback(
     (id: string) => {
       router.push(`/k/manage-quiz-set/${id}`);
+    },
+    [router]
+  );
+
+  const handlePracticeExam = useCallback(
+    (id: string) => {
+      router.push(`/k/practice-quiz/${id}`);
     },
     [router]
   );
@@ -192,14 +172,14 @@ export default function ManageExamPage() {
     if (selectedQuizSetId) {
       try {
         await deleteQuizSet(selectedQuizSetId);
+        invalidateQuizStats(); // Invalidate stats cache
         setIsDeleteDialogOpen(false);
         setSelectedQuizSetId(null);
-        // Store đã tự động xóa item và stats sẽ tự update qua useMemo
       } catch (error) {
         console.error("Delete quiz set error:", error);
       }
     }
-  }, [selectedQuizSetId, deleteQuizSet]);
+  }, [selectedQuizSetId, deleteQuizSet, invalidateQuizStats]);
 
   const handleCreateSubmit = useCallback(
     async (data: QuizSetFormData) => {
@@ -214,13 +194,13 @@ export default function ManageExamPage() {
           questionCount: 0,
           questions: [],
         });
+        invalidateQuizStats(); // Invalidate stats cache
         setIsCreateModalOpen(false);
-        // Store đã tự động thêm item mới và stats sẽ tự update qua useMemo
       } catch (error) {
         console.error("Create quiz set error:", error);
       }
     },
-    [createQuizSet]
+    [createQuizSet, invalidateQuizStats]
   );
 
   const handleEditSubmit = useCallback(
@@ -237,16 +217,16 @@ export default function ManageExamPage() {
             questionCount: 0,
             questions: [],
           });
+          invalidateQuizStats(); // Invalidate stats cache
           setIsEditModalOpen(false);
           setSelectedQuizSetId(null);
           setEditFormData(undefined);
-          // Store đã tự động update item và stats sẽ tự update qua useMemo
         } catch (error) {
           console.error("Update quiz set error:", error);
         }
       }
     },
-    [selectedQuizSetId, updateQuizSet]
+    [selectedQuizSetId, updateQuizSet, invalidateQuizStats]
   );
 
   if (loading && quizSetsK.length === 0) {
@@ -269,6 +249,7 @@ export default function ManageExamPage() {
         onCreateExam={handleCreateExam}
         onExport={handleExport}
         onViewExam={handleViewExam}
+        onPracticeExam={handlePracticeExam}
         onEditExam={handleEditExam}
         onDeleteExam={handleDeleteExam}
         onPageChange={setCurrentPage}

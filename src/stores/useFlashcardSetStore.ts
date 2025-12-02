@@ -108,8 +108,20 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       const flashcardSet = await getFlashcardSetByIdApi(id);
 
+      // Normalize data: API trả về flashCards (uppercase C), chuyển thành flashcards (lowercase)
+      const normalizedFlashcardSet: FlashcardSet = {
+        ...flashcardSet,
+        flashcards:
+          (flashcardSet as any).flashCards || flashcardSet.flashcards || [],
+      };
+
+      // Remove old flashCards field if exists
+      if ((normalizedFlashcardSet as any).flashCards) {
+        delete (normalizedFlashcardSet as any).flashCards;
+      }
+
       set({
-        currentFlashcardSet: flashcardSet,
+        currentFlashcardSet: normalizedFlashcardSet,
         loading: false,
       });
     } catch (error) {
@@ -265,7 +277,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
   },
 
   invalidateCache: () => {
-    storeCache.invalidate("flashcardsets:");
+    storeCache.clear();
   },
 
   // ========== FLASHCARD CRUD METHODS ==========
@@ -277,19 +289,31 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
     try {
       set({ loading: true, error: null });
 
-      await addFlashcardToFlashcardSet(flashcardSetId, flashcardData);
+      const response = await addFlashcardToFlashcardSet(
+        flashcardSetId,
+        flashcardData
+      );
 
-      // Refetch flashcard set to get updated flashcards
-      await useFlashcardSetStore
-        .getState()
-        .fetchFlashcardSetById(flashcardSetId);
+      // Optimistic update - add new flashcard to state
+      set((state) => {
+        if (!state.currentFlashcardSet) return { loading: false };
+
+        return {
+          currentFlashcardSet: {
+            ...state.currentFlashcardSet,
+            flashcards: [
+              ...(state.currentFlashcardSet.flashcards || []),
+              response.flashcard,
+            ],
+          },
+          loading: false,
+        };
+      });
 
       toast.success("Thêm flashcard thành công");
 
-      // Invalidate cache
-      storeCache.invalidate("flashcardsets:");
-
-      set({ loading: false });
+      // Invalidate all cache
+      storeCache.clear();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -313,13 +337,13 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
     try {
       set({ loading: true, error: null });
 
-      await updateFlashcardInFlashcardSet(
+      const response = await updateFlashcardInFlashcardSet(
         flashcardSetId,
         flashcardId,
         flashcardData
       );
 
-      // Optimistic update
+      // Update state with response from server
       set((state) => {
         if (
           !state.currentFlashcardSet ||
@@ -332,7 +356,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
           currentFlashcardSet: {
             ...state.currentFlashcardSet,
             flashcards: state.currentFlashcardSet.flashcards.map((f) =>
-              f.id === flashcardId ? { ...f, ...flashcardData } : f
+              f.id === flashcardId ? response.flashcard : f
             ),
           },
           loading: false,
@@ -341,8 +365,8 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       toast.success("Cập nhật flashcard thành công");
 
-      // Invalidate cache
-      storeCache.invalidate("flashcardsets:");
+      // Invalidate all cache
+      storeCache.clear();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -354,11 +378,6 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
         description: errorMessage,
       });
       console.error("Cập nhật flashcard thất bại:", error);
-
-      // Refetch on error to restore correct state
-      await useFlashcardSetStore
-        .getState()
-        .fetchFlashcardSetById(flashcardSetId);
       throw error;
     }
   },
@@ -369,7 +388,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       await deleteFlashcardFromFlashcardSet(flashcardSetId, flashcardId);
 
-      // Optimistic update
+      // Optimistic update - remove flashcard from state
       set((state) => {
         if (
           !state.currentFlashcardSet ||
@@ -378,20 +397,12 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
           return { loading: false };
         }
 
-        const newFlashcards = state.currentFlashcardSet.flashcards.filter(
-          (f) => f.id !== flashcardId
-        );
-
         return {
           currentFlashcardSet: {
             ...state.currentFlashcardSet,
-            flashcards: newFlashcards,
-            _count: state.currentFlashcardSet._count
-              ? {
-                  detailsFlashCard:
-                    state.currentFlashcardSet._count.detailsFlashCard - 1,
-                }
-              : undefined,
+            flashcards: state.currentFlashcardSet.flashcards.filter(
+              (f) => f.id !== flashcardId
+            ),
           },
           loading: false,
         };
@@ -399,8 +410,8 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       toast.success("Xóa flashcard thành công");
 
-      // Invalidate cache
-      storeCache.invalidate("flashcardsets:");
+      // Invalidate all cache
+      storeCache.clear();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -412,11 +423,6 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
         description: errorMessage,
       });
       console.error("Xóa flashcard thất bại:", error);
-
-      // Refetch on error to restore correct state
-      await useFlashcardSetStore
-        .getState()
-        .fetchFlashcardSetById(flashcardSetId);
       throw error;
     }
   },

@@ -7,10 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, Edit, Trash2, CreditCard, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Edit,
+  Trash2,
+  CreditCard,
+  Eye,
+  PlayCircle,
+} from "lucide-react";
 import { Flashcard as FlashCard } from "@/types/flashcardSet";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
-import { FlashcardInlineForm } from "@/components/organisms/FlashcardInlineForm";
+import { FlashcardEditorDialog } from "@/components/organisms/FlashcardEditorDialog";
+import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 
 /**
  * Flashcard Set Detail Page
@@ -103,7 +112,7 @@ export default function FlashcardSetDetailPage({
   // Loading state
   if (loading || !currentFlashcardSet) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <Skeleton className="h-10 w-full mb-6" />
           <div className="grid gap-6 md:grid-cols-3 mb-8">
@@ -118,7 +127,7 @@ export default function FlashcardSetDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -135,6 +144,14 @@ export default function FlashcardSetDetailPage({
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() =>
+                  router.push(`/k/study-flashcard/${currentFlashcardSet.id}`)
+                }
+                className="gap-2">
+                <PlayCircle className="h-4 w-4" />
+                Học ngay
+              </Button>
               <Badge
                 variant={
                   currentFlashcardSet.isPublic ? "default" : "secondary"
@@ -210,17 +227,13 @@ export default function FlashcardSetDetailPage({
           </Card>
         </div>
 
-        {/* Inline Flashcard Form */}
-        {showCardForm && (
-          <div className="mb-8">
-            <FlashcardInlineForm
-              flashcard={selectedCard}
-              onSave={handleSaveCard}
-              onCancel={handleCancelForm}
-              loading={loading}
-            />
-          </div>
-        )}
+        {/* Flashcard Editor Dialog */}
+        <FlashcardEditorDialog
+          open={showCardForm}
+          onOpenChange={setShowCardForm}
+          flashcard={selectedCard}
+          onSave={handleSaveCard}
+        />
 
         {/* Flashcards List */}
         <Card className="p-6">
@@ -264,15 +277,17 @@ export default function FlashcardSetDetailPage({
                         <p className="text-xs text-muted-foreground mb-1">
                           Câu hỏi:
                         </p>
-                        <p className="font-medium text-sm">{card.question}</p>
+                        <div className="font-medium text-sm">
+                          <RichTextViewer content={card.question} />
+                        </div>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">
                           Trả lời:
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {card.answer}
-                        </p>
+                        <div className="text-sm text-muted-foreground">
+                          <RichTextViewer content={card.answer} />
+                        </div>
                       </div>
                     </div>
                   </div>
