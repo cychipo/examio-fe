@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Plus, Edit, Trash2, FileText, Eye } from "lucide-react";
 import { Quizz } from "@/types/quizset";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
-import { QuestionInlineForm } from "@/components/organisms/QuestionInlineForm";
+import { QuestionEditorDialog } from "@/components/organisms/QuestionEditorDialog";
+import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 
 /**
  * Quiz Set Detail Page
@@ -123,9 +124,6 @@ export default function QuizSetDetailPage({
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <Button variant="ghost" size="icon" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
             <div className="flex-1">
               <h1 className="text-3xl font-bold tracking-tight">
                 {currentQuizSet.title}
@@ -208,17 +206,13 @@ export default function QuizSetDetailPage({
           </Card>
         </div>
 
-        {/* Inline Question Form */}
-        {showQuestionForm && (
-          <div className="mb-8">
-            <QuestionInlineForm
-              question={selectedQuestion}
-              onSave={handleSaveQuestion}
-              onCancel={handleCancelForm}
-              loading={loading}
-            />
-          </div>
-        )}
+        {/* Question Editor Dialog */}
+        <QuestionEditorDialog
+          open={showQuestionForm}
+          onOpenChange={setShowQuestionForm}
+          question={selectedQuestion}
+          onSave={handleSaveQuestion}
+        />
 
         {/* Questions List */}
         <Card className="p-6">
@@ -241,19 +235,28 @@ export default function QuizSetDetailPage({
                       {index + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium mb-2">{question.question}</p>
+                      <div className="mb-2">
+                        <RichTextViewer content={question.question} />
+                      </div>
                       <div className="space-y-1">
                         {question.options.map((option, optIndex) => (
                           <div
                             key={optIndex}
-                            className={`text-sm p-2 rounded ${
-                              option === question.answer
+                            className={`text-sm p-2 rounded flex items-start gap-2 ${
+                              optIndex.toString() === question.answer
                                 ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
                                 : "bg-muted/50"
                             }`}>
-                            {String.fromCharCode(65 + optIndex)}. {option}
-                            {option === question.answer && (
-                              <span className="ml-2">✓ Đáp án đúng</span>
+                            <span className="font-semibold flex-shrink-0">
+                              {String.fromCharCode(65 + optIndex)}.
+                            </span>
+                            <div className="flex-1">
+                              <RichTextViewer content={option} />
+                            </div>
+                            {optIndex.toString() === question.answer && (
+                              <span className="ml-2 flex-shrink-0">
+                                ✓ Đáp án đúng
+                              </span>
                             )}
                           </div>
                         ))}

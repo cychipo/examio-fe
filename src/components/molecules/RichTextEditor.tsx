@@ -234,13 +234,10 @@ export function RichTextEditor({
         className="cursor-text"
         style={{ minHeight }}
         onClick={() => editor.commands.focus()}>
-        <EditorContent editor={editor} className="prose prose-sm max-w-none" />
-      </div>
-
-      {/* Hint */}
-      <div className="px-3 py-2 text-xs text-muted-foreground border-t bg-muted/20">
-        💡 Hỗ trợ formatting text với toolbar trên. Để thêm công thức toán hoặc
-        hình ảnh, vui lòng dùng markdown: $x^2$, ![alt](url)
+        <EditorContent
+          editor={editor}
+          className="prose prose-sm max-w-none p-2"
+        />
       </div>
     </div>
   );

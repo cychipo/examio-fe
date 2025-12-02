@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Plus, Edit, Trash2, CreditCard, Eye } from "lucide-react";
 import { Flashcard as FlashCard } from "@/types/flashcardSet";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
-import { FlashcardInlineForm } from "@/components/organisms/FlashcardInlineForm";
+import { FlashcardEditorDialog } from "@/components/organisms/FlashcardEditorDialog";
+import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 
 /**
  * Flashcard Set Detail Page
@@ -210,17 +211,13 @@ export default function FlashcardSetDetailPage({
           </Card>
         </div>
 
-        {/* Inline Flashcard Form */}
-        {showCardForm && (
-          <div className="mb-8">
-            <FlashcardInlineForm
-              flashcard={selectedCard}
-              onSave={handleSaveCard}
-              onCancel={handleCancelForm}
-              loading={loading}
-            />
-          </div>
-        )}
+        {/* Flashcard Editor Dialog */}
+        <FlashcardEditorDialog
+          open={showCardForm}
+          onOpenChange={setShowCardForm}
+          flashcard={selectedCard}
+          onSave={handleSaveCard}
+        />
 
         {/* Flashcards List */}
         <Card className="p-6">
@@ -264,15 +261,17 @@ export default function FlashcardSetDetailPage({
                         <p className="text-xs text-muted-foreground mb-1">
                           Câu hỏi:
                         </p>
-                        <p className="font-medium text-sm">{card.question}</p>
+                        <div className="font-medium text-sm">
+                          <RichTextViewer content={card.question} />
+                        </div>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">
                           Trả lời:
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {card.answer}
-                        </p>
+                        <div className="text-sm text-muted-foreground">
+                          <RichTextViewer content={card.answer} />
+                        </div>
                       </div>
                     </div>
                   </div>

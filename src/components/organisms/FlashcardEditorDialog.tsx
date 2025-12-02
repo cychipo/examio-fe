@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Flashcard } from "@/types/flashcardSet";
 
@@ -80,6 +81,9 @@ export function FlashcardEditorDialog({
       question: question.trim(),
       answer: answer.trim(),
     });
+
+    // Close dialog
+    onOpenChange(false);
   };
 
   const formContent = (
@@ -89,13 +93,11 @@ export function FlashcardEditorDialog({
         <Label htmlFor="question">
           Mặt trước <span className="text-destructive">*</span>
         </Label>
-        <Textarea
-          id="question"
+        <RichTextEditor
+          content={question}
+          onChange={setQuestion}
           placeholder="Nhập câu hỏi hoặc thuật ngữ (hỗ trợ markdown cho công thức toán)"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          rows={4}
-          className="resize-none"
+          minHeight="150px"
         />
         <p className="text-xs text-muted-foreground">
           💡 Gợi ý: Sử dụng $x^2$ cho công thức toán, ![](url) cho hình ảnh
@@ -107,13 +109,11 @@ export function FlashcardEditorDialog({
         <Label htmlFor="answer">
           Mặt sau <span className="text-destructive">*</span>
         </Label>
-        <Textarea
-          id="answer"
+        <RichTextEditor
+          content={answer}
+          onChange={setAnswer}
           placeholder="Nhập câu trả lời hoặc định nghĩa"
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          rows={6}
-          className="resize-none"
+          minHeight="180px"
         />
         <p className="text-xs text-muted-foreground">
           💡 Có thể sử dụng markdown để định dạng nội dung

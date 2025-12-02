@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Plus, X } from "lucide-react";
@@ -88,8 +89,11 @@ export function QuestionEditorDialog({
       const newOptions = options.filter((_, i) => i !== index);
       setOptions(newOptions);
       // If removed option was the correct answer, reset
-      if (correctAnswer === options[index]) {
+      if (correctAnswer === index.toString()) {
         setCorrectAnswer("");
+      } else if (parseInt(correctAnswer) > index) {
+        // Adjust the correct answer index if it's after the removed option
+        setCorrectAnswer((parseInt(correctAnswer) - 1).toString());
       }
     }
   };
@@ -113,7 +117,7 @@ export function QuestionEditorDialog({
       return;
     }
 
-    if (!correctAnswer || !filledOptions.includes(correctAnswer)) {
+    if (!correctAnswer || !options[parseInt(correctAnswer)].trim()) {
       alert("Vui lòng chọn đáp án đúng");
       return;
     }
@@ -123,6 +127,9 @@ export function QuestionEditorDialog({
       options: filledOptions,
       answer: correctAnswer,
     });
+
+    // Close dialog
+    onOpenChange(false);
   };
 
   const formContent = (
@@ -132,13 +139,11 @@ export function QuestionEditorDialog({
         <Label htmlFor="question">
           Câu hỏi <span className="text-destructive">*</span>
         </Label>
-        <Textarea
-          id="question"
-          placeholder="Nhập nội dung câu hỏi (hỗ trợ markdown cho công thức toán)"
-          value={questionText}
-          onChange={(e) => setQuestionText(e.target.value)}
-          rows={4}
-          className="resize-none"
+        <RichTextEditor
+          content={questionText}
+          onChange={setQuestionText}
+          placeholder="Nhập nội dung câu hỏi (hỗ trợ markdown, LaTeX cho công thức toán)"
+          minHeight="150px"
         />
         <p className="text-xs text-muted-foreground">
           💡 Gợi ý: Sử dụng $x^2$ cho công thức toán, ![](url) cho hình ảnh
@@ -155,19 +160,25 @@ export function QuestionEditorDialog({
           {options.map((option, index) => (
             <div key={index} className="flex items-start gap-2">
               <RadioGroupItem
-                value={option}
+                value={index.toString()}
                 id={`option-${index}`}
                 disabled={!option.trim()}
                 className="mt-3"
               />
-              <div className="flex-1">
-                <Textarea
-                  placeholder={`Đáp án ${String.fromCharCode(65 + index)}`}
-                  value={option}
-                  onChange={(e) => handleOptionChange(index, e.target.value)}
-                  rows={2}
-                  className="resize-none"
-                />
+              <div className="flex-1 flex gap-2">
+                <div className="flex-shrink-0 mt-3 font-semibold text-lg text-muted-foreground">
+                  {String.fromCharCode(65 + index)}.
+                </div>
+                <div className="flex-1">
+                  <RichTextEditor
+                    content={option}
+                    onChange={(value) => handleOptionChange(index, value)}
+                    placeholder={`Nhập đáp án ${String.fromCharCode(
+                      65 + index
+                    )}`}
+                    minHeight="100px"
+                  />
+                </div>
               </div>
               {options.length > 2 && (
                 <Button

@@ -13,17 +13,17 @@ const badgeVariants = cva(
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground"
+        outline: "text-foreground",
       },
       shiny: {
         true: "relative overflow-hidden",
-        false: ""
-      }
+        false: "",
+      },
     },
     defaultVariants: {
       variant: "default",
-      shiny: false
-    }
+      shiny: false,
+    },
   }
 );
 
@@ -47,8 +47,7 @@ function Badge({
   return (
     <div
       className={cn(badgeVariants({ variant, shiny }), className)}
-      {...props}
-    >
+      {...props}>
       <span className={shiny ? "relative z-10" : ""}>{children}</span>
 
       {shiny && (
@@ -59,7 +58,7 @@ function Badge({
               "linear-gradient(120deg, transparent 40%, rgba(255,255,255,0.6) 50%, transparent 60%)",
             backgroundSize: "200% 100%",
             animationDuration,
-            mixBlendMode: "screen"
+            mixBlendMode: "screen",
           }}
         />
       )}
@@ -72,7 +71,7 @@ function Badge({
               "linear-gradient(120deg, transparent 40%, rgba(0,0,150,0.25) 50%, transparent 60%)",
             backgroundSize: "200% 100%",
             animationDuration,
-            mixBlendMode: "multiply"
+            mixBlendMode: "multiply",
           }}
         />
       )}
