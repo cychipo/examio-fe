@@ -164,7 +164,7 @@ export default function FlashcardStudyPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="container max-w-7xl mx-auto py-6 px-4">
         {/* Header */}
         <div className="mb-6">

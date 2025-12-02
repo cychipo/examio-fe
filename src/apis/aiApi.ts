@@ -83,4 +83,34 @@ export const aiApi = {
     const response = await api.post(`/ai/regenerate/${uploadId}`, params);
     return response.data;
   },
+
+  getJobStatus: async (
+    jobId: string
+  ): Promise<{
+    jobId: string;
+    status: string;
+    progress?: number;
+    message?: string;
+    error?: string;
+    result?: {
+      type: string;
+      quizzes?: any[];
+      flashcards?: any[];
+      historyId?: string;
+      fileInfo?: {
+        id: string;
+        filename: string;
+      };
+    };
+  }> => {
+    const response = await api.get(`/ai/job/${jobId}`);
+    return response.data;
+  },
+
+  cancelJob: async (
+    jobId: string
+  ): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete(`/ai/job/${jobId}`);
+    return response.data;
+  },
 };

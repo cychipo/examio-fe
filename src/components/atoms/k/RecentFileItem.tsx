@@ -83,16 +83,14 @@ export function RecentFileItem({
           {hasQuiz && (
             <Badge
               variant="secondary"
-              className="text-[10px] px-1.5 py-0 h-5 bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20">
-              <Brain className="w-3 h-3 mr-1" />
+              className="text-[10px] px-1.5 py-0 h-5 bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20 flex items-center">
               {upload.quizHistory?.quizzes?.length || 0} câu hỏi
             </Badge>
           )}
           {hasFlashcard && (
             <Badge
               variant="secondary"
-              className="text-[10px] px-1.5 py-0 h-5 bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20">
-              <BookOpen className="w-3 h-3 mr-1" />
+              className="text-[10px] px-1.5 py-0 h-5 bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 flex items-center">
               {upload.flashcardHistory?.flashcards?.length || 0} thẻ
             </Badge>
           )}

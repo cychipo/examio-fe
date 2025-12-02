@@ -7,9 +7,9 @@
   /* Glass UI Light Theme - Soft, ethereal colors */
   --background: oklch(0.98 0.005 240); /* Subtle blue-white */
   --foreground: oklch(0.25 0.05 250); /* Deep blue-gray */
-  --card: oklch(0.99 0.003 240 / 0.7); /* Semi-transparent white */
+  --card: oklch(0.99 0.01 250 / 0.75); /* Enhanced glass card */
   --card-foreground: oklch(0.25 0.05 250);
-  --popover: oklch(0.99 0.003 240 / 0.85);
+  --popover: oklch(0.99 0.005 240 / 0.9);
   --popover-foreground: oklch(0.25 0.05 250);
   --primary: oklch(0.55 0.22 265); /* Vibrant purple-blue */
   --primary-foreground: oklch(0.99 0.003 240);
@@ -21,8 +21,8 @@
   --accent-foreground: oklch(0.99 0.003 240);
   --destructive: oklch(0.55 0.22 25); /* Warm red */
   --destructive-foreground: oklch(0.99 0.003 240);
-  --border: oklch(0.88 0.02 250 / 0.4);
-  --input: oklch(0.95 0.01 250 / 0.5);
+  --border: oklch(0.82 0.03 255 / 0.5); /* More visible border */
+  --input: oklch(0.94 0.015 250 / 0.6); /* Better contrast input */
   --ring: oklch(0.55 0.22 265);
   --chart-1: oklch(0.55 0.22 265);
   --chart-2: oklch(0.6 0.18 280);
@@ -42,11 +42,11 @@
   --gradient-via: oklch(0.6 0.22 290);
   --gradient-to: oklch(0.65 0.2 320);
 
-  /* Glass specific variables */
-  --glass-bg: oklch(0.99 0.003 240 / 0.6);
-  --glass-border: oklch(1 0 0 / 0.2);
-  --glass-shadow: 0 8px 32px oklch(0.3 0.05 250 / 0.1);
-  --glass-blur: 16px;
+  /* Glass specific variables - Enhanced for light mode */
+  --glass-bg: oklch(0.98 0.01 250 / 0.7);
+  --glass-border: oklch(0.7 0.05 260 / 0.35);
+  --glass-shadow: 0 8px 32px oklch(0.3 0.05 250 / 0.15);
+  --glass-blur: 18px;
 }
 
 .dark {
@@ -188,8 +188,9 @@
 }
 
 .glass-card:hover {
-  box-shadow: 0 12px 40px oklch(0.3 0.1 270 / 0.15);
-  border-color: oklch(1 0 0 / 0.3);
+  box-shadow: 0 12px 40px oklch(0.4 0.08 260 / 0.2);
+  border-color: oklch(0.65 0.08 265 / 0.45);
+  background: oklch(0.99 0.01 250 / 0.8);
 }
 
 .dark .glass-card:hover {
@@ -198,14 +199,24 @@
 }
 
 .glass-button {
-  background: oklch(1 0 0 / 0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid oklch(1 0 0 / 0.2);
+  background: oklch(0.95 0.02 260 / 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid oklch(0.75 0.05 260 / 0.3);
   transition: all 0.2s ease;
 }
 
 .glass-button:hover {
+  background: oklch(0.92 0.03 260 / 0.25);
+  border-color: oklch(0.7 0.08 265 / 0.4);
+}
+
+.dark .glass-button {
+  background: oklch(1 0 0 / 0.1);
+  border: 1px solid oklch(1 0 0 / 0.2);
+}
+
+.dark .glass-button:hover {
   background: oklch(1 0 0 / 0.2);
   border-color: oklch(1 0 0 / 0.3);
 }

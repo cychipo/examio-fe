@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestGenerator } from "@/components/organisms/k/TestGenerator";
 import { FlashcardGenerator } from "@/components/organisms/k/FlashcardGenerator";
@@ -18,23 +19,31 @@ import { RecentUpload } from "@/apis/aiApi";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
 
 export default function AIGeneratorPage() {
-  const [activeTab, setActiveTab] = useState("test");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get("tab") || "test";
+  const [activeTab, setActiveTab] = useState(tabFromUrl);
   const { loadFromUpload } = useRecentUploadsStore();
 
+  // Sync URL with tab state
+  useEffect(() => {
+    setActiveTab(tabFromUrl);
+  }, [tabFromUrl]);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    router.push(`?tab=${tab}`, { scroll: false });
+  };
+
   const handleSelectUpload = (upload: RecentUpload) => {
-    // Load upload data into the appropriate generator store based on current tab
+    // Load upload data into BOTH generators (already handled in loadFromUpload)
     const type = activeTab === "test" ? "quiz" : "flashcard";
     loadFromUpload(upload, type);
   };
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-3xl" />
-      </div>
 
       {/* Header Section */}
       <section className="relative container mx-auto px-4 pt-8 pb-6">
@@ -70,27 +79,12 @@ export default function AIGeneratorPage() {
 
       {/* Main Content */}
       <section className="relative container mx-auto px-4 pb-20">
-        <div className="flex gap-6">
-          {/* Sidebar - Recent Files */}
-          <aside className="hidden lg:block w-80 flex-shrink-0">
-            <Card className="sticky top-6 border-white/10 bg-white/[0.02] backdrop-blur-xl">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <History className="w-4 h-4 text-primary" />
-                  File gần đây
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <RecentFilesList onSelectUpload={handleSelectUpload} />
-              </CardContent>
-            </Card>
-          </aside>
-
-          {/* Main Generator */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Main Generator - Now on the left */}
           <div className="flex-1 min-w-0">
             <Tabs
               value={activeTab}
-              onValueChange={setActiveTab}
+              onValueChange={handleTabChange}
               className="w-full">
               <TabsList className="grid grid-cols-2 h-14 p-1.5 bg-white/[0.03] border border-white/10 backdrop-blur-xl w-full md:w-fit rounded-xl">
                 <TabsTrigger
@@ -118,6 +112,15 @@ export default function AIGeneratorPage() {
               </div>
             </Tabs>
           </div>
+
+          {/* Sidebar - Recent Files - Now on the right */}
+          <aside className="w-full lg:w-xl flex-shrink-0 mt-22">
+            <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl lg:sticky lg:top-6">
+              <CardContent>
+                <RecentFilesList onSelectUpload={handleSelectUpload} />
+              </CardContent>
+            </Card>
+          </aside>
         </div>
       </section>
     </div>

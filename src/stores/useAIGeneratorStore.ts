@@ -61,7 +61,17 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
   generatedTestId: null,
   isGenerating: false,
 
-  setFile: (file) => set({ file, uploadId: null, fileInfo: null }),
+  setFile: (file) => {
+    set({ file, uploadId: null, fileInfo: null });
+    // Also set file in flashcard generator
+    if (file) {
+      useFlashcardGeneratorStore.setState({
+        file,
+        uploadId: null,
+        fileInfo: null,
+      });
+    }
+  },
   setQuestionCount: (questionCount) => set({ questionCount }),
   setIsNarrow: (isNarrow) => set({ isNarrow }),
   setKeyword: (keyword) => set({ keyword }),
@@ -107,8 +117,8 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
         return;
       }
 
-      // Nếu có file mới, sử dụng generate API
-      const result = await generateExamApi({
+      // Nếu có file mới, sử dụng generate API với job queue
+      const jobResponse = await generateExamApi({
         file: file!,
         quantityQuizz: questionCount,
         typeResult: TypeResultGenerateExam.QUIZZ,
@@ -116,16 +126,57 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
         keyword: isNarrow ? keyword : undefined,
       });
 
-      set({
-        generatedTest: result.quizzes || [],
-        generatedTestId: result.id,
-        isGenerating: false,
-      });
-      toast.success("Tạo đề thành công!", {
-        description: `Đã tạo ${
-          result.quizzes?.length || 0
-        } câu hỏi từ tài liệu của bạn`,
-      });
+      // Start polling for job status
+      const jobId = jobResponse.jobId;
+      const pollInterval = 2000; // Poll every 2 seconds
+      let attempts = 0;
+      const maxAttempts = 150; // Max 5 minutes (150 * 2s)
+
+      const poll = async () => {
+        try {
+          const jobStatus = await aiApi.getJobStatus(jobId);
+
+          if (jobStatus.status === "completed" && jobStatus.result) {
+            set({
+              generatedTest: (jobStatus.result.quizzes as any) || [],
+              generatedTestId: jobStatus.result.historyId || null,
+              isGenerating: false,
+            });
+            toast.success("Tạo đề thành công!", {
+              description: `Đã tạo ${
+                jobStatus.result.quizzes?.length || 0
+              } câu hỏi từ tài liệu của bạn`,
+            });
+            // Refresh recent uploads list after successful generation
+            useRecentUploadsStore.getState().fetchRecentUploads(true);
+            return;
+          }
+
+          if (jobStatus.status === "failed") {
+            throw new Error(jobStatus.error || "Job failed");
+          }
+
+          // Still processing, poll again
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(poll, pollInterval);
+          } else {
+            throw new Error("Timeout: Job took too long to complete");
+          }
+        } catch (error) {
+          set({ isGenerating: false });
+          toast.error("Lỗi tạo đề", {
+            description:
+              error instanceof Error
+                ? error.message
+                : "Có lỗi xảy ra khi tạo đề kiểm tra",
+          });
+          console.error("Error polling job status:", error);
+        }
+      };
+
+      // Start polling
+      setTimeout(poll, pollInterval);
     } catch (error) {
       set({ isGenerating: false });
       toast.error("Lỗi tạo đề", {
@@ -215,8 +266,8 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
           return;
         }
 
-        // Nếu có file mới, sử dụng generate API
-        const result = await generateExamApi({
+        // Nếu có file mới, sử dụng generate API với job queue
+        const jobResponse = await generateExamApi({
           file: file!,
           quantityFlashcard: cardCount,
           typeResult: TypeResultGenerateExam.FLASHCARD,
@@ -224,17 +275,58 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
           keyword: isNarrow ? keyword : undefined,
         });
 
-        set({
-          generatedCards: result.flashcards || [],
-          generatedCardsId: result.id,
-          currentCard: 0,
-          isGenerating: false,
-        });
-        toast.success("Tạo flashcard thành công!", {
-          description: `Đã tạo ${
-            result.flashcards?.length || 0
-          } thẻ flashcard từ tài liệu của bạn`,
-        });
+        // Start polling for job status
+        const jobId = jobResponse.jobId;
+        const pollInterval = 2000; // Poll every 2 seconds
+        let attempts = 0;
+        const maxAttempts = 150; // Max 5 minutes
+
+        const poll = async () => {
+          try {
+            const jobStatus = await aiApi.getJobStatus(jobId);
+
+            if (jobStatus.status === "completed" && jobStatus.result) {
+              set({
+                generatedCards: (jobStatus.result.flashcards as any) || [],
+                generatedCardsId: jobStatus.result.historyId || null,
+                currentCard: 0,
+                isGenerating: false,
+              });
+              toast.success("Tạo flashcard thành công!", {
+                description: `Đã tạo ${
+                  jobStatus.result.flashcards?.length || 0
+                } thẻ flashcard từ tài liệu của bạn`,
+              });
+              // Refresh recent uploads list after successful generation
+              useRecentUploadsStore.getState().fetchRecentUploads(true);
+              return;
+            }
+
+            if (jobStatus.status === "failed") {
+              throw new Error(jobStatus.error || "Job failed");
+            }
+
+            // Still processing, poll again
+            attempts++;
+            if (attempts < maxAttempts) {
+              setTimeout(poll, pollInterval);
+            } else {
+              throw new Error("Timeout: Job took too long to complete");
+            }
+          } catch (error) {
+            set({ isGenerating: false });
+            toast.error("Lỗi tạo flashcard", {
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "Có lỗi xảy ra khi tạo flashcard",
+            });
+            console.error("Error polling job status:", error);
+          }
+        };
+
+        // Start polling
+        setTimeout(poll, pollInterval);
       } catch (error) {
         set({ isGenerating: false });
         toast.error("Lỗi tạo flashcard", {
@@ -269,7 +361,7 @@ interface RecentUploadsState {
   selectedUpload: RecentUpload | null;
   isRegenerating: boolean;
   isDeleting: boolean;
-  fetchRecentUploads: () => Promise<void>;
+  fetchRecentUploads: (forceRefresh?: boolean) => Promise<void>;
   selectUpload: (upload: RecentUpload | null) => void;
   deleteUpload: (uploadId: string) => Promise<void>;
   loadFromUpload: (upload: RecentUpload, type: "quiz" | "flashcard") => void;
@@ -285,12 +377,14 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
   isRegenerating: false,
   isDeleting: false,
 
-  fetchRecentUploads: async () => {
-    // Check cache first
-    const cached = storeCache.get<RecentUpload[]>(CACHE_KEY);
-    if (cached) {
-      set({ recentUploads: cached });
-      return;
+  fetchRecentUploads: async (forceRefresh = false) => {
+    // Check cache first unless force refresh
+    if (!forceRefresh) {
+      const cached = storeCache.get<RecentUpload[]>(CACHE_KEY);
+      if (cached) {
+        set({ recentUploads: cached });
+        return;
+      }
     }
 
     set({ isLoading: true });
@@ -368,35 +462,28 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
       type: upload.mimeType,
     };
 
-    if (type === "quiz") {
-      // Set file info to TestGenerator store for display
-      useTestGeneratorStore.setState({
-        file: null, // No actual file, but we have upload ID
-        uploadId: upload.id,
-        fileInfo,
-        // Load existing quiz if available
-        generatedTest: upload.quizHistory?.quizzes as Quizz[] | null,
-        generatedTestId: upload.quizHistory ? upload.id : null,
-      });
-    } else {
-      // Set file info to FlashcardGenerator store for display
-      useFlashcardGeneratorStore.setState({
-        file: null,
-        uploadId: upload.id,
-        fileInfo,
-        // Load existing flashcards if available
-        generatedCards: upload.flashcardHistory?.flashcards as
-          | Flashcard[]
-          | null,
-        generatedCardsId: upload.flashcardHistory ? upload.id : null,
-        currentCard: 0,
-      });
-    }
+    // ALWAYS set file info to BOTH generators so switching tabs works
+    useTestGeneratorStore.setState({
+      file: null, // No actual file, but we have upload ID
+      uploadId: upload.id,
+      fileInfo,
+      // Load existing quiz if available
+      generatedTest: upload.quizHistory?.quizzes as Quizz[] | null,
+      generatedTestId: upload.quizHistory ? upload.id : null,
+    });
+
+    useFlashcardGeneratorStore.setState({
+      file: null,
+      uploadId: upload.id,
+      fileInfo,
+      // Load existing flashcards if available
+      generatedCards: upload.flashcardHistory?.flashcards as Flashcard[] | null,
+      generatedCardsId: upload.flashcardHistory ? upload.id : null,
+      currentCard: 0,
+    });
 
     toast.success("Đã chọn file", {
-      description: `File "${upload.filename}" đã được chọn. Bấm nút tạo để ${
-        type === "quiz" ? "tạo đề kiểm tra" : "tạo flashcard"
-      }.`,
+      description: `File "${upload.filename}" đã được chọn sẵn cho cả Quiz và Flashcard.`,
     });
   },
 

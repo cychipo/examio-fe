@@ -112,7 +112,7 @@ export default function FlashcardSetDetailPage({
   // Loading state
   if (loading || !currentFlashcardSet) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <Skeleton className="h-10 w-full mb-6" />
           <div className="grid gap-6 md:grid-cols-3 mb-8">
@@ -127,7 +127,7 @@ export default function FlashcardSetDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">

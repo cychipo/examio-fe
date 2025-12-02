@@ -112,9 +112,9 @@ export function FlashcardGenerator() {
   };
 
   return (
-    <div className="gap-6 flex w-full flex-col md:flex-row">
+    <div className="gap-6 flex w-full flex-col">
       {/* Upload & Settings */}
-      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl h-fit w-full md:w-2/5">
+      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl h-fit w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
@@ -222,7 +222,7 @@ export function FlashcardGenerator() {
       </Card>
 
       {/* Flashcard Preview */}
-      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl w-full md:w-3/5">
+      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center border border-green-500/20">

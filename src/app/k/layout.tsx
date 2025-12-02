@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col"
+        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col relative"
       )}>
       <SidebarKit />
 
