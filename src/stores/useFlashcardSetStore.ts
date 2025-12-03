@@ -146,7 +146,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
       const response = await createFlashcardSetApi(credentials);
 
       // Invalidate cache sau khi tạo mới
-      storeCache.invalidate("flashcardsets:");
+      storeCache.invalidate("flashcardsets");
 
       // Thêm flashcard set mới vào danh sách
       set((state) => ({
@@ -180,7 +180,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
       const response = await updateFlashcardSetApi(id, credentials);
 
       // Invalidate cache sau khi cập nhật
-      storeCache.invalidate("flashcardsets:");
+      storeCache.invalidate("flashcardsets");
 
       // Cập nhật trong danh sách
       set((state) => ({
@@ -217,7 +217,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
       await deleteFlashcardSetApi(id);
 
       // Invalidate cache sau khi xóa
-      storeCache.invalidate("flashcardsets:");
+      storeCache.invalidate("flashcardsets");
 
       // Xóa khỏi danh sách
       set((state) => ({
@@ -254,7 +254,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
       const response = await setHistoryFlashcardsToFlashcardSet(credentials);
 
       // Invalidate cache sau khi cập nhật
-      storeCache.invalidate("flashcardsets:");
+      storeCache.invalidate("flashcardsets");
 
       set({ loading: false });
 

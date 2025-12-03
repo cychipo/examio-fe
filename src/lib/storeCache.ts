@@ -50,10 +50,24 @@ class StoreCacheManager {
   }
 
   /**
-   * Xóa một cache entry
+   * Xóa một cache entry hoặc tất cả entries bắt đầu bằng prefix
    */
-  invalidate(key: string): void {
-    this.cache.delete(key);
+  invalidate(keyOrPrefix: string): void {
+    // Nếu key tồn tại chính xác, xóa nó
+    if (this.cache.has(keyOrPrefix)) {
+      this.cache.delete(keyOrPrefix);
+      return;
+    }
+
+    // Nếu không, tìm và xóa tất cả keys bắt đầu bằng prefix
+    const keysToDelete: string[] = [];
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(keyOrPrefix)) {
+        keysToDelete.push(key);
+      }
+    }
+
+    keysToDelete.forEach((key) => this.cache.delete(key));
   }
 
   /**

@@ -81,6 +81,7 @@ function AIGeneratorContent() {
           {/* Main Generator - Now on the left */}
           <div className="flex-1 min-w-0">
             <Tabs
+              id="ai-generator-tabs"
               value={activeTab}
               onValueChange={handleTabChange}
               className="w-full">

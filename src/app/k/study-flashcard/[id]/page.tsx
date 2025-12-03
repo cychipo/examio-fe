@@ -367,7 +367,7 @@ export default function FlashcardStudyPage({
               <CardContent className="pt-6">
                 <h3 className="font-semibold mb-4">Danh sách thẻ</h3>
 
-                <div className="grid grid-cols-5 gap-2 max-h-60 overflow-y-auto">
+                <div className="grid grid-cols-5 gap-2 max-h-60 overflow-y-auto p-1">
                   {flashcards.map((card, index) => {
                     const isStudied = studiedCards.has(card.id);
                     const isCurrent = index === currentCardIndex;
@@ -378,7 +378,7 @@ export default function FlashcardStudyPage({
                         onClick={() => handleCardClick(index)}
                         className={cn(
                           "aspect-square rounded-md text-sm font-medium transition-colors",
-                          isCurrent && "ring-2 ring-primary ring-offset-2",
+                          isCurrent && "ring-1 ring-primary ring-offset-1",
                           isStudied &&
                             !isCurrent &&
                             "bg-primary text-primary-foreground",

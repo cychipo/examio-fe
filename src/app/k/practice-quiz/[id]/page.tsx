@@ -334,7 +334,7 @@ export default function QuizPracticePage({ params }: QuizPracticePageProps) {
                       Danh sách câu hỏi
                     </h3>
 
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-5 gap-2 p-1">
                       {questions.map((q, index) => {
                         const qUserAnswer = answers[q.id];
                         const qIsCorrect = qUserAnswer === q.answer;
@@ -346,7 +346,7 @@ export default function QuizPracticePage({ params }: QuizPracticePageProps) {
                             onClick={() => handleReviewQuestionClick(index)}
                             className={cn(
                               "aspect-square rounded-md text-sm font-medium transition-colors",
-                              isCurrent && "ring-2 ring-primary ring-offset-2",
+                              isCurrent && "ring-1 ring-primary ring-offset-1",
                               qIsCorrect && "bg-green-500 text-white",
                               !qIsCorrect &&
                                 qUserAnswer &&

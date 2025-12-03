@@ -20,6 +20,7 @@ import {
   useTestGeneratorStore,
   useFlashcardGeneratorStore,
 } from "@/stores/useAIGeneratorStore";
+import { useStatsStore } from "@/stores/useStatsStore";
 import { Loader2 } from "lucide-react";
 
 export enum DialogAddExamType {
@@ -41,6 +42,7 @@ export function DialogAddExam(props: DialogAddExamProps) {
     useFlashcardSetStore();
   const { generatedTest, generatedTestId } = useTestGeneratorStore();
   const { generatedCards, generatedCardsId } = useFlashcardGeneratorStore();
+  const { invalidateQuizStats, invalidateFlashcardStats } = useStatsStore();
   const [selectedQuizSetIds, setSelectedQuizSetIds] = useState<string[]>([]);
   const [selectedFlashcardSetIds, setSelectedFlashcardSetIds] = useState<
     string[]
@@ -74,6 +76,13 @@ export function DialogAddExam(props: DialogAddExamProps) {
           flashcardsetIds: selectedFlashcardSetIds,
           historyId: generatedCardsId!,
         });
+      }
+
+      // Invalidate stats
+      if (props.type === DialogAddExamType.QUIZZ) {
+        invalidateQuizStats();
+      } else {
+        invalidateFlashcardStats();
       }
 
       // Reset and close

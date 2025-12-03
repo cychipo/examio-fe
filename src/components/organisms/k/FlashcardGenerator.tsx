@@ -34,11 +34,17 @@ import {
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
 import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
-import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
+import {
+  useFlashcardGeneratorStore,
+  useRecentUploadsStore,
+} from "@/stores/useAIGeneratorStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
+import { useGenerationGuard } from "@/hooks/useGenerationGuard";
 
 export function FlashcardGenerator() {
   const {
@@ -59,6 +65,10 @@ export function FlashcardGenerator() {
     generateFlashcards,
     clearFlashcards,
   } = useFlashcardGeneratorStore();
+  const { user } = useAuthStore();
+
+  // Guard against page reload during generation
+  useGenerationGuard(isGenerating);
 
   const { toast } = useToast();
 
@@ -96,6 +106,40 @@ export function FlashcardGenerator() {
   };
 
   const handleGenerate = async () => {
+    // Check credits
+    if (file) {
+      // Validate PDF page count
+      try {
+        const { valid, pageCount } = await validatePdfPageCount(file, 50);
+        if (!valid) {
+          toast({
+            title: "File PDF quá lớn",
+            description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+            variant: "warning",
+          });
+          return;
+        }
+      } catch (error) {
+        toast({
+          title: "Lỗi đọc file PDF",
+          description:
+            error instanceof Error ? error.message : "Không thể đọc file PDF",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const cost = Math.max(2, Math.ceil(file.size / (1024 * 1024)));
+      if (user && user.wallet.balance < cost) {
+        toast({
+          title: "Không đủ tín dụng",
+          description: `Bạn cần ${cost} credits để tạo flashcard từ file này.`,
+          variant: "warning",
+        });
+        return;
+      }
+    }
+
     await generateFlashcards();
   };
 

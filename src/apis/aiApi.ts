@@ -58,6 +58,11 @@ export interface RegenerateResponse {
   };
 }
 
+// Job response when creating regenerate job
+export interface JobCreateResponse {
+  jobId: string;
+}
+
 export const aiApi = {
   getRecentUploads: async (limit: number = 10): Promise<RecentUpload[]> => {
     const response = await api.get(`/ai/recent-uploads?limit=${limit}`);
@@ -76,10 +81,11 @@ export const aiApi = {
     return response.data;
   },
 
+  // This now returns jobId and uses job queue (same as file upload)
   regenerateFromUpload: async (
     uploadId: string,
     params: RegenerateParams
-  ): Promise<RegenerateResponse> => {
+  ): Promise<JobCreateResponse> => {
     const response = await api.post(`/ai/regenerate/${uploadId}`, params);
     return response.data;
   },

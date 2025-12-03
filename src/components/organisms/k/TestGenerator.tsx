@@ -34,12 +34,18 @@ import {
 } from "@/components/ui/tooltip";
 import ModernLoader from "@/components/ui/modern-loader";
 import { Quizz } from "@/types/exam";
-import { useTestGeneratorStore } from "@/stores/useAIGeneratorStore";
+import {
+  useTestGeneratorStore,
+  useRecentUploadsStore,
+} from "@/stores/useAIGeneratorStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
 import { cn } from "@/lib/utils";
+import { useGenerationGuard } from "@/hooks/useGenerationGuard";
 
 export function TestGenerator() {
   const {
@@ -58,6 +64,10 @@ export function TestGenerator() {
     generateTest,
     clearTest,
   } = useTestGeneratorStore();
+  const { user } = useAuthStore();
+
+  // Guard against page reload during generation
+  useGenerationGuard(isGenerating);
 
   const { toast } = useToast();
 
@@ -95,6 +105,34 @@ export function TestGenerator() {
   };
 
   const handleGenerate = async () => {
+    // Check credits
+    if (file) {
+      // Validate PDF page count
+      try {
+        const { valid, pageCount } = await validatePdfPageCount(file, 50);
+        if (!valid) {
+          toast.warning("File PDF quá lớn", {
+            description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+          });
+          return;
+        }
+      } catch (error) {
+        toast.error("Lỗi đọc file PDF", {
+          description:
+            error instanceof Error ? error.message : "Không thể đọc file PDF",
+        });
+        return;
+      }
+
+      const cost = Math.max(2, Math.ceil(file.size / (1024 * 1024)));
+      if (user && user.wallet.balance < cost) {
+        toast.warning("Không đủ tín dụng", {
+          description: `Bạn cần ${cost} credits để tạo đề từ file này.`,
+        });
+        return;
+      }
+    }
+
     await generateTest();
   };
   return (
@@ -312,15 +350,6 @@ export function TestGenerator() {
                                       ? "bg-green-500/10 border border-green-500/20"
                                       : "bg-white/5 border border-transparent"
                                   )}>
-                                  <span
-                                    className={cn(
-                                      "flex-shrink-0 w-6 h-6 rounded-md text-xs font-medium flex items-center justify-center",
-                                      isCorrect
-                                        ? "bg-green-500/20 text-green-400"
-                                        : "bg-white/10 text-muted-foreground"
-                                    )}>
-                                    {String.fromCharCode(65 + optIdx)}
-                                  </span>
                                   <span
                                     className={cn(
                                       "flex-1 text-sm",
