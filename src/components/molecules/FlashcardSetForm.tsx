@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
+import { ThumbnailUpload } from "@/components/atoms/k/ThumbnailUpload";
 
 /**
  * Interface cho dữ liệu form FlashcardSet
@@ -16,7 +17,7 @@ export interface FlashcardSetFormData {
   isPublic: boolean;
   isPinned: boolean;
   tags: string[];
-  thumbnail?: string;
+  thumbnail?: string | File | null;
 }
 
 interface FlashcardSetFormProps {
@@ -171,18 +172,12 @@ export function FlashcardSetForm({
         )}
       </div>
 
-      {/* Thumbnail URL */}
+      {/* Thumbnail Upload */}
       <div className="space-y-2">
-        <Label htmlFor="thumbnail">URL hình ảnh thumbnail</Label>
-        <Input
-          id="thumbnail"
-          value={formData.thumbnail || ""}
-          onChange={(e) =>
-            setFormData({ ...formData, thumbnail: e.target.value })
-          }
-          placeholder="https://example.com/image.jpg"
-          disabled={isLoading}
-          type="url"
+        <ThumbnailUpload
+          label="Thumbnail"
+          value={formData.thumbnail}
+          onChange={(value) => setFormData({ ...formData, thumbnail: value })}
         />
       </div>
 
@@ -228,33 +223,18 @@ export function FlashcardSetForm({
       </div>
 
       {/* Switch options */}
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="isPublic" className="cursor-pointer">
-            Công khai
-          </Label>
-          <Switch
-            id="isPublic"
-            checked={formData.isPublic}
-            onCheckedChange={(checked) =>
-              setFormData({ ...formData, isPublic: checked })
-            }
-            disabled={isLoading}
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <Label htmlFor="isPinned" className="cursor-pointer">
-            Ghim
-          </Label>
-          <Switch
-            id="isPinned"
-            checked={formData.isPinned}
-            onCheckedChange={(checked) =>
-              setFormData({ ...formData, isPinned: checked })
-            }
-            disabled={isLoading}
-          />
-        </div>
+      <div className="space-y-3 pt-2 flex items-center justify-between w-full">
+        <Label htmlFor="isPublic" className="cursor-pointer">
+          Công khai
+        </Label>
+        <Switch
+          id="isPublic"
+          checked={formData.isPublic}
+          onCheckedChange={(checked) =>
+            setFormData({ ...formData, isPublic: checked })
+          }
+          disabled={isLoading}
+        />
       </div>
 
       {/* Actions */}

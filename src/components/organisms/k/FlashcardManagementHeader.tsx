@@ -1,14 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus } from "lucide-react";
 
 interface FlashcardManagementHeaderProps {
   onCreateFlashcard: () => void;
-  onExport: () => void;
 }
 
 export function FlashcardManagementHeader({
   onCreateFlashcard,
-  onExport,
 }: FlashcardManagementHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6">
@@ -21,10 +19,6 @@ export function FlashcardManagementHeader({
         </p>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" onClick={onExport}>
-          <Upload className="h-4 w-4 mr-2" />
-          Xuất file
-        </Button>
         <Button
           onClick={onCreateFlashcard}
           className="bg-blue-600 hover:bg-blue-700">

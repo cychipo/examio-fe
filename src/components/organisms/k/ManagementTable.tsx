@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 export interface ManagementTableData {
   id: string;
   icon: string;
+  thumbnail?: string | null;
   name: string;
   description: string;
   questionCount: number;
@@ -97,8 +98,17 @@ export function ManagementTable({
                 className="hover:bg-muted/50 border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 shrink-0">
-                      <span className="text-lg">{item.icon}</span>
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 shrink-0 overflow-hidden">
+                      {item.thumbnail ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={item.thumbnail}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-lg">{item.icon}</span>
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-foreground truncate">

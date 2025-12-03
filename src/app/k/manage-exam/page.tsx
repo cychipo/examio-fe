@@ -83,6 +83,7 @@ export default function ManageExamPage() {
       quizSetsK.map((quizSet) => ({
         id: quizSet.id,
         icon: "📘", // Default icon, có thể custom theo tags
+        thumbnail: quizSet.thumbnail,
         name: quizSet.title,
         description: quizSet.description || "",
         questionCount: quizSet.questionCount,
@@ -177,6 +178,8 @@ export default function ManageExamPage() {
         setSelectedQuizSetId(null);
       } catch (error) {
         console.error("Delete quiz set error:", error);
+      } finally {
+        await fetchQuizStats();
       }
     }
   }, [selectedQuizSetId, deleteQuizSet, invalidateQuizStats]);
@@ -184,45 +187,66 @@ export default function ManageExamPage() {
   const handleCreateSubmit = useCallback(
     async (data: QuizSetFormData) => {
       try {
-        await createQuizSet({
-          title: data.title,
-          description: data.description || "",
-          isPublic: data.isPublic,
-          isPinned: data.isPinned,
-          tags: data.tags,
-          thumbnail: data.thumbnail || null,
-          questionCount: 0,
-          questions: [],
-        });
+        const thumbnailFile =
+          data.thumbnail instanceof File ? data.thumbnail : undefined;
+        const thumbnailUrl =
+          typeof data.thumbnail === "string" ? data.thumbnail : null;
+
+        await createQuizSet(
+          {
+            title: data.title,
+            description: data.description || "",
+            isPublic: data.isPublic,
+            isPinned: data.isPinned,
+            tags: data.tags,
+            thumbnail: thumbnailUrl,
+            questionCount: 0,
+            questions: [],
+          },
+          thumbnailFile
+        );
         invalidateQuizStats(); // Invalidate stats cache
         setIsCreateModalOpen(false);
       } catch (error) {
         console.error("Create quiz set error:", error);
+      } finally {
+        await fetchQuizStats();
       }
     },
-    [createQuizSet, invalidateQuizStats]
+    [createQuizSet, invalidateQuizStats, fetchQuizStats]
   );
 
   const handleEditSubmit = useCallback(
     async (data: QuizSetFormData) => {
       if (selectedQuizSetId) {
         try {
-          await updateQuizSet(selectedQuizSetId, {
-            title: data.title,
-            description: data.description || "",
-            isPublic: data.isPublic,
-            isPinned: data.isPinned,
-            tags: data.tags,
-            thumbnail: data.thumbnail || null,
-            questionCount: 0,
-            questions: [],
-          });
+          const thumbnailFile =
+            data.thumbnail instanceof File ? data.thumbnail : undefined;
+          const thumbnailUrl =
+            typeof data.thumbnail === "string" ? data.thumbnail : null;
+
+          await updateQuizSet(
+            selectedQuizSetId,
+            {
+              title: data.title,
+              description: data.description || "",
+              isPublic: data.isPublic,
+              isPinned: data.isPinned,
+              tags: data.tags,
+              thumbnail: thumbnailUrl,
+              questionCount: 0,
+              questions: [],
+            },
+            thumbnailFile
+          );
           invalidateQuizStats(); // Invalidate stats cache
           setIsEditModalOpen(false);
           setSelectedQuizSetId(null);
           setEditFormData(undefined);
         } catch (error) {
           console.error("Update quiz set error:", error);
+        } finally {
+          await fetchQuizStats();
         }
       }
     },
@@ -247,7 +271,6 @@ export default function ManageExamPage() {
         onSearchChange={setSearchQuery}
         onStatusChange={setStatusFilter}
         onCreateExam={handleCreateExam}
-        onExport={handleExport}
         onViewExam={handleViewExam}
         onPracticeExam={handlePracticeExam}
         onEditExam={handleEditExam}

@@ -73,7 +73,9 @@ export function SidebarKit() {
       href: "/k/manage-exam",
       icon: <ReaderIcon className="w-5 h-5" />,
       label: "Quản lý Đề thi",
-      active: pathname === "/k/manage-exam",
+      active:
+        pathname === "/k/manage-exam" ||
+        pathname.startsWith("/k/manage-quiz-set"),
     },
     {
       name: "Flash Card",

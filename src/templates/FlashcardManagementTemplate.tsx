@@ -32,7 +32,6 @@ interface FlashcardManagementTemplateProps {
   onSortChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onCreateFlashcard: () => void;
-  onExport: () => void;
   onStudyFlashcard: (id: string) => void;
   onEditFlashcard: (id: string) => void;
   onDeleteFlashcard: (id: string) => void;
@@ -54,7 +53,6 @@ export function FlashcardManagementTemplate({
   onSortChange,
   onStatusChange,
   onCreateFlashcard,
-  onExport,
   onStudyFlashcard,
   onManageFlashcard,
   onEditFlashcard,
@@ -66,10 +64,7 @@ export function FlashcardManagementTemplate({
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <FlashcardManagementHeader
-          onCreateFlashcard={onCreateFlashcard}
-          onExport={onExport}
-        />
+        <FlashcardManagementHeader onCreateFlashcard={onCreateFlashcard} />
 
         <FlashcardStatsSection stats={stats} />
 

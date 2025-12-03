@@ -33,7 +33,7 @@ const ExamSearchFilterBarComponent = ({
           options={statusOptions}
           placeholder="Trạng thái"
           onValueChange={onStatusChange}
-          className="w-[160px]"
+          className="w-fit"
         />
       </div>
     </div>
