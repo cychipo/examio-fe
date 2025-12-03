@@ -26,7 +26,6 @@ interface ExamManagementTemplateProps {
   onSearchChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onCreateExam: () => void;
-  onExport: () => void;
   onViewExam: (id: string) => void;
   onPracticeExam: (id: string) => void;
   onEditExam: (id: string) => void;
@@ -46,7 +45,6 @@ export function ExamManagementTemplate({
   onSearchChange,
   onStatusChange,
   onCreateExam,
-  onExport,
   onViewExam,
   onPracticeExam,
   onEditExam,
@@ -56,7 +54,7 @@ export function ExamManagementTemplate({
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <ExamManagementHeader onCreateExam={onCreateExam} onExport={onExport} />
+        <ExamManagementHeader onCreateExam={onCreateExam} />
 
         <ExamStatsSection stats={stats} />
 

@@ -16,15 +16,17 @@ import {
   ExamStatusBadge,
   ExamStatus,
 } from "@/components/atoms/k/ExamStatusBadge";
-import { Edit, Trash2, LucideIcon } from "lucide-react";
+import { Edit, Trash2, LucideIcon, BookOpenCheck, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export interface ManagementTableData {
   id: string;
   icon: string;
+  thumbnail?: string | null;
   name: string;
   description: string;
   questionCount: number;
+  viewCount?: number;
   countLabel: string; // "câu hỏi" hoặc "thẻ"
   status: ExamStatus;
   createdDate: string;
@@ -39,9 +41,12 @@ interface ManagementTableProps {
   primaryActionLabel: string;
   secondaryActionIcon?: LucideIcon;
   secondaryActionLabel?: string;
+  shareActionIcon?: LucideIcon;
+  shareActionLabel?: string;
   countColumnLabel: string;
   onPrimaryAction: (id: string) => void;
   onSecondaryAction?: (id: string) => void;
+  onShare?: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   emptyMessage?: string;
@@ -54,15 +59,18 @@ export function ManagementTable({
   primaryActionLabel,
   secondaryActionIcon: SecondaryIcon,
   secondaryActionLabel,
+  shareActionIcon: ShareIcon,
+  shareActionLabel,
   countColumnLabel,
   onPrimaryAction,
   onSecondaryAction,
+  onShare,
   onEdit,
   onDelete,
   emptyMessage = "Không có dữ liệu",
 }: ManagementTableProps) {
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden">
+    <div className="bg-card rounded-lg rounded-b-none border border-border border-b-0 overflow-hidden">
       <div className="p-4 border-b border-border">
         <h2 className="text-lg font-semibold text-foreground">{title}</h2>
       </div>
@@ -77,13 +85,13 @@ export function ManagementTable({
                 {countColumnLabel}
               </TableHead>
               <TableHead className="text-muted-foreground font-medium">
+                Lượt xem
+              </TableHead>
+              <TableHead className="text-muted-foreground font-medium">
                 Trạng thái
               </TableHead>
               <TableHead className="text-muted-foreground font-medium">
                 Ngày tạo
-              </TableHead>
-              <TableHead className="text-muted-foreground font-medium">
-                Học gần nhất
               </TableHead>
               <TableHead className="text-muted-foreground font-medium text-right">
                 Hành động
@@ -97,8 +105,16 @@ export function ManagementTable({
                 className="hover:bg-muted/50 border-border">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 shrink-0">
-                      <span className="text-lg">{item.icon}</span>
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 shrink-0 overflow-hidden">
+                      {item.thumbnail ? (
+                        <img
+                          src={item.thumbnail}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <BookOpenCheck className="w-5 h-5 text-primary" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-foreground truncate">
@@ -133,15 +149,16 @@ export function ManagementTable({
                   </span>
                 </TableCell>
                 <TableCell>
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    {item.viewCount ?? 0}
+                  </span>
+                </TableCell>
+                <TableCell>
                   <ExamStatusBadge status={item.status} />
                 </TableCell>
                 <TableCell>
                   <span className="text-foreground">{item.createdDate}</span>
-                </TableCell>
-                <TableCell>
-                  <span className="text-muted-foreground">
-                    {item.lastStudied || "Chưa làm"}
-                  </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">
@@ -175,6 +192,23 @@ export function ManagementTable({
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{secondaryActionLabel}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+
+                    {ShareIcon && onShare && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                            onClick={() => onShare(item.id)}>
+                            <ShareIcon className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{shareActionLabel}</p>
                         </TooltipContent>
                       </Tooltip>
                     )}

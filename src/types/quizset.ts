@@ -7,6 +7,14 @@ export interface Quizz {
   updatedAt: string;
 }
 
+export interface LastAttemptInfo {
+  id: string;
+  isSubmitted: boolean;
+  score: number | null;
+  timeSpentSeconds: number;
+  updatedAt: string;
+}
+
 export interface QuizSet {
   id: string;
   title: string;
@@ -20,4 +28,6 @@ export interface QuizSet {
   updatedAt: string;
   questions?: Quizz[];
   questionCount: number;
+  lastStudied?: string | null;
+  lastAttempt?: LastAttemptInfo | null;
 }

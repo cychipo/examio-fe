@@ -3,8 +3,6 @@ import {
   FilterSelect,
   FilterOption,
 } from "@/components/molecules/FilterSelect";
-import { Button } from "@/components/ui/button";
-import { SlidersHorizontal } from "lucide-react";
 
 interface FlashcardSearchFilterBarProps {
   searchQuery: string;
@@ -40,18 +38,15 @@ export function FlashcardSearchFilterBar({
           options={sortOptions}
           placeholder="Sắp xếp"
           onValueChange={onSortChange}
-          className="w-[140px]"
+          className="w-fit"
         />
         <FilterSelect
           value={statusFilter}
           options={statusOptions}
           placeholder="Trạng thái"
           onValueChange={onStatusChange}
-          className="w-[160px]"
+          className="w-fit"
         />
-        <Button variant="outline" size="icon" className="shrink-0">
-          <SlidersHorizontal className="h-4 w-4" />
-        </Button>
       </div>
     </div>
   );

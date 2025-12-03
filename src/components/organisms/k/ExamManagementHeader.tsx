@@ -1,15 +1,13 @@
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus } from "lucide-react";
 
 interface ExamManagementHeaderProps {
   onCreateExam: () => void;
-  onExport: () => void;
 }
 
 const ExamManagementHeaderComponent = ({
   onCreateExam,
-  onExport,
 }: ExamManagementHeaderProps) => {
   return (
     <div className="flex items-center justify-between mb-6">
@@ -20,10 +18,6 @@ const ExamManagementHeaderComponent = ({
         </p>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" onClick={onExport}>
-          <Upload className="h-4 w-4 mr-2" />
-          Xuất file
-        </Button>
         <Button
           onClick={onCreateExam}
           className="bg-blue-600 hover:bg-blue-700">

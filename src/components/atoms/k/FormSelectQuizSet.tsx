@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
 import { Item } from "@/components/ui/item";
+import { ThumbnailUpload } from "@/components/atoms/k/ThumbnailUpload";
 
 interface FormSelectQuizSetProps {
   selectedIds: string[];
@@ -32,7 +33,7 @@ export function FormSelectQuizSet({
     tags: "",
     isPublic: false,
     isPinned: false,
-    thumbnail: null as string | null,
+    thumbnail: null as string | File | null,
   });
 
   const handleCheckboxChange = (quizSetId: string, checked: boolean) => {
@@ -59,16 +60,24 @@ export function FormSelectQuizSet({
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
-    await createQuizSet({
-      title: formData.title,
-      description: formData.description,
-      tags: tagsArray,
-      isPublic: formData.isPublic,
-      isPinned: formData.isPinned,
-      thumbnail: formData.thumbnail,
-      questions: [],
-      questionCount: 0,
-    });
+    const thumbnailFile =
+      formData.thumbnail instanceof File ? formData.thumbnail : undefined;
+    const thumbnailUrl =
+      typeof formData.thumbnail === "string" ? formData.thumbnail : null;
+
+    await createQuizSet(
+      {
+        title: formData.title,
+        description: formData.description,
+        tags: tagsArray,
+        isPublic: formData.isPublic,
+        isPinned: formData.isPinned,
+        thumbnail: thumbnailUrl,
+        questions: [],
+        questionCount: 0,
+      },
+      thumbnailFile
+    );
 
     // Reset form
     setFormData({
@@ -203,9 +212,18 @@ export function FormSelectQuizSet({
                 />
               </div>
 
-              <div className="flex gap-6">
+              <div className="space-y-2">
+                <ThumbnailUpload
+                  value={formData.thumbnail}
+                  onChange={(value) =>
+                    setFormData({ ...formData, thumbnail: value })
+                  }
+                />
+              </div>
+
+              <div className="flex gap-6 w-full">
                 <Field>
-                  <FieldContent className="flex flex-row items-center gap-x-3">
+                  <FieldContent className="flex flex-row items-center gap-x-3 w-full justify-between">
                     <FieldLabel htmlFor="isPublic" className="cursor-pointer">
                       Công khai
                     </FieldLabel>
@@ -215,22 +233,6 @@ export function FormSelectQuizSet({
                       className="cursor-pointer"
                       onCheckedChange={(checked) =>
                         setFormData({ ...formData, isPublic: checked })
-                      }
-                    />
-                  </FieldContent>
-                </Field>
-
-                <Field>
-                  <FieldContent className="flex flex-row items-center gap-x-3">
-                    <FieldLabel htmlFor="isPinned" className="cursor-pointer">
-                      Ghim
-                    </FieldLabel>
-                    <Switch
-                      id="isPinned"
-                      checked={formData.isPinned}
-                      className="cursor-pointer"
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, isPinned: checked })
                       }
                     />
                   </FieldContent>

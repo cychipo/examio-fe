@@ -14,10 +14,8 @@ interface FlashcardManagementTemplateProps {
     totalGroupsTrend: number;
     totalCards: number;
     totalCardsTrend: number;
-    avgProgress: number;
-    avgProgressTrend: number;
-    studiedToday: number;
-    studiedTodayTrend: number;
+    totalViews: number;
+    totalViewsTrend: number;
   };
   flashcards: FlashcardTableData[];
   searchQuery: string;
@@ -32,10 +30,10 @@ interface FlashcardManagementTemplateProps {
   onSortChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onCreateFlashcard: () => void;
-  onExport: () => void;
   onStudyFlashcard: (id: string) => void;
   onEditFlashcard: (id: string) => void;
   onDeleteFlashcard: (id: string) => void;
+  onShareFlashcard: (id: string) => void;
   onPageChange: (page: number) => void;
 }
 
@@ -54,11 +52,11 @@ export function FlashcardManagementTemplate({
   onSortChange,
   onStatusChange,
   onCreateFlashcard,
-  onExport,
   onStudyFlashcard,
   onManageFlashcard,
   onEditFlashcard,
   onDeleteFlashcard,
+  onShareFlashcard,
   onPageChange,
 }: FlashcardManagementTemplateProps & {
   onManageFlashcard: (id: string) => void;
@@ -66,10 +64,7 @@ export function FlashcardManagementTemplate({
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <FlashcardManagementHeader
-          onCreateFlashcard={onCreateFlashcard}
-          onExport={onExport}
-        />
+        <FlashcardManagementHeader onCreateFlashcard={onCreateFlashcard} />
 
         <FlashcardStatsSection stats={stats} />
 
@@ -90,6 +85,7 @@ export function FlashcardManagementTemplate({
           onManage={onManageFlashcard}
           onEdit={onEditFlashcard}
           onDelete={onDeleteFlashcard}
+          onShare={onShareFlashcard}
         />
 
         {totalResults > 0 && (

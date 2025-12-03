@@ -34,10 +34,7 @@ import {
 } from "@/components/ui/tooltip";
 import ModernLoader from "@/components/ui/modern-loader";
 import { Quizz } from "@/types/exam";
-import {
-  useTestGeneratorStore,
-  useRecentUploadsStore,
-} from "@/stores/useAIGeneratorStore";
+import { useTestGeneratorStore } from "@/stores/useAIGeneratorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {

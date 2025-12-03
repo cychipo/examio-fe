@@ -5,10 +5,8 @@ interface StatsData {
   totalGroupsTrend: number;
   totalCards: number;
   totalCardsTrend: number;
-  avgProgress: number;
-  avgProgressTrend: number;
-  studiedToday: number;
-  studiedTodayTrend: number;
+  totalViews: number;
+  totalViewsTrend: number;
 }
 
 interface QuizStatsData {
@@ -20,6 +18,8 @@ interface QuizStatsData {
   avgScoreTrend: number;
   testedToday: number;
   testedTodayTrend: number;
+  completionRate: number;
+  activeExams: number;
 }
 
 interface StatsStore {
@@ -58,10 +58,8 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
           totalGroupsTrend: 0,
           totalCards: data.totalCards || 0,
           totalCardsTrend: 0,
-          avgProgress: data.avgProgress || 0,
-          avgProgressTrend: 0,
-          studiedToday: data.studiedToday || 0,
-          studiedTodayTrend: 0,
+          totalViews: data.totalViews || 0,
+          totalViewsTrend: 0,
         },
       });
     } catch (error) {
@@ -84,9 +82,10 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
         }
       );
       const data = await response.json();
+      console.log(data);
       set({
         quizStats: {
-          totalGroups: data.totalGroups || 0,
+          totalGroups: data.totalExams || 0,
           totalGroupsTrend: 0,
           totalQuestions: data.totalQuestions || 0,
           totalQuestionsTrend: 0,
@@ -94,6 +93,8 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
           avgScoreTrend: 0,
           testedToday: data.testedToday || 0,
           testedTodayTrend: 0,
+          completionRate: data.completionRate || 0,
+          activeExams: data.activeExams || 0,
         },
       });
     } catch (error) {

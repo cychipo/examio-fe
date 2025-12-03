@@ -43,8 +43,28 @@ export type ResponseCreateQuizset = {
 };
 
 export async function createQuizSetApi(
-  credentials: CredentialsQuizSet
+  credentials: CredentialsQuizSet,
+  thumbnailFile?: File
 ): Promise<ResponseCreateQuizset> {
+  // If thumbnail file is provided, use FormData
+  if (thumbnailFile) {
+    const formData = new FormData();
+    formData.append("thumbnail", thumbnailFile);
+    formData.append("title", credentials.title);
+    if (credentials.description)
+      formData.append("description", credentials.description);
+    if (credentials.isPublic !== undefined)
+      formData.append("isPublic", String(credentials.isPublic));
+    if (credentials.tags)
+      formData.append("tags", JSON.stringify(credentials.tags));
+
+    const response = await api.post("/quizsets", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  }
+
+  // Otherwise use JSON
   const response = await api.post("/quizsets", credentials);
   return response.data;
 }
@@ -108,8 +128,28 @@ export async function getQuizSetByIdApi(id: string): Promise<QuizSet> {
 
 export async function updateQuizSetApi(
   id: string,
-  credentials: CredentialsQuizSet
+  credentials: Partial<CredentialsQuizSet>,
+  thumbnailFile?: File
 ): Promise<ResponseCreateQuizset> {
+  // If thumbnail file is provided, use FormData
+  if (thumbnailFile) {
+    const formData = new FormData();
+    formData.append("thumbnail", thumbnailFile);
+    if (credentials.title) formData.append("title", credentials.title);
+    if (credentials.description)
+      formData.append("description", credentials.description);
+    if (credentials.isPublic !== undefined)
+      formData.append("isPublic", String(credentials.isPublic));
+    if (credentials.tags)
+      formData.append("tags", JSON.stringify(credentials.tags));
+
+    const response = await api.put(`/quizsets/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  }
+
+  // Otherwise use JSON (only send changed fields)
   const response = await api.put(`/quizsets/${id}`, credentials);
   return response.data;
 }

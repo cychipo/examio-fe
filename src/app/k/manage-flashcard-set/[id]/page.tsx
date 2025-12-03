@@ -141,7 +141,10 @@ export default function FlashcardSetDetailPage({
             <div className="flex items-center gap-2">
               <Button
                 onClick={() =>
-                  router.push(`/k/study-flashcard/${currentFlashcardSet.id}`)
+                  window.open(
+                    `/study-flashcard/${currentFlashcardSet.id}`,
+                    "_blank"
+                  )
                 }
                 className="gap-2">
                 <PlayCircle className="h-4 w-4" />

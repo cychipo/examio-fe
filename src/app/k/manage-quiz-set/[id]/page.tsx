@@ -126,17 +126,26 @@ export default function QuizSetDetailPage({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button variant="ghost" size="icon" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold tracking-tight">
-                {currentQuizSet.title}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                {currentQuizSet.description || "Không có mô tả"}
-              </p>
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div className="flex items-start gap-2">
+              <Button variant="ghost" size="icon" onClick={handleBack}>
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-start gap-2">
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold tracking-tight">
+                    {currentQuizSet.title}
+                  </h1>
+                  <p className="text-muted-foreground mt-1">
+                    {currentQuizSet.description || "Không có mô tả"}
+                  </p>
+                </div>
+                <Badge
+                  variant={currentQuizSet.isPublic ? "default" : "outline"}
+                  className="mt-1">
+                  {currentQuizSet.isPublic ? "Công khai" : "Riêng tư"}
+                </Badge>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -147,13 +156,6 @@ export default function QuizSetDetailPage({
                 <PlayCircle className="h-4 w-4" />
                 Thi thử
               </Button>
-              <Badge
-                variant={currentQuizSet.isPublic ? "default" : "secondary"}>
-                {currentQuizSet.isPublic ? "Công khai" : "Riêng tư"}
-              </Badge>
-              {currentQuizSet.isPinned && (
-                <Badge variant="outline">📌 Đã ghim</Badge>
-              )}
             </div>
           </div>
 

@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { TrendIndicator } from "@/components/atoms/k/TrendIndicator";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
@@ -19,8 +18,6 @@ export function StatCard({
   icon: Icon,
   iconColor,
   iconBgColor,
-  trend,
-  badge,
   className,
 }: StatCardProps) {
   return (
@@ -33,14 +30,10 @@ export function StatCard({
         <div className={cn("rounded-lg p-2.5", iconBgColor)}>
           <Icon className={cn("h-5 w-5", iconColor)} />
         </div>
-        {trend !== undefined && <TrendIndicator value={trend} />}
       </div>
       <div className="space-y-1">
         <div className="text-2xl font-bold text-foreground">{value}</div>
         <div className="text-sm text-muted-foreground">{title}</div>
-        {badge && (
-          <div className="text-xs text-muted-foreground pt-1">{badge}</div>
-        )}
       </div>
     </div>
   );
