@@ -16,7 +16,7 @@ import {
   ExamStatusBadge,
   ExamStatus,
 } from "@/components/atoms/k/ExamStatusBadge";
-import { Edit, Trash2, LucideIcon } from "lucide-react";
+import { Edit, Trash2, LucideIcon, BookOpenCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export interface ManagementTableData {
@@ -63,7 +63,7 @@ export function ManagementTable({
   emptyMessage = "Không có dữ liệu",
 }: ManagementTableProps) {
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden">
+    <div className="bg-card rounded-lg rounded-b-none border border-border border-b-0 overflow-hidden">
       <div className="p-4 border-b border-border">
         <h2 className="text-lg font-semibold text-foreground">{title}</h2>
       </div>
@@ -100,14 +100,13 @@ export function ManagementTable({
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 shrink-0 overflow-hidden">
                       {item.thumbnail ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                           src={item.thumbnail}
                           alt={item.name}
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <span className="text-lg">{item.icon}</span>
+                        <BookOpenCheck className="w-5 h-5 text-primary" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">

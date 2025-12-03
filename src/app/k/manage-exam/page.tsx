@@ -90,7 +90,9 @@ export default function ManageExamPage() {
         status: (quizSet.isPublic ? "public" : "private") as ExamStatus,
         createdDate: new Date(quizSet.createdAt).toLocaleDateString("vi-VN"),
         createdAt: quizSet.createdAt,
-        lastStudied: null, // Backend chưa có thông tin này
+        lastStudied: quizSet.lastStudied
+          ? new Date(quizSet.lastStudied).toLocaleDateString("vi-VN")
+          : null,
         tags: quizSet.tags || [],
       })),
     [quizSetsK]
@@ -103,12 +105,12 @@ export default function ManageExamPage() {
     () => ({
       totalExams: quizStats?.totalGroups || 0,
       totalExamsTrend: quizStats?.totalGroupsTrend || 0,
-      activeExams: quizStats?.testedToday || 0, // Using testedToday as activeExams proxy or similar
-      activeExamsTrend: quizStats?.testedTodayTrend || 0,
+      activeExams: quizStats?.activeExams || 0,
+      activeExamsTrend: 0,
       totalQuestions: quizStats?.totalQuestions || 0,
       totalQuestionsTrend: quizStats?.totalQuestionsTrend || 0,
-      completionRate: quizStats?.avgScore || 0,
-      completionRateTrend: quizStats?.avgScoreTrend || 0,
+      completionRate: quizStats?.completionRate || 0,
+      completionRateTrend: 0,
     }),
     [quizStats]
   );
