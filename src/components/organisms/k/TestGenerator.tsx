@@ -39,6 +39,7 @@ import {
   useRecentUploadsStore,
 } from "@/stores/useAIGeneratorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
   DialogAddExamType,
@@ -102,6 +103,23 @@ export function TestGenerator() {
   const handleGenerate = async () => {
     // Check credits
     if (file) {
+      // Validate PDF page count
+      try {
+        const { valid, pageCount } = await validatePdfPageCount(file, 50);
+        if (!valid) {
+          toast.warning("File PDF quá lớn", {
+            description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+          });
+          return;
+        }
+      } catch (error) {
+        toast.error("Lỗi đọc file PDF", {
+          description:
+            error instanceof Error ? error.message : "Không thể đọc file PDF",
+        });
+        return;
+      }
+
       const cost = Math.max(2, Math.ceil(file.size / (1024 * 1024)));
       if (user && user.wallet.balance < cost) {
         toast.warning("Không đủ tín dụng", {

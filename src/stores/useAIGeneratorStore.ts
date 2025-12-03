@@ -6,6 +6,7 @@ import { generateExamApi } from "@/apis/examApi";
 import { toast } from "@/components/ui/toast";
 import { aiApi, RecentUpload } from "@/apis/aiApi";
 import { storeCache } from "@/lib/storeCache";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface FileInfo {
   name: string;
@@ -151,6 +152,8 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
             });
             // Refresh recent uploads list after successful generation
             useRecentUploadsStore.getState().fetchRecentUploads(true);
+            // Refresh user data to update wallet balance
+            useAuthStore.getState().getUser();
             return;
           }
 
@@ -218,7 +221,17 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
     currentCard: 0,
     isGenerating: false,
 
-    setFile: (file) => set({ file, uploadId: null, fileInfo: null }),
+    setFile: (file) => {
+      set({ file, uploadId: null, fileInfo: null });
+      // Also set file in test generator
+      if (file) {
+        useTestGeneratorStore.setState({
+          file,
+          uploadId: null,
+          fileInfo: null,
+        });
+      }
+    },
     setCardCount: (cardCount) => set({ cardCount }),
     setIsNarrow: (isNarrow) => set({ isNarrow }),
     setKeyword: (keyword) => set({ keyword }),
@@ -301,6 +314,8 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
               });
               // Refresh recent uploads list after successful generation
               useRecentUploadsStore.getState().fetchRecentUploads(true);
+              // Refresh user data to update wallet balance
+              useAuthStore.getState().getUser();
               return;
             }
 
