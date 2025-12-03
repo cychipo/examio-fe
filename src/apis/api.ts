@@ -31,12 +31,12 @@ api.interceptors.response.use(
 
       if (errorData.message) {
         console.log("Backend Error:", errorData.message);
-        return errorData.message;
+        return Promise.reject(new Error(errorData.message));
       }
 
       if (errorData.error) {
         console.log("Backend Error:", errorData.error);
-        return errorData.error;
+        return Promise.reject(new Error(errorData.error));
       }
     }
     return Promise.reject(error);

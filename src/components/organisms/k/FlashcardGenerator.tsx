@@ -34,7 +34,11 @@ import {
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
 import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
-import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
+import {
+  useFlashcardGeneratorStore,
+  useRecentUploadsStore,
+} from "@/stores/useAIGeneratorStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import {
   DialogAddExam,
   DialogAddExamType,
@@ -59,6 +63,7 @@ export function FlashcardGenerator() {
     generateFlashcards,
     clearFlashcards,
   } = useFlashcardGeneratorStore();
+  const { user } = useAuthStore();
 
   const { toast } = useToast();
 
@@ -96,6 +101,19 @@ export function FlashcardGenerator() {
   };
 
   const handleGenerate = async () => {
+    // Check credits
+    if (file) {
+      const cost = Math.max(2, Math.ceil(file.size / (1024 * 1024)));
+      if (user && user.wallet.balance < cost) {
+        toast({
+          title: "Không đủ tín dụng",
+          description: `Bạn cần ${cost} credits để tạo flashcard từ file này.`,
+          variant: "warning",
+        });
+        return;
+      }
+    }
+
     await generateFlashcards();
   };
 

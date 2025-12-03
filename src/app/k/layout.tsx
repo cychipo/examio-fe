@@ -14,6 +14,7 @@ import {
   AnnouncementTag,
   AnnouncementTitle,
 } from "@/components/ui/announcement";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function RootLayout({
   children,
@@ -22,6 +23,7 @@ export default function RootLayout({
 }>) {
   // Sync token from localStorage to cookie on mount
   useAuthSync();
+  const { user } = useAuthStore();
   const { isDarkMode, setTheme } = useThemeContext();
   const isDesktop = useIsDesktop();
 
@@ -51,7 +53,7 @@ export default function RootLayout({
               <div className="flex items-center gap-x-3 justify-between">
                 <div className="flex items-center gap-x-2 p-2 rounded-xl cursor-pointer">
                   <div className="text-[12px] text-nowrap font-semibold">
-                    200 Credits
+                    {user?.wallet.balance || 0} Credits
                   </div>
                   <Image src="/coin.png" alt="" width={15} height={15} />
                 </div>
