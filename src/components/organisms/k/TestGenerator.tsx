@@ -45,6 +45,7 @@ import {
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
 import { cn } from "@/lib/utils";
+import { useGenerationGuard } from "@/hooks/useGenerationGuard";
 
 export function TestGenerator() {
   const {
@@ -64,6 +65,9 @@ export function TestGenerator() {
     clearTest,
   } = useTestGeneratorStore();
   const { user } = useAuthStore();
+
+  // Guard against page reload during generation
+  useGenerationGuard(isGenerating);
 
   const { toast } = useToast();
 

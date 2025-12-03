@@ -44,6 +44,7 @@ import {
   DialogAddExam,
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
+import { useGenerationGuard } from "@/hooks/useGenerationGuard";
 
 export function FlashcardGenerator() {
   const {
@@ -65,6 +66,9 @@ export function FlashcardGenerator() {
     clearFlashcards,
   } = useFlashcardGeneratorStore();
   const { user } = useAuthStore();
+
+  // Guard against page reload during generation
+  useGenerationGuard(isGenerating);
 
   const { toast } = useToast();
 

@@ -14,6 +14,140 @@ interface FileInfo {
   type: string;
 }
 
+const PENDING_JOB_STORAGE_KEY = "pending_generation_job";
+
+// Helper to persist job ID to localStorage
+const persistJobId = (jobId: string | null) => {
+  if (typeof window === "undefined") return;
+  if (jobId) {
+    localStorage.setItem(PENDING_JOB_STORAGE_KEY, jobId);
+  } else {
+    localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+  }
+};
+
+// Shared job state for both stores
+interface JobState {
+  currentJobId: string | null;
+  setCurrentJobId: (jobId: string | null) => void;
+  cancelCurrentJob: () => Promise<void>;
+  checkAndCleanupPendingJob: () => Promise<void>;
+}
+
+export const useJobStore = create<JobState>((set, get) => ({
+  currentJobId: null,
+  setCurrentJobId: (jobId) => {
+    set({ currentJobId: jobId });
+    persistJobId(jobId);
+  },
+  cancelCurrentJob: async () => {
+    const { currentJobId } = get();
+    if (currentJobId) {
+      try {
+        await aiApi.cancelJob(currentJobId);
+        console.log(`🚫 Job ${currentJobId} canceled and rolled back`);
+        toast.info("Đã hủy tạo đề", {
+          description: "Dữ liệu đã được khôi phục",
+        });
+      } catch (error) {
+        console.error("Error canceling job:", error);
+      }
+      set({ currentJobId: null });
+      persistJobId(null);
+    }
+  },
+  // Check for orphaned job from previous session and clean up
+  checkAndCleanupPendingJob: async () => {
+    if (typeof window === "undefined") return;
+
+    const pendingJobId = localStorage.getItem(PENDING_JOB_STORAGE_KEY);
+    if (!pendingJobId) return;
+
+    console.log(`🔍 Found orphaned job from previous session: ${pendingJobId}`);
+
+    try {
+      // Check job status
+      const jobStatus = await aiApi.getJobStatus(pendingJobId);
+
+      if (jobStatus.status === "processing" || jobStatus.status === "pending") {
+        // Job is still running, cancel it
+        console.log(`🚫 Canceling orphaned job ${pendingJobId}...`);
+        await aiApi.cancelJob(pendingJobId);
+        toast.info("Đã hủy tác vụ trước đó", {
+          description:
+            "Trang đã được tải lại trong khi đang tạo đề. Dữ liệu đã được khôi phục.",
+        });
+      } else if (jobStatus.status === "completed") {
+        // Job completed, just notify
+        console.log(`✅ Orphaned job ${pendingJobId} had completed`);
+        // Could optionally show the result here
+      }
+    } catch (error) {
+      // Job not found or already cleaned up
+      console.log(`Job ${pendingJobId} not found, already cleaned up`);
+    }
+
+    // Clean up localStorage
+    localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+    set({ currentJobId: null });
+  },
+}));
+
+// Helper function for polling job status
+const pollJobStatus = async (
+  jobId: string,
+  onProgress: (progress: number) => void,
+  onSuccess: (result: any) => void,
+  onError: (error: string) => void,
+  pollInterval: number = 2000,
+  maxAttempts: number = 150
+) => {
+  let attempts = 0;
+
+  const poll = async () => {
+    // Check if job was canceled
+    if (useJobStore.getState().currentJobId !== jobId) {
+      console.log(`Job ${jobId} was canceled, stopping poll`);
+      return;
+    }
+
+    try {
+      const jobStatus = await aiApi.getJobStatus(jobId);
+
+      if (jobStatus.progress) {
+        onProgress(jobStatus.progress);
+      }
+
+      if (jobStatus.status === "completed" && jobStatus.result) {
+        useJobStore.getState().setCurrentJobId(null);
+        onSuccess(jobStatus.result);
+        return;
+      }
+
+      if (jobStatus.status === "failed") {
+        useJobStore.getState().setCurrentJobId(null);
+        onError(jobStatus.error || "Job failed");
+        return;
+      }
+
+      // Still processing, poll again
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(poll, pollInterval);
+      } else {
+        useJobStore.getState().setCurrentJobId(null);
+        onError("Timeout: Job took too long to complete");
+      }
+    } catch (error) {
+      useJobStore.getState().setCurrentJobId(null);
+      onError(error instanceof Error ? error.message : "Unknown error");
+    }
+  };
+
+  // Start polling
+  setTimeout(poll, pollInterval);
+};
+
 interface TestGeneratorState {
   file: File | null;
   uploadId: string | null; // ID của upload từ recent files
@@ -99,89 +233,65 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
     set({ isGenerating: true });
 
     try {
-      // Nếu có uploadId (từ recent files), sử dụng regenerate API
+      let jobId: string;
+
+      // Nếu có uploadId (từ recent files), sử dụng regenerate API với job queue
       if (uploadId) {
-        const result = await aiApi.regenerateFromUpload(uploadId, {
+        const jobResponse = await aiApi.regenerateFromUpload(uploadId, {
           typeResult: TypeResultGenerateExam.QUIZZ,
           quantityQuizz: questionCount,
           isNarrowSearch: isNarrow,
           keyword: isNarrow ? keyword : undefined,
         });
-
-        set({
-          generatedTest: result.quizzes || null,
-          generatedTestId: result.historyId || null,
-          isGenerating: false,
+        jobId = jobResponse.jobId;
+      } else {
+        // Nếu có file mới, sử dụng generate API với job queue
+        const jobResponse = await generateExamApi({
+          file: file!,
+          quantityQuizz: questionCount,
+          typeResult: TypeResultGenerateExam.QUIZZ,
+          isNarrowSearch: isNarrow,
+          keyword: isNarrow ? keyword : undefined,
         });
-
-        toast.success("Tạo đề kiểm tra thành công", {
-          description: `Đã tạo ${result.quizzes?.length || 0} câu hỏi`,
-        });
-        return;
+        jobId = jobResponse.jobId;
       }
 
-      // Nếu có file mới, sử dụng generate API với job queue
-      const jobResponse = await generateExamApi({
-        file: file!,
-        quantityQuizz: questionCount,
-        typeResult: TypeResultGenerateExam.QUIZZ,
-        isNarrowSearch: isNarrow,
-        keyword: isNarrow ? keyword : undefined,
-      });
+      // Track job in shared store
+      useJobStore.getState().setCurrentJobId(jobId);
 
-      // Start polling for job status
-      const jobId = jobResponse.jobId;
-      const pollInterval = 2000; // Poll every 2 seconds
-      let attempts = 0;
-      const maxAttempts = 150; // Max 5 minutes (150 * 2s)
-
-      const poll = async () => {
-        try {
-          const jobStatus = await aiApi.getJobStatus(jobId);
-
-          if (jobStatus.status === "completed" && jobStatus.result) {
-            set({
-              generatedTest: (jobStatus.result.quizzes as any) || [],
-              generatedTestId: jobStatus.result.historyId || null,
-              isGenerating: false,
-            });
-            toast.success("Tạo đề thành công!", {
-              description: `Đã tạo ${
-                jobStatus.result.quizzes?.length || 0
-              } câu hỏi từ tài liệu của bạn`,
-            });
-            // Refresh recent uploads list after successful generation
-            useRecentUploadsStore.getState().fetchRecentUploads(true);
-            // Refresh user data to update wallet balance
-            useAuthStore.getState().getUser();
-            return;
-          }
-
-          if (jobStatus.status === "failed") {
-            throw new Error(jobStatus.error || "Job failed");
-          }
-
-          // Still processing, poll again
-          attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(poll, pollInterval);
-          } else {
-            throw new Error("Timeout: Job took too long to complete");
-          }
-        } catch (error) {
+      // Start polling for job status using helper
+      pollJobStatus(
+        jobId,
+        // onProgress
+        (progress) => {
+          console.log(`📊 Job ${jobId} progress: ${progress}%`);
+        },
+        // onSuccess
+        (result) => {
+          set({
+            generatedTest: (result.quizzes as any) || [],
+            generatedTestId: result.historyId || null,
+            isGenerating: false,
+          });
+          toast.success("Tạo đề thành công!", {
+            description: `Đã tạo ${
+              result.quizzes?.length || 0
+            } câu hỏi từ tài liệu của bạn`,
+          });
+          // Refresh recent uploads list after successful generation
+          useRecentUploadsStore.getState().fetchRecentUploads(true);
+          // Refresh user data to update wallet balance
+          useAuthStore.getState().getUser();
+        },
+        // onError
+        (error) => {
           set({ isGenerating: false });
           toast.error("Lỗi tạo đề", {
-            description:
-              error instanceof Error
-                ? error.message
-                : "Có lỗi xảy ra khi tạo đề kiểm tra",
+            description: error,
           });
-          console.error("Error polling job status:", error);
+          console.error("Error generating test:", error);
         }
-      };
-
-      // Start polling
-      setTimeout(poll, pollInterval);
+      );
     } catch (error) {
       set({ isGenerating: false });
       toast.error("Lỗi tạo đề", {
@@ -257,93 +367,66 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
       set({ isGenerating: true });
 
       try {
-        // Nếu có uploadId (từ recent files), sử dụng regenerate API
+        let jobId: string;
+
+        // Nếu có uploadId (từ recent files), sử dụng regenerate API với job queue
         if (uploadId) {
-          const result = await aiApi.regenerateFromUpload(uploadId, {
+          const jobResponse = await aiApi.regenerateFromUpload(uploadId, {
             typeResult: TypeResultGenerateExam.FLASHCARD,
             quantityFlashcard: cardCount,
             isNarrowSearch: isNarrow,
             keyword: isNarrow ? keyword : undefined,
           });
-
-          set({
-            generatedCards: result.flashcards || null,
-            generatedCardsId: result.historyId || null,
-            currentCard: 0,
-            isGenerating: false,
+          jobId = jobResponse.jobId;
+        } else {
+          // Nếu có file mới, sử dụng generate API với job queue
+          const jobResponse = await generateExamApi({
+            file: file!,
+            quantityFlashcard: cardCount,
+            typeResult: TypeResultGenerateExam.FLASHCARD,
+            isNarrowSearch: isNarrow,
+            keyword: isNarrow ? keyword : undefined,
           });
-
-          toast.success("Tạo flashcard thành công", {
-            description: `Đã tạo ${
-              result.flashcards?.length || 0
-            } thẻ flashcard`,
-          });
-          return;
+          jobId = jobResponse.jobId;
         }
 
-        // Nếu có file mới, sử dụng generate API với job queue
-        const jobResponse = await generateExamApi({
-          file: file!,
-          quantityFlashcard: cardCount,
-          typeResult: TypeResultGenerateExam.FLASHCARD,
-          isNarrowSearch: isNarrow,
-          keyword: isNarrow ? keyword : undefined,
-        });
+        // Track job in shared store
+        useJobStore.getState().setCurrentJobId(jobId);
 
-        // Start polling for job status
-        const jobId = jobResponse.jobId;
-        const pollInterval = 2000; // Poll every 2 seconds
-        let attempts = 0;
-        const maxAttempts = 150; // Max 5 minutes
-
-        const poll = async () => {
-          try {
-            const jobStatus = await aiApi.getJobStatus(jobId);
-
-            if (jobStatus.status === "completed" && jobStatus.result) {
-              set({
-                generatedCards: (jobStatus.result.flashcards as any) || [],
-                generatedCardsId: jobStatus.result.historyId || null,
-                currentCard: 0,
-                isGenerating: false,
-              });
-              toast.success("Tạo flashcard thành công!", {
-                description: `Đã tạo ${
-                  jobStatus.result.flashcards?.length || 0
-                } thẻ flashcard từ tài liệu của bạn`,
-              });
-              // Refresh recent uploads list after successful generation
-              useRecentUploadsStore.getState().fetchRecentUploads(true);
-              // Refresh user data to update wallet balance
-              useAuthStore.getState().getUser();
-              return;
-            }
-
-            if (jobStatus.status === "failed") {
-              throw new Error(jobStatus.error || "Job failed");
-            }
-
-            // Still processing, poll again
-            attempts++;
-            if (attempts < maxAttempts) {
-              setTimeout(poll, pollInterval);
-            } else {
-              throw new Error("Timeout: Job took too long to complete");
-            }
-          } catch (error) {
+        // Start polling for job status using helper
+        pollJobStatus(
+          jobId,
+          // onProgress
+          (progress) => {
+            console.log(`📊 Job ${jobId} progress: ${progress}%`);
+          },
+          // onSuccess
+          (result) => {
+            set({
+              generatedCards: (result.flashcards as any) || [],
+              generatedCardsId: result.historyId || null,
+              currentCard: 0,
+              isGenerating: false,
+            });
+            toast.success("Tạo flashcard thành công!", {
+              description: `Đã tạo ${
+                result.flashcards?.length || 0
+              } thẻ flashcard từ tài liệu của bạn`,
+            });
+            // Refresh recent uploads list after successful generation
+            useRecentUploadsStore.getState().fetchRecentUploads(true);
+            // Refresh user data to update wallet balance
+            useAuthStore.getState().getUser();
+          },
+          // onError
+          (error) => {
             set({ isGenerating: false });
             toast.error("Lỗi tạo flashcard", {
-              description:
-                error instanceof Error
-                  ? error.message
-                  : "Có lỗi xảy ra khi tạo flashcard",
+              description: error,
             });
-            console.error("Error polling job status:", error);
+            console.error("Error generating flashcards:", error);
           }
-        };
-
-        // Start polling
-        setTimeout(poll, pollInterval);
+        );
       } catch (error) {
         set({ isGenerating: false });
         toast.error("Lỗi tạo flashcard", {
@@ -424,7 +507,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
       if (upload.quizHistory) {
         useTestGeneratorStore.setState({
           generatedTest: upload.quizHistory.quizzes as Quizz[],
-          generatedTestId: upload.id,
+          generatedTestId: upload.quizHistory.id, // Use history ID, not upload ID
         });
       }
 
@@ -432,7 +515,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
       if (upload.flashcardHistory) {
         useFlashcardGeneratorStore.setState({
           generatedCards: upload.flashcardHistory.flashcards as Flashcard[],
-          generatedCardsId: upload.id,
+          generatedCardsId: upload.flashcardHistory.id, // Use history ID, not upload ID
           currentCard: 0,
         });
       }
@@ -486,7 +569,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
       fileInfo,
       // Load existing quiz if available
       generatedTest: upload.quizHistory?.quizzes as Quizz[] | null,
-      generatedTestId: upload.quizHistory ? upload.id : null,
+      generatedTestId: upload.quizHistory ? upload.quizHistory.id : null, // Use history ID, not upload ID
     });
 
     useFlashcardGeneratorStore.setState({
@@ -495,7 +578,9 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
       fileInfo,
       // Load existing flashcards if available
       generatedCards: upload.flashcardHistory?.flashcards as Flashcard[] | null,
-      generatedCardsId: upload.flashcardHistory ? upload.id : null,
+      generatedCardsId: upload.flashcardHistory
+        ? upload.flashcardHistory.id
+        : null, // Use history ID, not upload ID
       currentCard: 0,
     });
 

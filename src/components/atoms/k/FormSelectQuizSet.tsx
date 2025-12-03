@@ -137,7 +137,7 @@ export function FormSelectQuizSet({
                 <Label htmlFor={quizSet.id} className="font-medium">
                   {quizSet.title}
                 </Label>
-                <p className="font-medium text-muted-foreground truncate w-full">
+                <p className="font-medium text-muted-foreground truncate">
                   {quizSet.description}
                 </p>
               </div>
