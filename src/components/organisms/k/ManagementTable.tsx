@@ -16,7 +16,7 @@ import {
   ExamStatusBadge,
   ExamStatus,
 } from "@/components/atoms/k/ExamStatusBadge";
-import { Edit, Trash2, LucideIcon, BookOpenCheck } from "lucide-react";
+import { Edit, Trash2, LucideIcon, BookOpenCheck, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export interface ManagementTableData {
@@ -26,6 +26,7 @@ export interface ManagementTableData {
   name: string;
   description: string;
   questionCount: number;
+  viewCount?: number;
   countLabel: string; // "câu hỏi" hoặc "thẻ"
   status: ExamStatus;
   createdDate: string;
@@ -40,9 +41,12 @@ interface ManagementTableProps {
   primaryActionLabel: string;
   secondaryActionIcon?: LucideIcon;
   secondaryActionLabel?: string;
+  shareActionIcon?: LucideIcon;
+  shareActionLabel?: string;
   countColumnLabel: string;
   onPrimaryAction: (id: string) => void;
   onSecondaryAction?: (id: string) => void;
+  onShare?: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   emptyMessage?: string;
@@ -55,9 +59,12 @@ export function ManagementTable({
   primaryActionLabel,
   secondaryActionIcon: SecondaryIcon,
   secondaryActionLabel,
+  shareActionIcon: ShareIcon,
+  shareActionLabel,
   countColumnLabel,
   onPrimaryAction,
   onSecondaryAction,
+  onShare,
   onEdit,
   onDelete,
   emptyMessage = "Không có dữ liệu",
@@ -78,13 +85,13 @@ export function ManagementTable({
                 {countColumnLabel}
               </TableHead>
               <TableHead className="text-muted-foreground font-medium">
+                Lượt xem
+              </TableHead>
+              <TableHead className="text-muted-foreground font-medium">
                 Trạng thái
               </TableHead>
               <TableHead className="text-muted-foreground font-medium">
                 Ngày tạo
-              </TableHead>
-              <TableHead className="text-muted-foreground font-medium">
-                Học gần nhất
               </TableHead>
               <TableHead className="text-muted-foreground font-medium text-right">
                 Hành động
@@ -142,15 +149,16 @@ export function ManagementTable({
                   </span>
                 </TableCell>
                 <TableCell>
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    {item.viewCount ?? 0}
+                  </span>
+                </TableCell>
+                <TableCell>
                   <ExamStatusBadge status={item.status} />
                 </TableCell>
                 <TableCell>
                   <span className="text-foreground">{item.createdDate}</span>
-                </TableCell>
-                <TableCell>
-                  <span className="text-muted-foreground">
-                    {item.lastStudied || "Chưa làm"}
-                  </span>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-end gap-1">
@@ -184,6 +192,23 @@ export function ManagementTable({
                         </TooltipTrigger>
                         <TooltipContent>
                           <p>{secondaryActionLabel}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+
+                    {ShareIcon && onShare && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                            onClick={() => onShare(item.id)}>
+                            <ShareIcon className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{shareActionLabel}</p>
                         </TooltipContent>
                       </Tooltip>
                     )}

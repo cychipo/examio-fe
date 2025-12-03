@@ -14,10 +14,8 @@ interface FlashcardManagementTemplateProps {
     totalGroupsTrend: number;
     totalCards: number;
     totalCardsTrend: number;
-    avgProgress: number;
-    avgProgressTrend: number;
-    studiedToday: number;
-    studiedTodayTrend: number;
+    totalViews: number;
+    totalViewsTrend: number;
   };
   flashcards: FlashcardTableData[];
   searchQuery: string;
@@ -35,6 +33,7 @@ interface FlashcardManagementTemplateProps {
   onStudyFlashcard: (id: string) => void;
   onEditFlashcard: (id: string) => void;
   onDeleteFlashcard: (id: string) => void;
+  onShareFlashcard: (id: string) => void;
   onPageChange: (page: number) => void;
 }
 
@@ -57,6 +56,7 @@ export function FlashcardManagementTemplate({
   onManageFlashcard,
   onEditFlashcard,
   onDeleteFlashcard,
+  onShareFlashcard,
   onPageChange,
 }: FlashcardManagementTemplateProps & {
   onManageFlashcard: (id: string) => void;
@@ -85,6 +85,7 @@ export function FlashcardManagementTemplate({
           onManage={onManageFlashcard}
           onEdit={onEditFlashcard}
           onDelete={onDeleteFlashcard}
+          onShare={onShareFlashcard}
         />
 
         {totalResults > 0 && (

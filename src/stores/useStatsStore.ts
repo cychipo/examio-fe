@@ -5,10 +5,8 @@ interface StatsData {
   totalGroupsTrend: number;
   totalCards: number;
   totalCardsTrend: number;
-  avgProgress: number;
-  avgProgressTrend: number;
-  studiedToday: number;
-  studiedTodayTrend: number;
+  totalViews: number;
+  totalViewsTrend: number;
 }
 
 interface QuizStatsData {
@@ -60,10 +58,8 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
           totalGroupsTrend: 0,
           totalCards: data.totalCards || 0,
           totalCardsTrend: 0,
-          avgProgress: data.avgProgress || 0,
-          avgProgressTrend: 0,
-          studiedToday: data.studiedToday || 0,
-          studiedTodayTrend: 0,
+          totalViews: data.totalViews || 0,
+          totalViewsTrend: 0,
         },
       });
     } catch (error) {

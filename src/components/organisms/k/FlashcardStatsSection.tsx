@@ -1,4 +1,4 @@
-import { Layers, Target, TrendingUp, Clock } from "lucide-react";
+import { Layers, Target, Eye } from "lucide-react";
 import { StatCard } from "@/components/molecules/StatCard";
 
 interface FlashcardStatsData {
@@ -6,10 +6,8 @@ interface FlashcardStatsData {
   totalGroupsTrend: number;
   totalCards: number;
   totalCardsTrend: number;
-  avgProgress: number;
-  avgProgressTrend: number;
-  studiedToday: number;
-  studiedTodayTrend: number;
+  totalViews: number;
+  totalViewsTrend: number;
 }
 
 interface FlashcardStatsSectionProps {
@@ -18,7 +16,7 @@ interface FlashcardStatsSectionProps {
 
 export function FlashcardStatsSection({ stats }: FlashcardStatsSectionProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
       <StatCard
         title="Tổng số nhóm"
         value={stats.totalGroups}
@@ -36,21 +34,12 @@ export function FlashcardStatsSection({ stats }: FlashcardStatsSectionProps) {
         trend={stats.totalCardsTrend}
       />
       <StatCard
-        title="Tiến độ trung bình"
-        value={`${stats.avgProgress}%`}
-        icon={TrendingUp}
+        title="Tổng lượt xem"
+        value={stats.totalViews}
+        icon={Eye}
         iconColor="text-green-600"
         iconBgColor="bg-green-100 dark:bg-green-950"
-        trend={stats.avgProgressTrend}
-      />
-      <StatCard
-        title="Học hôm nay"
-        value={stats.studiedToday}
-        icon={Clock}
-        iconColor="text-orange-600"
-        iconBgColor="bg-orange-100 dark:bg-orange-950"
-        trend={stats.studiedTodayTrend}
-        badge="Streak: 7 ngày 🔥"
+        trend={stats.totalViewsTrend}
       />
     </div>
   );

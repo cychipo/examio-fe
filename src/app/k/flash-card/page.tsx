@@ -1,21 +1,19 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { FlashcardManagementTemplate } from "@/templates/FlashcardManagementTemplate";
 import type { FlashcardTableData } from "@/components/organisms/k/FlashcardTable";
 import type { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 import { useFlashcardSetStore } from "@/stores/useFlashcardSetStore";
 import { useStatsStore } from "@/stores/useStatsStore";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useExportPDF } from "@/hooks/useExportPDF";
 import { FlashcardSetModal } from "@/components/organisms/FlashcardSetModal";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
+import { ShareFlashcardModal } from "@/components/organisms/ShareFlashcardModal";
 import type { FlashcardSetFormData } from "@/components/molecules/FlashcardSetForm";
 import { TableSkeletonLoader } from "@/components/organisms/TableSkeletonLoader";
 
 export default function FlashcardsPage() {
-  const router = useRouter();
   const {
     flashcardSetsK,
     loading,
@@ -26,7 +24,6 @@ export default function FlashcardsPage() {
   } = useFlashcardSetStore();
   const { flashcardStats, fetchFlashcardStats, invalidateFlashcardStats } =
     useStatsStore();
-  const { exportFlashcardSetsToPDF } = useExportPDF();
 
   // State cho UI
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,9 +37,12 @@ export default function FlashcardsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [selectedFlashcardSetId, setSelectedFlashcardSetId] = useState<
     string | null
   >(null);
+  const [selectedFlashcardSetTitle, setSelectedFlashcardSetTitle] =
+    useState("");
   const [editFormData, setEditFormData] = useState<
     FlashcardSetFormData | undefined
   >(undefined);
@@ -90,6 +90,7 @@ export default function FlashcardsPage() {
         fileName: set.title,
         description: set.description || "",
         cardCount: set._count?.detailsFlashCard || 0,
+        viewCount: set.viewCount || 0,
         status: (set.isPublic ? "public" : "private") as ExamStatus,
         createdDate: new Date(set.createdAt).toLocaleDateString("vi-VN"),
         createdAt: set.createdAt,
@@ -108,10 +109,8 @@ export default function FlashcardsPage() {
       totalGroupsTrend: flashcardStats?.totalGroupsTrend || 0,
       totalCards: flashcardStats?.totalCards || 0,
       totalCardsTrend: flashcardStats?.totalCardsTrend || 0,
-      avgProgress: flashcardStats?.avgProgress || 0,
-      avgProgressTrend: flashcardStats?.avgProgressTrend || 0,
-      studiedToday: flashcardStats?.studiedToday || 0,
-      studiedTodayTrend: flashcardStats?.studiedTodayTrend || 0,
+      totalViews: flashcardStats?.totalViews || 0,
+      totalViewsTrend: flashcardStats?.totalViewsTrend || 0,
     }),
     [flashcardStats]
   );
@@ -121,7 +120,7 @@ export default function FlashcardsPage() {
       { value: "recent", label: "Mới nhất" },
       { value: "name", label: "Tên A-Z" },
       { value: "cards", label: "Số thẻ" },
-      { value: "progress", label: "Tiến độ" },
+      { value: "views", label: "Lượt xem" },
     ],
     []
   );
@@ -139,19 +138,14 @@ export default function FlashcardsPage() {
     setIsCreateModalOpen(true);
   }, []);
 
-  const handleStudyFlashcard = useCallback(
-    (id: string) => {
-      router.push(`/k/study-flashcard/${id}`);
-    },
-    [router]
-  );
+  const handleStudyFlashcard = useCallback((id: string) => {
+    // Mở trong tab mới
+    window.open(`/study-flashcard/${id}`, "_blank");
+  }, []);
 
-  const handleManageFlashcard = useCallback(
-    (id: string) => {
-      router.push(`/k/manage-flashcard-set/${id}`);
-    },
-    [router]
-  );
+  const handleManageFlashcard = useCallback((id: string) => {
+    window.location.href = `/k/manage-flashcard-set/${id}`;
+  }, []);
 
   const handleEditFlashcard = useCallback(
     (id: string) => {
@@ -176,6 +170,18 @@ export default function FlashcardsPage() {
     setSelectedFlashcardSetId(id);
     setIsDeleteDialogOpen(true);
   }, []);
+
+  const handleShareFlashcard = useCallback(
+    (id: string) => {
+      const flashcardSet = flashcardSetsK.find((fs) => fs.id === id);
+      if (flashcardSet) {
+        setSelectedFlashcardSetId(id);
+        setSelectedFlashcardSetTitle(flashcardSet.title);
+        setIsShareModalOpen(true);
+      }
+    },
+    [flashcardSetsK]
+  );
 
   const handleConfirmDelete = useCallback(async () => {
     if (selectedFlashcardSetId) {
@@ -281,6 +287,7 @@ export default function FlashcardsPage() {
         onManageFlashcard={handleManageFlashcard}
         onEditFlashcard={handleEditFlashcard}
         onDeleteFlashcard={handleDeleteFlashcard}
+        onShareFlashcard={handleShareFlashcard}
         onPageChange={setCurrentPage}
       />
 
@@ -312,6 +319,16 @@ export default function FlashcardsPage() {
         isLoading={loading}
         onConfirm={handleConfirmDelete}
       />
+
+      {/* Share Flashcard Modal */}
+      {selectedFlashcardSetId && (
+        <ShareFlashcardModal
+          open={isShareModalOpen}
+          onOpenChange={setIsShareModalOpen}
+          flashcardSetId={selectedFlashcardSetId}
+          flashcardSetTitle={selectedFlashcardSetTitle}
+        />
+      )}
     </>
   );
 }
