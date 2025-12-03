@@ -129,10 +129,6 @@ export default function ManageExamPage() {
     setIsCreateModalOpen(true);
   }, []);
 
-  const handleExport = useCallback(() => {
-    exportQuizSetsToPDF(quizSetsK, `quiz-sets-${Date.now()}`);
-  }, [quizSetsK, exportQuizSetsToPDF]);
-
   const handleViewExam = useCallback(
     (id: string) => {
       router.push(`/k/manage-quiz-set/${id}`);

@@ -34,10 +34,7 @@ import {
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
 import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
-import {
-  useFlashcardGeneratorStore,
-  useRecentUploadsStore,
-} from "@/stores/useAIGeneratorStore";
+import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {

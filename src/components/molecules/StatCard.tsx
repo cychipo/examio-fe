@@ -1,5 +1,4 @@
 import { LucideIcon } from "lucide-react";
-import { TrendIndicator } from "@/components/atoms/k/TrendIndicator";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
@@ -19,8 +18,6 @@ export function StatCard({
   icon: Icon,
   iconColor,
   iconBgColor,
-  trend,
-  badge,
   className,
 }: StatCardProps) {
   return (

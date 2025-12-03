@@ -139,10 +139,6 @@ export default function FlashcardsPage() {
     setIsCreateModalOpen(true);
   }, []);
 
-  const handleExport = useCallback(() => {
-    exportFlashcardSetsToPDF(flashcardSetsK, `flashcard-sets-${Date.now()}`);
-  }, [flashcardSetsK, exportFlashcardSetsToPDF]);
-
   const handleStudyFlashcard = useCallback(
     (id: string) => {
       router.push(`/k/study-flashcard/${id}`);
