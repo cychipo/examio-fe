@@ -1,6 +1,7 @@
 /* eslint-disable react-dom/no-dangerously-set-innerhtml */
 "use client";
 
+import { useRouter } from "next/navigation";
 import { use, useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +25,7 @@ import {
   Lock,
   Volume2,
   VolumeX,
+  Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -44,15 +46,16 @@ interface FlashcardStudyPageProps {
 
 // Sound effects URLs
 const SOUND_EFFECTS = {
-  flip: "/sounds/flip.mp3",
-  next: "/sounds/next.mp3",
-  prev: "/sounds/prev.mp3",
+  flip: "https://cdn.pixabay.com/audio/2022/03/10/audio_71e4fc8a6e.mp3",
+  next: "https://cdn.pixabay.com/audio/2025/11/06/audio_69d4c569ef.mp3",
+  prev: "https://cdn.pixabay.com/audio/2025/11/06/audio_69d4c569ef.mp3",
 };
 
 export default function FlashcardStudyPage({
   params,
 }: FlashcardStudyPageProps) {
   const { id } = use(params);
+  const router = useRouter();
 
   // Access states
   const [accessCheckResult, setAccessCheckResult] =
@@ -77,6 +80,7 @@ export default function FlashcardStudyPage({
   const [creator, setCreator] = useState<{
     name: string;
     avatar: string | null;
+    username: string;
   } | null>(null);
 
   // Study states
@@ -91,6 +95,31 @@ export default function FlashcardStudyPage({
 
   // Audio refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to current card
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const activeButton = container.children[currentCardIndex] as HTMLElement;
+
+      if (activeButton) {
+        const containerRect = container.getBoundingClientRect();
+        const buttonRect = activeButton.getBoundingClientRect();
+
+        const scrollLeft =
+          container.scrollLeft +
+          (buttonRect.left - containerRect.left) -
+          container.offsetWidth / 2 +
+          activeButton.offsetWidth / 2;
+
+        container.scrollTo({
+          left: scrollLeft,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [currentCardIndex]);
 
   // Play sound effect
   const playSound = useCallback(
@@ -111,7 +140,7 @@ export default function FlashcardStudyPage({
       setIsLoadingFlashcards(true);
       try {
         const data = await getFlashcardSetForStudy(flashcardId, code);
-        setFlashcards(data.flashcards || []);
+        setFlashcards(data.flashCards || []);
         setFlashcardSetTitle(data.title);
         setFlashcardSetDescription(data.description || "");
         setViewCount(data.viewCount);
@@ -180,21 +209,12 @@ export default function FlashcardStudyPage({
     setAccessError("");
 
     try {
-      const result = await verifyFlashcardSetAccessCode(id, accessCode);
-      if (result.valid) {
-        await loadFlashcards(id, accessCode);
-      } else {
-        setAccessError("Mã truy cập không đúng");
-      }
-    } catch {
-      setAccessError("Có lỗi xảy ra, vui lòng thử lại");
+      await loadFlashcards(id, accessCode);
+    } catch (error: any) {
+      setAccessError(error?.message || "Có lỗi xảy ra, vui lòng thử lại");
     } finally {
       setIsVerifying(false);
     }
-  };
-
-  const handleExit = () => {
-    window.close();
   };
 
   const handleFlip = () => {
@@ -260,14 +280,16 @@ export default function FlashcardStudyPage({
             riêng tư hoặc bạn chưa được thêm vào whitelist.
           </p>
           {publicInfo && (
-            <div className="p-4 bg-muted rounded-lg mb-4">
+            <div className="p-4 bg-muted rounded-lg mb-4 text-center">
               <p className="font-medium">{publicInfo.title}</p>
               <p className="text-sm text-muted-foreground">
-                bởi {publicInfo.creator.name}
+                Tạo bởi{" "}
+                <span className="font-semibold">
+                  {publicInfo.creator.name || publicInfo.creator.username}
+                </span>
               </p>
             </div>
           )}
-          <Button onClick={handleExit}>Đóng</Button>
         </div>
       </div>
     );
@@ -290,10 +312,13 @@ export default function FlashcardStudyPage({
             </DialogHeader>
 
             {publicInfo && (
-              <div className="p-4 bg-muted rounded-lg">
+              <div className="p-4 bg-muted rounded-lg text-center">
                 <p className="font-medium">{publicInfo.title}</p>
                 <p className="text-sm text-muted-foreground">
-                  bởi {publicInfo.creator.name}
+                  Tạo bởi{" "}
+                  <span className="font-semibold">
+                    {publicInfo.creator.name || publicInfo.creator.username}
+                  </span>
                 </p>
               </div>
             )}
@@ -316,9 +341,6 @@ export default function FlashcardStudyPage({
             </div>
 
             <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={handleExit}>
-                Hủy
-              </Button>
               <Button onClick={handleVerifyCode} disabled={isVerifying}>
                 {isVerifying ? "Đang xác nhận..." : "Xác nhận"}
               </Button>
@@ -351,7 +373,6 @@ export default function FlashcardStudyPage({
           <p className="text-muted-foreground mb-4">
             Bộ flashcard này chưa có thẻ nào
           </p>
-          <Button onClick={handleExit}>Đóng</Button>
         </div>
       </div>
     );
@@ -369,13 +390,13 @@ export default function FlashcardStudyPage({
       <div className="absolute top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur border-b">
         <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
           {/* Left: Close button & Title */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleExit}
+              onClick={() => router.push("/")}
               className="shrink-0">
-              <X className="h-5 w-5" />
+              <Home className="h-5 w-5" />
             </Button>
             <div className="min-w-0">
               <h1 className="text-lg font-bold truncate">
@@ -395,13 +416,10 @@ export default function FlashcardStudyPage({
             {creator && (
               <div className="hidden sm:flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={creator.avatar || undefined} />
-                  <AvatarFallback>
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
+                  <AvatarImage src={creator.avatar || "/avt-default.webp"} />
                 </Avatar>
                 <span className="text-sm text-muted-foreground">
-                  {creator.name}
+                  {creator.name || creator.username}
                 </span>
               </div>
             )}
@@ -521,9 +539,10 @@ export default function FlashcardStudyPage({
 
           {/* Card indicator with mini cards */}
           <div className="flex items-center gap-3">
-            {/* Mini card grid */}
-            <div className="hidden sm:flex gap-1 max-w-xs overflow-hidden">
-              {flashcards.slice(0, 20).map((card, index) => {
+            <div
+              ref={scrollContainerRef}
+              className="hidden sm:flex gap-1 max-w-xs overflow-x-auto no-scrollbar scroll-smooth [&::-webkit-scrollbar]:h-1">
+              {flashcards.map((card, index) => {
                 const isStudied = studiedCards.has(card.id);
                 const isCurrent = index === currentCardIndex;
 
@@ -532,8 +551,8 @@ export default function FlashcardStudyPage({
                     key={card.id}
                     onClick={() => handleCardClick(index)}
                     className={cn(
-                      "w-6 h-6 rounded text-xs font-medium transition-colors",
-                      isCurrent && "ring-2 ring-primary ring-offset-1",
+                      "w-10 h-10 rounded text-xs font-medium transition-colors shrink-0",
+                      isCurrent && "border border-border",
                       isStudied &&
                         !isCurrent &&
                         "bg-primary text-primary-foreground",
@@ -543,11 +562,6 @@ export default function FlashcardStudyPage({
                   </button>
                 );
               })}
-              {totalCards > 20 && (
-                <span className="text-xs text-muted-foreground self-center">
-                  +{totalCards - 20}
-                </span>
-              )}
             </div>
 
             {/* Card counter */}

@@ -186,7 +186,7 @@ export default function FlashcardSetDetailPage({
                   Tổng số thẻ
                 </p>
                 <p className="text-2xl font-bold">
-                  {currentFlashcardSet.flashcards?.length || 0}
+                  {currentFlashcardSet.flashCards?.length || 0}
                 </p>
               </div>
             </div>
@@ -243,10 +243,10 @@ export default function FlashcardSetDetailPage({
             </Button>
           </div>
 
-          {currentFlashcardSet.flashcards &&
-          currentFlashcardSet.flashcards.length > 0 ? (
+          {currentFlashcardSet.flashCards &&
+          currentFlashcardSet.flashCards.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {currentFlashcardSet.flashcards.map((card, index) => (
+              {currentFlashcardSet.flashCards.map((card, index) => (
                 <Card
                   key={card.id}
                   className="p-4 hover:shadow-md transition-shadow">
