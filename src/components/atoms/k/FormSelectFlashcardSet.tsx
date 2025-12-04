@@ -73,7 +73,7 @@ export function FormSelectFlashcardSet({
         isPublic: formData.isPublic,
         isPinned: formData.isPinned,
         thumbnail: thumbnailUrl,
-        flashcards: [],
+        flashCards: [],
       },
       thumbnailFile
     );

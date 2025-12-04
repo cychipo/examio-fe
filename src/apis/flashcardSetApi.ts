@@ -253,10 +253,15 @@ export async function getFlashcardSetForStudy(
 ): Promise<
   FlashcardSet & { creator: { name: string; avatar: string | null } }
 > {
-  const response = await api.get(`/flashcardsets/study/${id}`, {
-    params: accessCode ? { code: accessCode } : undefined,
-  });
-  return response.data;
+  if (!accessCode) {
+    const response = await api.get(`/flashcardsets/study/${id}`);
+    return response.data;
+  } else {
+    const response = await api.post(`/flashcardsets/study/${id}/with-code`, {
+      accessCode,
+    });
+    return response.data;
+  }
 }
 
 /**

@@ -86,12 +86,14 @@ export function ShareFlashcardModal({
       setAccessCode(settings.accessCode || "");
       // Convert whitelist IDs to WhitelistUser objects
       // For now, just store IDs - actual user info will be fetched when needed
+      // API returns populated users for whitelist
+      const whitelist = settings.whitelist as any[];
       setWhitelistUsers(
-        (settings.whitelist || []).map((id) => ({
-          id,
-          username: id,
-          name: null,
-          avatar: null,
+        (whitelist || []).map((user) => ({
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          avatar: user.avatar,
         }))
       );
       if (!settings.isPublic) {
@@ -284,7 +286,7 @@ export function ShareFlashcardModal({
                   onValueChange={(v) =>
                     setPrivateAccessType(v as PrivateAccessType)
                   }>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mt-1">
                     <RadioGroupItem value="code" id="code" />
                     <Label htmlFor="code" className="flex items-center gap-2">
                       <Lock className="h-4 w-4" />
@@ -339,7 +341,7 @@ export function ShareFlashcardModal({
                     <Label>Danh sách người dùng được phép</Label>
 
                     {/* Search input with dropdown */}
-                    <div className="relative" ref={searchContainerRef}>
+                    <div className="relative mt-1" ref={searchContainerRef}>
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -369,7 +371,7 @@ export function ShareFlashcardModal({
                               <button
                                 key={user.id}
                                 onClick={() => handleSelectUser(user)}
-                                className="w-full flex items-center gap-3 p-2 hover:bg-accent text-left transition-colors">
+                                className="w-full flex items-center gap-3 p-2 cursor-pointer text-left transition-colors">
                                 <Avatar className="h-8 w-8">
                                   <AvatarImage src={user.avatar || undefined} />
                                   <AvatarFallback>
@@ -409,12 +411,9 @@ export function ShareFlashcardModal({
                               key={user.id}
                               className="inline-flex items-center gap-2 px-2 py-1 bg-muted rounded-full text-sm">
                               <Avatar className="h-5 w-5">
-                                <AvatarImage src={user.avatar || undefined} />
-                                <AvatarFallback className="text-[10px]">
-                                  {(user.name ||
-                                    user.username ||
-                                    "U")[0].toUpperCase()}
-                                </AvatarFallback>
+                                <AvatarImage
+                                  src={user.avatar || "/avt-default.webp"}
+                                />
                               </Avatar>
                               <span className="max-w-[120px] truncate">
                                 {user.name || user.username}

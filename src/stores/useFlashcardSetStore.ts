@@ -115,8 +115,8 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
       // Normalize data: API trả về flashCards (uppercase C), chuyển thành flashcards (lowercase)
       const normalizedFlashcardSet: FlashcardSet = {
         ...flashcardSet,
-        flashcards:
-          (flashcardSet as any).flashCards || flashcardSet.flashcards || [],
+        flashCards:
+          (flashcardSet as any).flashCards || flashcardSet.flashCards || [],
       };
 
       // Remove old flashCards field if exists
@@ -313,8 +313,8 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
         return {
           currentFlashcardSet: {
             ...state.currentFlashcardSet,
-            flashcards: [
-              ...(state.currentFlashcardSet.flashcards || []),
+            flashCards: [
+              ...(state.currentFlashcardSet.flashCards || []),
               response.flashcard,
             ],
           },
@@ -359,7 +359,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
       set((state) => {
         if (
           !state.currentFlashcardSet ||
-          !state.currentFlashcardSet.flashcards
+          !state.currentFlashcardSet.flashCards
         ) {
           return { loading: false };
         }
@@ -367,7 +367,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
         return {
           currentFlashcardSet: {
             ...state.currentFlashcardSet,
-            flashcards: state.currentFlashcardSet.flashcards.map((f) =>
+            flashCards: state.currentFlashcardSet.flashCards.map((f) =>
               f.id === flashcardId ? response.flashcard : f
             ),
           },
@@ -404,7 +404,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
       set((state) => {
         if (
           !state.currentFlashcardSet ||
-          !state.currentFlashcardSet.flashcards
+          !state.currentFlashcardSet.flashCards
         ) {
           return { loading: false };
         }
@@ -412,7 +412,7 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
         return {
           currentFlashcardSet: {
             ...state.currentFlashcardSet,
-            flashcards: state.currentFlashcardSet.flashcards.filter(
+            flashCards: state.currentFlashcardSet.flashCards.filter(
               (f) => f.id !== flashcardId
             ),
           },

@@ -50,7 +50,7 @@ export interface FlashcardSet {
   tags: string[];
   createdAt: string;
   updatedAt: string;
-  flashcards?: Flashcard[];
+  flashCards?: Flashcard[];
   cardCount?: number;
   creator?: FlashcardSetCreator;
   _count?: {
