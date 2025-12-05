@@ -121,6 +121,15 @@ export async function deleteQuizSetApi(
   return response.data;
 }
 
+export type ResponseListAllQuizsets = {
+  quizSets: Omit<QuizSet, "questions">[];
+};
+
+export async function getAllQuizSetsApi(): Promise<ResponseListAllQuizsets> {
+  const response = await api.get("/quizsets/list/all");
+  return response.data;
+}
+
 export async function getQuizSetByIdApi(id: string): Promise<QuizSet> {
   const response = await api.get(`/quizsets/${id}`);
   return response.data;

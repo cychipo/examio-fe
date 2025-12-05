@@ -26,13 +26,13 @@ export default function ManageExamRoomPage() {
   const {
     examRooms,
     loading,
-    fetchExamRooms,
+    fetchAllExamRooms,
     createExamRoom,
     updateExamRoom,
     deleteExamRoom,
   } = useExamRoomStore();
 
-  const { fetchQuizSets, quizSetsK } = useQuizSetStore();
+  const { fetchAllQuizSets, quizSetsK } = useQuizSetStore();
 
   // UI States
   const [roomFilter, setRoomFilter] = useState<string>("all");
@@ -48,21 +48,15 @@ export default function ManageExamRoomPage() {
    * Load exam rooms - chỉ gọi 1 lần khi mount
    */
   useEffect(() => {
-    fetchExamRooms({
-      page: 1,
-      limit: 9999,
-    });
-  }, [fetchExamRooms]);
+    fetchAllExamRooms();
+  }, [fetchAllExamRooms]);
 
   /**
    * Load quiz sets cho form dropdown - chỉ gọi 1 lần
    */
   useEffect(() => {
-    fetchQuizSets({
-      page: 1,
-      limit: 9999,
-    });
-  }, [fetchQuizSets]);
+    fetchAllQuizSets();
+  }, [fetchAllQuizSets]);
 
   /**
    * Tính toán stats từ examRooms

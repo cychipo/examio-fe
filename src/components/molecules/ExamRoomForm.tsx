@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { ASSESS_TYPE } from "@/types/examRoom";
+import { cn } from "@/lib/utils";
 
 /**
  * Interface cho dữ liệu form ExamRoom
@@ -175,12 +176,12 @@ export function ExamRoomForm({
       </div>
 
       {/* Chọn bộ đề */}
-      <div className="space-y-2">
+      <div className="space-y-2 w-full">
         <Label htmlFor="quizSetId">
           Bộ đề thi <span className="text-red-500">*</span>
         </Label>
         <Select
-          value={formData.quizSetId}
+          value={formData.quizSetId || initialData?.quizSetId}
           onValueChange={(value) => {
             setFormData({ ...formData, quizSetId: value });
             if (errors.quizSetId) {
@@ -188,8 +189,12 @@ export function ExamRoomForm({
             }
           }}
           disabled={isLoading || isLoadingQuizSets}>
-          <SelectTrigger className={errors.quizSetId ? "border-red-500" : ""}>
-            <SelectValue placeholder="Chọn bộ đề thi" />
+          <SelectTrigger
+            className={cn(errors.quizSetId ? "border-red-500" : "", "w-full")}>
+            <SelectValue
+              placeholder="Chọn bộ đề thi"
+              className="hover:dark:text-white hover:text-black"
+            />
           </SelectTrigger>
           <SelectContent>
             {isLoadingQuizSets ? (
@@ -203,7 +208,10 @@ export function ExamRoomForm({
               </div>
             ) : (
               quizSets.map((quizSet) => (
-                <SelectItem key={quizSet.id} value={quizSet.id}>
+                <SelectItem
+                  key={quizSet.id}
+                  value={quizSet.id}
+                  className="hover:dark:text-white hover:text-black">
                   {quizSet.title}
                   {quizSet.questionCount && (
                     <span className="ml-2 text-xs text-muted-foreground">
@@ -220,11 +228,13 @@ export function ExamRoomForm({
         )}
       </div>
 
-      {/* Loại phòng thi - Dùng Select thay vì RadioGroup */}
+      {/* Loại phòng thi */}
       <div className="space-y-2">
         <Label htmlFor="assessType">Loại phòng thi</Label>
         <Select
-          value={formData.assessType.toString()}
+          value={
+            formData.assessType.toString() || initialData?.assessType.toString()
+          }
           onValueChange={(value: string) =>
             setFormData({
               ...formData,
@@ -232,20 +242,24 @@ export function ExamRoomForm({
             })
           }
           disabled={isLoading}>
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ASSESS_TYPE.PUBLIC.toString()}>
-              <div className="flex flex-col">
+            <SelectItem
+              value={ASSESS_TYPE.PUBLIC.toString()}
+              className="hover:dark:text-white hover:text-black">
+              <div className="flex items-center gap-x-3">
                 <span className="font-medium">Công khai</span>
                 <span className="text-xs text-muted-foreground">
                   Ai cũng có thể tham gia
                 </span>
               </div>
             </SelectItem>
-            <SelectItem value={ASSESS_TYPE.PRIVATE.toString()}>
-              <div className="flex flex-col">
+            <SelectItem
+              value={ASSESS_TYPE.PRIVATE.toString()}
+              className="hover:dark:text-white hover:text-black">
+              <div className="flex items-center gap-x-3">
                 <span className="font-medium">Riêng tư</span>
                 <span className="text-xs text-muted-foreground">
                   Cần mã phòng để tham gia

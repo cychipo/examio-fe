@@ -87,3 +87,12 @@ export async function getPublicExamRoomByIdApi(id: string): Promise<ExamRoom> {
   const response = await api.get(`/examrooms/get-public/${id}`);
   return response.data;
 }
+
+export type ResponseListAllExamRooms = {
+  examRooms: ExamRoom[];
+};
+
+export async function getAllExamRoomsApi(): Promise<ResponseListAllExamRooms> {
+  const response = await api.get("/examrooms/list-all");
+  return response.data;
+}
