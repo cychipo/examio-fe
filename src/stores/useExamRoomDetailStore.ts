@@ -209,7 +209,7 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
                 assessType: updatedSession.assessType,
                 allowRetake: updatedSession.allowRetake,
                 maxAttempts: updatedSession.maxAttempts,
-                showAnswersAfterSubmit: updatedSession.showAnswersAfterSubmit,
+                showAnswersAfterSubmit: updatedSession.showAnswersAfterSubmit ?? session.showAnswersAfterSubmit,
               }
             : session
         ),
