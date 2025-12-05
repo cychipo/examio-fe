@@ -1,29 +1,23 @@
 import { api } from "./api";
-import { ExamRoom, ASSESS_TYPE } from "@/types/examRoom";
+import { ExamRoom, ExamSessionBasic } from "@/types/examRoom";
+import { ExamSessionParticipant } from "@/types/examSession";
 
 export type CredentialsCreateExamRoom = {
   title: string;
   description?: string;
   quizSetId: string;
-  assessType?: ASSESS_TYPE;
-  allowRetake?: boolean;
-  maxAttempts?: number;
 };
 
 export type CredentialsUpdateExamRoom = {
   title?: string;
   description?: string;
   quizSetId?: string;
-  assessType?: ASSESS_TYPE;
-  allowRetake?: boolean;
-  maxAttempts?: number;
 };
 
 export type CredentialsGetExamRooms = {
   page: number;
   limit: number;
   search?: string;
-  assessType?: ASSESS_TYPE;
   quizSetId?: string;
 };
 
@@ -47,6 +41,22 @@ export type ResponseDeleteExamRoom = {
   message: string;
 };
 
+export type ResponseListParticipants = {
+  participants: ExamSessionParticipant[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type ResponseListExamSessions = {
+  sessions: ExamSessionBasic[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 export async function createExamRoomApi(
   credentials: CredentialsCreateExamRoom
 ): Promise<ResponseCreateExamRoom> {
@@ -64,7 +74,7 @@ export async function getExamRoomsApi(
 }
 
 export async function getExamRoomByIdApi(id: string): Promise<ExamRoom> {
-  const response = await api.get(`/examrooms/get-by-id/${id}`);
+  const response = await api.get(`/examrooms/detail/${id}`);
   return response.data;
 }
 
@@ -94,5 +104,27 @@ export type ResponseListAllExamRooms = {
 
 export async function getAllExamRoomsApi(): Promise<ResponseListAllExamRooms> {
   const response = await api.get("/examrooms/list-all");
+  return response.data;
+}
+
+export async function getExamRoomParticipantsApi(
+  examRoomId: string,
+  page = 1,
+  limit = 10
+): Promise<ResponseListParticipants> {
+  const response = await api.get(`/examrooms/${examRoomId}/participants`, {
+    params: { page, limit },
+  });
+  return response.data;
+}
+
+export async function getExamRoomSessionsApi(
+  examRoomId: string,
+  page = 1,
+  limit = 10
+): Promise<ResponseListExamSessions> {
+  const response = await api.get(`/examrooms/${examRoomId}/sessions`, {
+    params: { page, limit },
+  });
   return response.data;
 }
