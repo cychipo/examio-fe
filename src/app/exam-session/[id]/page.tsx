@@ -4,13 +4,11 @@ import { use, useEffect, useState } from "react";
 import {
   checkExamSessionAccessApi,
   getExamSessionPublicInfoApi,
-  getExamSessionForStudyApi,
   verifyExamSessionAccessCodeApi,
 } from "@/apis/examSessionApi";
 import {
   AccessCheckResult,
   ExamSessionPublicInfo,
-  ExamSessionForStudy,
   EXAM_SESSION_STATUS,
 } from "@/types/examSession";
 import { ExamRoomDetailTemplate } from "@/templates/ExamRoomDetailTemplate";
@@ -32,8 +30,8 @@ import { useRouter } from "next/navigation";
 
 /**
  * Public Exam Session Page
- * Handles access control (public/code/whitelist) similar to flashcard study page
- * Uses ExamRoomDetailTemplate for consistent layout
+ * Handles access control (public/code/whitelist) with strict security
+ * NO session info is shown until access is fully verified
  */
 export default function ExamSessionPage({
   params,
@@ -49,9 +47,7 @@ export default function ExamSessionPage({
   const [publicInfo, setPublicInfo] = useState<ExamSessionPublicInfo | null>(
     null
   );
-  const [sessionData, setSessionData] = useState<ExamSessionForStudy | null>(
-    null
-  );
+  const [sessionNotFound, setSessionNotFound] = useState(false);
 
   // Code dialog
   const [showCodeDialog, setShowCodeDialog] = useState(false);
@@ -59,29 +55,35 @@ export default function ExamSessionPage({
   const [verifying, setVerifying] = useState(false);
   const [codeError, setCodeError] = useState("");
 
-  // Initial load - check access and get public info
+  // Initial load - check access FIRST, only load info if has access
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        // Fetch public info first
-        const info = await getExamSessionPublicInfoApi(id);
-        setPublicInfo(info);
-
-        // Check access
+        // Check access FIRST before loading any info
         const access = await checkExamSessionAccessApi(id);
         setAccessInfo(access);
 
-        // If has access, load full data
+        // Only load session info if has access
         if (access.hasAccess) {
-          const data = await getExamSessionForStudyApi(id);
-          setSessionData(data);
+          const info = await getExamSessionPublicInfoApi(id);
+          setPublicInfo(info);
         } else if (access.accessType === "code_required") {
+          // Show code dialog - don't load any info yet
           setShowCodeDialog(true);
         }
-      } catch (error) {
+        // If denied, don't load any info - show access denied screen
+      } catch (error: any) {
         console.error("Error loading exam session:", error);
-        toast.error("Không thể tải thông tin phiên thi");
+        if (error?.response?.status === 404) {
+          setSessionNotFound(true);
+        } else {
+          const message =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Không thể tải thông tin phiên thi";
+          toast.error(message);
+        }
       } finally {
         setLoading(false);
       }
@@ -105,9 +107,9 @@ export default function ExamSessionPage({
     try {
       await verifyExamSessionAccessCodeApi(id, accessCode);
 
-      // Load session data with code
-      const data = await getExamSessionForStudyApi(id, accessCode);
-      setSessionData(data);
+      // Load session info after successful verification
+      const info = await getExamSessionPublicInfoApi(id);
+      setPublicInfo(info);
       setAccessInfo({ hasAccess: true, accessType: "whitelist" });
       setShowCodeDialog(false);
       toast.success("Xác thực thành công!");
@@ -116,6 +118,11 @@ export default function ExamSessionPage({
     } finally {
       setVerifying(false);
     }
+  };
+
+  // Handle back to home
+  const handleGoHome = () => {
+    router.push("/");
   };
 
   // Loading state
@@ -141,7 +148,7 @@ export default function ExamSessionPage({
   }
 
   // Not found
-  if (!publicInfo) {
+  if (sessionNotFound) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="max-w-md">
@@ -153,7 +160,7 @@ export default function ExamSessionPage({
             <p className="text-muted-foreground mb-4">
               Phiên thi này có thể đã bị xóa hoặc không tồn tại.
             </p>
-            <Button variant="outline" onClick={() => router.push("/")}>
+            <Button variant="outline" onClick={handleGoHome}>
               Về trang chủ
             </Button>
           </CardContent>
@@ -162,7 +169,82 @@ export default function ExamSessionPage({
     );
   }
 
-  // Access denied
+  // Code required - show dialog (non-dismissible)
+  if (showCodeDialog) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+        <Dialog open={true} onOpenChange={() => {}}>
+          <DialogContent
+            className="sm:max-w-md"
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+            showCloseButton={false}>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5" />
+                Nhập mã truy cập
+              </DialogTitle>
+              <DialogDescription>
+                Phiên thi này yêu cầu mã truy cập để tham gia
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  placeholder="Nhập mã 6 chữ số"
+                  value={accessCode}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setAccessCode(value);
+                    setCodeError("");
+                  }}
+                  className={cn(
+                    "text-center text-2xl tracking-widest font-mono",
+                    codeError && "border-red-500"
+                  )}
+                  maxLength={6}
+                  disabled={verifying}
+                  autoFocus
+                />
+                {codeError && (
+                  <p className="text-sm text-red-500 text-center">
+                    {codeError}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleGoHome}
+                  disabled={verifying}>
+                  Quay lại
+                </Button>
+                <Button
+                  className="flex-1"
+                  onClick={handleVerifyCode}
+                  disabled={verifying || accessCode.length !== 6}>
+                  {verifying ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Đang xác thực...
+                    </>
+                  ) : (
+                    "Xác nhận"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  // Access denied - show denial screen (no session info)
   if (
     accessInfo &&
     !accessInfo.hasAccess &&
@@ -177,33 +259,41 @@ export default function ExamSessionPage({
             <p className="text-muted-foreground mb-6">
               Bạn không có quyền truy cập phiên thi này.
             </p>
-            <Button onClick={() => router.push("/")}>Về trang chủ</Button>
+            <Button onClick={handleGoHome}>Về trang chủ</Button>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Map dữ liệu từ BE sang format của template
+  // Has access but no public info loaded yet (shouldn't happen, but safety check)
+  if (!publicInfo) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Map data from BE to template format
   const examInfo = {
     title: publicInfo.title,
     subtitle: publicInfo.description || "Thi trực tuyến",
-    duration: 120, // Mock: 2 giờ
-    totalQuestions: sessionData?.questions?.length || 50,
-    passingScore: 70, // Mock: điểm đậu 70%
-    attempts: "0/1", // Mock: chưa thi lần nào
+    duration: 120, // Will be calculated from settings
+    totalQuestions: 50, // Will be fetched when starting exam
+    passingScore: 70,
+    attempts: "0/1",
   };
 
   const progress = {
-    answered: 0, // Mock: chưa trả lời câu nào
-    total: sessionData?.questions?.length || 50,
-    marked: 0, // Mock: chưa đánh dấu câu nào
+    answered: 0,
+    total: 50,
+    marked: 0,
   };
 
   // Calculate time remaining based on status
   const calculateTimeRemaining = () => {
     if (publicInfo.status === EXAM_SESSION_STATUS.UPCOMING) {
-      // Time until exam starts
       const startTime = new Date(publicInfo.startTime);
       const now = new Date();
       const diff = startTime.getTime() - now.getTime();
@@ -220,7 +310,6 @@ export default function ExamSessionPage({
       publicInfo.status === EXAM_SESSION_STATUS.ONGOING &&
       publicInfo.endTime
     ) {
-      // Time until exam ends
       const endTime = new Date(publicInfo.endTime);
       const now = new Date();
       const diff = endTime.getTime() - now.getTime();
@@ -233,12 +322,11 @@ export default function ExamSessionPage({
       }
     }
 
-    return { hours: 2, minutes: 0, seconds: 0 }; // Default mock
+    return { hours: 2, minutes: 0, seconds: 0 };
   };
 
   const timeRemaining = calculateTimeRemaining();
 
-  // Format exam start time
   const examStartTime = new Date(publicInfo.startTime).toLocaleDateString(
     "vi-VN",
     {
@@ -251,98 +339,40 @@ export default function ExamSessionPage({
   );
 
   const handleStartExam = () => {
-    if (publicInfo.status === EXAM_SESSION_STATUS.UPCOMING) {
+    if (publicInfo.startTime > new Date().toISOString()) {
       toast.info("Phiên thi chưa bắt đầu. Vui lòng quay lại đúng giờ.");
       return;
     }
-    if (publicInfo.status === EXAM_SESSION_STATUS.ENDED) {
+    if (publicInfo.endTime && publicInfo.endTime < new Date().toISOString()) {
       toast.info("Phiên thi đã kết thúc.");
       return;
     }
-    // TODO: Navigate to exam taking page
-    toast.info("Chức năng đang được phát triển");
+    // Navigate to exam quiz page
+    router.push(`/exam-session/${id}/quiz`);
   };
 
   const handleContactProctor = () => {
-    console.log("Contact proctor");
     toast.info("Chức năng đang được phát triển");
   };
 
   const handleViewGuidelines = () => {
-    console.log("View guidelines");
     toast.info("Chức năng đang được phát triển");
   };
 
   const handleTechnicalSupport = () => {
-    console.log("Technical support");
     toast.info("Chức năng đang được phát triển");
   };
 
   return (
-    <>
-      <ExamRoomDetailTemplate
-        examInfo={examInfo}
-        progress={progress}
-        timeRemaining={timeRemaining}
-        examStartTime={examStartTime}
-        onStartExam={handleStartExam}
-        onContactProctor={handleContactProctor}
-        onViewGuidelines={handleViewGuidelines}
-        onTechnicalSupport={handleTechnicalSupport}
-      />
-
-      {/* Access Code Dialog */}
-      <Dialog open={showCodeDialog} onOpenChange={setShowCodeDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <KeyRound className="h-5 w-5" />
-              Nhập mã truy cập
-            </DialogTitle>
-            <DialogDescription>
-              Phiên thi này yêu cầu mã truy cập để tham gia
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Input
-                type="text"
-                placeholder="Nhập mã 6 chữ số"
-                value={accessCode}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-                  setAccessCode(value);
-                  setCodeError("");
-                }}
-                className={cn(
-                  "text-center text-2xl tracking-widest font-mono",
-                  codeError && "border-red-500"
-                )}
-                maxLength={6}
-                disabled={verifying}
-              />
-              {codeError && (
-                <p className="text-sm text-red-500 text-center">{codeError}</p>
-              )}
-            </div>
-
-            <Button
-              className="w-full"
-              onClick={handleVerifyCode}
-              disabled={verifying || accessCode.length !== 6}>
-              {verifying ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Đang xác thực...
-                </>
-              ) : (
-                "Xác nhận"
-              )}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    <ExamRoomDetailTemplate
+      examInfo={examInfo}
+      progress={progress}
+      timeRemaining={timeRemaining}
+      examStartTime={examStartTime}
+      onStartExam={handleStartExam}
+      onContactProctor={handleContactProctor}
+      onViewGuidelines={handleViewGuidelines}
+      onTechnicalSupport={handleTechnicalSupport}
+    />
   );
 }

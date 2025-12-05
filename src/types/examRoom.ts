@@ -35,6 +35,7 @@ export interface ExamSessionBasic {
   assessType: number;
   allowRetake: boolean;
   maxAttempts: number;
+  showAnswersAfterSubmit: boolean;
   _count?: {
     participants?: number;
     examAttempts?: number;

@@ -19,6 +19,7 @@ export type CredentialsCreateExamSession = {
   maxAttempts?: number;
   accessCode?: string | null;
   whitelist?: string[];
+  showAnswersAfterSubmit?: boolean;
 };
 
 export type CredentialsUpdateExamSession = {
@@ -31,6 +32,7 @@ export type CredentialsUpdateExamSession = {
   maxAttempts?: number;
   accessCode?: string | null;
   whitelist?: string[];
+  showAnswersAfterSubmit?: boolean;
 };
 
 export type CredentialsGetExamSessions = {

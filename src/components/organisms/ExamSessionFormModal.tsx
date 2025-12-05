@@ -12,18 +12,39 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Calendar, Clock, Lock, Users, RefreshCw } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Loader2,
+  Calendar,
+  Clock,
+  Lock,
+  Users,
+  RefreshCw,
+  Eye,
+  Key,
+  UserPlus,
+} from "lucide-react";
 import { format } from "date-fns";
 import { ExamSessionBasic } from "@/types/examRoom";
 import { ASSESS_TYPE } from "@/types/examSession";
+import {
+  UserSearchInput,
+  WhitelistUser,
+} from "@/components/molecules/UserSearchInput";
+import { getExamSessionSharingSettingsApi } from "@/apis/examSessionApi";
+
+// Access type for UI
+type AccessType = "public" | "code" | "whitelist";
 
 interface ExamSessionFormData {
   startTime: string;
   endTime: string;
-  isPublic: boolean;
+  accessType: AccessType;
   accessCode: string;
+  whitelistUsers: WhitelistUser[];
   allowRetake: boolean;
   maxAttempts: number;
+  showAnswersAfterSubmit: boolean;
 }
 
 interface ExamSessionFormModalProps {
@@ -37,8 +58,10 @@ interface ExamSessionFormModalProps {
     endTime?: string;
     assessType: ASSESS_TYPE;
     accessCode?: string | null;
+    whitelist?: string[];
     allowRetake: boolean;
     maxAttempts: number;
+    showAnswersAfterSubmit?: boolean;
   }) => Promise<boolean>;
   isLoading?: boolean;
 }
@@ -46,15 +69,17 @@ interface ExamSessionFormModalProps {
 const initialFormData: ExamSessionFormData = {
   startTime: "",
   endTime: "",
-  isPublic: true,
+  accessType: "public",
   accessCode: "",
+  whitelistUsers: [],
   allowRetake: false,
   maxAttempts: 1,
+  showAnswersAfterSubmit: true,
 };
 
 /**
  * Modal form component for creating/editing exam sessions
- * Follows Atomic Design - Organism level
+ * Includes whitelist management and show answers option
  */
 export function ExamSessionFormModal({
   open,
@@ -70,6 +95,25 @@ export function ExamSessionFormModal({
   const [errors, setErrors] = useState<
     Partial<Record<keyof ExamSessionFormData, string>>
   >({});
+  const [loadingSettings, setLoadingSettings] = useState(false);
+
+  // Load whitelist users for editing
+  const loadWhitelistUsers = useCallback(async (sessionId: string) => {
+    setLoadingSettings(true);
+    try {
+      const settings = await getExamSessionSharingSettingsApi(sessionId);
+      if (settings.whitelist) {
+        setFormData((prev) => ({
+          ...prev,
+          whitelistUsers: settings.whitelist,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to load whitelist:", error);
+    } finally {
+      setLoadingSettings(false);
+    }
+  }, []);
 
   // Reset form when modal opens/closes or session changes
   useEffect(() => {
@@ -83,14 +127,31 @@ export function ExamSessionFormModal({
           ? format(new Date(session.endTime), "yyyy-MM-dd'T'HH:mm")
           : "";
 
+        const sessionAny = session as any;
+        const isPublic = sessionAny.assessType === ASSESS_TYPE.PUBLIC;
+        const hasWhitelist =
+          sessionAny.whitelist && sessionAny.whitelist.length > 0;
+
+        let accessType: AccessType = "public";
+        if (!isPublic) {
+          accessType = hasWhitelist ? "whitelist" : "code";
+        }
+
         setFormData({
           startTime: startTimeFormatted,
           endTime: endTimeFormatted,
-          isPublic: (session as any).assessType === ASSESS_TYPE.PUBLIC,
-          accessCode: (session as any).accessCode || "",
-          allowRetake: (session as any).allowRetake || false,
-          maxAttempts: (session as any).maxAttempts || 1,
+          accessType,
+          accessCode: sessionAny.accessCode || "",
+          whitelistUsers: [],
+          allowRetake: sessionAny.allowRetake || false,
+          maxAttempts: sessionAny.maxAttempts || 1,
+          showAnswersAfterSubmit: sessionAny.showAnswersAfterSubmit ?? true,
         });
+
+        // Load whitelist users if editing
+        if (hasWhitelist && session.id) {
+          loadWhitelistUsers(session.id);
+        }
       } else {
         // Default values for create mode
         const now = new Date();
@@ -104,7 +165,7 @@ export function ExamSessionFormModal({
       }
       setErrors({});
     }
-  }, [open, mode, session]);
+  }, [open, mode, session, loadWhitelistUsers]);
 
   // Handle input change
   const handleChange = useCallback(
@@ -130,11 +191,22 @@ export function ExamSessionFormModal({
     }
 
     if (
-      !formData.isPublic &&
+      formData.accessType === "code" &&
       formData.accessCode &&
       !/^\d{6}$/.test(formData.accessCode)
     ) {
       newErrors.accessCode = "Mã truy cập phải là 6 chữ số";
+    }
+
+    if (formData.accessType === "code" && !formData.accessCode) {
+      newErrors.accessCode = "Vui lòng nhập mã truy cập";
+    }
+
+    if (
+      formData.accessType === "whitelist" &&
+      formData.whitelistUsers.length === 0
+    ) {
+      newErrors.whitelistUsers = "Vui lòng thêm ít nhất 1 người dùng";
     }
 
     if (
@@ -160,15 +232,21 @@ export function ExamSessionFormModal({
         endTime: formData.endTime
           ? new Date(formData.endTime).toISOString()
           : undefined,
-        assessType: formData.isPublic
-          ? ASSESS_TYPE.PUBLIC
-          : ASSESS_TYPE.PRIVATE,
+        assessType:
+          formData.accessType === "public"
+            ? ASSESS_TYPE.PUBLIC
+            : ASSESS_TYPE.PRIVATE,
         accessCode:
-          !formData.isPublic && formData.accessCode
+          formData.accessType === "code" && formData.accessCode
             ? formData.accessCode
             : null,
+        whitelist:
+          formData.accessType === "whitelist"
+            ? formData.whitelistUsers.map((u) => u.id)
+            : [],
         allowRetake: formData.allowRetake,
         maxAttempts: formData.maxAttempts,
+        showAnswersAfterSubmit: formData.showAnswersAfterSubmit,
       };
 
       const success = await onSubmit(submitData);
@@ -180,11 +258,11 @@ export function ExamSessionFormModal({
     }
   };
 
-  const isFormLoading = isLoading || submitting;
+  const isFormLoading = isLoading || submitting || loadingSettings;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -234,68 +312,120 @@ export function ExamSessionFormModal({
             </p>
           </div>
 
-          {/* Visibility Toggle */}
+          {/* Access Type Tabs */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              Quyền truy cập
+            </Label>
+            <Tabs
+              value={formData.accessType}
+              onValueChange={(value) =>
+                handleChange("accessType", value as AccessType)
+              }
+              className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger
+                  value="public"
+                  className="flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5" />
+                  Công khai
+                </TabsTrigger>
+                <TabsTrigger value="code" className="flex items-center gap-1.5">
+                  <Key className="h-3.5 w-3.5" />
+                  Mã số
+                </TabsTrigger>
+                <TabsTrigger
+                  value="whitelist"
+                  className="flex items-center gap-1.5">
+                  <UserPlus className="h-3.5 w-3.5" />
+                  Whitelist
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Public content */}
+              <TabsContent value="public" className="mt-3">
+                <p className="text-sm text-muted-foreground">
+                  Mọi người đều có thể tham gia phiên thi này.
+                </p>
+              </TabsContent>
+
+              {/* Code content */}
+              <TabsContent value="code" className="mt-3 space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="accessCode">
+                    Mã truy cập (6 chữ số){" "}
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="accessCode"
+                      type="text"
+                      maxLength={6}
+                      placeholder="Nhập mã 6 chữ số"
+                      value={formData.accessCode}
+                      onChange={(e) => {
+                        const value = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 6);
+                        handleChange("accessCode", value);
+                      }}
+                      disabled={isFormLoading}
+                      className="font-mono text-center tracking-widest"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={generateAccessCode}
+                      disabled={isFormLoading}
+                      title="Tạo mã ngẫu nhiên">
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {errors.accessCode && (
+                    <p className="text-sm text-red-500">{errors.accessCode}</p>
+                  )}
+                </div>
+              </TabsContent>
+
+              {/* Whitelist content */}
+              <TabsContent value="whitelist" className="mt-3 space-y-3">
+                <UserSearchInput
+                  selectedUsers={formData.whitelistUsers}
+                  onUsersChange={(users) =>
+                    handleChange("whitelistUsers", users)
+                  }
+                  disabled={isFormLoading}
+                />
+                {errors.whitelistUsers && (
+                  <p className="text-sm text-red-500">
+                    {errors.whitelistUsers}
+                  </p>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Show Answers After Submit */}
           <div className="flex items-center justify-between rounded-lg border p-4">
             <div className="space-y-0.5">
               <Label className="flex items-center gap-2">
-                {formData.isPublic ? (
-                  <Users className="h-4 w-4" />
-                ) : (
-                  <Lock className="h-4 w-4" />
-                )}
-                {formData.isPublic
-                  ? "Phiên thi công khai"
-                  : "Phiên thi riêng tư"}
+                <Eye className="h-4 w-4" />
+                Xem đáp án sau khi nộp
               </Label>
               <p className="text-xs text-muted-foreground">
-                {formData.isPublic
-                  ? "Mọi người đều có thể tham gia"
-                  : "Chỉ những người có mã mới tham gia được"}
+                Cho phép thí sinh xem đáp án chi tiết sau khi nộp bài
               </p>
             </div>
             <Switch
-              checked={formData.isPublic}
-              onCheckedChange={(checked) => handleChange("isPublic", checked)}
+              checked={formData.showAnswersAfterSubmit}
+              onCheckedChange={(checked) =>
+                handleChange("showAnswersAfterSubmit", checked)
+              }
               disabled={isFormLoading}
             />
           </div>
-
-          {/* Access Code (when private) */}
-          {!formData.isPublic && (
-            <div className="space-y-2">
-              <Label htmlFor="accessCode" className="flex items-center gap-2">
-                <Lock className="h-4 w-4" />
-                Mã truy cập (6 chữ số)
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="accessCode"
-                  type="text"
-                  maxLength={6}
-                  placeholder="Nhập mã 6 chữ số"
-                  value={formData.accessCode}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-                    handleChange("accessCode", value);
-                  }}
-                  disabled={isFormLoading}
-                  className="font-mono text-center tracking-widest"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={generateAccessCode}
-                  disabled={isFormLoading}
-                  title="Tạo mã ngẫu nhiên">
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              </div>
-              {errors.accessCode && (
-                <p className="text-sm text-red-500">{errors.accessCode}</p>
-              )}
-            </div>
-          )}
 
           {/* Allow Retake */}
           <div className="flex items-center justify-between rounded-lg border p-4">

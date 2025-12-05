@@ -246,8 +246,10 @@ export default function ExamRoomDetailPage() {
     endTime?: string;
     assessType: ASSESS_TYPE;
     accessCode?: string | null;
+    whitelist?: string[];
     allowRetake: boolean;
     maxAttempts: number;
+    showAnswersAfterSubmit?: boolean;
   }) => {
     let success = false;
 
@@ -258,8 +260,10 @@ export default function ExamRoomDetailPage() {
         endTime: data.endTime,
         assessType: data.assessType,
         accessCode: data.accessCode,
+        whitelist: data.whitelist,
         allowRetake: data.allowRetake,
         maxAttempts: data.maxAttempts,
+        showAnswersAfterSubmit: data.showAnswersAfterSubmit,
       });
     } else if (editingSession) {
       success = await updateSession(editingSession.id, {
@@ -267,14 +271,11 @@ export default function ExamRoomDetailPage() {
         endTime: data.endTime,
         assessType: data.assessType,
         accessCode: data.accessCode,
+        whitelist: data.whitelist,
         allowRetake: data.allowRetake,
         maxAttempts: data.maxAttempts,
+        showAnswersAfterSubmit: data.showAnswersAfterSubmit,
       });
-    }
-
-    if (success) {
-      // Refresh sessions list
-      fetchSessions(id, sessionsPage, PAGE_SIZE, { forceRefresh: true });
     }
 
     return success;

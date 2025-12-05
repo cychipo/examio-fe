@@ -6,7 +6,7 @@ import Link from "next/link";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { Eye, EyeOff, FacebookIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function BottomGradient() {
   return (
@@ -22,6 +22,7 @@ export function SigninForm() {
   const { loginWithGoogle, loginWithFacebook, loginWithGithub, login } =
     useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,12 +30,13 @@ export function SigninForm() {
     const formData = new FormData(form);
     const credential = formData.get("credential") as string;
     const password = formData.get("password") as string;
+    const from = searchParams.get("from") as string;
 
     try {
       await login({ credential, password });
       // Đợi một chút để cookie được set
       await new Promise((resolve) => setTimeout(resolve, 100));
-      router.push("/k");
+      router.push(decodeURIComponent(from) || "/k");
     } catch (error) {
       console.error("Login failed:", error);
     }

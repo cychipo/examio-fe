@@ -147,14 +147,36 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
     try {
       set({ mutationLoading: true });
 
-      await createExamSessionApi(credentials);
+      const response = await createExamSessionApi(credentials);
+      const newSession = response.examSession;
 
       // Invalidate cache sau khi tạo mới
       storeCache.invalidate("examroom-sessions:");
       storeCache.invalidate("examsessions:");
 
+      // Add new session to local state (at the beginning)
+      set((state) => ({
+        sessions: [
+          {
+            id: newSession.id,
+            examRoomId: newSession.examRoomId,
+            startTime: newSession.startTime,
+            endTime: newSession.endTime,
+            status: newSession.status,
+            autoJoinByLink: newSession.autoJoinByLink,
+            assessType: newSession.assessType,
+            allowRetake: newSession.allowRetake,
+            maxAttempts: newSession.maxAttempts,
+            showAnswersAfterSubmit: newSession.showAnswersAfterSubmit,
+            _count: { participants: 0, examAttempts: 0 },
+          } as ExamSessionBasic,
+          ...state.sessions,
+        ],
+        sessionsTotal: state.sessionsTotal + 1,
+        mutationLoading: false,
+      }));
+
       toast.success("Tạo phiên thi thành công");
-      set({ mutationLoading: false });
       return true;
     } catch (error) {
       console.error("Error creating session:", error);
@@ -168,16 +190,28 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
     try {
       set({ mutationLoading: true });
 
-      await updateExamSessionApi(id, credentials);
+      const response = await updateExamSessionApi(id, credentials);
+      const updatedSession = response.examSession;
 
       // Invalidate cache sau khi cập nhật
       storeCache.invalidate("examroom-sessions:");
       storeCache.invalidate("examsessions:");
 
-      // Cập nhật session trong local state
+      // Cập nhật session trong local state với dữ liệu trả về từ API
       set((state) => ({
         sessions: state.sessions.map((session) =>
-          session.id === id ? { ...session, ...credentials } : session
+          session.id === id
+            ? {
+                ...session,
+                startTime: updatedSession.startTime,
+                endTime: updatedSession.endTime,
+                status: updatedSession.status,
+                assessType: updatedSession.assessType,
+                allowRetake: updatedSession.allowRetake,
+                maxAttempts: updatedSession.maxAttempts,
+                showAnswersAfterSubmit: updatedSession.showAnswersAfterSubmit,
+              }
+            : session
         ),
         mutationLoading: false,
       }));

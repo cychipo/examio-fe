@@ -22,6 +22,7 @@ export interface ExamSession {
   maxAttempts: number;
   accessCode?: string;
   whitelist?: string[];
+  showAnswersAfterSubmit?: boolean;
   createdAt?: string;
   updatedAt?: string;
   // Relations
@@ -107,7 +108,7 @@ export interface ExamSessionForStudy extends ExamSession {
     id: string;
     question: string;
     options: string[];
-    answer: string;
+    answer?: string; // Only present for owners
   }[];
   creator: {
     id: string;
@@ -115,6 +116,7 @@ export interface ExamSessionForStudy extends ExamSession {
     name: string | null;
     avatar: string | null;
   };
+  isOwner?: boolean;
 }
 
 export interface SharingSettings {
