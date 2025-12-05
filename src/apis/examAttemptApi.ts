@@ -1,0 +1,197 @@
+import { api } from "./api";
+
+// ==================== Types ====================
+
+export interface ExamAttempt {
+  id: string;
+  examSessionId: string;
+  userId: string;
+  score: number;
+  violationCount: number;
+  startedAt: string;
+  finishedAt: string | null;
+  status: number; // 0: IN_PROGRESS, 1: COMPLETED, 2: CANCELLED
+  answers: Record<string, string>;
+  currentIndex: number;
+  markedQuestions: string[];
+  totalQuestions: number;
+  correctAnswers: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Question {
+  id: string;
+  question: string;
+  options: string[];
+  answer?: string; // Only present when viewing results with showAnswers
+}
+
+export interface ExamAttemptWithQuestions extends ExamAttempt {
+  questions: Question[];
+  timeLimitMinutes: number | null;
+  creator: {
+    id: string;
+    username: string;
+    name: string | null;
+    avatar: string | null;
+  };
+  isOwner: boolean;
+  examSession: {
+    id: string;
+    startTime: string;
+    endTime: string | null;
+    showAnswersAfterSubmit: boolean;
+    allowRetake: boolean;
+    maxAttempts: number;
+    examRoom: {
+      id: string;
+      title: string;
+      description: string | null;
+    };
+  };
+}
+
+export interface StartExamAttemptResponse {
+  message: string;
+  examAttempt: ExamAttempt;
+  isResume: boolean;
+}
+
+export interface UpdateProgressDto {
+  answers?: Record<string, string>;
+  currentIndex?: number;
+  markedQuestions?: string[];
+}
+
+export interface SubmitExamAttemptResponse {
+  message: string;
+  examAttempt: ExamAttempt;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  percentage: number;
+  showAnswers: boolean;
+  passed: boolean;
+  passingScore: number;
+  questions?: Question[]; // Only if showAnswers is true
+}
+
+// ==================== API Functions ====================
+
+/**
+ * Start or resume an exam attempt
+ */
+export async function startExamAttemptApi(
+  examSessionId: string
+): Promise<StartExamAttemptResponse> {
+  const response = await api.post("/examattempts/start", { examSessionId });
+  return response.data;
+}
+
+/**
+ * Update exam attempt progress (auto-save)
+ */
+export async function updateExamAttemptProgressApi(
+  attemptId: string,
+  data: UpdateProgressDto
+): Promise<{ message: string; examAttempt: ExamAttempt }> {
+  const response = await api.put(`/examattempts/${attemptId}/progress`, data);
+  return response.data;
+}
+
+/**
+ * Submit exam attempt and calculate score
+ */
+export async function submitExamAttemptApi(
+  attemptId: string
+): Promise<SubmitExamAttemptResponse> {
+  const response = await api.post(`/examattempts/${attemptId}/submit`);
+  return response.data;
+}
+
+/**
+ * Get exam attempt with questions for quiz view
+ */
+export async function getExamAttemptForQuizApi(
+  attemptId: string
+): Promise<ExamAttemptWithQuestions> {
+  const response = await api.get(`/examattempts/${attemptId}/quiz`);
+  return response.data;
+}
+
+// ==================== Owner Endpoints ====================
+
+export interface ExamAttemptUser {
+  id: string;
+  username: string;
+  name: string | null;
+  email: string;
+  avatar: string | null;
+}
+
+export interface ExamAttemptListItem {
+  id: string;
+  status: number;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  startedAt: string;
+  finishedAt: string | null;
+  timeSpentSeconds: number;
+  answers: Record<string, string>;
+  user: ExamAttemptUser;
+  session: {
+    id: string;
+    startTime: string;
+    endTime: string | null;
+  };
+}
+
+export interface ExamAttemptsByRoomResponse {
+  attempts: ExamAttemptListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface ExamAttemptDetail
+  extends Omit<ExamAttemptListItem, "session"> {
+  currentIndex: number;
+  markedQuestions: string[];
+  violationCount: number;
+  session: {
+    id: string;
+    startTime: string;
+    endTime: string | null;
+  };
+  examRoom: {
+    id: string;
+    title: string;
+  };
+}
+
+/**
+ * Get all exam attempts for an exam room (owner only)
+ */
+export async function getExamAttemptsByRoomApi(
+  examRoomId: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<ExamAttemptsByRoomResponse> {
+  const response = await api.get(`/examattempts/list-by-room/${examRoomId}`, {
+    params: { page, limit },
+  });
+  return response.data;
+}
+
+/**
+ * Get exam attempt detail for slider view (owner only)
+ */
+export async function getExamAttemptDetailApi(
+  attemptId: string
+): Promise<ExamAttemptDetail> {
+  const response = await api.get(`/examattempts/${attemptId}/detail`);
+  return response.data;
+}

@@ -5,6 +5,7 @@ import {
   updateExamRoomApi,
   deleteExamRoomApi,
   getExamRoomByIdApi,
+  getAllExamRoomsApi,
   type CredentialsCreateExamRoom,
   type CredentialsUpdateExamRoom,
   type CredentialsGetExamRooms,
@@ -24,6 +25,7 @@ interface ExamRoomStore {
     params: CredentialsGetExamRooms,
     options?: { forceRefresh?: boolean }
   ) => Promise<any>;
+  fetchAllExamRooms: (options?: { forceRefresh?: boolean }) => Promise<any>;
   fetchExamRoomById: (id: string) => Promise<void>;
   createExamRoom: (credentials: CredentialsCreateExamRoom) => Promise<void>;
   updateExamRoom: (
@@ -51,6 +53,45 @@ export const useExamRoomStore = create<ExamRoomStore>((set) => ({
         cacheKey,
         async () => {
           return await getExamRoomsApi(params);
+        },
+        {
+          ttl: CacheTTL.FIVE_MINUTES,
+          forceRefresh,
+        }
+      );
+
+      set({
+        examRooms: response.examRooms,
+        loading: false,
+      });
+
+      return response;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      set({
+        error: errorMessage,
+        loading: false,
+      });
+      toast.error("Lấy danh sách phòng thi thất bại", {
+        description: errorMessage,
+      });
+      console.error("Lấy danh sách phòng thi thất bại:", error);
+      throw error;
+    }
+  },
+
+  fetchAllExamRooms: async (options = {}) => {
+    const { forceRefresh = false } = options;
+    const cacheKey = storeCache.createKey("examrooms-all", {});
+
+    try {
+      set({ loading: true, error: null });
+
+      const response = await storeCache.fetchWithCache(
+        cacheKey,
+        async () => {
+          return await getAllExamRoomsApi();
         },
         {
           ttl: CacheTTL.FIVE_MINUTES,

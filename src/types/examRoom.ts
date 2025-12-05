@@ -1,17 +1,9 @@
-export enum ASSESS_TYPE {
-  PUBLIC = 0,
-  PRIVATE = 1,
-}
-
 export interface ExamRoom {
   id: string;
   title: string;
   description?: string;
   quizSetId: string;
   hostId: string;
-  assessType: ASSESS_TYPE;
-  allowRetake: boolean;
-  maxAttempts: number;
   createdAt: string;
   updatedAt: string;
   // Relations (optional, có thể có khi fetch detail)
@@ -19,13 +11,33 @@ export interface ExamRoom {
     id: string;
     title: string;
     questionCount?: number;
+    thumbnail?: string;
   };
   host?: {
     id: string;
     username: string;
+    name?: string;
     email?: string;
   };
   _count?: {
     examSessions?: number;
+  };
+  examSessions?: ExamSessionBasic[];
+}
+
+export interface ExamSessionBasic {
+  id: string;
+  examRoomId: string;
+  status: number;
+  startTime: string;
+  endTime?: string;
+  autoJoinByLink: boolean;
+  assessType: number;
+  allowRetake: boolean;
+  maxAttempts: number;
+  showAnswersAfterSubmit: boolean;
+  _count?: {
+    participants?: number;
+    examAttempts?: number;
   };
 }

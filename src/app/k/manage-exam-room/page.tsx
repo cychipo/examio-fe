@@ -16,7 +16,7 @@ import {
   RecentParticipantsList,
   type Participant,
 } from "@/components/organisms/k/RecentParticipantsList";
-import { ASSESS_TYPE } from "@/types/examRoom";
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
@@ -26,13 +26,13 @@ export default function ManageExamRoomPage() {
   const {
     examRooms,
     loading,
-    fetchExamRooms,
+    fetchAllExamRooms,
     createExamRoom,
     updateExamRoom,
     deleteExamRoom,
   } = useExamRoomStore();
 
-  const { fetchQuizSets, quizSetsK } = useQuizSetStore();
+  const { fetchAllQuizSets, quizSetsK } = useQuizSetStore();
 
   // UI States
   const [roomFilter, setRoomFilter] = useState<string>("all");
@@ -48,29 +48,21 @@ export default function ManageExamRoomPage() {
    * Load exam rooms - chỉ gọi 1 lần khi mount
    */
   useEffect(() => {
-    fetchExamRooms({
-      page: 1,
-      limit: 9999,
-    });
-  }, [fetchExamRooms]);
+    fetchAllExamRooms();
+  }, [fetchAllExamRooms]);
 
   /**
    * Load quiz sets cho form dropdown - chỉ gọi 1 lần
    */
   useEffect(() => {
-    fetchQuizSets({
-      page: 1,
-      limit: 9999,
-    });
-  }, [fetchQuizSets]);
+    fetchAllQuizSets();
+  }, [fetchAllQuizSets]);
 
   /**
    * Tính toán stats từ examRooms
    */
   const stats = useMemo(() => {
-    const activeRooms = examRooms.filter(
-      (room) => room.assessType === ASSESS_TYPE.PUBLIC
-    ).length;
+    const activeRooms = examRooms.length; // All rooms are counted
 
     const totalParticipants = examRooms.reduce(
       (sum, room) => sum + (room._count?.examSessions || 0),
@@ -98,7 +90,7 @@ export default function ManageExamRoomPage() {
       timeInfo: new Date(room.createdAt).toLocaleDateString("vi-VN"),
       timeLabel: "Ngày tạo",
       status: "active" as const, // TODO: Tính status từ examSessions
-      isPrivate: room.assessType === ASSESS_TYPE.PRIVATE,
+      isPrivate: false, // Security settings are now per ExamSession
     }));
   }, [examRooms]);
 
@@ -163,9 +155,6 @@ export default function ManageExamRoomPage() {
           title: room.title,
           description: room.description || "",
           quizSetId: room.quizSetId,
-          assessType: room.assessType,
-          allowRetake: room.allowRetake,
-          maxAttempts: room.maxAttempts,
         });
         setSelectedRoomId(id);
         setIsEditModalOpen(true);
@@ -197,9 +186,6 @@ export default function ManageExamRoomPage() {
           title: data.title,
           description: data.description,
           quizSetId: data.quizSetId,
-          assessType: data.assessType,
-          allowRetake: data.allowRetake,
-          maxAttempts: data.maxAttempts,
         });
         setIsCreateModalOpen(false);
         // Store đã update, không cần refetch
@@ -222,9 +208,6 @@ export default function ManageExamRoomPage() {
             title: data.title,
             description: data.description,
             quizSetId: data.quizSetId,
-            assessType: data.assessType,
-            allowRetake: data.allowRetake,
-            maxAttempts: data.maxAttempts,
           });
           setIsEditModalOpen(false);
           setSelectedRoomId(null);

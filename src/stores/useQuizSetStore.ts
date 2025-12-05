@@ -20,6 +20,7 @@ import {
   deleteQuestionFromQuizSet,
   CreateQuestionData,
   UpdateQuestionData,
+  getAllQuizSetsApi,
 } from "@/apis/quizsetApi";
 import { toast } from "@/components/ui/toast";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
@@ -32,6 +33,7 @@ interface QuizSetState {
     credentials: CredentialsGetQuizsets,
     options?: { forceRefresh?: boolean }
   ) => Promise<ResponseListQuizsets | undefined>;
+  fetchAllQuizSets: (options?: { forceRefresh?: boolean }) => Promise<any>;
   fetchQuizSetById: (id: string) => Promise<void>;
   createQuizSet: (
     credentials: CredentialsQuizSet,
@@ -79,6 +81,33 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
       const response: ResponseListQuizsets = await storeCache.fetchWithCache(
         cacheKey,
         () => getQuizSetsApi(credentials),
+        {
+          ttl: CacheTTL.FIVE_MINUTES,
+          forceRefresh,
+        }
+      );
+      set({ quizSetsK: response.quizSets });
+      return response;
+    } catch (error) {
+      toast.error("Lấy bộ câu hỏi thất bại", {
+        description: (error as Error).message,
+      });
+      console.error("Lấy bộ câu hỏi thất bại:", error);
+      return undefined;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  fetchAllQuizSets: async (options = {}) => {
+    const { forceRefresh = false } = options;
+    const cacheKey = storeCache.createKey("quizsets-all", {});
+
+    set({ loading: true });
+    try {
+      const response = await storeCache.fetchWithCache(
+        cacheKey,
+        () => getAllQuizSetsApi(),
         {
           ttl: CacheTTL.FIVE_MINUTES,
           forceRefresh,
