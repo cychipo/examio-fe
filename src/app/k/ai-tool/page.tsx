@@ -40,7 +40,7 @@ function AIGeneratorContent() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden max-w-7xl mx-auto">
       {/* Background Effects */}
 
       {/* Header Section */}
