@@ -7,11 +7,8 @@ import {
   CardStackIcon,
   RocketIcon,
   ClockIcon,
-  CalendarIcon,
-  ChatBubbleIcon,
   BellIcon,
   GearIcon,
-  Pencil2Icon,
 } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -92,36 +89,15 @@ export function SidebarKit() {
       active: pathname === "/k/manage-exam-room",
     },
     {
-      name: "Schedule",
-      href: "/k/schedule",
-      icon: <CalendarIcon className="w-5 h-5" />,
-      label: "Lịch biểu",
-      active: pathname === "/k/schedule",
-    },
-    {
       name: "History",
       href: "/k/history",
       icon: <ClockIcon className="w-5 h-5" />,
       label: "Lịch sử",
       active: pathname === "/k/history",
     },
-    {
-      name: "Forum",
-      href: "/k/forum",
-      icon: <Pencil2Icon className="w-5 h-5" />,
-      label: "Diễn đàn",
-      active: pathname === "/k/forum",
-    },
   ];
 
   const itemSecondarySiderbar = [
-    {
-      name: "Messages",
-      href: "/k/messages",
-      icon: <ChatBubbleIcon className="w-5 h-5" />,
-      label: "Tin nhắn",
-      active: pathname === "/k/messages",
-    },
     {
       name: "Notifications",
       href: "/k/notifications",

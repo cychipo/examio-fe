@@ -1,90 +1,67 @@
 import { HistoryStatsGrid } from "@/components/organisms/k/HistoryStatsGrid";
-import { PDFHistorySection } from "@/components/organisms/k/PDFHistorySection";
-import { ExamHistorySection } from "@/components/organisms/k/ExamHistorySection";
-import type { PDFHistoryItem } from "@/components/molecules/PDFHistoryCard";
-import type { ExamHistoryItem } from "@/components/molecules/ExamHistoryCard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PDFHistoryListSection } from "@/components/organisms/k/PDFHistoryListSection";
+import { ExamHistoryListSection } from "@/components/organisms/k/ExamHistoryListSection";
+import { RecentActivitySection } from "@/components/organisms/k/RecentActivitySection";
+import type { PDFHistoryListItemData } from "@/components/molecules/PDFHistoryListItem";
+import type { ExamHistoryListItemData } from "@/components/molecules/ExamHistoryListItem";
+import type { RecentActivityItemData } from "@/components/molecules/RecentActivityItem";
 
 interface HistoryStats {
   totalPDFs: number;
-  totalExams: number;
-  averageScore: number;
-  passRate: number;
+  examsCreated: number;
+  flashcardSets: number;
+  totalStudyHours: number;
 }
 
 interface HistoryTemplateProps {
   stats: HistoryStats;
-  pdfItems: PDFHistoryItem[];
-  examItems: ExamHistoryItem[];
-  pdfSearchValue: string;
-  onPdfSearchChange: (value: string) => void;
-  pdfFilterValue: string;
-  onPdfFilterChange: (value: string) => void;
-  examSearchValue: string;
-  onExamSearchChange: (value: string) => void;
-  examFilterValue: string;
-  onExamFilterChange: (value: string) => void;
+  pdfItems: PDFHistoryListItemData[];
+  examItems: ExamHistoryListItemData[];
+  activities: RecentActivityItemData[];
   onPdfDownload?: (id: string) => void;
   onPdfDelete?: (id: string) => void;
+  onExamClick?: (id: string) => void;
 }
 
 export function HistoryTemplate({
   stats,
   pdfItems,
   examItems,
-  pdfSearchValue,
-  onPdfSearchChange,
-  pdfFilterValue,
-  onPdfFilterChange,
-  examSearchValue,
-  onExamSearchChange,
-  examFilterValue,
-  onExamFilterChange,
+  activities,
   onPdfDownload,
   onPdfDelete,
+  onExamClick,
 }: HistoryTemplateProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 pt-8 pb-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Lịch sử</h1>
+        <h1 className="text-2xl font-bold text-foreground">Quản lý lịch sử</h1>
         <p className="text-muted-foreground mt-1">
-          Theo dõi lịch sử tải lên PDF và kết quả làm bài thi của bạn
+          Theo dõi tiến độ và hoạt động học tập của bạn
         </p>
       </div>
 
       {/* Stats Grid */}
       <HistoryStatsGrid stats={stats} />
 
-      {/* History Sections with Tabs */}
-      <Tabs defaultValue="pdf" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="pdf">Lịch sử PDF</TabsTrigger>
-          <TabsTrigger value="exam">Lịch sử thi</TabsTrigger>
-        </TabsList>
+      {/* Recent Activity Section */}
+      <RecentActivitySection activities={activities} />
 
-        <TabsContent value="pdf" className="mt-6">
-          <PDFHistorySection
-            items={pdfItems}
-            searchValue={pdfSearchValue}
-            onSearchChange={onPdfSearchChange}
-            filterValue={pdfFilterValue}
-            onFilterChange={onPdfFilterChange}
-            onDownload={onPdfDownload}
-            onDelete={onPdfDelete}
-          />
-        </TabsContent>
+      {/* Two Column Layout: PDF History + Exam History */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <PDFHistoryListSection
+          items={pdfItems}
+          onDownload={onPdfDownload}
+          onDelete={onPdfDelete}
+        />
+        <ExamHistoryListSection
+          items={examItems}
+          onClick={onExamClick}
+        />
+      </div>
 
-        <TabsContent value="exam" className="mt-6">
-          <ExamHistorySection
-            items={examItems}
-            searchValue={examSearchValue}
-            onSearchChange={onExamSearchChange}
-            filterValue={examFilterValue}
-            onFilterChange={onExamFilterChange}
-          />
-        </TabsContent>
-      </Tabs>
+
     </div>
   );
 }
