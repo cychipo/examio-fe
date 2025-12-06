@@ -10,6 +10,7 @@ import {
   BellIcon,
   GearIcon,
 } from "@radix-ui/react-icons";
+import { GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FloatingDock } from "@/components/atoms/k/FloatingDock";
@@ -64,6 +65,13 @@ export function SidebarKit() {
       icon: <RocketIcon className="w-5 h-5" />,
       label: "Công cụ AI",
       active: pathname === "/k/ai-tool",
+    },
+    {
+      name: "AI Teacher",
+      href: "/k/ai-teacher",
+      icon: <GraduationCap className="w-5 h-5" />,
+      label: "Giáo viên AI",
+      active: pathname === "/k/ai-teacher",
     },
     {
       name: "Manage Exam",
