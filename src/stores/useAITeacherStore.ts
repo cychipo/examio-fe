@@ -135,38 +135,124 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     // Cancel any current speech
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "vi-VN";
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
+    // Helper function to find the best Vietnamese voice
+    const findBestVietnameseVoice = (
+      voices: SpeechSynthesisVoice[]
+    ): SpeechSynthesisVoice | null => {
+      // Filter Vietnamese voices
+      const vietnameseVoices = voices.filter(
+        (v) =>
+          v.lang === "vi-VN" ||
+          v.lang === "vi_VN" ||
+          v.lang.startsWith("vi-") ||
+          v.lang.startsWith("vi_")
+      );
 
-    // Try to find Vietnamese voice
-    const voices = window.speechSynthesis.getVoices();
-    const viVoice = voices.find(
-      (v) => v.lang.includes("vi") || v.lang.includes("VI")
-    );
-    if (viVoice) {
-      utterance.voice = viVoice;
+      if (vietnameseVoices.length === 0) {
+        return null;
+      }
+
+      // Priority order for high-quality Vietnamese voices
+      const priorityPatterns = [
+        /google/i, // Google voices are usually best
+        /microsoft/i, // Microsoft voices are good
+        /natural/i, // Natural voices
+        /neural/i, // Neural voices
+        /premium/i, // Premium voices
+      ];
+
+      // Try to find a voice matching priority patterns
+      for (const pattern of priorityPatterns) {
+        const match = vietnameseVoices.find((v) => pattern.test(v.name));
+        if (match) {
+          console.log("Using Vietnamese voice:", match.name);
+          return match;
+        }
+      }
+
+      // Prefer non-local voices (usually cloud-based and better quality)
+      const cloudVoice = vietnameseVoices.find((v) => !v.localService);
+      if (cloudVoice) {
+        console.log("Using cloud Vietnamese voice:", cloudVoice.name);
+        return cloudVoice;
+      }
+
+      // Fallback to any Vietnamese voice
+      console.log("Using fallback Vietnamese voice:", vietnameseVoices[0].name);
+      return vietnameseVoices[0];
+    };
+
+    // Function to speak with the best available voice
+    const speakWithVoice = (voices: SpeechSynthesisVoice[]) => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "vi-VN";
+      utterance.rate = 0.9; // Slightly slower for better pronunciation
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+
+      const bestVoice = findBestVietnameseVoice(voices);
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+      } else {
+        console.warn(
+          "No Vietnamese voice found, using default. Available voices:",
+          voices.map((v) => `${v.name} (${v.lang})`)
+        );
+      }
+
+      utterance.onstart = () => {
+        setIsSpeaking(true);
+      };
+
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        setCurrentUtterance(null);
+      };
+
+      utterance.onerror = (event) => {
+        console.error("Speech synthesis error:", event);
+        setIsSpeaking(false);
+        setCurrentUtterance(null);
+      };
+
+      setCurrentUtterance(utterance);
+      window.speechSynthesis.speak(utterance);
+    };
+
+    // Get voices - they might not be loaded yet
+    let voices = window.speechSynthesis.getVoices();
+
+    if (voices.length > 0) {
+      // Voices already loaded
+      speakWithVoice(voices);
+    } else {
+      // Wait for voices to be loaded
+      const handleVoicesChanged = () => {
+        voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          window.speechSynthesis.removeEventListener(
+            "voiceschanged",
+            handleVoicesChanged
+          );
+          speakWithVoice(voices);
+        }
+      };
+
+      window.speechSynthesis.addEventListener(
+        "voiceschanged",
+        handleVoicesChanged
+      );
+
+      // Fallback timeout in case voiceschanged never fires
+      setTimeout(() => {
+        window.speechSynthesis.removeEventListener(
+          "voiceschanged",
+          handleVoicesChanged
+        );
+        voices = window.speechSynthesis.getVoices();
+        speakWithVoice(voices);
+      }, 500);
     }
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setCurrentUtterance(null);
-    };
-
-    utterance.onerror = (event) => {
-      console.error("Speech synthesis error:", event);
-      setIsSpeaking(false);
-      setCurrentUtterance(null);
-    };
-
-    setCurrentUtterance(utterance);
-    window.speechSynthesis.speak(utterance);
   },
 
   stopSpeaking: () => {
