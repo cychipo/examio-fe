@@ -10,6 +10,14 @@ export interface Message {
   timestamp: Date;
 }
 
+// TTS Configuration
+const TTS_CONFIG = {
+  API_URL: "https://proxy.junookyo.workers.dev/",
+  LANGUAGE: "vi-VN",
+  SPEED: 1,
+  MAX_CHUNK_LENGTH: 200,
+};
+
 interface AITeacherState {
   // Messages
   messages: Message[];
@@ -23,8 +31,10 @@ interface AITeacherState {
   // Document
   selectedUpload: RecentUpload | null;
 
-  // Speech synthesis
-  currentUtterance: SpeechSynthesisUtterance | null;
+  // Audio for TTS
+  currentAudio: HTMLAudioElement | null;
+  audioQueue: string[];
+  isPlayingQueue: boolean;
 
   // Actions
   addMessage: (role: "user" | "assistant", content: string) => void;
@@ -36,11 +46,64 @@ interface AITeacherState {
   sendMessage: (message: string) => Promise<void>;
   speakResponse: (text: string) => void;
   stopSpeaking: () => void;
-  setCurrentUtterance: (utterance: SpeechSynthesisUtterance | null) => void;
 }
 
 // Generate unique ID
-const generateId = () => `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const generateId = () =>
+  `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+/**
+ * Split text into chunks of max length, breaking at sentence/word boundaries
+ */
+const splitTextIntoChunks = (text: string, maxLength: number): string[] => {
+  const chunks: string[] = [];
+  let remaining = text.trim();
+
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLength) {
+      chunks.push(remaining);
+      break;
+    }
+
+    // Find the best break point within maxLength
+    let breakPoint = maxLength;
+
+    // Try to break at sentence end (. ! ?)
+    const sentenceEnd = remaining.substring(0, maxLength).search(/[.!?][^.!?]*$/);
+    if (sentenceEnd > 0) {
+      breakPoint = sentenceEnd + 1;
+    } else {
+      // Try to break at comma or semicolon
+      const clauseEnd = remaining.substring(0, maxLength).search(/[,;][^,;]*$/);
+      if (clauseEnd > 0) {
+        breakPoint = clauseEnd + 1;
+      } else {
+        // Try to break at space
+        const lastSpace = remaining.substring(0, maxLength).lastIndexOf(" ");
+        if (lastSpace > 0) {
+          breakPoint = lastSpace;
+        }
+      }
+    }
+
+    chunks.push(remaining.substring(0, breakPoint).trim());
+    remaining = remaining.substring(breakPoint).trim();
+  }
+
+  return chunks.filter((chunk) => chunk.length > 0);
+};
+
+/**
+ * Build TTS URL for a text chunk
+ */
+const buildTTSUrl = (text: string): string => {
+  const params = new URLSearchParams({
+    language: TTS_CONFIG.LANGUAGE,
+    text,
+    speed: TTS_CONFIG.SPEED.toString(),
+  });
+  return `${TTS_CONFIG.API_URL}?${params.toString()}`;
+};
 
 export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   messages: [],
@@ -49,7 +112,9 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   isProcessing: false,
   transcript: "",
   selectedUpload: null,
-  currentUtterance: null,
+  currentAudio: null,
+  audioQueue: [],
+  isPlayingQueue: false,
 
   addMessage: (role, content) => {
     const newMessage: Message = {
@@ -83,10 +148,6 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     set({ selectedUpload: upload });
   },
 
-  setCurrentUtterance: (utterance) => {
-    set({ currentUtterance: utterance });
-  },
-
   sendMessage: async (message: string) => {
     const { selectedUpload, addMessage, speakResponse, stopSpeaking } = get();
 
@@ -114,9 +175,13 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
         addMessage("assistant", errorMsg);
         toast.error(errorMsg);
       }
-    } catch (error: any) {
-      const errorMsg = error.message || "Không thể kết nối tới server.";
-      addMessage("assistant", "Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại.");
+    } catch (error: unknown) {
+      const errorMsg =
+        error instanceof Error ? error.message : "Không thể kết nối tới server.";
+      addMessage(
+        "assistant",
+        "Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại."
+      );
       toast.error(errorMsg);
     } finally {
       set({ isProcessing: false });
@@ -124,145 +189,115 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   },
 
   speakResponse: (text: string) => {
-    const { setIsSpeaking, setCurrentUtterance } = get();
+    const { stopSpeaking, setIsSpeaking } = get();
 
-    // Check browser support
-    if (!("speechSynthesis" in window)) {
-      console.warn("Speech synthesis not supported");
+    // Stop any current speech first
+    stopSpeaking();
+
+    // Split text into chunks
+    const chunks = splitTextIntoChunks(text, TTS_CONFIG.MAX_CHUNK_LENGTH);
+
+    if (chunks.length === 0) {
+      console.warn("No text to speak");
       return;
     }
 
-    // Cancel any current speech
-    window.speechSynthesis.cancel();
+    console.log(`🔊 Speaking ${chunks.length} chunks`);
 
-    // Helper function to find the best Vietnamese voice
-    const findBestVietnameseVoice = (
-      voices: SpeechSynthesisVoice[]
-    ): SpeechSynthesisVoice | null => {
-      // Filter Vietnamese voices
-      const vietnameseVoices = voices.filter(
-        (v) =>
-          v.lang === "vi-VN" ||
-          v.lang === "vi_VN" ||
-          v.lang.startsWith("vi-") ||
-          v.lang.startsWith("vi_")
-      );
+    // Build audio URLs for all chunks
+    const audioUrls = chunks.map((chunk) => buildTTSUrl(chunk));
 
-      if (vietnameseVoices.length === 0) {
-        return null;
+    // Preloaded audio cache
+    const preloadedAudios: Map<number, HTMLAudioElement> = new Map();
+
+    // Preload an audio by index
+    const preloadAudio = (index: number): HTMLAudioElement | null => {
+      if (index >= audioUrls.length) return null;
+
+      // Check if already preloaded
+      if (preloadedAudios.has(index)) {
+        return preloadedAudios.get(index)!;
       }
 
-      // Priority order for high-quality Vietnamese voices
-      const priorityPatterns = [
-        /google/i, // Google voices are usually best
-        /microsoft/i, // Microsoft voices are good
-        /natural/i, // Natural voices
-        /neural/i, // Neural voices
-        /premium/i, // Premium voices
-      ];
+      const audio = new Audio();
+      audio.preload = "auto";
+      audio.src = audioUrls[index];
+      preloadedAudios.set(index, audio);
 
-      // Try to find a voice matching priority patterns
-      for (const pattern of priorityPatterns) {
-        const match = vietnameseVoices.find((v) => pattern.test(v.name));
-        if (match) {
-          console.log("Using Vietnamese voice:", match.name);
-          return match;
-        }
-      }
-
-      // Prefer non-local voices (usually cloud-based and better quality)
-      const cloudVoice = vietnameseVoices.find((v) => !v.localService);
-      if (cloudVoice) {
-        console.log("Using cloud Vietnamese voice:", cloudVoice.name);
-        return cloudVoice;
-      }
-
-      // Fallback to any Vietnamese voice
-      console.log("Using fallback Vietnamese voice:", vietnameseVoices[0].name);
-      return vietnameseVoices[0];
+      return audio;
     };
 
-    // Function to speak with the best available voice
-    const speakWithVoice = (voices: SpeechSynthesisVoice[]) => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "vi-VN";
-      utterance.rate = 0.9; // Slightly slower for better pronunciation
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
-
-      const bestVoice = findBestVietnameseVoice(voices);
-      if (bestVoice) {
-        utterance.voice = bestVoice;
-      } else {
-        console.warn(
-          "No Vietnamese voice found, using default. Available voices:",
-          voices.map((v) => `${v.name} (${v.lang})`)
-        );
-      }
-
-      utterance.onstart = () => {
-        setIsSpeaking(true);
-      };
-
-      utterance.onend = () => {
-        setIsSpeaking(false);
-        setCurrentUtterance(null);
-      };
-
-      utterance.onerror = (event) => {
-        console.error("Speech synthesis error:", event);
-        setIsSpeaking(false);
-        setCurrentUtterance(null);
-      };
-
-      setCurrentUtterance(utterance);
-      window.speechSynthesis.speak(utterance);
-    };
-
-    // Get voices - they might not be loaded yet
-    let voices = window.speechSynthesis.getVoices();
-
-    if (voices.length > 0) {
-      // Voices already loaded
-      speakWithVoice(voices);
-    } else {
-      // Wait for voices to be loaded
-      const handleVoicesChanged = () => {
-        voices = window.speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          window.speechSynthesis.removeEventListener(
-            "voiceschanged",
-            handleVoicesChanged
-          );
-          speakWithVoice(voices);
-        }
-      };
-
-      window.speechSynthesis.addEventListener(
-        "voiceschanged",
-        handleVoicesChanged
-      );
-
-      // Fallback timeout in case voiceschanged never fires
-      setTimeout(() => {
-        window.speechSynthesis.removeEventListener(
-          "voiceschanged",
-          handleVoicesChanged
-        );
-        voices = window.speechSynthesis.getVoices();
-        speakWithVoice(voices);
-      }, 500);
+    // Preload first few chunks immediately
+    for (let i = 0; i < Math.min(3, audioUrls.length); i++) {
+      preloadAudio(i);
     }
+
+    // Set up queue and start playing
+    set({ audioQueue: audioUrls, isPlayingQueue: true });
+    setIsSpeaking(true);
+
+    // Play chunks sequentially with preloading
+    const playNextChunk = (index: number) => {
+      const state = get();
+
+      // Check if stopped
+      if (!state.isPlayingQueue || index >= audioUrls.length) {
+        set({ isSpeaking: false, isPlayingQueue: false, currentAudio: null });
+        preloadedAudios.clear();
+        return;
+      }
+
+      // Get preloaded audio or create new one
+      const audio = preloadedAudios.get(index) || new Audio(audioUrls[index]);
+      set({ currentAudio: audio });
+
+      // Preload next chunk when this one starts playing
+      const nextIndex = index + 1;
+      if (nextIndex < audioUrls.length) {
+        preloadAudio(nextIndex);
+        // Also preload one more ahead
+        if (nextIndex + 1 < audioUrls.length) {
+          preloadAudio(nextIndex + 1);
+        }
+      }
+
+      audio.onended = () => {
+        // Immediately play next chunk (it should be preloaded)
+        playNextChunk(index + 1);
+      };
+
+      audio.onerror = (e) => {
+        console.error("Audio playback error:", e);
+        // Try next chunk even if this one failed
+        playNextChunk(index + 1);
+      };
+
+      // Start playback
+      audio.play().catch((err) => {
+        console.error("Failed to play audio:", err);
+        // Try next chunk
+        playNextChunk(index + 1);
+      });
+    };
+
+    // Start playing from first chunk
+    playNextChunk(0);
   },
 
   stopSpeaking: () => {
-    const { setIsSpeaking, setCurrentUtterance } = get();
+    const { currentAudio } = get();
 
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    // Stop current audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.src = "";
     }
 
-    setIsSpeaking(false);
-    setCurrentUtterance(null);
+    set({
+      isSpeaking: false,
+      isPlayingQueue: false,
+      currentAudio: null,
+      audioQueue: [],
+    });
   },
 }));
