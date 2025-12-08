@@ -26,11 +26,17 @@ interface AITeacherState {
   messages: AIChatMessage[];
   isLoadingMessages: boolean;
 
+  // Streaming state
+  streamingContent: string;
+  isStreaming: boolean;
+
   // Input states
   isListening: boolean;
   isSpeaking: boolean;
   isProcessing: boolean;
+  isRegenerating: boolean;
   transcript: string;
+  usedMicForLastMessage: boolean;
 
   // File states
   selectedUpload: RecentUpload | null;
@@ -43,15 +49,20 @@ interface AITeacherState {
   audioQueue: string[];
   isPlayingQueue: boolean;
 
+  // Stream abort function
+  abortStream: (() => void) | null;
+
   // Actions - Chat CRUD
   fetchChats: () => Promise<void>;
   createChat: () => Promise<string | null>;
-  selectChat: (chatId: string | null) => Promise<void>;
+  selectChat: (chatId: string | null, updateUrl?: boolean) => Promise<void>;
   updateChatTitle: (chatId: string, title: string) => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
+  checkAndLoadChatFromUrl: () => Promise<void>;
 
-  // Actions - Messages
-  sendMessage: (message: string) => Promise<void>;
+  // Actions - Messages (now with streaming)
+  sendMessage: (message: string, fromMic?: boolean) => Promise<void>;
+  regenerateFromMessage: (messageId: string) => Promise<void>;
   updateMessage: (messageId: string, content: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
 
@@ -118,6 +129,24 @@ const buildTTSUrl = (text: string): string => {
   return `${TTS_CONFIG.API_URL}?${params.toString()}`;
 };
 
+// URL Query helpers
+const updateUrlQuery = (chatId: string | null) => {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  if (chatId) {
+    url.searchParams.set("chat_id", chatId);
+  } else {
+    url.searchParams.delete("chat_id");
+  }
+  window.history.replaceState({}, "", url.toString());
+};
+
+const getChatIdFromUrl = (): string | null => {
+  if (typeof window === "undefined") return null;
+  const url = new URL(window.location.href);
+  return url.searchParams.get("chat_id");
+};
+
 export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   // Initial states
   chats: [],
@@ -125,10 +154,14 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   selectedChatId: null,
   messages: [],
   isLoadingMessages: false,
+  streamingContent: "",
+  isStreaming: false,
   isListening: false,
   isSpeaking: false,
   isProcessing: false,
+  isRegenerating: false,
   transcript: "",
+  usedMicForLastMessage: false,
   selectedUpload: null,
   uploadedImageUrl: null,
   isUploadingImage: false,
@@ -136,6 +169,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   currentAudio: null,
   audioQueue: [],
   isPlayingQueue: false,
+  abortStream: null,
 
   // ================== CHAT CRUD ==================
 
@@ -155,12 +189,17 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   createChat: async () => {
     try {
       const chat = await aiChatApi.createChat();
-      // Optimistically add to list
+      const existingChat = get().chats.find((c) => c.id === chat.id);
+      if (existingChat) {
+        get().selectChat(chat.id, true);
+        return chat.id;
+      }
       set((state) => ({
         chats: [chat, ...state.chats],
         selectedChatId: chat.id,
         messages: [],
       }));
+      updateUrlQuery(chat.id);
       return chat.id;
     } catch (error) {
       console.error("Error creating chat:", error);
@@ -169,13 +208,23 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
-  selectChat: async (chatId: string | null) => {
+  selectChat: async (chatId: string | null, updateUrl = true) => {
+    // Abort any ongoing stream
+    const { abortStream } = get();
+    if (abortStream) {
+      abortStream();
+      set({ abortStream: null, isStreaming: false, streamingContent: "" });
+    }
+
     if (chatId === null) {
       set({ selectedChatId: null, messages: [] });
+      if (updateUrl) updateUrlQuery(null);
       return;
     }
 
     set({ selectedChatId: chatId, isLoadingMessages: true });
+    if (updateUrl) updateUrlQuery(chatId);
+
     try {
       const messages = await aiChatApi.getChatMessages(chatId);
       set({ messages });
@@ -187,10 +236,25 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
+  checkAndLoadChatFromUrl: async () => {
+    const chatIdFromUrl = getChatIdFromUrl();
+    if (!chatIdFromUrl) return;
+
+    try {
+      const { exists } = await aiChatApi.chatExists(chatIdFromUrl);
+      if (exists) {
+        await get().selectChat(chatIdFromUrl, false);
+      } else {
+        updateUrlQuery(null);
+      }
+    } catch {
+      updateUrlQuery(null);
+    }
+  },
+
   updateChatTitle: async (chatId: string, title: string) => {
     try {
       await aiChatApi.updateChat(chatId, { title });
-      // Optimistically update
       set((state) => ({
         chats: state.chats.map((chat) =>
           chat.id === chatId ? { ...chat, title } : chat
@@ -206,13 +270,15 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   deleteChat: async (chatId: string) => {
     try {
       await aiChatApi.deleteChat(chatId);
-      // Optimistically remove
+      const { selectedChatId } = get();
       set((state) => ({
         chats: state.chats.filter((chat) => chat.id !== chatId),
-        selectedChatId:
-          state.selectedChatId === chatId ? null : state.selectedChatId,
-        messages: state.selectedChatId === chatId ? [] : state.messages,
+        selectedChatId: selectedChatId === chatId ? null : selectedChatId,
+        messages: selectedChatId === chatId ? [] : state.messages,
       }));
+      if (selectedChatId === chatId) {
+        updateUrlQuery(null);
+      }
       toast.success("Đã xóa chat");
     } catch (error) {
       console.error("Error deleting chat:", error);
@@ -220,9 +286,9 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
-  // ================== MESSAGES ==================
+  // ================== MESSAGES WITH STREAMING ==================
 
-  sendMessage: async (message: string) => {
+  sendMessage: async (message: string, fromMic = false) => {
     const {
       selectedChatId,
       selectedUpload,
@@ -230,103 +296,186 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       createChat,
       speakResponse,
       stopSpeaking,
+      abortStream,
     } = get();
 
     if (!message.trim()) return;
 
+    // Abort any previous stream
+    if (abortStream) {
+      abortStream();
+    }
+
     stopSpeaking();
+    set({ usedMicForLastMessage: fromMic });
 
     let chatId = selectedChatId;
-    // Create new chat if none selected
     if (!chatId) {
       chatId = await createChat();
       if (!chatId) return;
     }
 
-    // Add user message optimistically
-    const tempUserMsg: AIChatMessage = {
-      id: `temp_user_${Date.now()}`,
-      chatId,
-      role: "user",
-      content: message,
+    set({
+      isProcessing: true,
+      isStreaming: true,
+      streamingContent: "",
+      transcript: "",
+      uploadedImageUrl: null,
+    });
+
+    const request: SendMessageRequest = {
+      message,
       imageUrl: uploadedImageUrl || undefined,
       documentId: selectedUpload?.id,
       documentName: selectedUpload?.filename,
-      createdAt: new Date().toISOString(),
     };
 
-    set((state) => ({
-      messages: [...state.messages, tempUserMsg],
-      isProcessing: true,
-      transcript: "",
-      uploadedImageUrl: null,
-    }));
-
-    try {
-      const request: SendMessageRequest = {
-        message,
-        imageUrl: uploadedImageUrl || undefined,
-        documentId: selectedUpload?.id,
-        documentName: selectedUpload?.filename,
-      };
-
-      const response = await aiChatApi.sendMessage(chatId, request);
-
-      if (
-        response.success &&
-        response.userMessage &&
-        response.assistantMessage
-      ) {
-        // Replace temp message with real one and add assistant message
+    const abort = aiChatApi.streamMessage(
+      chatId,
+      request,
+      // onChunk
+      (chunk: string) => {
         set((state) => ({
-          messages: state.messages
-            .filter((m) => m.id !== tempUserMsg.id)
-            .concat([response.userMessage!, response.assistantMessage!]),
+          streamingContent: state.streamingContent + chunk,
         }));
+      },
+      // onUserMessage
+      (userMessage: AIChatMessage) => {
+        set((state) => ({
+          messages: [...state.messages, userMessage],
+        }));
+      },
+      // onComplete
+      (assistantMessage: AIChatMessage | null, isNewChat: boolean) => {
+        if (assistantMessage) {
+          // First add the message to the list
+          set((state) => {
+            return {
+              messages: [...state.messages, assistantMessage],
+            };
+          });
 
-        // Update chat title if auto-generated
-        if (response.chatTitle) {
-          set((state) => ({
-            chats: state.chats.map((chat) =>
-              chat.id === chatId
-                ? { ...chat, title: response.chatTitle! }
-                : chat
-            ),
-          }));
+          // Then clear streaming state after a longer delay to ensure React renders
+          setTimeout(() => {
+            set({
+              isProcessing: false,
+              isStreaming: false,
+              streamingContent: "",
+              abortStream: null,
+            });
+          }, 200);
+
+          // Auto-speak if from mic
+          if (fromMic) {
+            speakResponse(assistantMessage.content);
+          }
+
+          // Refresh chat list if title was updated
+          if (isNewChat) {
+            get().fetchChats();
+          }
+        } else {
+          set({
+            isProcessing: false,
+            isStreaming: false,
+            streamingContent: "",
+            abortStream: null,
+          });
         }
-
-        // Speak the response
-        speakResponse(response.assistantMessage.content);
-      } else {
-        // Add error message
-        const errorMsg: AIChatMessage = {
-          id: `error_${Date.now()}`,
-          chatId,
-          role: "assistant",
-          content: response.error || "Có lỗi xảy ra. Vui lòng thử lại.",
-          createdAt: new Date().toISOString(),
-        };
-        set((state) => ({
-          messages: [...state.messages, errorMsg],
-        }));
-        toast.error(response.error || "Có lỗi xảy ra");
+      },
+      // onError
+      (error: string) => {
+        set({
+          isProcessing: false,
+          isStreaming: false,
+          streamingContent: "",
+          abortStream: null,
+        });
+        toast.error(error);
       }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      const errorMsg: AIChatMessage = {
-        id: `error_${Date.now()}`,
-        chatId,
-        role: "assistant",
-        content: "Không thể kết nối tới server.",
-        createdAt: new Date().toISOString(),
-      };
-      set((state) => ({
-        messages: [...state.messages, errorMsg],
-      }));
-      toast.error("Không thể kết nối tới server");
-    } finally {
-      set({ isProcessing: false });
+    );
+
+    set({ abortStream: abort });
+  },
+
+  regenerateFromMessage: async (messageId: string) => {
+    const { stopSpeaking, abortStream } = get();
+
+    if (abortStream) {
+      abortStream();
     }
+
+    stopSpeaking();
+    set({
+      isRegenerating: true,
+      isStreaming: true,
+      streamingContent: "",
+    });
+
+    const abort = aiChatApi.streamRegenerate(
+      messageId,
+      // onChunk
+      (chunk: string) => {
+        set((state) => ({
+          streamingContent: state.streamingContent + chunk,
+        }));
+      },
+      // onMessagesDeleted
+      (chatId: string, userMessage: AIChatMessage) => {
+        // Remove all messages after the user message
+        set((state) => {
+          const userMsgIndex = state.messages.findIndex(
+            (m) => m.id === userMessage.id
+          );
+          if (userMsgIndex >= 0) {
+            return {
+              messages: state.messages.slice(0, userMsgIndex + 1),
+            };
+          }
+          return state;
+        });
+      },
+      // onComplete
+      (assistantMessage: AIChatMessage | null) => {
+        if (assistantMessage) {
+          // First add the message
+          set((state) => ({
+            messages: [...state.messages, assistantMessage],
+          }));
+
+          // Then clear streaming state after delay
+          setTimeout(() => {
+            set({
+              isRegenerating: false,
+              isStreaming: false,
+              streamingContent: "",
+              abortStream: null,
+            });
+          }, 50);
+
+          toast.success("Đã tạo lại câu trả lời");
+        } else {
+          set({
+            isRegenerating: false,
+            isStreaming: false,
+            streamingContent: "",
+            abortStream: null,
+          });
+        }
+      },
+      // onError
+      (error: string) => {
+        set({
+          isRegenerating: false,
+          isStreaming: false,
+          streamingContent: "",
+          abortStream: null,
+        });
+        toast.error(error);
+      }
+    );
+
+    set({ abortStream: abort });
   },
 
   updateMessage: async (messageId: string, content: string) => {
@@ -456,6 +605,17 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   // ================== CLEAR ==================
 
   clearCurrentChat: () => {
-    set({ messages: [], selectedChatId: null });
+    const { abortStream } = get();
+    if (abortStream) {
+      abortStream();
+    }
+    set({
+      messages: [],
+      selectedChatId: null,
+      streamingContent: "",
+      isStreaming: false,
+      abortStream: null,
+    });
+    updateUrlQuery(null);
   },
 }));

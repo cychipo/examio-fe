@@ -150,7 +150,7 @@ export function ChatHistoryCard({
                     key={chat.id}
                     className={cn(
                       "group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all",
-                      "hover:bg-white/10 dark:hover:bg-white/5",
+                      "hover:bg-white/10 dark:hover:bg-white/5 max-w-66",
                       selectedChatId === chat.id &&
                         "bg-primary/10 border border-primary/20"
                     )}
@@ -203,7 +203,7 @@ export function ChatHistoryCard({
                     ) : (
                       <>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">
+                          <p className="text-sm font-medium truncate line-clamp-2">
                             {chat.title || "Chat mới"}
                           </p>
                           <p className="text-xs text-muted-foreground">

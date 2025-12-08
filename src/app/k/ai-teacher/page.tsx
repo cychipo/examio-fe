@@ -17,6 +17,7 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  RefreshCw,
 } from "lucide-react";
 import { useAITeacherStore } from "@/stores/useAITeacherStore";
 import { ChatInputBar } from "@/components/molecules/ChatInputBar";
@@ -58,6 +59,9 @@ export default function AITeacherPage() {
     // Messages
     messages,
     isLoadingMessages,
+    // Streaming
+    streamingContent,
+    isStreaming,
     // Input states
     isListening,
     isSpeaking,
@@ -74,8 +78,11 @@ export default function AITeacherPage() {
     updateChatTitle,
     deleteChat,
     sendMessage,
+    regenerateFromMessage,
+    isRegenerating,
     updateMessage,
     deleteMessage,
+    checkAndLoadChatFromUrl,
     setIsListening,
     setTranscript,
     setSelectedUpload,
@@ -99,6 +106,7 @@ export default function AITeacherPage() {
   useEffect(() => {
     setSpeechSupported(isSpeechRecognitionSupported());
     fetchChats();
+    checkAndLoadChatFromUrl();
 
     // Load voices for TTS
     if ("speechSynthesis" in window) {
@@ -107,14 +115,20 @@ export default function AITeacherPage() {
         window.speechSynthesis.getVoices();
       };
     }
-  }, [fetchChats]);
+  }, [fetchChats, checkAndLoadChatFromUrl]);
 
-  // Auto-scroll on new messages
+  // Auto-scroll on new messages or streaming content
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      // ScrollArea uses Radix UI, viewport is inside with data-slot="scroll-area-viewport"
+      const viewport = scrollRef.current.querySelector(
+        '[data-slot="scroll-area-viewport"]'
+      );
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
-  }, [messages]);
+  }, [messages, streamingContent, isProcessing]);
 
   // Initialize speech recognition
   const initRecognition = useCallback(() => {
@@ -195,11 +209,12 @@ export default function AITeacherPage() {
   }, [setIsListening]);
 
   // Handle send message
-  const handleSendMessage = (message: string) => {
+  const handleSendMessage = (message: string, fromMic = false) => {
     if (isListening) {
       stopListening();
+      fromMic = true; // If was listening, it's from mic
     }
-    sendMessage(message);
+    sendMessage(message, fromMic);
   };
 
   // Handle file selection
@@ -359,14 +374,34 @@ export default function AITeacherPage() {
                           key={message.id}
                           message={message}
                           isSpeaking={isSpeaking}
+                          isRegenerating={isRegenerating}
                           onReplay={() => replayMessage(message.content)}
                           onEdit={(content) =>
                             updateMessage(message.id, content)
                           }
                           onDelete={() => handleDeleteMessage(message.id)}
+                          onRegenerate={() => regenerateFromMessage(message.id)}
                         />
                       ))}
-                      {isProcessing && (
+                      {/* Streaming Response Display */}
+                      {isStreaming && streamingContent && (
+                        <div className="flex gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                            <Bot className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 bg-white/5 dark:bg-white/[0.03] border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3">
+                            <p className="text-sm whitespace-pre-wrap">
+                              {streamingContent}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span className="text-xs">Đang trả lời...</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {/* Loading indicator when processing but no streaming content yet */}
+                      {isProcessing && !streamingContent && (
                         <div className="flex items-center gap-3 text-muted-foreground">
                           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                             <Bot className="w-4 h-4 text-primary" />
@@ -500,15 +535,19 @@ export default function AITeacherPage() {
 function MessageBubble({
   message,
   isSpeaking,
+  isRegenerating,
   onReplay,
   onEdit,
   onDelete,
+  onRegenerate,
 }: {
   message: AIChatMessage;
   isSpeaking: boolean;
+  isRegenerating: boolean;
   onReplay: () => void;
   onEdit: (content: string) => void;
   onDelete: () => void;
+  onRegenerate: () => void;
 }) {
   const isUser = message.role === "user";
   const [isEditing, setIsEditing] = useState(false);
@@ -623,6 +662,17 @@ function MessageBubble({
               <DropdownMenuContent
                 align="end"
                 className="bg-background/95 backdrop-blur-xl">
+                <DropdownMenuItem
+                  onClick={onRegenerate}
+                  disabled={isRegenerating}>
+                  <RefreshCw
+                    className={cn(
+                      "w-4 h-4 mr-2",
+                      isRegenerating && "animate-spin"
+                    )}
+                  />
+                  Tạo lại câu trả lời
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setIsEditing(true)}>
                   <Pencil className="w-4 h-4 mr-2" />
                   Chỉnh sửa
