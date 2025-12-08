@@ -71,7 +71,10 @@ interface AITeacherState {
   setTranscript: (value: string) => void;
 
   // Actions - Files
-  setSelectedUpload: (upload: RecentUpload | null) => void;
+  setSelectedUpload: (
+    upload: RecentUpload | null,
+    updateServer?: boolean
+  ) => void;
   setUploadedImageUrl: (url: string | null) => void;
   uploadImage: (file: File) => Promise<string | null>;
 
@@ -225,9 +228,31 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     set({ selectedChatId: chatId, isLoadingMessages: true });
     if (updateUrl) updateUrlQuery(chatId);
 
+    // Clear file selection when switching chats
+    set({ selectedUpload: null, uploadedImageUrl: null });
+
     try {
       const messages = await aiChatApi.getChatMessages(chatId);
       set({ messages });
+
+      // Load chat's active document if exists
+      const selectedChat = get().chats.find((c) => c.id === chatId);
+      if (selectedChat?.activeDocumentId && selectedChat?.activeDocumentName) {
+        // Create a minimal RecentUpload-like object from chat's active document
+        // Using Partial since we only need id and filename for display
+        set({
+          selectedUpload: {
+            id: selectedChat.activeDocumentId,
+            filename: selectedChat.activeDocumentName,
+            url: "",
+            size: 0,
+            mimeType: "application/pdf",
+            createdAt: new Date().toISOString(),
+            quizHistory: null,
+            flashcardHistory: null,
+          },
+        });
+      }
     } catch (error) {
       console.error("Error fetching messages:", error);
       toast.error("Không thể tải tin nhắn");
@@ -321,6 +346,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       streamingContent: "",
       transcript: "",
       uploadedImageUrl: null,
+      selectedUpload: null, // Clear file after first message (per-chat, single-use)
     });
 
     const request: SendMessageRequest = {
@@ -513,7 +539,42 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
   // ================== FILES ==================
 
-  setSelectedUpload: (upload) => set({ selectedUpload: upload }),
+  setSelectedUpload: (upload, updateServer = true) => {
+    set({ selectedUpload: upload });
+
+    // Call API to set active document on server if we have a chat selected
+    if (updateServer) {
+      const chatId = get().selectedChatId;
+      if (chatId) {
+        aiChatApi
+          .setActiveDocument(
+            chatId,
+            upload?.id || null,
+            upload?.filename || null
+          )
+          .then(() => {
+            console.log(
+              `[Store] Set active document: ${upload?.filename || "cleared"}`
+            );
+            // Update chat in the list
+            set((state) => ({
+              chats: state.chats.map((c) =>
+                c.id === chatId
+                  ? {
+                      ...c,
+                      activeDocumentId: upload?.id || null,
+                      activeDocumentName: upload?.filename || null,
+                    }
+                  : c
+              ),
+            }));
+          })
+          .catch((err) => {
+            console.error("Error setting active document:", err);
+          });
+      }
+    }
+  },
   setUploadedImageUrl: (url) => set({ uploadedImageUrl: url }),
 
   uploadImage: async (file: File) => {

@@ -308,24 +308,6 @@ export default function AITeacherPage() {
             </p>
           </div>
         </div>
-
-        {/* Selected Document Badge */}
-        {selectedUpload && (
-          <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 w-fit">
-            <FileText className="w-4 h-4 text-primary" />
-            <span className="text-sm">
-              Đang sử dụng:{" "}
-              <span className="font-medium">{selectedUpload.filename}</span>
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-primary/20"
-              onClick={() => setSelectedUpload(null)}>
-              ×
-            </Button>
-          </div>
-        )}
       </section>
 
       {/* Main Content */}
@@ -430,6 +412,23 @@ export default function AITeacherPage() {
 
                 {/* Input Area */}
                 <div className="border-t border-white/10 p-4">
+                  {/* Selected File Preview - above input like images */}
+                  {selectedUpload && (
+                    <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 w-fit">
+                      <FileText className="w-4 h-4 text-red-400" />
+                      <span className="text-sm text-red-300/90">
+                        {selectedUpload.filename}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 hover:bg-red-500/20 text-red-400"
+                        onClick={() => setSelectedUpload(null)}>
+                        ×
+                      </Button>
+                    </div>
+                  )}
+
                   <ChatInputBar
                     onSendMessage={handleSendMessage}
                     onStartListening={startListening}
@@ -495,12 +494,13 @@ export default function AITeacherPage() {
         </div>
       </section>
 
-      {/* Recent Files Modal */}
+      {/* Recent Files Modal - excludes quiz/flashcard history for AI Teacher */}
       <RecentFilesModal
         open={recentFilesModalOpen}
         onOpenChange={setRecentFilesModalOpen}
         onSelectFile={handleSelectRecentFile}
         selectedFileId={selectedUpload?.id}
+        includeHistory={false}
       />
 
       {/* Delete Message Confirmation */}
@@ -593,11 +593,15 @@ function MessageBubble({
           </div>
         )}
 
-        {/* Document Badge */}
+        {/* Document Card - styled like image attachment */}
         {message.documentName && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
-            <FileText className="w-3 h-3" />
-            {message.documentName}
+          <div className="mb-2">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 w-fit">
+              <FileText className="w-4 h-4 text-red-400" />
+              <span className="text-sm text-red-300/80">
+                {message.documentName}
+              </span>
+            </div>
           </div>
         )}
 

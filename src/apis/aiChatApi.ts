@@ -6,6 +6,8 @@ export interface AIChat {
   id: string;
   userId: string;
   title: string;
+  activeDocumentId?: string | null;
+  activeDocumentName?: string | null;
   createdAt: string;
   updatedAt: string;
   lastMessage?: string;
@@ -101,6 +103,24 @@ export const aiChatApi = {
     data: UpdateChatRequest
   ): Promise<AIChat> => {
     const response = await api.patch(`/ai-chat/${chatId}`, data);
+    return response.data;
+  },
+
+  /**
+   * Set active document for smart RAG
+   */
+  setActiveDocument: async (
+    chatId: string,
+    documentId: string | null,
+    documentName: string | null
+  ): Promise<{
+    activeDocumentId: string | null;
+    activeDocumentName: string | null;
+  }> => {
+    const response = await api.patch(`/ai-chat/${chatId}/active-document`, {
+      documentId,
+      documentName,
+    });
     return response.data;
   },
 

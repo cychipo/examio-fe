@@ -26,6 +26,8 @@ interface RecentFilesModalProps {
   onOpenChange: (open: boolean) => void;
   onSelectFile: (file: RecentUpload) => void;
   selectedFileId?: string;
+  /** If false, excludes quiz/flashcard history from response (lighter payload) */
+  includeHistory?: boolean;
 }
 
 export function RecentFilesModal({
@@ -33,6 +35,7 @@ export function RecentFilesModal({
   onOpenChange,
   onSelectFile,
   selectedFileId,
+  includeHistory = true,
 }: RecentFilesModalProps) {
   const isDesktop = useIsDesktop();
   const { recentUploads, isLoading, fetchRecentUploads } =
@@ -43,9 +46,9 @@ export function RecentFilesModal({
 
   useEffect(() => {
     if (open) {
-      fetchRecentUploads();
+      fetchRecentUploads(false, includeHistory);
     }
-  }, [open, fetchRecentUploads]);
+  }, [open, fetchRecentUploads, includeHistory]);
 
   useEffect(() => {
     setSelectedId(selectedFileId);
