@@ -34,6 +34,7 @@ export interface SendMessageRequest {
   message: string;
   imageUrl?: string;
   documentId?: string;
+  documentIds?: string[];
   documentName?: string;
 }
 
@@ -106,21 +107,43 @@ export const aiChatApi = {
     return response.data;
   },
 
+  // ================== MULTI-DOCUMENT ==================
+
   /**
-   * Set active document for smart RAG
+   * Add a document to chat
    */
-  setActiveDocument: async (
+  addDocument: async (
     chatId: string,
-    documentId: string | null,
-    documentName: string | null
-  ): Promise<{
-    activeDocumentId: string | null;
-    activeDocumentName: string | null;
-  }> => {
-    const response = await api.patch(`/ai-chat/${chatId}/active-document`, {
+    documentId: string,
+    documentName: string
+  ): Promise<{ id: string; documentId: string; documentName: string }> => {
+    const response = await api.post(`/ai-chat/${chatId}/documents`, {
       documentId,
       documentName,
     });
+    return response.data;
+  },
+
+  /**
+   * Remove a document from chat
+   */
+  removeDocument: async (
+    chatId: string,
+    documentId: string
+  ): Promise<{ success: boolean }> => {
+    const response = await api.delete(
+      `/ai-chat/${chatId}/documents/${documentId}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get all documents for a chat
+   */
+  getDocuments: async (
+    chatId: string
+  ): Promise<Array<{ documentId: string; documentName: string }>> => {
+    const response = await api.get(`/ai-chat/${chatId}/documents`);
     return response.data;
   },
 

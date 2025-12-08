@@ -40,7 +40,7 @@ interface AITeacherState {
   usedMicForLastMessage: boolean;
 
   // File states
-  selectedUpload: RecentUpload | null;
+  selectedUploads: RecentUpload[];
   uploadedImageUrl: string | null;
   isUploadingImage: boolean;
   isProcessingPdf: boolean;
@@ -72,13 +72,14 @@ interface AITeacherState {
   setTranscript: (value: string) => void;
 
   // Actions - Files
-  setSelectedUpload: (
-    upload: RecentUpload | null,
-    updateServer?: boolean
+  setSelectedUploads: (
+    uploads: RecentUpload[]
   ) => void;
+  addSelectedUpload: (upload: RecentUpload) => void;
+  removeSelectedUpload: (uploadId: string) => void;
   setUploadedImageUrl: (url: string | null) => void;
   uploadImage: (file: File) => Promise<string | null>;
-  uploadPdf: (file: File) => Promise<void>;
+  uploadPdf: (files: File[]) => Promise<void>;
 
   // Actions - TTS
   speakResponse: (text: string) => void;
@@ -167,7 +168,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   isRegenerating: false,
   transcript: "",
   usedMicForLastMessage: false,
-  selectedUpload: null,
+  selectedUploads: [],
   uploadedImageUrl: null,
   isUploadingImage: false,
   isProcessingPdf: false,
@@ -231,28 +232,26 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     if (updateUrl) updateUrlQuery(chatId);
 
     // Clear file selection when switching chats
-    set({ selectedUpload: null, uploadedImageUrl: null });
+    set({ selectedUploads: [], uploadedImageUrl: null });
 
     try {
       const messages = await aiChatApi.getChatMessages(chatId);
       set({ messages });
 
-      // Load chat's active document if exists
-      const selectedChat = get().chats.find((c) => c.id === chatId);
-      if (selectedChat?.activeDocumentId && selectedChat?.activeDocumentName) {
-        // Create a minimal RecentUpload-like object from chat's active document
-        // Using Partial since we only need id and filename for display
+      // Load chat's linked documents from server (O(1) via index)
+      const docs = await aiChatApi.getDocuments(chatId);
+      if (docs.length > 0) {
         set({
-          selectedUpload: {
-            id: selectedChat.activeDocumentId,
-            filename: selectedChat.activeDocumentName,
+          selectedUploads: docs.map((d) => ({
+            id: d.documentId,
+            filename: d.documentName,
             url: "",
             size: 0,
             mimeType: "application/pdf",
             createdAt: new Date().toISOString(),
             quizHistory: null,
             flashcardHistory: null,
-          },
+          })),
         });
       }
     } catch (error) {
@@ -318,7 +317,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   sendMessage: async (message: string, fromMic = false) => {
     const {
       selectedChatId,
-      selectedUpload,
+      selectedUploads,
       uploadedImageUrl,
       createChat,
       speakResponse,
@@ -342,20 +341,32 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       if (!chatId) return;
     }
 
+    // Sync documents to server before sending message
+    // Filter out placeholders and sync real documents
+    const realDocs = selectedUploads.filter((u) => !u.id.startsWith("processing-"));
+    for (const doc of realDocs) {
+      try {
+        await aiChatApi.addDocument(chatId, doc.id, doc.filename);
+      } catch (err) {
+        console.error("Error syncing document:", err);
+      }
+    }
+
     set({
       isProcessing: true,
       isStreaming: true,
       streamingContent: "",
       transcript: "",
       uploadedImageUrl: null,
-      selectedUpload: null, // Clear file after first message (per-chat, single-use)
+      selectedUploads: [], // Clear files after syncing
     });
 
     const request: SendMessageRequest = {
       message,
       imageUrl: uploadedImageUrl || undefined,
-      documentId: selectedUpload?.id,
-      documentName: selectedUpload?.filename,
+      documentIds: realDocs.length > 0 ? realDocs.map((d) => d.id) : undefined,
+      documentId: realDocs.length > 0 ? realDocs[0].id : undefined, // Legacy
+      documentName: realDocs.length > 0 ? realDocs[0].filename : undefined, // Legacy
     };
 
     const abort = aiChatApi.streamMessage(
@@ -541,42 +552,51 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
   // ================== FILES ==================
 
-  setSelectedUpload: (upload, updateServer = true) => {
-    set({ selectedUpload: upload });
+  setSelectedUploads: (uploads) => {
+    set({ selectedUploads: uploads });
+    // Note: This is now just for local state. Use addSelectedUpload/removeSelectedUpload for server sync.
+  },
 
-    // Call API to set active document on server if we have a chat selected
-    if (updateServer) {
-      const chatId = get().selectedChatId;
-      if (chatId) {
-        aiChatApi
-          .setActiveDocument(
-            chatId,
-            upload?.id || null,
-            upload?.filename || null
-          )
-          .then(() => {
-            console.log(
-              `[Store] Set active document: ${upload?.filename || "cleared"}`
-            );
-            // Update chat in the list
-            set((state) => ({
-              chats: state.chats.map((c) =>
-                c.id === chatId
-                  ? {
-                      ...c,
-                      activeDocumentId: upload?.id || null,
-                      activeDocumentName: upload?.filename || null,
-                    }
-                  : c
-              ),
-            }));
-          })
-          .catch((err) => {
-            console.error("Error setting active document:", err);
-          });
-      }
+  addSelectedUpload: (upload) => {
+    // First update local state
+    set((state) => ({
+      selectedUploads: [...state.selectedUploads, upload],
+    }));
+
+    // Sync with server if we have a chat and it's not a placeholder
+    const chatId = get().selectedChatId;
+    if (chatId && !upload.id.startsWith("processing-")) {
+      aiChatApi
+        .addDocument(chatId, upload.id, upload.filename)
+        .then(() => {
+          console.log(`[Store] Added document to server: ${upload.filename}`);
+        })
+        .catch((err) => {
+          console.error("Error adding document:", err);
+        });
     }
   },
+
+  removeSelectedUpload: (uploadId) => {
+    // First update local state
+    set((state) => ({
+      selectedUploads: state.selectedUploads.filter((u) => u.id !== uploadId),
+    }));
+
+    // Sync with server if we have a chat and it's not a placeholder
+    const chatId = get().selectedChatId;
+    if (chatId && !uploadId.startsWith("processing-")) {
+      aiChatApi
+        .removeDocument(chatId, uploadId)
+        .then(() => {
+          console.log(`[Store] Removed document from server: ${uploadId}`);
+        })
+        .catch((err) => {
+          console.error("Error removing document:", err);
+        });
+    }
+  },
+
   setUploadedImageUrl: (url) => set({ uploadedImageUrl: url }),
 
   uploadImage: async (file: File) => {
@@ -594,84 +614,93 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
-  uploadPdf: async (file: File) => {
+  uploadPdf: async (files: File[]) => {
     set({ isProcessingPdf: true });
 
-    // Set immediate placeholder
-    const placeholder: RecentUpload = {
-      id: "processing-placeholder",
-      filename: file.name,
-      url: "",
-      size: file.size,
-      mimeType: "application/pdf",
-      createdAt: new Date().toISOString(),
-      quizHistory: null,
-      flashcardHistory: null,
-    };
-    get().setSelectedUpload(placeholder);
-
     try {
-      const { jobId } = await virtualTeacherApi.uploadFile(file);
-      // tosat.info("Đang xử lý tài liệu..."); // Keep it subtle since we show UI state
+      // Process all files concurrently
+      await Promise.all(files.map(async (file) => {
+        const placeholderId = `processing-${Date.now()}-${Math.random()}`;
+        const placeholder: RecentUpload = {
+          id: placeholderId,
+          filename: file.name,
+          url: "",
+          size: file.size,
+          mimeType: "application/pdf",
+          createdAt: new Date().toISOString(),
+          quizHistory: null,
+          flashcardHistory: null,
+        };
+        // Add placeholder
+        get().addSelectedUpload(placeholder);
 
-      // Poll for status
-      const pollInterval = setInterval(async () => {
-        try {
-          const status = await aiApi.getJobStatus(jobId);
+        // Wrap polling in a promise to await it
+        await new Promise<void>((resolve) => {
+            (async () => {
+                try {
+                    const { jobId } = await virtualTeacherApi.uploadFile(file);
 
-          if (status.status === "completed" && status.result?.fileInfo) {
-            clearInterval(pollInterval);
-            const fileInfo = status.result.fileInfo;
+                    // Poll for status
+                    const pollInterval = setInterval(async () => {
+                        try {
+                            const status = await aiApi.getJobStatus(jobId);
 
-            // Construct RecentUpload object
-            const upload: RecentUpload = {
-              id: fileInfo.id,
-              filename: fileInfo.filename,
-              url: "", // Not needed for context
-              size: file.size,
-              mimeType: "application/pdf",
-              createdAt: new Date().toISOString(),
-              quizHistory: null,
-              flashcardHistory: null,
-            };
+                            if (status.status === "completed" && status.result?.fileInfo) {
+                                clearInterval(pollInterval);
+                                const fileInfo = status.result.fileInfo;
 
-            set({ isProcessingPdf: false });
-            get().setSelectedUpload(upload);
-            toast.success("Đã xử lý xong tài liệu");
-          } else if (status.status === "failed") {
-            clearInterval(pollInterval);
-            set({ isProcessingPdf: false });
-            toast.error(status.error || "Xử lý tài liệu thất bại");
-          }
-        } catch (error) {
-          console.error("Error polling job status:", error);
-          // Don't clear interval immediately on transient errors, but maybe limit retries?
-          // For now, keep simple
-        }
-      }, 2000);
+                                const upload: RecentUpload = {
+                                    id: fileInfo.id,
+                                    filename: fileInfo.filename,
+                                    url: (fileInfo as any).url || "",
+                                    size: file.size,
+                                    mimeType: "application/pdf",
+                                    createdAt: new Date().toISOString(),
+                                    quizHistory: status.result.historyId ? { id: status.result.historyId, quizzes: status.result.quizzes || [], createdAt: new Date().toISOString() } : null,
+                                    flashcardHistory: status.result.historyId ? { id: status.result.historyId, flashcards: status.result.flashcards || [], createdAt: new Date().toISOString() } : null,
+                                };
 
-      // Stop polling after 5 minutes timeout to prevent infinite loops
-      setTimeout(() => {
-        clearInterval(pollInterval);
-        if (get().isProcessingPdf) {
-           set({ isProcessingPdf: false });
-           // If detailed failed, maybe clear the placeholder? Or let user clear it?
-           // Let's clear it to indicate failure
-           if (get().selectedUpload?.id === "processing-placeholder") {
-             get().setSelectedUpload(null);
-           }
-           toast.error("Quá thời gian xử lý");
-        }
-      }, 5 * 60 * 1000);
+                                get().removeSelectedUpload(placeholderId);
+                                get().addSelectedUpload(upload);
+                                resolve(); // Done
+                            } else if (status.status === "failed") {
+                                clearInterval(pollInterval);
+                                get().removeSelectedUpload(placeholderId);
+                                toast.error(`Lỗi xử lý file: ${file.name}`);
+                                resolve(); // Resolved as failed but handled
+                            }
+                        } catch {
+                            // Transient error
+                        }
+                    }, 2000);
+
+                    // Timeout
+                    setTimeout(() => {
+                        clearInterval(pollInterval);
+                        const current = get().selectedUploads.find(u => u.id === placeholderId);
+                        if (current) {
+                            get().removeSelectedUpload(placeholderId);
+                            toast.error(`Quá thời gian xử lý: ${file.name}`);
+                        }
+                        resolve(); // Timeout is also a completion of sort
+                    }, 5 * 60 * 1000);
+
+                } catch {
+                    get().removeSelectedUpload(placeholderId);
+                    toast.error(`Không thể tải lên: ${file.name}`);
+                    resolve(); // Handled
+                }
+            })();
+        });
+      }));
+
+      set({ isProcessingPdf: false });
+      toast.success("Đã xử lý xong các tài liệu");
 
     } catch (error) {
-      console.error("Error uploading PDF:", error);
+      console.error("Error in batch upload:", error);
       set({ isProcessingPdf: false });
-      // Clear placeholder on error
-      if (get().selectedUpload?.id === "processing-placeholder") {
-        get().setSelectedUpload(null);
-      }
-      toast.error("Không thể tải lên tài liệu");
+      toast.error("Có lỗi xảy ra khi tải lên");
     }
   },
 
@@ -759,6 +788,9 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       streamingContent: "",
       isStreaming: false,
       abortStream: null,
+      transcript: "",
+      uploadedImageUrl: null,
+      selectedUploads: [],
     });
     updateUrlQuery(null);
   },

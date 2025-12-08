@@ -72,7 +72,7 @@ export default function AITeacherPage() {
     transcript,
     // File states
     // File states
-    selectedUpload,
+    selectedUploads,
     uploadedImageUrl,
     isUploadingImage,
     isProcessingPdf,
@@ -90,7 +90,8 @@ export default function AITeacherPage() {
     checkAndLoadChatFromUrl,
     setIsListening,
     setTranscript,
-    setSelectedUpload,
+    addSelectedUpload,
+    removeSelectedUpload,
     setUploadedImageUrl,
     uploadImage,
     uploadPdf,
@@ -225,7 +226,10 @@ export default function AITeacherPage() {
 
   // Handle file selection
   const handleSelectRecentFile = (file: RecentUpload) => {
-    setSelectedUpload(file);
+    // Avoid duplicates
+    if (!selectedUploads.some(u => u.id === file.id)) {
+        addSelectedUpload(file);
+    }
   };
 
   // Handle image upload
@@ -284,12 +288,13 @@ export default function AITeacherPage() {
       <input
         ref={pdfInputRef}
         type="file"
+        multiple
         accept=".pdf"
         className="hidden"
         onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) {
-            uploadPdf(file);
+          const files = Array.from(e.target.files || []);
+          if (files.length > 0) {
+            uploadPdf(files);
           }
           // Reset value to allow selecting same file again
           e.target.value = "";
@@ -420,23 +425,27 @@ export default function AITeacherPage() {
                 {/* Input Area */}
                 <div className="border-t border-white/10 p-4">
                   {/* Selected File Preview - above input like images */}
-                  {selectedUpload && (
-                    <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit">
-                      <FileText className="w-4 h-4 text-blue-400" />
-                      <span className="text-sm text-blue-300/90">
-                        {selectedUpload.filename}
-                      </span>
-                      {isProcessingPdf ? (
-                         <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-5 w-5 p-0 hover:bg-blue-500/20 text-blue-400"
-                          onClick={() => setSelectedUpload(null)}>
-                          ×
-                        </Button>
-                      )}
+                  {selectedUploads.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-2">
+                        {selectedUploads.map(file => (
+                            <div key={file.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit animate-in fade-in zoom-in duration-200">
+                                <FileText className="w-4 h-4 text-blue-400" />
+                                <span className="text-sm text-blue-300/90 max-w-[200px] truncate">
+                                    {file.filename}
+                                </span>
+                                {file.id.startsWith('processing-') ? (
+                                    <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                                ) : (
+                                    <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 hover:bg-blue-500/20 text-blue-400"
+                                    onClick={() => removeSelectedUpload(file.id)}>
+                                    ×
+                                    </Button>
+                                )}
+                            </div>
+                        ))}
                     </div>
                   )}
 
@@ -511,7 +520,7 @@ export default function AITeacherPage() {
         open={recentFilesModalOpen}
         onOpenChange={setRecentFilesModalOpen}
         onSelectFile={handleSelectRecentFile}
-        selectedFileId={selectedUpload?.id}
+        selectedFileId={undefined} // Don't highlight single file as we support multiple
         includeHistory={false}
       />
 
