@@ -1,14 +1,12 @@
 import { create } from "zustand";
-import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
+import {
+  aiChatApi,
+  AIChat,
+  AIChatMessage,
+  SendMessageRequest,
+} from "@/apis/aiChatApi";
 import { toast } from "@/components/ui/toast";
 import { RecentUpload } from "@/apis/aiApi";
-
-export interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-}
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -19,42 +17,63 @@ const TTS_CONFIG = {
 };
 
 interface AITeacherState {
-  // Messages
-  messages: Message[];
+  // Chat list
+  chats: AIChat[];
+  isLoadingChats: boolean;
+  selectedChatId: string | null;
 
-  // Speech states
+  // Current chat messages
+  messages: AIChatMessage[];
+  isLoadingMessages: boolean;
+
+  // Input states
   isListening: boolean;
   isSpeaking: boolean;
   isProcessing: boolean;
   transcript: string;
 
-  // Document
+  // File states
   selectedUpload: RecentUpload | null;
+  uploadedImageUrl: string | null;
+  isUploadingImage: boolean;
+  isProcessingPdf: boolean;
 
-  // Audio for TTS
+  // TTS states
   currentAudio: HTMLAudioElement | null;
   audioQueue: string[];
   isPlayingQueue: boolean;
 
-  // Actions
-  addMessage: (role: "user" | "assistant", content: string) => void;
-  clearMessages: () => void;
-  setIsListening: (value: boolean) => void;
-  setIsSpeaking: (value: boolean) => void;
-  setTranscript: (value: string) => void;
-  setSelectedUpload: (upload: RecentUpload | null) => void;
+  // Actions - Chat CRUD
+  fetchChats: () => Promise<void>;
+  createChat: () => Promise<string | null>;
+  selectChat: (chatId: string | null) => Promise<void>;
+  updateChatTitle: (chatId: string, title: string) => Promise<void>;
+  deleteChat: (chatId: string) => Promise<void>;
+
+  // Actions - Messages
   sendMessage: (message: string) => Promise<void>;
+  updateMessage: (messageId: string, content: string) => Promise<void>;
+  deleteMessage: (messageId: string) => Promise<void>;
+
+  // Actions - Input
+  setIsListening: (value: boolean) => void;
+  setTranscript: (value: string) => void;
+
+  // Actions - Files
+  setSelectedUpload: (upload: RecentUpload | null) => void;
+  setUploadedImageUrl: (url: string | null) => void;
+  uploadImage: (file: File) => Promise<string | null>;
+
+  // Actions - TTS
   speakResponse: (text: string) => void;
   stopSpeaking: () => void;
+  setIsSpeaking: (value: boolean) => void;
+
+  // Actions - Clear
+  clearCurrentChat: () => void;
 }
 
-// Generate unique ID
-const generateId = () =>
-  `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-/**
- * Split text into chunks of max length, breaking at sentence/word boundaries
- */
+// Helper functions
 const splitTextIntoChunks = (text: string, maxLength: number): string[] => {
   const chunks: string[] = [];
   let remaining = text.trim();
@@ -65,20 +84,17 @@ const splitTextIntoChunks = (text: string, maxLength: number): string[] => {
       break;
     }
 
-    // Find the best break point within maxLength
     let breakPoint = maxLength;
-
-    // Try to break at sentence end (. ! ?)
-    const sentenceEnd = remaining.substring(0, maxLength).search(/[.!?][^.!?]*$/);
+    const sentenceEnd = remaining
+      .substring(0, maxLength)
+      .search(/[.!?][^.!?]*$/);
     if (sentenceEnd > 0) {
       breakPoint = sentenceEnd + 1;
     } else {
-      // Try to break at comma or semicolon
       const clauseEnd = remaining.substring(0, maxLength).search(/[,;][^,;]*$/);
       if (clauseEnd > 0) {
         breakPoint = clauseEnd + 1;
       } else {
-        // Try to break at space
         const lastSpace = remaining.substring(0, maxLength).lastIndexOf(" ");
         if (lastSpace > 0) {
           breakPoint = lastSpace;
@@ -93,9 +109,6 @@ const splitTextIntoChunks = (text: string, maxLength: number): string[] => {
   return chunks.filter((chunk) => chunk.length > 0);
 };
 
-/**
- * Build TTS URL for a text chunk
- */
 const buildTTSUrl = (text: string): string => {
   const params = new URLSearchParams({
     language: TTS_CONFIG.LANGUAGE,
@@ -106,198 +119,343 @@ const buildTTSUrl = (text: string): string => {
 };
 
 export const useAITeacherStore = create<AITeacherState>((set, get) => ({
+  // Initial states
+  chats: [],
+  isLoadingChats: false,
+  selectedChatId: null,
   messages: [],
+  isLoadingMessages: false,
   isListening: false,
   isSpeaking: false,
   isProcessing: false,
   transcript: "",
   selectedUpload: null,
+  uploadedImageUrl: null,
+  isUploadingImage: false,
+  isProcessingPdf: false,
   currentAudio: null,
   audioQueue: [],
   isPlayingQueue: false,
 
-  addMessage: (role, content) => {
-    const newMessage: Message = {
-      id: generateId(),
-      role,
-      content,
-      timestamp: new Date(),
-    };
-    set((state) => ({
-      messages: [...state.messages, newMessage],
-    }));
+  // ================== CHAT CRUD ==================
+
+  fetchChats: async () => {
+    set({ isLoadingChats: true });
+    try {
+      const response = await aiChatApi.getChats();
+      set({ chats: response.chats });
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+      toast.error("Không thể tải danh sách chat");
+    } finally {
+      set({ isLoadingChats: false });
+    }
   },
 
-  clearMessages: () => {
-    set({ messages: [] });
+  createChat: async () => {
+    try {
+      const chat = await aiChatApi.createChat();
+      // Optimistically add to list
+      set((state) => ({
+        chats: [chat, ...state.chats],
+        selectedChatId: chat.id,
+        messages: [],
+      }));
+      return chat.id;
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      toast.error("Không thể tạo chat mới");
+      return null;
+    }
   },
 
-  setIsListening: (value) => {
-    set({ isListening: value });
+  selectChat: async (chatId: string | null) => {
+    if (chatId === null) {
+      set({ selectedChatId: null, messages: [] });
+      return;
+    }
+
+    set({ selectedChatId: chatId, isLoadingMessages: true });
+    try {
+      const messages = await aiChatApi.getChatMessages(chatId);
+      set({ messages });
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      toast.error("Không thể tải tin nhắn");
+    } finally {
+      set({ isLoadingMessages: false });
+    }
   },
 
-  setIsSpeaking: (value) => {
-    set({ isSpeaking: value });
+  updateChatTitle: async (chatId: string, title: string) => {
+    try {
+      await aiChatApi.updateChat(chatId, { title });
+      // Optimistically update
+      set((state) => ({
+        chats: state.chats.map((chat) =>
+          chat.id === chatId ? { ...chat, title } : chat
+        ),
+      }));
+      toast.success("Đã cập nhật tên chat");
+    } catch (error) {
+      console.error("Error updating chat:", error);
+      toast.error("Không thể cập nhật tên chat");
+    }
   },
 
-  setTranscript: (value) => {
-    set({ transcript: value });
+  deleteChat: async (chatId: string) => {
+    try {
+      await aiChatApi.deleteChat(chatId);
+      // Optimistically remove
+      set((state) => ({
+        chats: state.chats.filter((chat) => chat.id !== chatId),
+        selectedChatId:
+          state.selectedChatId === chatId ? null : state.selectedChatId,
+        messages: state.selectedChatId === chatId ? [] : state.messages,
+      }));
+      toast.success("Đã xóa chat");
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+      toast.error("Không thể xóa chat");
+    }
   },
 
-  setSelectedUpload: (upload) => {
-    set({ selectedUpload: upload });
-  },
+  // ================== MESSAGES ==================
 
   sendMessage: async (message: string) => {
-    const { selectedUpload, addMessage, speakResponse, stopSpeaking } = get();
+    const {
+      selectedChatId,
+      selectedUpload,
+      uploadedImageUrl,
+      createChat,
+      speakResponse,
+      stopSpeaking,
+    } = get();
 
     if (!message.trim()) return;
 
-    // Stop any current speech
     stopSpeaking();
 
-    // Add user message
-    addMessage("user", message);
-    set({ isProcessing: true, transcript: "" });
+    let chatId = selectedChatId;
+    // Create new chat if none selected
+    if (!chatId) {
+      chatId = await createChat();
+      if (!chatId) return;
+    }
+
+    // Add user message optimistically
+    const tempUserMsg: AIChatMessage = {
+      id: `temp_user_${Date.now()}`,
+      chatId,
+      role: "user",
+      content: message,
+      imageUrl: uploadedImageUrl || undefined,
+      documentId: selectedUpload?.id,
+      documentName: selectedUpload?.filename,
+      createdAt: new Date().toISOString(),
+    };
+
+    set((state) => ({
+      messages: [...state.messages, tempUserMsg],
+      isProcessing: true,
+      transcript: "",
+      uploadedImageUrl: null,
+    }));
 
     try {
-      const response = await virtualTeacherApi.chat({
+      const request: SendMessageRequest = {
         message,
+        imageUrl: uploadedImageUrl || undefined,
         documentId: selectedUpload?.id,
-      });
+        documentName: selectedUpload?.filename,
+      };
 
-      if (response.success) {
-        addMessage("assistant", response.response);
-        // Auto speak the response
-        speakResponse(response.response);
+      const response = await aiChatApi.sendMessage(chatId, request);
+
+      if (
+        response.success &&
+        response.userMessage &&
+        response.assistantMessage
+      ) {
+        // Replace temp message with real one and add assistant message
+        set((state) => ({
+          messages: state.messages
+            .filter((m) => m.id !== tempUserMsg.id)
+            .concat([response.userMessage!, response.assistantMessage!]),
+        }));
+
+        // Update chat title if auto-generated
+        if (response.chatTitle) {
+          set((state) => ({
+            chats: state.chats.map((chat) =>
+              chat.id === chatId
+                ? { ...chat, title: response.chatTitle! }
+                : chat
+            ),
+          }));
+        }
+
+        // Speak the response
+        speakResponse(response.assistantMessage.content);
       } else {
-        const errorMsg = response.error || "Có lỗi xảy ra. Vui lòng thử lại.";
-        addMessage("assistant", errorMsg);
-        toast.error(errorMsg);
+        // Add error message
+        const errorMsg: AIChatMessage = {
+          id: `error_${Date.now()}`,
+          chatId,
+          role: "assistant",
+          content: response.error || "Có lỗi xảy ra. Vui lòng thử lại.",
+          createdAt: new Date().toISOString(),
+        };
+        set((state) => ({
+          messages: [...state.messages, errorMsg],
+        }));
+        toast.error(response.error || "Có lỗi xảy ra");
       }
-    } catch (error: unknown) {
-      const errorMsg =
-        error instanceof Error ? error.message : "Không thể kết nối tới server.";
-      addMessage(
-        "assistant",
-        "Xin lỗi, tôi gặp lỗi khi xử lý. Vui lòng thử lại."
-      );
-      toast.error(errorMsg);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMsg: AIChatMessage = {
+        id: `error_${Date.now()}`,
+        chatId,
+        role: "assistant",
+        content: "Không thể kết nối tới server.",
+        createdAt: new Date().toISOString(),
+      };
+      set((state) => ({
+        messages: [...state.messages, errorMsg],
+      }));
+      toast.error("Không thể kết nối tới server");
     } finally {
       set({ isProcessing: false });
     }
   },
 
+  updateMessage: async (messageId: string, content: string) => {
+    try {
+      const updated = await aiChatApi.updateMessage(messageId, { content });
+      set((state) => ({
+        messages: state.messages.map((m) =>
+          m.id === messageId ? { ...m, content: updated.content } : m
+        ),
+      }));
+      toast.success("Đã cập nhật tin nhắn");
+    } catch (error) {
+      console.error("Error updating message:", error);
+      toast.error("Không thể cập nhật tin nhắn");
+    }
+  },
+
+  deleteMessage: async (messageId: string) => {
+    try {
+      await aiChatApi.deleteMessage(messageId);
+      set((state) => ({
+        messages: state.messages.filter((m) => m.id !== messageId),
+      }));
+      toast.success("Đã xóa tin nhắn");
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      toast.error("Không thể xóa tin nhắn");
+    }
+  },
+
+  // ================== INPUT ==================
+
+  setIsListening: (value) => set({ isListening: value }),
+  setTranscript: (value) => set({ transcript: value }),
+
+  // ================== FILES ==================
+
+  setSelectedUpload: (upload) => set({ selectedUpload: upload }),
+  setUploadedImageUrl: (url) => set({ uploadedImageUrl: url }),
+
+  uploadImage: async (file: File) => {
+    set({ isUploadingImage: true });
+    try {
+      const response = await aiChatApi.uploadImage(file);
+      set({ uploadedImageUrl: response.url });
+      return response.url;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast.error("Không thể tải lên hình ảnh");
+      return null;
+    } finally {
+      set({ isUploadingImage: false });
+    }
+  },
+
+  // ================== TTS ==================
+
+  setIsSpeaking: (value) => set({ isSpeaking: value }),
+
   speakResponse: (text: string) => {
     const { stopSpeaking, setIsSpeaking } = get();
-
-    // Stop any current speech first
     stopSpeaking();
 
-    // Split text into chunks
     const chunks = splitTextIntoChunks(text, TTS_CONFIG.MAX_CHUNK_LENGTH);
+    if (chunks.length === 0) return;
 
-    if (chunks.length === 0) {
-      console.warn("No text to speak");
-      return;
-    }
-
-    console.log(`🔊 Speaking ${chunks.length} chunks`);
-
-    // Build audio URLs for all chunks
     const audioUrls = chunks.map((chunk) => buildTTSUrl(chunk));
-
-    // Preloaded audio cache
     const preloadedAudios: Map<number, HTMLAudioElement> = new Map();
 
-    // Preload an audio by index
     const preloadAudio = (index: number): HTMLAudioElement | null => {
       if (index >= audioUrls.length) return null;
-
-      // Check if already preloaded
-      if (preloadedAudios.has(index)) {
-        return preloadedAudios.get(index)!;
-      }
+      if (preloadedAudios.has(index)) return preloadedAudios.get(index)!;
 
       const audio = new Audio();
       audio.preload = "auto";
       audio.src = audioUrls[index];
       preloadedAudios.set(index, audio);
-
       return audio;
     };
 
-    // Preload first few chunks immediately
     for (let i = 0; i < Math.min(3, audioUrls.length); i++) {
       preloadAudio(i);
     }
 
-    // Set up queue and start playing
     set({ audioQueue: audioUrls, isPlayingQueue: true });
     setIsSpeaking(true);
 
-    // Play chunks sequentially with preloading
     const playNextChunk = (index: number) => {
       const state = get();
-
-      // Check if stopped
       if (!state.isPlayingQueue || index >= audioUrls.length) {
         set({ isSpeaking: false, isPlayingQueue: false, currentAudio: null });
         preloadedAudios.clear();
         return;
       }
 
-      // Get preloaded audio or create new one
       const audio = preloadedAudios.get(index) || new Audio(audioUrls[index]);
       set({ currentAudio: audio });
 
-      // Preload next chunk when this one starts playing
       const nextIndex = index + 1;
       if (nextIndex < audioUrls.length) {
         preloadAudio(nextIndex);
-        // Also preload one more ahead
-        if (nextIndex + 1 < audioUrls.length) {
-          preloadAudio(nextIndex + 1);
-        }
+        if (nextIndex + 1 < audioUrls.length) preloadAudio(nextIndex + 1);
       }
 
-      audio.onended = () => {
-        // Immediately play next chunk (it should be preloaded)
-        playNextChunk(index + 1);
-      };
-
-      audio.onerror = (e) => {
-        console.error("Audio playback error:", e);
-        // Try next chunk even if this one failed
-        playNextChunk(index + 1);
-      };
-
-      // Start playback
-      audio.play().catch((err) => {
-        console.error("Failed to play audio:", err);
-        // Try next chunk
-        playNextChunk(index + 1);
-      });
+      audio.onended = () => playNextChunk(index + 1);
+      audio.onerror = () => playNextChunk(index + 1);
+      audio.play().catch(() => playNextChunk(index + 1));
     };
 
-    // Start playing from first chunk
     playNextChunk(0);
   },
 
   stopSpeaking: () => {
     const { currentAudio } = get();
-
-    // Stop current audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.src = "";
     }
-
     set({
       isSpeaking: false,
       isPlayingQueue: false,
       currentAudio: null,
       audioQueue: [],
     });
+  },
+
+  // ================== CLEAR ==================
+
+  clearCurrentChat: () => {
+    set({ messages: [], selectedChatId: null });
   },
 }));
