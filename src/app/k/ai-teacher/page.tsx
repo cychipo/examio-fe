@@ -41,6 +41,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // Check if speech recognition is supported
 const isSpeechRecognitionSupported = () => {
@@ -68,9 +71,11 @@ export default function AITeacherPage() {
     isProcessing,
     transcript,
     // File states
+    // File states
     selectedUpload,
     uploadedImageUrl,
     isUploadingImage,
+    isProcessingPdf,
     // Actions
     fetchChats,
     createChat,
@@ -88,6 +93,7 @@ export default function AITeacherPage() {
     setSelectedUpload,
     setUploadedImageUrl,
     uploadImage,
+    uploadPdf,
     speakResponse,
     stopSpeaking,
   } = useAITeacherStore();
@@ -128,7 +134,7 @@ export default function AITeacherPage() {
         viewport.scrollTop = viewport.scrollHeight;
       }
     }
-  }, [messages, streamingContent, isProcessing]);
+  }, [messages, streamingContent, isProcessing, isProcessingPdf]);
 
   // Initialize speech recognition
   const initRecognition = useCallback(() => {
@@ -283,9 +289,10 @@ export default function AITeacherPage() {
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) {
-            // TODO: Handle PDF upload with OCR
-            console.log("PDF selected:", file.name);
+            uploadPdf(file);
           }
+          // Reset value to allow selecting same file again
+          e.target.value = "";
         }}
       />
 
@@ -414,18 +421,22 @@ export default function AITeacherPage() {
                 <div className="border-t border-white/10 p-4">
                   {/* Selected File Preview - above input like images */}
                   {selectedUpload && (
-                    <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 w-fit">
-                      <FileText className="w-4 h-4 text-red-400" />
-                      <span className="text-sm text-red-300/90">
+                    <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit">
+                      <FileText className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm text-blue-300/90">
                         {selectedUpload.filename}
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 w-5 p-0 hover:bg-red-500/20 text-red-400"
-                        onClick={() => setSelectedUpload(null)}>
-                        ×
-                      </Button>
+                      {isProcessingPdf ? (
+                         <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-5 w-5 p-0 hover:bg-blue-500/20 text-blue-400"
+                          onClick={() => setSelectedUpload(null)}>
+                          ×
+                        </Button>
+                      )}
                     </div>
                   )}
 
@@ -439,6 +450,7 @@ export default function AITeacherPage() {
                     isListening={isListening}
                     isProcessing={isProcessing}
                     isUploadingImage={isUploadingImage}
+                    isUploadingPdf={isProcessingPdf}
                     transcript={transcript}
                     uploadedImageUrl={uploadedImageUrl}
                     onClearImage={() => setUploadedImageUrl(null)}
@@ -552,6 +564,7 @@ function MessageBubble({
   const isUser = message.role === "user";
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
+  const {user} = useAuthStore()
 
   const handleSaveEdit = () => {
     if (editContent.trim() && editContent !== message.content) {
@@ -572,7 +585,7 @@ function MessageBubble({
           isUser ? "bg-primary/20" : "bg-purple-500/20"
         )}>
         {isUser ? (
-          <User className="w-4 h-4 text-primary" />
+          <img src={user?.avatar || '/avt-default.webp'} alt="User" className="w-8 h-8 rounded-full" />
         ) : (
           <Bot className="w-4 h-4 text-purple-400" />
         )}
@@ -596,9 +609,9 @@ function MessageBubble({
         {/* Document Card - styled like image attachment */}
         {message.documentName && (
           <div className="mb-2">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/20 w-fit">
-              <FileText className="w-4 h-4 text-red-400" />
-              <span className="text-sm text-red-300/80">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit">
+              <FileText className="w-4 h-4 text-blue-400" />
+              <span className="text-sm text-blue-300/80">
                 {message.documentName}
               </span>
             </div>
@@ -635,7 +648,11 @@ function MessageBubble({
               </div>
             </div>
           ) : (
-            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            <div className="text-sm prose dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
+               <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                 {message.content}
+               </ReactMarkdown>
+            </div>
           )}
         </div>
 

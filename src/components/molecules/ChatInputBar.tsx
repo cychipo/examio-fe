@@ -34,6 +34,7 @@ interface ChatInputBarProps {
   uploadedImageUrl?: string | null;
   onClearImage: () => void;
   disabled?: boolean;
+  isUploadingPdf?: boolean;
 }
 
 export function ChatInputBar({
@@ -50,6 +51,7 @@ export function ChatInputBar({
   uploadedImageUrl,
   onClearImage,
   disabled = false,
+  isUploadingPdf = false,
 }: ChatInputBarProps) {
   const [inputValue, setInputValue] = useState("");
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -134,7 +136,7 @@ export function ChatInputBar({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Ask me anything..."
-          disabled={disabled || isProcessing}
+          disabled={disabled || isProcessing || isUploadingImage || isUploadingPdf}
           rows={1}
           className={cn(
             "flex-1 bg-transparent border-none outline-none resize-none",
@@ -176,8 +178,12 @@ export function ChatInputBar({
                 variant="ghost"
                 size="icon"
                 className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-white/10"
-                disabled={disabled || isProcessing}>
-                <FileText className="w-5 h-5" />
+                disabled={disabled || isProcessing || isUploadingPdf}>
+                {isUploadingPdf ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <FileText className="w-5 h-5" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent

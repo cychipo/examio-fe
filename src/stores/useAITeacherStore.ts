@@ -6,7 +6,8 @@ import {
   SendMessageRequest,
 } from "@/apis/aiChatApi";
 import { toast } from "@/components/ui/toast";
-import { RecentUpload } from "@/apis/aiApi";
+import { RecentUpload, aiApi } from "@/apis/aiApi";
+import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -77,6 +78,7 @@ interface AITeacherState {
   ) => void;
   setUploadedImageUrl: (url: string | null) => void;
   uploadImage: (file: File) => Promise<string | null>;
+  uploadPdf: (file: File) => Promise<void>;
 
   // Actions - TTS
   speakResponse: (text: string) => void;
@@ -589,6 +591,87 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       return null;
     } finally {
       set({ isUploadingImage: false });
+    }
+  },
+
+  uploadPdf: async (file: File) => {
+    set({ isProcessingPdf: true });
+
+    // Set immediate placeholder
+    const placeholder: RecentUpload = {
+      id: "processing-placeholder",
+      filename: file.name,
+      url: "",
+      size: file.size,
+      mimeType: "application/pdf",
+      createdAt: new Date().toISOString(),
+      quizHistory: null,
+      flashcardHistory: null,
+    };
+    get().setSelectedUpload(placeholder);
+
+    try {
+      const { jobId } = await virtualTeacherApi.uploadFile(file);
+      // tosat.info("Đang xử lý tài liệu..."); // Keep it subtle since we show UI state
+
+      // Poll for status
+      const pollInterval = setInterval(async () => {
+        try {
+          const status = await aiApi.getJobStatus(jobId);
+
+          if (status.status === "completed" && status.result?.fileInfo) {
+            clearInterval(pollInterval);
+            const fileInfo = status.result.fileInfo;
+
+            // Construct RecentUpload object
+            const upload: RecentUpload = {
+              id: fileInfo.id,
+              filename: fileInfo.filename,
+              url: "", // Not needed for context
+              size: file.size,
+              mimeType: "application/pdf",
+              createdAt: new Date().toISOString(),
+              quizHistory: null,
+              flashcardHistory: null,
+            };
+
+            set({ isProcessingPdf: false });
+            get().setSelectedUpload(upload);
+            toast.success("Đã xử lý xong tài liệu");
+          } else if (status.status === "failed") {
+            clearInterval(pollInterval);
+            set({ isProcessingPdf: false });
+            toast.error(status.error || "Xử lý tài liệu thất bại");
+          }
+        } catch (error) {
+          console.error("Error polling job status:", error);
+          // Don't clear interval immediately on transient errors, but maybe limit retries?
+          // For now, keep simple
+        }
+      }, 2000);
+
+      // Stop polling after 5 minutes timeout to prevent infinite loops
+      setTimeout(() => {
+        clearInterval(pollInterval);
+        if (get().isProcessingPdf) {
+           set({ isProcessingPdf: false });
+           // If detailed failed, maybe clear the placeholder? Or let user clear it?
+           // Let's clear it to indicate failure
+           if (get().selectedUpload?.id === "processing-placeholder") {
+             get().setSelectedUpload(null);
+           }
+           toast.error("Quá thời gian xử lý");
+        }
+      }, 5 * 60 * 1000);
+
+    } catch (error) {
+      console.error("Error uploading PDF:", error);
+      set({ isProcessingPdf: false });
+      // Clear placeholder on error
+      if (get().selectedUpload?.id === "processing-placeholder") {
+        get().setSelectedUpload(null);
+      }
+      toast.error("Không thể tải lên tài liệu");
     }
   },
 
