@@ -263,9 +263,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
       pollJobStatus(
         jobId,
         // onProgress
-        (progress) => {
-          console.log(`📊 Job ${jobId} progress: ${progress}%`);
-        },
+        (progress) => {},
         // onSuccess
         (result) => {
           set({
