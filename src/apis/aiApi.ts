@@ -64,8 +64,20 @@ export interface JobCreateResponse {
 }
 
 export const aiApi = {
-  getRecentUploads: async (limit: number = 10): Promise<RecentUpload[]> => {
-    const response = await api.get(`/ai/recent-uploads?limit=${limit}`);
+  /**
+   * Get recent uploads with optional quiz/flashcard history
+   * @param limit - Number of items to fetch
+   * @param includeHistory - Whether to include quiz/flashcard history (default: true)
+   */
+  getRecentUploads: async (
+    limit: number = 10,
+    includeHistory: boolean = true
+  ): Promise<RecentUpload[]> => {
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      ...(includeHistory === false && { includeHistory: "false" }),
+    });
+    const response = await api.get(`/ai/recent-uploads?${params}`);
     return response.data;
   },
 

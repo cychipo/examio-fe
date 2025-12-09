@@ -454,14 +454,16 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
   })
 );
 
-// Recent Uploads Store
 interface RecentUploadsState {
   recentUploads: RecentUpload[];
   isLoading: boolean;
   selectedUpload: RecentUpload | null;
   isRegenerating: boolean;
   isDeleting: boolean;
-  fetchRecentUploads: (forceRefresh?: boolean) => Promise<void>;
+  fetchRecentUploads: (
+    forceRefresh?: boolean,
+    includeHistory?: boolean
+  ) => Promise<void>;
   selectUpload: (upload: RecentUpload | null) => void;
   deleteUpload: (uploadId: string) => Promise<void>;
   loadFromUpload: (upload: RecentUpload) => void;
@@ -477,7 +479,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
   isRegenerating: false,
   isDeleting: false,
 
-  fetchRecentUploads: async (forceRefresh = false) => {
+  fetchRecentUploads: async (forceRefresh = false, includeHistory = true) => {
     // Check cache first unless force refresh
     if (!forceRefresh) {
       const cached = storeCache.get<RecentUpload[]>(CACHE_KEY);
@@ -489,8 +491,11 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const uploads = await aiApi.getRecentUploads(10);
-      storeCache.set(CACHE_KEY, uploads);
+      const uploads = await aiApi.getRecentUploads(10, includeHistory);
+      // Only cache if includeHistory is true (full data)
+      if (includeHistory) {
+        storeCache.set(CACHE_KEY, uploads);
+      }
       set({ recentUploads: uploads, isLoading: false });
     } catch (error) {
       set({ isLoading: false });

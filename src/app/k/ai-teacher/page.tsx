@@ -6,21 +6,44 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
-  Mic,
-  MicOff,
   Volume2,
   VolumeX,
-  Trash2,
   Sparkles,
   User,
   Bot,
   FileText,
   Loader2,
   AlertCircle,
+  MoreVertical,
+  Pencil,
+  Trash2,
+  RefreshCw,
 } from "lucide-react";
-import { useAITeacherStore, Message } from "@/stores/useAITeacherStore";
-import { RecentFilesList } from "@/components/molecules/RecentFilesList";
+import { useAITeacherStore } from "@/stores/useAITeacherStore";
+import { ChatInputBar } from "@/components/molecules/ChatInputBar";
+import { ChatHistoryCard } from "@/components/molecules/ChatHistoryCard";
+import { RecentFilesModal } from "@/components/organisms/RecentFilesModal";
 import { RecentUpload } from "@/apis/aiApi";
+import { AIChatMessage } from "@/apis/aiChatApi";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // Check if speech recognition is supported
 const isSpeechRecognitionSupported = () => {
@@ -32,31 +55,65 @@ const isSpeechRecognitionSupported = () => {
 
 export default function AITeacherPage() {
   const {
+    // Chat list
+    chats,
+    isLoadingChats,
+    selectedChatId,
+    // Messages
     messages,
+    isLoadingMessages,
+    // Streaming
+    streamingContent,
+    isStreaming,
+    // Input states
     isListening,
     isSpeaking,
     isProcessing,
     transcript,
-    selectedUpload,
+    // File states
+    // File states
+    selectedUploads,
+    uploadedImageUrl,
+    isUploadingImage,
+    isProcessingPdf,
+    // Actions
+    fetchChats,
+    createChat,
+    selectChat,
+    updateChatTitle,
+    deleteChat,
+    sendMessage,
+    regenerateFromMessage,
+    isRegenerating,
+    updateMessage,
+    deleteMessage,
+    checkAndLoadChatFromUrl,
     setIsListening,
     setTranscript,
-    setSelectedUpload,
-    sendMessage,
-    stopSpeaking,
-    clearMessages,
+    addSelectedUpload,
+    removeSelectedUpload,
+    setUploadedImageUrl,
+    uploadImage,
+    uploadPdf,
     speakResponse,
+    stopSpeaking,
   } = useAITeacherStore();
 
   const [speechSupported, setSpeechSupported] = useState(true);
   const [micPermission, setMicPermission] = useState<
     "granted" | "denied" | "prompt"
   >("prompt");
+  const [recentFilesModalOpen, setRecentFilesModalOpen] = useState(false);
+  const [deleteMessageId, setDeleteMessageId] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
 
-  // Check browser support
+  // Initialize
   useEffect(() => {
     setSpeechSupported(isSpeechRecognitionSupported());
+    fetchChats();
+    checkAndLoadChatFromUrl();
 
     // Load voices for TTS
     if ("speechSynthesis" in window) {
@@ -65,14 +122,20 @@ export default function AITeacherPage() {
         window.speechSynthesis.getVoices();
       };
     }
-  }, []);
+  }, [fetchChats, checkAndLoadChatFromUrl]);
 
-  // Auto-scroll on new messages
+  // Auto-scroll on new messages or streaming content
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      // ScrollArea uses Radix UI, viewport is inside with data-slot="scroll-area-viewport"
+      const viewport = scrollRef.current.querySelector(
+        '[data-slot="scroll-area-viewport"]'
+      );
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
-  }, [messages]);
+  }, [messages, streamingContent, isProcessing, isProcessingPdf]);
 
   // Initialize speech recognition
   const initRecognition = useCallback(() => {
@@ -111,22 +174,15 @@ export default function AITeacherPage() {
       setIsListening(false);
     };
 
-    recognition.onend = () => {
-      // Don't automatically restart if user stopped
-    };
-
     return recognition;
   }, [setTranscript, setIsListening]);
 
   // Start listening
   const startListening = useCallback(async () => {
     if (!speechSupported) return;
-
-    // Stop any current speech
     stopSpeaking();
 
     try {
-      // Request microphone permission
       await navigator.mediaDevices.getUserMedia({ audio: true });
       setMicPermission("granted");
 
@@ -151,37 +207,57 @@ export default function AITeacherPage() {
     setTranscript,
   ]);
 
-  // Stop listening and send message
+  // Stop listening
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
     }
     setIsListening(false);
+  }, [setIsListening]);
 
-    // Send the transcript as message
-    if (transcript.trim()) {
-      sendMessage(transcript.trim());
-    }
-  }, [transcript, sendMessage, setIsListening]);
-
-  // Toggle listening
-  const toggleListening = () => {
+  // Handle send message
+  const handleSendMessage = (message: string, fromMic = false) => {
     if (isListening) {
       stopListening();
-    } else {
-      startListening();
+      fromMic = true; // If was listening, it's from mic
     }
+    sendMessage(message, fromMic);
   };
 
   // Handle file selection
-  const handleSelectUpload = (upload: RecentUpload) => {
-    setSelectedUpload(upload);
+  const handleSelectRecentFile = (file: RecentUpload) => {
+    // Avoid duplicates
+    if (!selectedUploads.some(u => u.id === file.id)) {
+        addSelectedUpload(file);
+    }
+  };
+
+  // Handle image upload
+  const handleUploadImage = async (file: File) => {
+    await uploadImage(file);
+  };
+
+  // Handle PDF upload
+  const handlePdfUpload = () => {
+    pdfInputRef.current?.click();
   };
 
   // Replay message with TTS
   const replayMessage = (content: string) => {
     stopSpeaking();
     speakResponse(content);
+  };
+
+  // Handle message deletion
+  const handleDeleteMessage = (messageId: string) => {
+    setDeleteMessageId(messageId);
+  };
+
+  const confirmDeleteMessage = () => {
+    if (deleteMessageId) {
+      deleteMessage(deleteMessageId);
+      setDeleteMessageId(null);
+    }
   };
 
   if (!speechSupported) {
@@ -208,8 +284,25 @@ export default function AITeacherPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden max-w-7xl mx-auto">
+      {/* Hidden PDF Input */}
+      <input
+        ref={pdfInputRef}
+        type="file"
+        multiple
+        accept=".pdf"
+        className="hidden"
+        onChange={(e) => {
+          const files = Array.from(e.target.files || []);
+          if (files.length > 0) {
+            uploadPdf(files);
+          }
+          // Reset value to allow selecting same file again
+          e.target.value = "";
+        }}
+      />
+
       {/* Header Section */}
-      <section className="relative container mx-auto px-4 pt-8 pb-6">
+      <section className="relative container mx-auto px-4 pt-8 pb-4">
         <div className="flex items-center gap-4 mb-2">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
@@ -223,49 +316,49 @@ export default function AITeacherPage() {
             </h1>
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-primary" />
-              Trò chuyện bằng giọng nói với AI
+              Trò chuyện thông minh với AI
             </p>
           </div>
         </div>
-
-        {/* Selected Document Badge */}
-        {selectedUpload && (
-          <div className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 w-fit">
-            <FileText className="w-4 h-4 text-primary" />
-            <span className="text-sm">
-              Đang sử dụng tài liệu:{" "}
-              <span className="font-medium">{selectedUpload.filename}</span>
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-primary/20"
-              onClick={() => setSelectedUpload(null)}>
-              ×
-            </Button>
-          </div>
-        )}
       </section>
 
       {/* Main Content */}
-      <section className="relative container mx-auto px-4 pb-20">
+      <section className="relative container mx-auto px-4 pb-8">
         <div className="flex flex-col lg:flex-row gap-6">
+          {/* Chat History Sidebar - Desktop */}
+          <aside className="hidden lg:block w-80 flex-shrink-0">
+            <div className="sticky top-6">
+              <ChatHistoryCard
+                chats={chats}
+                selectedChatId={selectedChatId}
+                isLoading={isLoadingChats}
+                onSelectChat={selectChat}
+                onCreateChat={createChat}
+                onRenameChat={updateChatTitle}
+                onDeleteChat={deleteChat}
+              />
+            </div>
+          </aside>
+
           {/* Chat Area */}
           <div className="flex-1 min-w-0">
-            <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl">
+            <Card className="border-white/10 bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
               <CardContent className="p-0">
                 {/* Messages Area */}
                 <ScrollArea
-                  className="h-[400px] md:h-[500px] p-4"
+                  className="h-[450px] md:h-[500px] p-4"
                   ref={scrollRef}>
-                  {messages.length === 0 ? (
+                  {isLoadingMessages ? (
+                    <div className="flex items-center justify-center h-full">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    </div>
+                  ) : messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
                       <Bot className="w-16 h-16 mb-4 opacity-50" />
                       <p className="text-lg font-medium">Xin chào!</p>
                       <p className="text-sm mt-2 max-w-md">
-                        Tôi là giáo viên AI của bạn. Nhấn nút mic và bắt đầu nói
-                        để đặt câu hỏi. Bạn có thể chọn tài liệu PDF để tôi trả
-                        lời dựa trên nội dung.
+                        Tôi là giáo viên AI của bạn. Hãy nhập tin nhắn hoặc nhấn
+                        mic để bắt đầu cuộc trò chuyện.
                       </p>
                     </div>
                   ) : (
@@ -275,10 +368,34 @@ export default function AITeacherPage() {
                           key={message.id}
                           message={message}
                           isSpeaking={isSpeaking}
+                          isRegenerating={isRegenerating}
                           onReplay={() => replayMessage(message.content)}
+                          onEdit={(content) =>
+                            updateMessage(message.id, content)
+                          }
+                          onDelete={() => handleDeleteMessage(message.id)}
+                          onRegenerate={() => regenerateFromMessage(message.id)}
                         />
                       ))}
-                      {isProcessing && (
+                      {/* Streaming Response Display */}
+                      {isStreaming && streamingContent && (
+                        <div className="flex gap-3">
+                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                            <Bot className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 bg-white/5 dark:bg-white/[0.03] border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3">
+                            <p className="text-sm whitespace-pre-wrap">
+                              {streamingContent}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span className="text-xs">Đang trả lời...</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {/* Loading indicator when processing but no streaming content yet */}
+                      {isProcessing && !streamingContent && (
                         <div className="flex items-center gap-3 text-muted-foreground">
                           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                             <Bot className="w-4 h-4 text-primary" />
@@ -305,49 +422,49 @@ export default function AITeacherPage() {
                   </div>
                 )}
 
-                {/* Controls */}
+                {/* Input Area */}
                 <div className="border-t border-white/10 p-4">
-                  <div className="flex items-center justify-center gap-4">
-                    {/* Mic Button */}
-                    <Button
-                      size="lg"
-                      onClick={toggleListening}
-                      disabled={isProcessing || micPermission === "denied"}
-                      className={cn(
-                        "w-16 h-16 rounded-full transition-all duration-300",
-                        isListening
-                          ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                          : "bg-primary hover:bg-primary/90"
-                      )}>
-                      {isListening ? (
-                        <MicOff className="w-6 h-6" />
-                      ) : (
-                        <Mic className="w-6 h-6" />
-                      )}
-                    </Button>
+                  {/* Selected File Preview - above input like images */}
+                  {selectedUploads.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-2">
+                        {selectedUploads.map(file => (
+                            <div key={file.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit animate-in fade-in zoom-in duration-200">
+                                <FileText className="w-4 h-4 text-blue-400" />
+                                <span className="text-sm text-blue-300/90 max-w-[200px] truncate">
+                                    {file.filename}
+                                </span>
+                                {file.id.startsWith('processing-') ? (
+                                    <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                                ) : (
+                                    <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 hover:bg-blue-500/20 text-blue-400"
+                                    onClick={() => removeSelectedUpload(file.id)}>
+                                    ×
+                                    </Button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                  )}
 
-                    {/* Stop Speaking Button */}
-                    {isSpeaking && (
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        onClick={stopSpeaking}
-                        className="w-14 h-14 rounded-full border-orange-500/50 text-orange-500 hover:bg-orange-500/10">
-                        <VolumeX className="w-5 h-5" />
-                      </Button>
-                    )}
-
-                    {/* Clear Chat Button */}
-                    {messages.length > 0 && (
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        onClick={clearMessages}
-                        className="w-14 h-14 rounded-full border-white/20 hover:bg-white/5">
-                        <Trash2 className="w-5 h-5" />
-                      </Button>
-                    )}
-                  </div>
+                  <ChatInputBar
+                    onSendMessage={handleSendMessage}
+                    onStartListening={startListening}
+                    onStopListening={stopListening}
+                    onUploadImage={handleUploadImage}
+                    onUploadPdf={handlePdfUpload}
+                    onSelectRecentFile={() => setRecentFilesModalOpen(true)}
+                    isListening={isListening}
+                    isProcessing={isProcessing}
+                    isUploadingImage={isUploadingImage}
+                    isUploadingPdf={isProcessingPdf}
+                    transcript={transcript}
+                    uploadedImageUrl={uploadedImageUrl}
+                    onClearImage={() => setUploadedImageUrl(null)}
+                    disabled={micPermission === "denied"}
+                  />
 
                   {/* Status Text */}
                   <div className="text-center mt-3">
@@ -357,46 +474,80 @@ export default function AITeacherPage() {
                       </p>
                     ) : isListening ? (
                       <p className="text-sm text-primary animate-pulse">
-                        Đang nghe... Nhấn lại để gửi
+                        Đang nghe... Nhấn lại mic hoặc Enter để gửi
                       </p>
                     ) : isProcessing ? (
                       <p className="text-sm text-muted-foreground">
                         Đang xử lý...
                       </p>
                     ) : isSpeaking ? (
-                      <p className="text-sm text-orange-400">
-                        <Volume2 className="w-4 h-4 inline-block mr-1" />
+                      <p className="text-sm text-orange-400 flex items-center justify-center gap-1">
+                        <Volume2 className="w-4 h-4" />
                         Đang đọc...
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 px-2 ml-2"
+                          onClick={stopSpeaking}>
+                          <VolumeX className="w-4 h-4 mr-1" />
+                          Dừng
+                        </Button>
                       </p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Nhấn mic để bắt đầu nói
-                      </p>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Sidebar - Recent Files */}
-          <aside className="w-full lg:w-80 flex-shrink-0">
-            <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl lg:sticky lg:top-6">
-              <CardContent className="pt-4">
-                <div className="mb-3">
-                  <h3 className="text-sm font-medium text-muted-foreground">
-                    Chọn tài liệu tham khảo
-                  </h3>
-                  <p className="text-xs text-muted-foreground/60 mt-1">
-                    AI sẽ trả lời dựa trên nội dung tài liệu
-                  </p>
-                </div>
-                <RecentFilesList onSelectUpload={handleSelectUpload} />
-              </CardContent>
-            </Card>
-          </aside>
+          {/* Chat History - Mobile (bottom sheet style) */}
+          <div className="lg:hidden">
+            <ChatHistoryCard
+              chats={chats}
+              selectedChatId={selectedChatId}
+              isLoading={isLoadingChats}
+              onSelectChat={selectChat}
+              onCreateChat={createChat}
+              onRenameChat={updateChatTitle}
+              onDeleteChat={deleteChat}
+            />
+          </div>
         </div>
       </section>
+
+      {/* Recent Files Modal - excludes quiz/flashcard history for AI Teacher */}
+      <RecentFilesModal
+        open={recentFilesModalOpen}
+        onOpenChange={setRecentFilesModalOpen}
+        onSelectFile={handleSelectRecentFile}
+        selectedFileId={undefined} // Don't highlight single file as we support multiple
+        includeHistory={false}
+      />
+
+      {/* Delete Message Confirmation */}
+      <AlertDialog
+        open={!!deleteMessageId}
+        onOpenChange={(open) => !open && setDeleteMessageId(null)}>
+        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa tin nhắn?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc muốn xóa tin nhắn này? Hành động này không thể hoàn
+              tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10">
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteMessage}
+              className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30">
+              Xóa
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -405,24 +556,45 @@ export default function AITeacherPage() {
 function MessageBubble({
   message,
   isSpeaking,
+  isRegenerating,
   onReplay,
+  onEdit,
+  onDelete,
+  onRegenerate,
 }: {
-  message: Message;
+  message: AIChatMessage;
   isSpeaking: boolean;
+  isRegenerating: boolean;
   onReplay: () => void;
+  onEdit: (content: string) => void;
+  onDelete: () => void;
+  onRegenerate: () => void;
 }) {
   const isUser = message.role === "user";
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(message.content);
+  const {user} = useAuthStore()
+
+  const handleSaveEdit = () => {
+    if (editContent.trim() && editContent !== message.content) {
+      onEdit(editContent.trim());
+    }
+    setIsEditing(false);
+  };
 
   return (
     <div
-      className={cn("flex items-start gap-3", isUser && "flex-row-reverse")}>
+      className={cn(
+        "flex items-start gap-3 group",
+        isUser && "flex-row-reverse"
+      )}>
       <div
         className={cn(
           "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
           isUser ? "bg-primary/20" : "bg-purple-500/20"
         )}>
         {isUser ? (
-          <User className="w-4 h-4 text-primary" />
+          <img src={user?.avatar || '/avt-default.webp'} alt="User" className="w-8 h-8 rounded-full" />
         ) : (
           <Bot className="w-4 h-4 text-purple-400" />
         )}
@@ -432,26 +604,117 @@ function MessageBubble({
           "flex-1 max-w-[80%]",
           isUser && "flex flex-col items-end"
         )}>
+        {/* Image Preview */}
+        {message.imageUrl && (
+          <div className="mb-2">
+            <img
+              src={message.imageUrl}
+              alt="Attached"
+              className="max-w-[200px] rounded-lg border border-white/10"
+            />
+          </div>
+        )}
+
+        {/* Document Card - styled like image attachment */}
+        {message.documentName && (
+          <div className="mb-2">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit">
+              <FileText className="w-4 h-4 text-blue-400" />
+              <span className="text-sm text-blue-300/80">
+                {message.documentName}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Content */}
         <div
           className={cn(
             "rounded-2xl px-4 py-2",
             isUser
               ? "bg-primary text-primary-foreground rounded-tr-sm"
-              : "bg-white/5 border border-white/10 rounded-tl-sm"
+              : "bg-white/5 dark:bg-white/[0.03] border border-white/10 rounded-tl-sm"
           )}>
-          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+          {isEditing ? (
+            <div className="flex flex-col gap-2">
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="bg-transparent border-none outline-none resize-none text-sm w-full min-h-[60px]"
+                autoFocus
+              />
+              <div className="flex gap-2 justify-end">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7"
+                  onClick={() => setIsEditing(false)}>
+                  Hủy
+                </Button>
+                <Button size="sm" className="h-7" onClick={handleSaveEdit}>
+                  Lưu
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm prose dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
+               <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                 {message.content}
+               </ReactMarkdown>
+            </div>
+          )}
         </div>
-        {!isUser && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-1 h-7 text-xs text-muted-foreground hover:text-primary"
-            onClick={onReplay}
-            disabled={isSpeaking}>
-            <Volume2 className="w-3 h-3 mr-1" />
-            Đọc lại
-          </Button>
-        )}
+
+        {/* Actions */}
+        <div className="flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {!isUser && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-muted-foreground hover:text-primary"
+              onClick={onReplay}
+              disabled={isSpeaking}>
+              <Volume2 className="w-3 h-3 mr-1" />
+              Đọc lại
+            </Button>
+          )}
+
+          {isUser && !isEditing && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="bg-background/95 backdrop-blur-xl">
+                <DropdownMenuItem
+                  onClick={onRegenerate}
+                  disabled={isRegenerating}>
+                  <RefreshCw
+                    className={cn(
+                      "w-4 h-4 mr-2",
+                      isRegenerating && "animate-spin"
+                    )}
+                  />
+                  Tạo lại câu trả lời
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Chỉnh sửa
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-red-500" onClick={onDelete}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Xóa
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </div>
   );
