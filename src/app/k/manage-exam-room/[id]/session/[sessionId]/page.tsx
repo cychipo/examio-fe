@@ -49,12 +49,12 @@ import {
   ExamAttemptDetail,
 } from "@/apis/examAttemptApi";
 import {
-  CheatingLog,
-  getCheatingLogsApi,
   getSessionCheatingStatsApi,
   CheatingSessionStats,
   CHEATING_TYPE_LABELS,
   CHEATING_TYPE,
+  getUserAttemptsWithLogsApi,
+  UserAttemptWithLogs,
 } from "@/apis/cheatingLogApi";
 import { getExamSessionByIdApi } from "@/apis/examSessionApi";
 import {
@@ -128,9 +128,11 @@ export default function SessionAnalyticsPage() {
   const [selectedAttempt, setSelectedAttempt] =
     useState<ExamAttemptDetail | null>(null);
   const [selectedUserAttempts, setSelectedUserAttempts] = useState<
-    ExamAttemptListItem[]
+    UserAttemptWithLogs[]
   >([]);
-  const [selectedLogs, setSelectedLogs] = useState<CheatingLog[]>([]);
+  const [selectedLogs, setSelectedLogs] = useState<
+    Array<{ type: string; description: string; totalCount: number }>
+  >([]);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
 
@@ -170,58 +172,26 @@ export default function SessionAnalyticsPage() {
     }
   }, [sessionId]);
 
-  // Handle view attempt detail
+  // Handle view attempt detail - optimized single API call
   const handleViewDetail = useCallback(
     async (userId: string) => {
       setLoadingDetail(true);
       setSheetOpen(true);
       try {
-        // Fetch ALL attempts for this user (not from existing filtered list)
-        // Use distinctUser=false to get all attempts
-        const allAttemptsData = await getExamAttemptsBySessionApi(
-          sessionId,
-          1,
-          100,
-          false // Get all attempts, not just best per user
-        );
-        const userAttempts = allAttemptsData.attempts.filter(
-          (a) => a.user.id === userId
-        );
-        setSelectedUserAttempts(userAttempts);
+        // Single optimized API call to get all attempts with cheating logs
+        const data = await getUserAttemptsWithLogsApi(sessionId, userId);
+
+        setSelectedUserAttempts(data.attempts);
+        setSelectedLogs(data.aggregatedLogs);
 
         // Get detail of the best attempt
-        const bestAttempt = userAttempts.reduce((best, current) =>
+        const bestAttempt = data.attempts.reduce((best, current) =>
           current.score > best.score ? current : best
         );
 
-        // Load detail and ALL violation logs from ALL attempts
+        // Load detail for the best attempt
         const detail = await getExamAttemptDetailApi(bestAttempt.id);
-
-        // Get logs from ALL attempts and combine them
-        const allLogsArrays = await Promise.all(
-          userAttempts.map((attempt) => getCheatingLogsApi(attempt.id))
-        );
-        const allLogs = allLogsArrays.flat();
-
-        // Merge logs by type - sum up counts
-        const mergedLogsMap = new Map<string, CheatingLog>();
-        allLogs.forEach((log) => {
-          const existing = mergedLogsMap.get(log.type);
-          if (existing) {
-            existing.count += log.count;
-            // Keep the most recent occurrence
-            if (
-              new Date(log.lastOccurredAt) > new Date(existing.lastOccurredAt)
-            ) {
-              existing.lastOccurredAt = log.lastOccurredAt;
-            }
-          } else {
-            mergedLogsMap.set(log.type, { ...log });
-          }
-        });
-
         setSelectedAttempt(detail);
-        setSelectedLogs(Array.from(mergedLogsMap.values()));
       } catch (error) {
         console.error("Failed to load attempt detail:", error);
         toast.error("Không thể tải chi tiết");
@@ -761,7 +731,11 @@ export default function SessionAnalyticsPage() {
                   <h4 className="font-semibold flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-red-500" />
                     Chi tiết vi phạm tổng hợp (
-                    {selectedLogs.reduce((sum, log) => sum + log.count, 0)} lần)
+                    {selectedLogs.reduce(
+                      (sum, log) => sum + log.totalCount,
+                      0
+                    )}{" "}
+                    lần)
                   </h4>
                   <p className="text-sm text-muted-foreground">
                     Tổng hợp vi phạm từ tất cả {selectedUserAttempts.length} lần
@@ -770,7 +744,7 @@ export default function SessionAnalyticsPage() {
                   <div className="space-y-2">
                     {selectedLogs.map((log) => (
                       <div
-                        key={log.id}
+                        key={log.type}
                         className="p-3 border border-red-200 bg-red-50 dark:bg-red-950/20 rounded-lg">
                         {" "}
                         <div className="flex justify-between items-start">
@@ -781,14 +755,10 @@ export default function SessionAnalyticsPage() {
                               ] || log.type}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              Lần cuối:{" "}
-                              {format(
-                                new Date(log.lastOccurredAt),
-                                "HH:mm:ss dd/MM/yyyy"
-                              )}
+                              {log.description}
                             </p>
                           </div>
-                          <Badge variant="destructive">{log.count}x</Badge>
+                          <Badge variant="destructive">{log.totalCount}x</Badge>
                         </div>
                       </div>
                     ))}

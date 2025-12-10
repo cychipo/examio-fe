@@ -109,25 +109,27 @@ export function FullscreenConfirmDialog({
             <Maximize className="h-6 w-6 text-primary" />
             Xác nhận bật chế độ toàn màn hình
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-3 text-base">
-            <p>
-              Để đảm bảo tính công bằng và bảo mật, bạn cần bật chế độ toàn màn
-              hình (fullscreen) trước khi bắt đầu làm bài thi.
-            </p>
-            <div className="bg-muted p-4 rounded-lg space-y-2">
-              <p className="font-semibold text-foreground">
-                Các hạn chế khi làm bài:
+          <AlertDialogDescription asChild>
+            <div className="space-y-3 text-base text-muted-foreground">
+              <p>
+                Để đảm bảo tính công bằng và bảo mật, bạn cần bật chế độ toàn
+                màn hình (fullscreen) trước khi bắt đầu làm bài thi.
               </p>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>Không thể mở Developer Tools (F12)</li>
-                <li>Không thể click chuột phải</li>
-                <li>Không thể thoát chế độ fullscreen</li>
-                <li>Hệ thống sẽ phát hiện các hành vi gian lận</li>
-              </ul>
+              <div className="bg-muted p-4 rounded-lg space-y-2">
+                <p className="font-semibold text-foreground">
+                  Các hạn chế khi làm bài:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Không thể mở Developer Tools (F12)</li>
+                  <li>Không thể click chuột phải</li>
+                  <li>Không thể thoát chế độ fullscreen</li>
+                  <li>Hệ thống sẽ phát hiện các hành vi gian lận</li>
+                </ul>
+              </div>
+              <p className="text-amber-600 dark:text-amber-500 font-medium">
+                ⚠️ Nếu thoát fullscreen hoặc chuyển tab, hành vi sẽ bị ghi nhận.
+              </p>
             </div>
-            <p className="text-amber-600 dark:text-amber-500 font-medium">
-              ⚠️ Nếu thoát fullscreen hoặc chuyển tab, hành vi sẽ bị ghi nhận.
-            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col sm:flex-row gap-2">

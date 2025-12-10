@@ -79,3 +79,46 @@ export async function getSessionCheatingStatsApi(
   const response = await api.get(`/cheatinglogs/session/${sessionId}/stats`);
   return response.data;
 }
+
+// Types for user attempts with logs
+export interface UserAttemptWithLogs {
+  id: string;
+  status: number;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  startedAt: string;
+  finishedAt: string | null;
+  violationCount: number;
+  timeSpentSeconds: number;
+  cheatingLogs: Array<{
+    id: string;
+    type: string;
+    description: string;
+    count: number;
+    lastOccurredAt: string;
+  }>;
+}
+
+export interface UserAttemptsWithLogsResponse {
+  attempts: UserAttemptWithLogs[];
+  aggregatedLogs: Array<{
+    type: string;
+    description: string;
+    totalCount: number;
+  }>;
+}
+
+/**
+ * Get all attempts for a user in a session with cheating logs (host only)
+ * Optimized single API call instead of N+1 calls
+ */
+export async function getUserAttemptsWithLogsApi(
+  sessionId: string,
+  userId: string
+): Promise<UserAttemptsWithLogsResponse> {
+  const response = await api.get(
+    `/cheatinglogs/session/${sessionId}/user/${userId}`
+  );
+  return response.data;
+}

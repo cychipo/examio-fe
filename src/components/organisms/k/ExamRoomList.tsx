@@ -9,8 +9,10 @@ export interface ExamRoom {
   isPrivate?: boolean;
 }
 
-interface ExamRoomListProps {
+export interface ExamRoomListProps {
   rooms: ExamRoom[];
+  filter?: string;
+  onFilterChange?: (value: string) => void;
   onViewRoom: (id: string) => void;
   onEditRoom?: (id: string) => void;
   onDeleteRoom?: (id: string) => void;
@@ -18,6 +20,8 @@ interface ExamRoomListProps {
 
 export function ExamRoomList({
   rooms,
+  filter: _filter,
+  onFilterChange: _onFilterChange,
   onViewRoom,
   onEditRoom,
   onDeleteRoom,
