@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { HistoryTemplate } from "@/templates/HistoryTemplate";
 import type { PDFHistoryListItemData } from "@/components/molecules/PDFHistoryListItem";
 import type { ExamHistoryListItemData } from "@/components/molecules/ExamHistoryListItem";
@@ -17,6 +17,7 @@ import {
   type ExamHistoryItem,
 } from "@/apis/historyApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
+import { useToast } from "@/components/ui/toast";
 
 // Transform PDF history from API to component format
 function transformPDFHistory(
@@ -128,6 +129,22 @@ function formatTimeAgo(dateString: string): string {
   return `${Math.floor(diffDays / 30)} tháng trước`;
 }
 
+// Download file helper - fetches and triggers browser download
+async function downloadFile(url: string, filename: string): Promise<void> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Download failed");
+
+  const blob = await response.blob();
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = downloadUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(downloadUrl);
+}
+
 export default function HistoryPage() {
   const [stats, setStats] = useState<HistoryStats>({
     totalPDFs: 0,
@@ -139,6 +156,10 @@ export default function HistoryPage() {
   const [examItems, setExamItems] = useState<ExamHistoryListItemData[]>([]);
   const [activities, setActivities] = useState<RecentActivityItemData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Store PDF data map for O(1) lookup during download
+  const pdfDataMapRef = useRef<Map<string, PDFHistoryItem>>(new Map());
+  const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
     try {
@@ -166,6 +187,11 @@ export default function HistoryPage() {
       setStats(statsData);
       setPdfItems(transformPDFHistory(pdfData));
 
+      // Build Map for O(1) lookup - rebuild on each fetch
+      const newMap = new Map<string, PDFHistoryItem>();
+      pdfData.forEach((item) => newMap.set(item.id, item));
+      pdfDataMapRef.current = newMap;
+
       const transformedExams = transformExamHistory(examData.examAttempts);
       setExamItems(transformedExams);
 
@@ -181,10 +207,21 @@ export default function HistoryPage() {
     fetchData();
   }, [fetchData]);
 
-  const handlePdfDownload = (id: string) => {
-    console.log("Download PDF:", id);
-    // Implement download logic
-  };
+  const handlePdfDownload = useCallback(async (id: string) => {
+    const pdfItem = pdfDataMapRef.current.get(id); // O(1) lookup
+    if (!pdfItem) {
+      toast.error("Không tìm thấy file PDF");
+      return;
+    }
+
+    try {
+      toast.info("Đang tải file...");
+      await downloadFile(pdfItem.url, pdfItem.filename);
+      toast.success("Tải file thành công!");
+    } catch (error) {
+      toast.error("Không thể tải file. Vui lòng thử lại.");
+    }
+  }, [toast]);
 
   const handlePdfDelete = (id: string) => {
     console.log("Delete PDF:", id);
