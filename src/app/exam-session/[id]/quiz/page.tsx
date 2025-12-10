@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/organisms/ConfirmDialog";
+import { FullscreenConfirmDialog } from "@/components/organisms/FullscreenConfirmDialog";
 import { toast } from "@/components/ui/toast";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCheatingDetection } from "@/hooks/useCheatingDetection";
@@ -41,6 +42,10 @@ interface ExamQuizPageProps {
 export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   const { id: examSessionId } = use(params);
   const router = useRouter();
+
+  // Fullscreen confirmation state
+  const [showFullscreenDialog, setShowFullscreenDialog] = useState(true);
+  const [fullscreenConfirmed, setFullscreenConfirmed] = useState(false);
 
   // Attempt state
   const [attemptId, setAttemptId] = useState<string | null>(null);
@@ -142,6 +147,9 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
 
   // Initialize exam attempt
   useEffect(() => {
+    // Don't load exam until fullscreen is confirmed
+    if (!fullscreenConfirmed) return;
+
     const initExam = async () => {
       setLoading(true);
       setError(null);
@@ -226,7 +234,35 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
     };
 
     initExam();
-  }, [examSessionId]);
+  }, [examSessionId, fullscreenConfirmed]);
+
+  // Handle fullscreen dialog
+  const handleFullscreenConfirm = () => {
+    setShowFullscreenDialog(false);
+    setFullscreenConfirmed(true);
+  };
+
+  const handleFullscreenCancel = () => {
+    // Navigate back to exam session page
+    router.push(`/exam-session/${examSessionId}`);
+  };
+
+  // Cleanup fullscreen protections on unmount
+  useEffect(() => {
+    return () => {
+      const cleanupFns = (window as any).__examCleanupFunctions;
+      if (cleanupFns) {
+        document.removeEventListener("keydown", cleanupFns.preventDevTools);
+        document.removeEventListener(
+          "contextmenu",
+          cleanupFns.preventRightClick
+        );
+      }
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, []);
 
   // Timer effect
   useEffect(() => {
@@ -436,14 +472,25 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   };
 
   // Loading state
-  if (loading) {
+  if (loading || !fullscreenConfirmed) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Đang tải bài thi...</p>
-        </div>
-      </div>
+      <>
+        {/* Fullscreen Confirmation Dialog */}
+        <FullscreenConfirmDialog
+          open={showFullscreenDialog}
+          onConfirm={handleFullscreenConfirm}
+          onCancel={handleFullscreenCancel}
+        />
+
+        {fullscreenConfirmed && (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-muted-foreground">Đang tải bài thi...</p>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 

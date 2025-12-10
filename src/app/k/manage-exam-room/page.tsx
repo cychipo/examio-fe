@@ -16,6 +16,10 @@ import {
   RecentParticipantsList,
   type Participant,
 } from "@/components/organisms/k/RecentParticipantsList";
+import {
+  getExamAttemptsByRoomApi,
+  type ExamAttemptListItem,
+} from "@/apis/examAttemptApi";
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -35,7 +39,6 @@ export default function ManageExamRoomPage() {
   const { fetchAllQuizSets, quizSetsK } = useQuizSetStore();
 
   // UI States
-  const [roomFilter, setRoomFilter] = useState<string>("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -43,6 +46,10 @@ export default function ManageExamRoomPage() {
   const [editFormData, setEditFormData] = useState<
     ExamRoomFormData | undefined
   >();
+  const [recentParticipants, setRecentParticipants] = useState<Participant[]>(
+    []
+  );
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
 
   /**
    * Load exam rooms - chỉ gọi 1 lần khi mount
@@ -57,6 +64,66 @@ export default function ManageExamRoomPage() {
   useEffect(() => {
     fetchAllQuizSets();
   }, [fetchAllQuizSets]);
+
+  /**
+   * Fetch recent participants from all exam rooms
+   */
+  useEffect(() => {
+    const fetchRecentParticipants = async () => {
+      if (examRooms.length === 0) return;
+
+      setLoadingParticipants(true);
+      try {
+        // Fetch attempts from all rooms with distinctUser=true to get unique users
+        const attemptsPromises = examRooms.map((room) =>
+          getExamAttemptsByRoomApi(room.id, 1, 10, true).catch(() => ({
+            attempts: [],
+            total: 0,
+            page: 1,
+            limit: 10,
+            totalPages: 0,
+          }))
+        );
+
+        const results = await Promise.all(attemptsPromises);
+        const allAttempts: ExamAttemptListItem[] = [];
+
+        results.forEach((result, index) => {
+          result.attempts.forEach((attempt) => {
+            allAttempts.push({
+              ...attempt,
+              examRoomTitle: examRooms[index].title,
+            } as any);
+          });
+        });
+
+        // Sort by startedAt descending and take top 5
+        // Backend already ensures distinct users per room
+        const sortedAttempts = allAttempts
+          .sort(
+            (a, b) =>
+              new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+          )
+          .slice(0, 5);
+
+        // Transform to Participant format
+        const participants: Participant[] = sortedAttempts.map((attempt) => ({
+          id: attempt.id,
+          name: attempt.user.name || attempt.user.username,
+          examName: (attempt as any).examRoomTitle || "Phòng thi",
+          status: "offline" as const, // Default status
+        }));
+
+        setRecentParticipants(participants);
+      } catch (error) {
+        console.error("Failed to fetch recent participants:", error);
+      } finally {
+        setLoadingParticipants(false);
+      }
+    };
+
+    fetchRecentParticipants();
+  }, [examRooms]);
 
   /**
    * Tính toán stats từ examRooms
@@ -84,49 +151,14 @@ export default function ManageExamRoomPage() {
     return examRooms.map((room) => ({
       id: room.id,
       name: room.title,
-      roomType: room.quizSet?.title || "N/A",
-      duration: 60, // TODO: Get từ quizSet khi có
-      participants: room._count?.examSessions || 0,
-      timeInfo: new Date(room.createdAt).toLocaleDateString("vi-VN"),
-      timeLabel: "Ngày tạo",
-      status: "active" as const, // TODO: Tính status từ examSessions
+      roomType: room.quizSet?.title || "Chưa có bộ đề",
+      questionCount:
+        room.quizSet?._count?.detailsQuizQuestions ||
+        room.quizSet?.questionCount ||
+        0,
       isPrivate: false, // Security settings are now per ExamSession
     }));
   }, [examRooms]);
-
-  /**
-   * Filter rooms theo roomFilter
-   */
-  const filteredRooms = useMemo(() => {
-    if (roomFilter === "all") return transformedRooms;
-    return transformedRooms.filter((room) => room.status === roomFilter);
-  }, [transformedRooms, roomFilter]);
-
-  /**
-   * Mock participants - TODO: Replace với API thực
-   */
-  const mockParticipants = useMemo<Participant[]>(() => {
-    return [
-      {
-        id: "1",
-        name: "Nguyễn Văn A",
-        examName: "Đề thi Toán học",
-        status: "online" as const,
-      },
-      {
-        id: "2",
-        name: "Trần Thị B",
-        examName: "Đề thi Vật lý",
-        status: "away" as const,
-      },
-      {
-        id: "3",
-        name: "Lê Văn C",
-        examName: "Đề thi Hóa học",
-        status: "offline" as const,
-      },
-    ];
-  }, []);
 
   /**
    * Quiz set options cho form
@@ -286,9 +318,7 @@ export default function ManageExamRoomPage() {
           {/* Exam Rooms - Takes 2 columns */}
           <div className="lg:col-span-2">
             <ExamRoomList
-              rooms={filteredRooms}
-              filter={roomFilter}
-              onFilterChange={setRoomFilter}
+              rooms={transformedRooms}
               onViewRoom={handleViewRoom}
               onEditRoom={handleEditRoom}
               onDeleteRoom={handleDeleteRoom}
@@ -297,10 +327,16 @@ export default function ManageExamRoomPage() {
 
           {/* Recent Participants - Takes 1 column */}
           <div className="lg:col-span-1">
-            <RecentParticipantsList
-              participants={mockParticipants}
-              onViewAll={() => console.log("View all participants")}
-            />
+            {loadingParticipants ? (
+              <div className="animate-pulse">
+                <div className="h-64 bg-muted rounded"></div>
+              </div>
+            ) : (
+              <RecentParticipantsList
+                participants={recentParticipants}
+                onViewAll={() => console.log("View all participants")}
+              />
+            )}
           </div>
         </div>
       </div>

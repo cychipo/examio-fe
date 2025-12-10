@@ -73,14 +73,14 @@ export default function ExamSessionPage({
           setShowCodeDialog(true);
         }
         // If denied, don't load any info - show access denied screen
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Error loading exam session:", error);
-        if (error?.response?.status === 404) {
+        if ((error as any)?.response?.status === 404) {
           setSessionNotFound(true);
         } else {
           const message =
-            error?.response?.data?.message ||
-            error?.message ||
+            (error as any)?.response?.data?.message ||
+            (error as any)?.message ||
             "Không thể tải thông tin phiên thi";
           toast.error(message);
         }

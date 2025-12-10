@@ -19,6 +19,7 @@ interface ExamRoomDetailStore {
   sessions: ExamSessionBasic[];
   sessionsTotal: number;
   sessionsTotalPages: number;
+  totalDistinctParticipants: number;
   loadingSessions: boolean;
 
   // Mutation loading
@@ -48,6 +49,7 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
   sessions: [],
   sessionsTotal: 0,
   sessionsTotalPages: 0,
+  totalDistinctParticipants: 0,
   loadingSessions: false,
 
   mutationLoading: false,
@@ -78,6 +80,7 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
         sessions: data.sessions,
         sessionsTotal: data.total,
         sessionsTotalPages: data.totalPages,
+        totalDistinctParticipants: data.totalDistinctParticipants || 0,
         loadingSessions: false,
       });
     } catch (error) {
@@ -172,7 +175,7 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
     }
   },
 
-  deleteSession: async (id, examRoomId) => {
+  deleteSession: async (id, _examRoomId) => {
     try {
       set({ mutationLoading: true });
 
@@ -209,6 +212,7 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
       sessions: [],
       sessionsTotal: 0,
       sessionsTotalPages: 0,
+      totalDistinctParticipants: 0,
       loadingSessions: false,
       mutationLoading: false,
     });

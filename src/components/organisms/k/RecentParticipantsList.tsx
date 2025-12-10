@@ -36,15 +36,6 @@ export function RecentParticipantsList({
           />
         ))}
       </div>
-
-      {onViewAll && (
-        <Button
-          variant="ghost"
-          className="mt-4 w-full text-sm text-blue-500 hover:text-blue-600"
-          onClick={onViewAll}>
-          Xem tất cả thí sinh
-        </Button>
-      )}
     </Card>
   );
 }

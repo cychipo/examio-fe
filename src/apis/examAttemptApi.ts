@@ -147,6 +147,7 @@ export interface ExamAttemptListItem {
     endTime: string | null;
   };
   violationCount?: number;
+  attemptCount?: number; // Number of attempts by this user (when distinctUser=true)
 }
 
 export interface ExamAttemptsByRoomResponse {
@@ -179,10 +180,11 @@ export interface ExamAttemptDetail
 export async function getExamAttemptsByRoomApi(
   examRoomId: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  distinctUser: boolean = false
 ): Promise<ExamAttemptsByRoomResponse> {
   const response = await api.get(`/examattempts/list-by-room/${examRoomId}`, {
-    params: { page, limit },
+    params: { page, limit, distinctUser: distinctUser.toString() },
   });
   return response.data;
 }
@@ -203,10 +205,11 @@ export async function getExamAttemptDetailApi(
 export async function getExamAttemptsBySessionApi(
   sessionId: string,
   page: number = 1,
-  limit: number = 50
+  limit: number = 50,
+  distinctUser: boolean = false
 ): Promise<ExamAttemptsByRoomResponse> {
   const response = await api.get(`/examattempts/list-by-session/${sessionId}`, {
-    params: { page, limit },
+    params: { page, limit, distinctUser: distinctUser.toString() },
   });
   return response.data;
 }

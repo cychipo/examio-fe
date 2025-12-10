@@ -12,6 +12,9 @@ export interface ExamRoom {
     title: string;
     questionCount?: number;
     thumbnail?: string;
+    _count?: {
+      detailsQuizQuestions?: number;
+    };
   };
   host?: {
     id: string;

@@ -46,6 +46,7 @@ export type ResponseListExamSessions = {
   page: number;
   limit: number;
   totalPages: number;
+  totalDistinctParticipants?: number;
 };
 
 export async function createExamRoomApi(
