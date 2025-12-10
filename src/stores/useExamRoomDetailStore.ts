@@ -1,9 +1,7 @@
 import { create } from "zustand";
 import {
   getExamRoomSessionsApi,
-  getExamRoomParticipantsApi,
   ResponseListExamSessions,
-  ResponseListParticipants,
 } from "@/apis/examRoomApi";
 import {
   createExamSessionApi,
@@ -13,7 +11,6 @@ import {
   type CredentialsUpdateExamSession,
 } from "@/apis/examSessionApi";
 import { ExamSessionBasic } from "@/types/examRoom";
-import { ExamSessionParticipant } from "@/types/examSession";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
 import { toast } from "@/components/ui/toast";
 
@@ -24,23 +21,11 @@ interface ExamRoomDetailStore {
   sessionsTotalPages: number;
   loadingSessions: boolean;
 
-  // Participants data
-  participants: ExamSessionParticipant[];
-  participantsTotal: number;
-  participantsTotalPages: number;
-  loadingParticipants: boolean;
-
   // Mutation loading
   mutationLoading: boolean;
 
   // Actions
   fetchSessions: (
-    examRoomId: string,
-    page: number,
-    limit: number,
-    options?: { forceRefresh?: boolean }
-  ) => Promise<void>;
-  fetchParticipants: (
     examRoomId: string,
     page: number,
     limit: number,
@@ -55,7 +40,6 @@ interface ExamRoomDetailStore {
   ) => Promise<boolean>;
   deleteSession: (id: string, examRoomId: string) => Promise<boolean>;
   invalidateSessionsCache: (examRoomId: string) => void;
-  invalidateParticipantsCache: (examRoomId: string) => void;
   reset: () => void;
 }
 
@@ -65,11 +49,6 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
   sessionsTotal: 0,
   sessionsTotalPages: 0,
   loadingSessions: false,
-
-  participants: [],
-  participantsTotal: 0,
-  participantsTotalPages: 0,
-  loadingParticipants: false,
 
   mutationLoading: false,
 
@@ -105,41 +84,6 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
       console.error("Error fetching sessions:", error);
       toast.error("Không thể tải danh sách phiên thi");
       set({ loadingSessions: false });
-    }
-  },
-
-  fetchParticipants: async (examRoomId, page, limit, options = {}) => {
-    const { forceRefresh = false } = options;
-    const cacheKey = storeCache.createKey("examroom-participants", {
-      examRoomId,
-      page,
-      limit,
-    });
-
-    try {
-      set({ loadingParticipants: true });
-
-      const data = await storeCache.fetchWithCache<ResponseListParticipants>(
-        cacheKey,
-        async () => {
-          return await getExamRoomParticipantsApi(examRoomId, page, limit);
-        },
-        {
-          ttl: CacheTTL.FIVE_MINUTES,
-          forceRefresh,
-        }
-      );
-
-      set({
-        participants: data.participants,
-        participantsTotal: data.total,
-        participantsTotalPages: data.totalPages,
-        loadingParticipants: false,
-      });
-    } catch (error) {
-      console.error("Error fetching participants:", error);
-      toast.error("Không thể tải danh sách người tham gia");
-      set({ loadingParticipants: false });
     }
   },
 
@@ -209,7 +153,9 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
                 assessType: updatedSession.assessType,
                 allowRetake: updatedSession.allowRetake,
                 maxAttempts: updatedSession.maxAttempts,
-                showAnswersAfterSubmit: updatedSession.showAnswersAfterSubmit ?? session.showAnswersAfterSubmit,
+                showAnswersAfterSubmit:
+                  updatedSession.showAnswersAfterSubmit ??
+                  session.showAnswersAfterSubmit,
               }
             : session
         ),
@@ -235,7 +181,6 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
       // Invalidate cache sau khi xóa
       storeCache.invalidate("examroom-sessions:");
       storeCache.invalidate("examsessions:");
-      storeCache.invalidate(`examroom-participants:${examRoomId}`);
 
       // Xóa session khỏi local state
       set((state) => ({
@@ -259,21 +204,12 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
     storeCache.invalidate("examroom-sessions:");
   },
 
-  invalidateParticipantsCache: (examRoomId) => {
-    storeCache.invalidate(`examroom-participants:${examRoomId}`);
-    storeCache.invalidate("examroom-participants:");
-  },
-
   reset: () => {
     set({
       sessions: [],
       sessionsTotal: 0,
       sessionsTotalPages: 0,
       loadingSessions: false,
-      participants: [],
-      participantsTotal: 0,
-      participantsTotalPages: 0,
-      loadingParticipants: false,
       mutationLoading: false,
     });
   },

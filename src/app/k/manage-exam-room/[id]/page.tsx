@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useExamRoomStore } from "@/stores/useExamRoomStore";
 import { useExamRoomDetailStore } from "@/stores/useExamRoomDetailStore";
@@ -14,10 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -50,7 +48,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
 import { ExamSessionBasic } from "@/types/examRoom";
-import { ExamSessionParticipant, ASSESS_TYPE } from "@/types/examSession";
+import { ASSESS_TYPE } from "@/types/examSession";
 import { ExamSessionFormModal } from "@/components/organisms/ExamSessionFormModal";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import {
@@ -64,8 +62,6 @@ import {
 
 const PAGE_SIZE = 10;
 
-type TabValue = "sessions" | "participants";
-
 /**
  * ExamRoom Detail Page with tabbed interface
  * Shows list of exam sessions and participants with pagination
@@ -74,7 +70,6 @@ type TabValue = "sessions" | "participants";
 export default function ExamRoomDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = params.id as string;
 
   const { currentExamRoom, fetchExamRoomById, loading } = useExamRoomStore();
@@ -82,25 +77,16 @@ export default function ExamRoomDetailPage() {
     sessions,
     sessionsTotalPages,
     loadingSessions,
-    participants,
-    participantsTotalPages,
-    loadingParticipants,
     mutationLoading,
     fetchSessions,
-    fetchParticipants,
     createSession,
     updateSession,
     deleteSession,
     reset,
   } = useExamRoomDetailStore();
 
-  // Tab state from URL
-  const tabFromUrl = (searchParams.get("tab") as TabValue) || "sessions";
-  const [activeTab, setActiveTab] = useState<TabValue>(tabFromUrl);
-
-  // Pagination states
+  // Pagination state
   const [sessionsPage, setSessionsPage] = useState(1);
-  const [participantsPage, setParticipantsPage] = useState(1);
 
   // Share dialog
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -136,27 +122,10 @@ export default function ExamRoomDetailPage() {
 
   // Fetch sessions data with caching
   useEffect(() => {
-    if (id && activeTab === "sessions") {
+    if (id) {
       fetchSessions(id, sessionsPage, PAGE_SIZE);
     }
-  }, [id, activeTab, sessionsPage, fetchSessions]);
-
-  // Fetch participants data with caching
-  useEffect(() => {
-    if (id && activeTab === "participants") {
-      fetchParticipants(id, participantsPage, PAGE_SIZE);
-    }
-  }, [id, activeTab, participantsPage, fetchParticipants]);
-
-  // Update URL when tab changes
-  const handleTabChange = useCallback(
-    (value: string) => {
-      const tab = value as TabValue;
-      setActiveTab(tab);
-      router.push(`/k/manage-exam-room/${id}?tab=${tab}`, { scroll: false });
-    },
-    [id, router]
-  );
+  }, [id, sessionsPage, fetchSessions]);
 
   // Get session status badge
   const getStatusBadge = (startTime: string, endTime: string) => {
@@ -169,40 +138,6 @@ export default function ExamRoomDetailPage() {
       return <Badge variant="default">Đang diễn ra</Badge>;
     } else {
       return <Badge variant="outline">Đã kết thúc</Badge>;
-    }
-  };
-
-  // Get participant status badge
-  const getParticipantStatusBadge = (status: number) => {
-    switch (status) {
-      case 0:
-        return (
-          <Badge
-            variant="secondary"
-            className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-            Đang chờ
-          </Badge>
-        );
-      case 1:
-        return (
-          <Badge
-            variant="default"
-            className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-            Đã duyệt
-          </Badge>
-        );
-      case 2:
-        return (
-          <Badge
-            variant="destructive"
-            className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-            Từ chối
-          </Badge>
-        );
-      case 3:
-        return <Badge variant="outline">Đã rời</Badge>;
-      default:
-        return <Badge variant="outline">Không xác định</Badge>;
     }
   };
 
@@ -420,205 +355,97 @@ export default function ExamRoomDetailPage() {
         </Card>
       </div>
 
-      {/* Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="sessions" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Danh sách phiên thi
-          </TabsTrigger>
-          <TabsTrigger value="participants" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Người tham gia
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Sessions Tab */}
-        <TabsContent value="sessions" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Danh sách phiên thi</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingSessions ? (
-                <div className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
+      {/* Sessions List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Danh sách phiên thi</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loadingSessions ? (
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : sessions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Chưa có phiên thi nào</p>
+              <Button variant="link" onClick={handleCreateSession}>
+                Tạo phiên thi đầu tiên
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Thời gian bắt đầu</TableHead>
+                    <TableHead>Thời gian kết thúc</TableHead>
+                    <TableHead>Số người tham gia</TableHead>
+                    <TableHead>Số bài làm</TableHead>
+                    <TableHead className="text-right">Hành động</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sessions.map((session: ExamSessionBasic) => (
+                    <TableRow key={session.id}>
+                      <TableCell>
+                        {getStatusBadge(
+                          session.startTime,
+                          session.endTime || ""
+                        )}
+                      </TableCell>
+                      <TableCell>{formatDateTime(session.startTime)}</TableCell>
+                      <TableCell>
+                        {session.endTime
+                          ? formatDateTime(session.endTime)
+                          : "—"}
+                      </TableCell>
+                      <TableCell>{session.distinctUserCount || 0}</TableCell>
+                      <TableCell>{session._count?.examAttempts || 0}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleShareSession(session.id)}>
+                              <Share2 className="h-4 w-4 mr-2" />
+                              Chia sẻ
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleEditSession(session)}>
+                              <Pencil className="h-4 w-4 mr-2" />
+                              Chỉnh sửa
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteClick(session.id)}
+                              className="text-red-600 focus:text-red-600">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Xóa
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              ) : sessions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Chưa có phiên thi nào</p>
-                  <Button variant="link" onClick={handleCreateSession}>
-                    Tạo phiên thi đầu tiên
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Trạng thái</TableHead>
-                        <TableHead>Thời gian bắt đầu</TableHead>
-                        <TableHead>Thời gian kết thúc</TableHead>
-                        <TableHead>Số người tham gia</TableHead>
-                        <TableHead>Số bài làm</TableHead>
-                        <TableHead className="text-right">Hành động</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sessions.map((session: ExamSessionBasic) => (
-                        <TableRow key={session.id}>
-                          <TableCell>
-                            {getStatusBadge(
-                              session.startTime,
-                              session.endTime || ""
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {formatDateTime(session.startTime)}
-                          </TableCell>
-                          <TableCell>
-                            {session.endTime
-                              ? formatDateTime(session.endTime)
-                              : "—"}
-                          </TableCell>
-                          <TableCell>
-                            {session._count?.participants || 0}
-                          </TableCell>
-                          <TableCell>
-                            {session._count?.examAttempts || 0}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleShareSession(session.id)
-                                  }>
-                                  <Share2 className="h-4 w-4 mr-2" />
-                                  Chia sẻ
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleEditSession(session)}>
-                                  <Pencil className="h-4 w-4 mr-2" />
-                                  Chỉnh sửa
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => handleDeleteClick(session.id)}
-                                  className="text-red-600 focus:text-red-600">
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Xóa
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {renderPagination(
-                    sessionsPage,
-                    sessionsTotalPages,
-                    setSessionsPage
-                  )}
-                </>
+                </TableBody>
+              </Table>
+              {renderPagination(
+                sessionsPage,
+                sessionsTotalPages,
+                setSessionsPage
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Participants Tab */}
-        <TabsContent value="participants" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Danh sách người tham gia</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingParticipants ? (
-                <div className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))}
-                </div>
-              ) : participants.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Chưa có người tham gia nào</p>
-                </div>
-              ) : (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Người tham gia</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Trạng thái</TableHead>
-                        <TableHead>Phiên thi</TableHead>
-                        <TableHead>Thời gian tham gia</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {participants.map(
-                        (participant: ExamSessionParticipant) => (
-                          <TableRow key={participant.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={participant.user?.avatar} />
-                                  <AvatarFallback>
-                                    {participant.user?.name?.[0] ||
-                                      participant.user?.username?.[0] ||
-                                      "?"}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span>
-                                  {participant.user?.name ||
-                                    participant.user?.username}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>{participant.user?.email}</TableCell>
-                            <TableCell>
-                              {getParticipantStatusBadge(participant.status)}
-                            </TableCell>
-                            <TableCell>
-                              {participant.examSession &&
-                                formatDateTime(
-                                  participant.examSession.startTime
-                                )}
-                            </TableCell>
-                            <TableCell>
-                              {participant.joinedAt
-                                ? formatDateTime(participant.joinedAt)
-                                : "—"}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      )}
-                    </TableBody>
-                  </Table>
-                  {renderPagination(
-                    participantsPage,
-                    participantsTotalPages,
-                    setParticipantsPage
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Share Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>

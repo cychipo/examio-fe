@@ -1,6 +1,5 @@
 import { api } from "./api";
 import { ExamRoom, ExamSessionBasic } from "@/types/examRoom";
-import { ExamSessionParticipant } from "@/types/examSession";
 
 export type CredentialsCreateExamRoom = {
   title: string;
@@ -39,14 +38,6 @@ export type ResponseUpdateExamRoom = {
 
 export type ResponseDeleteExamRoom = {
   message: string;
-};
-
-export type ResponseListParticipants = {
-  participants: ExamSessionParticipant[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
 };
 
 export type ResponseListExamSessions = {
@@ -104,17 +95,6 @@ export type ResponseListAllExamRooms = {
 
 export async function getAllExamRoomsApi(): Promise<ResponseListAllExamRooms> {
   const response = await api.get("/examrooms/list-all");
-  return response.data;
-}
-
-export async function getExamRoomParticipantsApi(
-  examRoomId: string,
-  page = 1,
-  limit = 10
-): Promise<ResponseListParticipants> {
-  const response = await api.get(`/examrooms/${examRoomId}/participants`, {
-    params: { page, limit },
-  });
   return response.data;
 }
 
