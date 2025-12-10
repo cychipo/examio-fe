@@ -26,7 +26,7 @@ import { toast } from "@/components/ui/toast";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCheatingDetection } from "@/hooks/useCheatingDetection";
 import { CheatingWarningModal } from "@/components/molecules/CheatingWarningModal";
-import { CanvasMarkdownRenderer } from "@/components/molecules/CanvasMarkdownRenderer";
+import { StandardMarkdownRenderer } from "@/components/molecules/StandardMarkdownRenderer";
 import {
   startExamAttemptApi,
   updateExamAttemptProgressApi,
@@ -921,7 +921,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                       </Button>
                     </div>
 
-                    <CanvasMarkdownRenderer
+                    <StandardMarkdownRenderer
                       content={currentQuestion.question}
                       className="mb-6"
                       fontSize={16}
@@ -953,7 +953,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                             <Label
                               htmlFor={`option-${index}`}
                               className="flex-1 cursor-pointer">
-                              <CanvasMarkdownRenderer
+                              <StandardMarkdownRenderer
                                 content={option}
                                 fontSize={15}
                               />
