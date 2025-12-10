@@ -324,7 +324,7 @@ export function FlashcardGenerator() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-white/5 border-border hover:bg-white/10">
+                      className="bg-white/5 border-border cursor-pointer">
                       <SaveAll size={15} className="mr-2" />
                       Lưu
                     </Button>
@@ -361,7 +361,7 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={prevCard}
                   disabled={currentCard === 0}
-                  className="flex-1 bg-white/5 border-border hover:bg-white/10">
+                  className="flex-1 bg-white/5 border-border cursor-pointer">
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Trước
                 </Button>
@@ -370,7 +370,7 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={nextCard}
                   disabled={currentCard === generatedCards.length - 1}
-                  className="flex-1 bg-white/5 border-border hover:bg-white/10">
+                  className="flex-1 bg-white/5 border-border cursor-pointer">
                   Sau
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>

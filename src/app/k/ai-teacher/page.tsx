@@ -539,7 +539,7 @@ export default function AITeacherPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-border hover:bg-white/10">
+            <AlertDialogCancel className="bg-white/5 border-border cursor-pointer">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction

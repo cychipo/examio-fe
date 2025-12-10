@@ -434,7 +434,7 @@ function AIInput_Voice() {
             "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
             submitted
               ? "bg-none"
-              : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
+              : "bg-none hover:bg-black/10 dark:cursor-pointer"
           )}
           type="button"
           onClick={handleClick}>

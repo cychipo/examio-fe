@@ -150,7 +150,7 @@ export function ChatHistoryCard({
                     key={chat.id}
                     className={cn(
                       "group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all",
-                      "hover:bg-white/10 dark:hover:bg-white/5 max-w-66",
+                      "cursor-pointer dark:cursor-pointer max-w-66",
                       selectedChatId === chat.id &&
                         "bg-primary/10 border border-primary/20"
                     )}
@@ -264,7 +264,7 @@ export function ChatHistoryCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-border hover:bg-white/10">
+            <AlertDialogCancel className="bg-white/5 border-border cursor-pointer">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction

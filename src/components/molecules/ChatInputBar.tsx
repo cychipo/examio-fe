@@ -161,7 +161,7 @@ export function ChatInputBar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-white/10"
+            className="h-9 w-9 text-muted-foreground hover:text-foreground cursor-pointer"
             onClick={() => imageInputRef.current?.click()}
             disabled={disabled || isProcessing || isUploadingImage}>
             {isUploadingImage ? (
@@ -177,7 +177,7 @@ export function ChatInputBar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-white/10"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground cursor-pointer"
                 disabled={disabled || isProcessing || isUploadingPdf}>
                 {isUploadingPdf ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -208,7 +208,7 @@ export function ChatInputBar({
               "h-9 w-9",
               isListening
                 ? "text-red-500 hover:text-red-600 bg-red-500/10"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+                : "text-muted-foreground hover:text-foreground cursor-pointer"
             )}
             onClick={toggleMic}
             disabled={disabled || isProcessing}>

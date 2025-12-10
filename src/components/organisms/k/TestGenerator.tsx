@@ -307,7 +307,7 @@ export function TestGenerator() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white/5 border-border hover:bg-white/10">
+                    className="bg-white/5 border-border cursor-pointer">
                     <SaveAll size={15} className="mr-2" />
                     Lưu
                   </Button>

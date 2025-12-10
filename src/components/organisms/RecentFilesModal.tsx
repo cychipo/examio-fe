@@ -108,7 +108,7 @@ export function RecentFilesModal({
                   key={file.id}
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
-                    "hover:bg-white/10 dark:hover:bg-white/5",
+                    "cursor-pointer dark:cursor-pointer",
                     "border",
                     selectedId === file.id
                       ? "bg-primary/10 border-primary/30"
@@ -138,7 +138,7 @@ export function RecentFilesModal({
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="bg-white/5 border-border hover:bg-white/10">
+              className="bg-white/5 border-border cursor-pointer">
               Hủy
             </Button>
             <Button onClick={handleConfirm} disabled={!selectedId}>
