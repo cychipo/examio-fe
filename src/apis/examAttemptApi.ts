@@ -213,3 +213,90 @@ export async function getExamAttemptsBySessionApi(
   });
   return response.data;
 }
+
+// ==================== SECURE QUIZ API ====================
+
+/**
+ * Secure question with JWT token and encrypted content
+ */
+export interface SecureQuestion {
+  index: number;
+  token: string;
+  question_encrypted: string;
+  options_encrypted: string;
+}
+
+/**
+ * Secure quiz response with encrypted questions
+ */
+export interface SecureQuizResponse {
+  attemptId: string;
+  status: number;
+  currentIndex: number;
+  answers: Record<string, string>;
+  markedQuestions: string[];
+  totalQuestions: number;
+  timeLimitMinutes: number | null;
+  startedAt: string;
+  questions: SecureQuestion[];
+}
+
+/**
+ * Answer with JWT token for verification
+ */
+export interface SecureAnswer {
+  token: string;
+  chosen_option: string;
+}
+
+/**
+ * Secure submit response
+ */
+export interface SecureSubmitResponse {
+  message: string;
+  examAttempt: {
+    id: string;
+    status: number;
+    score: number;
+    finishedAt: string;
+  };
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  percentage: number;
+  showAnswers: boolean;
+  passed: boolean;
+  passingScore: number;
+  questions?: Array<{
+    id: string;
+    question: string;
+    options: string[];
+    answer: string;
+    userAnswer: string | null;
+  }>;
+}
+
+/**
+ * Get secure quiz with encrypted questions and JWT tokens
+ * Use this for the actual exam taking
+ */
+export async function getSecureQuizApi(
+  attemptId: string
+): Promise<SecureQuizResponse> {
+  const response = await api.get(`/examattempts/${attemptId}/secure-quiz`);
+  return response.data;
+}
+
+/**
+ * Submit exam with JWT token verification
+ * Each answer must include the question's JWT token
+ */
+export async function submitSecureQuizApi(
+  attemptId: string,
+  answers: SecureAnswer[]
+): Promise<SecureSubmitResponse> {
+  const response = await api.post(`/examattempts/${attemptId}/secure-submit`, {
+    answers,
+  });
+  return response.data;
+}
