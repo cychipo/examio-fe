@@ -4,7 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { HistoryTemplate } from "@/templates/HistoryTemplate";
 import type { PDFHistoryListItemData } from "@/components/molecules/PDFHistoryListItem";
 import type { ExamHistoryListItemData } from "@/components/molecules/ExamHistoryListItem";
-import type { RecentActivityItemData, ActivityType } from "@/components/molecules/RecentActivityItem";
+import type {
+  RecentActivityItemData,
+  ActivityType,
+} from "@/components/molecules/RecentActivityItem";
 import {
   getHistoryStatsApi,
   getPDFHistoryApi,
@@ -13,9 +16,12 @@ import {
   type PDFHistoryItem,
   type ExamHistoryItem,
 } from "@/apis/historyApi";
+import { storeCache, CacheTTL } from "@/lib/storeCache";
 
 // Transform PDF history from API to component format
-function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] {
+function transformPDFHistory(
+  items: PDFHistoryItem[]
+): PDFHistoryListItemData[] {
   return items.map((item) => {
     const quizCount = item.quizHistory?.quizzes?.length || 0;
     const flashcardCount = item.flashcardHistory?.flashcards?.length || 0;
@@ -35,21 +41,28 @@ function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] 
       id: item.id,
       fileName: item.filename,
       description,
-      status: (quizCount > 0 || flashcardCount > 0) ? "completed" as const : "processing" as const,
+      status:
+        quizCount > 0 || flashcardCount > 0
+          ? ("completed" as const)
+          : ("processing" as const),
       createdAt: formatTimeAgo(item.createdAt),
     };
   });
 }
 
 // Transform exam history from API to component format
-function transformExamHistory(items: ExamHistoryItem[]): ExamHistoryListItemData[] {
+function transformExamHistory(
+  items: ExamHistoryItem[]
+): ExamHistoryListItemData[] {
   return items.map((item) => ({
     id: item.id,
     examTitle: item.examSession.examRoom.title,
     score: item.score,
     totalQuestions: item.totalQuestions,
     correctAnswers: item.correctAnswers,
-    completedAt: `Hoàn thành ${formatTimeAgo(item.finishedAt || item.startedAt)}`,
+    completedAt: `Hoàn thành ${formatTimeAgo(
+      item.finishedAt || item.startedAt
+    )}`,
     passed: item.score >= 50, // 50% passing score
   }));
 }
@@ -63,11 +76,18 @@ function generateRecentActivities(
 
   // Add exam activities
   examItems.slice(0, 2).forEach((item) => {
-    const percentage = Math.round((item.correctAnswers / item.totalQuestions) * 100);
+    const percentage = Math.round(
+      (item.correctAnswers / item.totalQuestions) * 100
+    );
     activities.push({
       id: `exam-${item.id}`,
       type: "exam_score" as ActivityType,
-      title: percentage >= 80 ? "Xuất sắc!" : percentage >= 60 ? "Làm tốt lắm!" : "Hoàn thành bài thi",
+      title:
+        percentage >= 80
+          ? "Xuất sắc!"
+          : percentage >= 60
+          ? "Làm tốt lắm!"
+          : "Hoàn thành bài thi",
       description: `Bạn đạt ${percentage}% trong bài ${item.examSession.examRoom.title}.`,
       timestamp: formatTimeAgo(item.finishedAt || item.startedAt),
     });
@@ -124,11 +144,23 @@ export default function HistoryPage() {
     try {
       setIsLoading(true);
 
-      // Fetch all data in parallel
+      // Fetch all data with cache
       const [statsData, pdfData, examData] = await Promise.all([
-        getHistoryStatsApi(),
-        getPDFHistoryApi(10),
-        getExamHistoryApi(1, 10),
+        storeCache.fetchWithCache(
+          storeCache.createKey("history-stats", {}),
+          () => getHistoryStatsApi(),
+          { ttl: CacheTTL.FIVE_MINUTES }
+        ),
+        storeCache.fetchWithCache(
+          storeCache.createKey("history-pdf", { limit: 10 }),
+          () => getPDFHistoryApi(10),
+          { ttl: CacheTTL.FIVE_MINUTES }
+        ),
+        storeCache.fetchWithCache(
+          storeCache.createKey("history-exam", { page: 1, limit: 10 }),
+          () => getExamHistoryApi(1, 10),
+          { ttl: CacheTTL.FIVE_MINUTES }
+        ),
       ]);
 
       setStats(statsData);

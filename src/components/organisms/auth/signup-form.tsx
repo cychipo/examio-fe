@@ -84,11 +84,11 @@ export function SignupForm() {
         </button>
 
         <div className="flex items-center my-8">
-          <hr className="flex-grow border-t border-neutral-300 dark:border-neutral-700" />
+          <hr className="flex-grow border-t border-border dark:border-border" />
           <span className="px-4 text-sm text-neutral-500">
             Hoặc đăng ký với
           </span>
-          <hr className="flex-grow border-t border-neutral-300 dark:border-neutral-700" />
+          <hr className="flex-grow border-t border-border dark:border-border" />
         </div>
 
         <div className="grid gap-2 mb-[10px] grid-cols-1 md:grid-cols-3">

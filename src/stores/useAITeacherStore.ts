@@ -6,8 +6,9 @@ import {
   SendMessageRequest,
 } from "@/apis/aiChatApi";
 import { toast } from "@/components/ui/toast";
-import { RecentUpload, aiApi } from "@/apis/aiApi";
+import { RecentUpload } from "@/apis/aiApi";
 import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
+import { storeCache, CacheTTL } from "@/lib/storeCache";
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -54,7 +55,7 @@ interface AITeacherState {
   abortStream: (() => void) | null;
 
   // Actions - Chat CRUD
-  fetchChats: () => Promise<void>;
+  fetchChats: (options?: { forceRefresh?: boolean }) => Promise<void>;
   createChat: () => Promise<string | null>;
   selectChat: (chatId: string | null, updateUrl?: boolean) => Promise<void>;
   updateChatTitle: (chatId: string, title: string) => Promise<void>;
@@ -72,9 +73,7 @@ interface AITeacherState {
   setTranscript: (value: string) => void;
 
   // Actions - Files
-  setSelectedUploads: (
-    uploads: RecentUpload[]
-  ) => void;
+  setSelectedUploads: (uploads: RecentUpload[]) => void;
   addSelectedUpload: (upload: RecentUpload) => void;
   removeSelectedUpload: (uploadId: string) => void;
   setUploadedImageUrl: (url: string | null) => void;
@@ -179,10 +178,17 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
   // ================== CHAT CRUD ==================
 
-  fetchChats: async () => {
+  fetchChats: async (options: { forceRefresh?: boolean } = {}) => {
+    const { forceRefresh = false } = options;
+    const cacheKey = storeCache.createKey("ai-teacher-chats", {});
+
     set({ isLoadingChats: true });
     try {
-      const response = await aiChatApi.getChats();
+      const response = await storeCache.fetchWithCache(
+        cacheKey,
+        () => aiChatApi.getChats(),
+        { ttl: CacheTTL.FIVE_MINUTES, forceRefresh }
+      );
       set({ chats: response.chats });
     } catch (error) {
       console.error("Error fetching chats:", error);
@@ -205,6 +211,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
         selectedChatId: chat.id,
         messages: [],
       }));
+      storeCache.invalidate("ai-teacher-chats");
       updateUrlQuery(chat.id);
       return chat.id;
     } catch (error) {
@@ -235,11 +242,24 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     set({ selectedUploads: [], uploadedImageUrl: null });
 
     try {
-      const messages = await aiChatApi.getChatMessages(chatId);
+      // Cache messages per chatId
+      const messagesCacheKey = storeCache.createKey("ai-teacher-messages", {
+        chatId,
+      });
+      const messages = await storeCache.fetchWithCache(
+        messagesCacheKey,
+        () => aiChatApi.getChatMessages(chatId),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       set({ messages });
 
-      // Load chat's linked documents from server (O(1) via index)
-      const docs = await aiChatApi.getDocuments(chatId);
+      // Cache documents per chatId
+      const docsCacheKey = storeCache.createKey("ai-teacher-docs", { chatId });
+      const docs = await storeCache.fetchWithCache(
+        docsCacheKey,
+        () => aiChatApi.getDocuments(chatId),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       if (docs.length > 0) {
         set({
           selectedUploads: docs.map((d) => ({
@@ -286,6 +306,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
           chat.id === chatId ? { ...chat, title } : chat
         ),
       }));
+      storeCache.invalidate("ai-teacher-chats");
       toast.success("Đã cập nhật tên chat");
     } catch (error) {
       console.error("Error updating chat:", error);
@@ -305,6 +326,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       if (selectedChatId === chatId) {
         updateUrlQuery(null);
       }
+      storeCache.invalidate("ai-teacher");
       toast.success("Đã xóa chat");
     } catch (error) {
       console.error("Error deleting chat:", error);
@@ -343,7 +365,9 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
     // Sync documents to server before sending message
     // Filter out placeholders and sync real documents
-    const realDocs = selectedUploads.filter((u) => !u.id.startsWith("processing-"));
+    const realDocs = selectedUploads.filter(
+      (u) => !u.id.startsWith("processing-")
+    );
     for (const doc of realDocs) {
       try {
         await aiChatApi.addDocument(chatId, doc.id, doc.filename);
@@ -614,89 +638,47 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
+  /**
+   * Upload PDF files using quick-upload (no waiting for OCR).
+   * OCR/vectorization happens on-demand when first message is sent.
+   */
   uploadPdf: async (files: File[]) => {
     set({ isProcessingPdf: true });
 
     try {
       // Process all files concurrently
-      await Promise.all(files.map(async (file) => {
-        const placeholderId = `processing-${Date.now()}-${Math.random()}`;
-        const placeholder: RecentUpload = {
-          id: placeholderId,
-          filename: file.name,
-          url: "",
-          size: file.size,
-          mimeType: "application/pdf",
-          createdAt: new Date().toISOString(),
-          quizHistory: null,
-          flashcardHistory: null,
-        };
-        // Add placeholder
-        get().addSelectedUpload(placeholder);
+      await Promise.all(
+        files.map(async (file) => {
+          try {
+            // Use quick upload - returns immediately after R2 upload
+            const result = await virtualTeacherApi.quickUploadFile(file);
 
-        // Wrap polling in a promise to await it
-        await new Promise<void>((resolve) => {
-            (async () => {
-                try {
-                    const { jobId } = await virtualTeacherApi.uploadFile(file);
+            if (result.success) {
+              const upload: RecentUpload = {
+                id: result.userStorageId,
+                filename: result.filename,
+                url: result.url,
+                size: file.size,
+                mimeType: "application/pdf",
+                createdAt: new Date().toISOString(),
+                quizHistory: null,
+                flashcardHistory: null,
+              };
 
-                    // Poll for status
-                    const pollInterval = setInterval(async () => {
-                        try {
-                            const status = await aiApi.getJobStatus(jobId);
-
-                            if (status.status === "completed" && status.result?.fileInfo) {
-                                clearInterval(pollInterval);
-                                const fileInfo = status.result.fileInfo;
-
-                                const upload: RecentUpload = {
-                                    id: fileInfo.id,
-                                    filename: fileInfo.filename,
-                                    url: (fileInfo as any).url || "",
-                                    size: file.size,
-                                    mimeType: "application/pdf",
-                                    createdAt: new Date().toISOString(),
-                                    quizHistory: status.result.historyId ? { id: status.result.historyId, quizzes: status.result.quizzes || [], createdAt: new Date().toISOString() } : null,
-                                    flashcardHistory: status.result.historyId ? { id: status.result.historyId, flashcards: status.result.flashcards || [], createdAt: new Date().toISOString() } : null,
-                                };
-
-                                get().removeSelectedUpload(placeholderId);
-                                get().addSelectedUpload(upload);
-                                resolve(); // Done
-                            } else if (status.status === "failed") {
-                                clearInterval(pollInterval);
-                                get().removeSelectedUpload(placeholderId);
-                                toast.error(`Lỗi xử lý file: ${file.name}`);
-                                resolve(); // Resolved as failed but handled
-                            }
-                        } catch {
-                            // Transient error
-                        }
-                    }, 2000);
-
-                    // Timeout
-                    setTimeout(() => {
-                        clearInterval(pollInterval);
-                        const current = get().selectedUploads.find(u => u.id === placeholderId);
-                        if (current) {
-                            get().removeSelectedUpload(placeholderId);
-                            toast.error(`Quá thời gian xử lý: ${file.name}`);
-                        }
-                        resolve(); // Timeout is also a completion of sort
-                    }, 5 * 60 * 1000);
-
-                } catch {
-                    get().removeSelectedUpload(placeholderId);
-                    toast.error(`Không thể tải lên: ${file.name}`);
-                    resolve(); // Handled
-                }
-            })();
-        });
-      }));
+              get().addSelectedUpload(upload);
+              console.log(
+                `[Quick Upload] Success: ${result.filename} (${result.userStorageId})`
+              );
+            }
+          } catch (error) {
+            console.error(`Error uploading ${file.name}:`, error);
+            toast.error(`Không thể tải lên: ${file.name}`);
+          }
+        })
+      );
 
       set({ isProcessingPdf: false });
-      toast.success("Đã xử lý xong các tài liệu");
-
+      toast.success("Đã tải lên tài liệu thành công");
     } catch (error) {
       console.error("Error in batch upload:", error);
       set({ isProcessingPdf: false });

@@ -21,16 +21,23 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/organisms/ConfirmDialog";
+import { FullscreenConfirmDialog } from "@/components/organisms/FullscreenConfirmDialog";
 import { toast } from "@/components/ui/toast";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useCheatingDetection } from "@/hooks/useCheatingDetection";
+import { CheatingWarningModal } from "@/components/molecules/CheatingWarningModal";
+import { StandardMarkdownRenderer } from "@/components/molecules/StandardMarkdownRenderer";
 import {
   startExamAttemptApi,
   updateExamAttemptProgressApi,
-  submitExamAttemptApi,
-  getExamAttemptForQuizApi,
-  ExamAttemptWithQuestions,
   Question,
 } from "@/apis/examAttemptApi";
+import {
+  DecryptedQuestion,
+  QuestionTokenMap,
+  fetchAndDecryptSecureQuiz,
+  submitSecureQuiz,
+} from "@/lib/secureQuizHelpers";
 
 interface ExamQuizPageProps {
   params: Promise<{ id: string }>;
@@ -40,12 +47,22 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   const { id: examSessionId } = use(params);
   const router = useRouter();
 
+  // Fullscreen confirmation state
+  const [showFullscreenDialog, setShowFullscreenDialog] = useState(true);
+  const [fullscreenConfirmed, setFullscreenConfirmed] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
   // Attempt state
   const [attemptId, setAttemptId] = useState<string | null>(null);
-  const [attemptData, setAttemptData] =
-    useState<ExamAttemptWithQuestions | null>(null);
+  const [questions, setQuestions] = useState<DecryptedQuestion[]>([]);
+  const [tokenMap, setTokenMap] = useState<QuestionTokenMap>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [examSessionData, setExamSessionData] = useState<{
+    allowRetake: boolean;
+    showAnswersAfterSubmit: boolean;
+    examRoomTitle: string;
+  } | null>(null);
 
   // Quiz state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -80,6 +97,12 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   const debouncedAnswers = useDebounce(answers, 1000);
   const debouncedCurrentIndex = useDebounce(currentQuestionIndex, 1000);
 
+  // Cheating detection
+  const cheatingDetection = useCheatingDetection({
+    examAttemptId: attemptId || "",
+    enabled: !!attemptId && !isSubmitted && !loading,
+  });
+
   // Save progress callback
   const saveProgress = useCallback(
     async (overrideAnswers?: Record<string, string>) => {
@@ -102,7 +125,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
 
   // Auto submit when time is up
   const handleAutoSubmit = useCallback(async () => {
-    if (!attemptId) return;
+    if (!attemptId || tokenMap.size === 0) return;
 
     try {
       // Save progress first
@@ -112,7 +135,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         markedQuestions: Array.from(markedForReview),
       });
 
-      const result = await submitExamAttemptApi(attemptId);
+      // Submit with secure tokens
+      const result = await submitSecureQuiz(attemptId, answers, tokenMap);
       setResultData({
         score: result.score,
         totalQuestions: result.totalQuestions,
@@ -130,35 +154,45 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
     } catch (err) {
       console.error("Failed to auto-submit:", err);
     }
-  }, [attemptId, answers, currentQuestionIndex, markedForReview]);
+  }, [attemptId, answers, currentQuestionIndex, markedForReview, tokenMap]);
 
   // Initialize exam attempt
   useEffect(() => {
+    // Don't load exam until fullscreen is confirmed
+    if (!fullscreenConfirmed) return;
+
     const initExam = async () => {
       setLoading(true);
       setError(null);
 
       try {
         // Start or resume attempt
-        const startResult = await startExamAttemptApi(examSessionId);
+        // Access token from state if needed, though here we rely on the flow
+        const startResult = await startExamAttemptApi(
+          examSessionId,
+          captchaToken || undefined
+        );
         setAttemptId(startResult.examAttempt.id);
 
-        // Get full attempt data with questions
-        const attemptWithQuestions = await getExamAttemptForQuizApi(
+        // Get secure quiz data with encrypted questions
+        const secureQuizData = await fetchAndDecryptSecureQuiz(
           startResult.examAttempt.id
         );
-        setAttemptData(attemptWithQuestions);
+
+        // Store decrypted questions and token map
+        setQuestions(secureQuizData.questions);
+        setTokenMap(secureQuizData.tokenMap);
 
         // Always restore answers from attempt data (persisted in DB)
-        const savedAnswers =
-          (attemptWithQuestions.answers as Record<string, string>) || {};
+        // Convert old answers format (using real questionId) to new format (using q_index)
+        const savedAnswers = secureQuizData.savedAnswers || {};
         setAnswers(savedAnswers);
-        setCurrentQuestionIndex(attemptWithQuestions.currentIndex || 0);
-        setMarkedForReview(new Set(attemptWithQuestions.markedQuestions || []));
+        setCurrentQuestionIndex(secureQuizData.currentIndex || 0);
+        setMarkedForReview(new Set(secureQuizData.markedQuestions || []));
 
         // Calculate elapsed time from startedAt
-        if (attemptWithQuestions.startedAt) {
-          const startedAtDate = new Date(attemptWithQuestions.startedAt);
+        if (secureQuizData.startedAt) {
+          const startedAtDate = new Date(secureQuizData.startedAt);
           const now = new Date();
           const elapsedSeconds = Math.floor(
             (now.getTime() - startedAtDate.getTime()) / 1000
@@ -174,36 +208,22 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         }
 
         // Set time limit
-        setTimeLimitMinutes(attemptWithQuestions.timeLimitMinutes);
+        setTimeLimitMinutes(secureQuizData.timeLimitMinutes);
 
         // Check if already submitted
-        if (attemptWithQuestions.status === 1) {
+        if (secureQuizData.status === 1) {
           // COMPLETED
           setIsSubmitted(true);
           setResultData({
-            score: attemptWithQuestions.score,
-            totalQuestions: attemptWithQuestions.totalQuestions,
-            correctAnswers: attemptWithQuestions.correctAnswers,
-            percentage:
-              attemptWithQuestions.totalQuestions > 0
-                ? (attemptWithQuestions.correctAnswers /
-                    attemptWithQuestions.totalQuestions) *
-                  100
-                : 0,
-            showAnswers:
-              attemptWithQuestions.examSession.showAnswersAfterSubmit,
-            passed:
-              attemptWithQuestions.score >=
-              ((attemptWithQuestions.examSession as any).passingScore ?? 0),
-            passingScore:
-              (attemptWithQuestions.examSession as any).passingScore ?? 0,
-            questions: attemptWithQuestions.examSession.showAnswersAfterSubmit
-              ? attemptWithQuestions.questions
-              : undefined,
+            score: 0, // Will be updated by viewing results
+            totalQuestions: secureQuizData.totalQuestions,
+            correctAnswers: 0,
+            percentage: 0,
+            showAnswers: false,
+            passed: false,
+            passingScore: 0,
+            questions: undefined,
           });
-          setAnswers(
-            (attemptWithQuestions.answers as Record<string, string>) || {}
-          );
         }
       } catch (err: any) {
         const message =
@@ -218,11 +238,42 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
     };
 
     initExam();
-  }, [examSessionId]);
+  }, [examSessionId, fullscreenConfirmed, captchaToken]);
+
+  // Handle fullscreen dialog
+  const handleFullscreenConfirm = (token?: string) => {
+    if (token) {
+      setCaptchaToken(token);
+    }
+    setShowFullscreenDialog(false);
+    setFullscreenConfirmed(true);
+  };
+
+  const handleFullscreenCancel = () => {
+    // Navigate back to exam session page
+    router.push(`/exam-session/${examSessionId}`);
+  };
+
+  // Cleanup fullscreen protections on unmount
+  useEffect(() => {
+    return () => {
+      const cleanupFns = (window as any).__examCleanupFunctions;
+      if (cleanupFns) {
+        document.removeEventListener("keydown", cleanupFns.preventDevTools);
+        document.removeEventListener(
+          "contextmenu",
+          cleanupFns.preventRightClick
+        );
+      }
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, []);
 
   // Timer effect
   useEffect(() => {
-    if (!loading && !isSubmitted && attemptData) {
+    if (!loading && !isSubmitted && questions.length > 0) {
       timerRef.current = setInterval(() => {
         setTimeSpentSeconds((prev) => prev + 1);
       }, 1000);
@@ -233,7 +284,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         }
       };
     }
-  }, [loading, isSubmitted, attemptData]);
+  }, [loading, isSubmitted, questions.length]);
 
   // Check time limit and auto-submit
   useEffect(() => {
@@ -291,7 +342,6 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   }, [attemptId, isSubmitted, answers, currentQuestionIndex, markedForReview]);
 
   // Computed values
-  const questions = attemptData?.questions || [];
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
   const answeredCount = Object.keys(answers).length;
@@ -347,14 +397,14 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   };
 
   const doSubmit = async () => {
-    if (!attemptId) return;
+    if (!attemptId || tokenMap.size === 0) return;
 
     try {
       // Save progress first
       await saveProgress(answers);
 
-      // Submit
-      const result = await submitExamAttemptApi(attemptId);
+      // Submit with secure tokens
+      const result = await submitSecureQuiz(attemptId, answers, tokenMap);
       setResultData({
         score: result.score,
         totalQuestions: result.totalQuestions,
@@ -417,25 +467,30 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   };
 
   const handleRetry = async () => {
-    // Check if retry is allowed
-    if (!attemptData?.examSession.allowRetake) {
-      toast.error("Phiên thi này không cho phép làm lại");
-      return;
-    }
-
     // Reload the page to start fresh
     window.location.reload();
   };
 
   // Loading state
-  if (loading) {
+  if (loading || !fullscreenConfirmed) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Đang tải bài thi...</p>
-        </div>
-      </div>
+      <>
+        {/* Fullscreen Confirmation Dialog */}
+        <FullscreenConfirmDialog
+          open={showFullscreenDialog}
+          onConfirm={handleFullscreenConfirm}
+          onCancel={handleFullscreenCancel}
+        />
+
+        {fullscreenConfirmed && (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+              <p className="text-muted-foreground">Đang tải bài thi...</p>
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 
@@ -497,8 +552,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
               </Button>
               <h1 className="text-2xl font-bold">Xem lại kết quả</h1>
               <p className="text-muted-foreground">
-                {attemptData?.examSession.examRoom.title} - Câu{" "}
-                {reviewQuestionIndex + 1}/{totalQuestions}
+                Bài thi - Câu {reviewQuestionIndex + 1}/{totalQuestions}
               </p>
             </div>
 
@@ -678,7 +732,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                         onClick={handleBackToSummary}>
                         Xem tổng quan
                       </Button>
-                      {attemptData?.examSession.allowRetake && (
+                      {true && (
                         <Button
                           className="w-full"
                           variant="outline"
@@ -721,7 +775,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                 </p>
               </div>
 
-              <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
+              <div className="grid grid-cols-5 gap-4 max-w-2xl mx-auto">
                 <div className="text-center p-4 bg-muted rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
                     {correctAnswersCount}
@@ -746,6 +800,17 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                   </div>
                   <div className="text-sm text-muted-foreground">Thời gian</div>
                 </div>
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <div
+                    className={`text-2xl font-bold ${
+                      cheatingDetection.totalViolations > 0
+                        ? "text-orange-500"
+                        : "text-green-600"
+                    }`}>
+                    {cheatingDetection.totalViolations}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Vi phạm</div>
+                </div>
               </div>
 
               <div className="flex gap-4 justify-center flex-wrap">
@@ -755,7 +820,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                     Xem chi tiết
                   </Button>
                 )}
-                {attemptData?.examSession.allowRetake && (
+                {true && (
                   <Button onClick={handleRetry} variant="outline">
                     Làm lại
                   </Button>
@@ -786,6 +851,13 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         onConfirm={doSubmit}
       />
 
+      <CheatingWarningModal
+        open={cheatingDetection.isWarningVisible}
+        onClose={cheatingDetection.dismissWarning}
+        violationType={cheatingDetection.lastViolationType}
+        totalViolations={cheatingDetection.totalViolations}
+      />
+
       <div className="min-h-screen">
         <div className="container max-w-7xl mx-auto py-6 px-4">
           <div className="mb-6">
@@ -795,11 +867,9 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
             </Button>
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-2xl font-bold">
-                  {attemptData?.examSession.examRoom.title}
-                </h1>
+                <h1 className="text-2xl font-bold">Bài thi</h1>
                 <p className="text-muted-foreground">
-                  {attemptData?.examSession.examRoom.description}
+                  Câu {currentQuestionIndex + 1} / {totalQuestions}
                 </p>
               </div>
 
@@ -859,11 +929,10 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                       </Button>
                     </div>
 
-                    <div
-                      className="prose dark:prose-invert max-w-none mb-6"
-                      dangerouslySetInnerHTML={{
-                        __html: currentQuestion.question,
-                      }}
+                    <StandardMarkdownRenderer
+                      content={currentQuestion.question}
+                      className="mb-6"
+                      fontSize={16}
                     />
 
                     <RadioGroup
@@ -892,8 +961,9 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                             <Label
                               htmlFor={`option-${index}`}
                               className="flex-1 cursor-pointer">
-                              <span
-                                dangerouslySetInnerHTML={{ __html: option }}
+                              <StandardMarkdownRenderer
+                                content={option}
+                                fontSize={15}
                               />
                             </Label>
                           </div>

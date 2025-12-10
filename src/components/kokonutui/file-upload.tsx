@@ -433,7 +433,7 @@ export default function FileUpload({
         <div className="relative w-full rounded-[10px] bg-gray-50/50 dark:bg-white/[0.02] p-1.5">
           <div
             className={cn(
-              "relative mx-auto w-full overflow-hidden rounded-lg border border-gray-100 dark:border-white/[0.08] bg-white dark:bg-black/50",
+              "relative mx-auto w-full overflow-hidden rounded-lg border border-border dark:border-border[0.08] bg-white dark:bg-black/50",
               error ? "border-red-500/50" : ""
             )}>
             <div
@@ -489,7 +489,7 @@ export default function FileUpload({
                     <button
                       type="button"
                       onClick={triggerFileInput}
-                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:hover:bg-white/20 group">
+                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:cursor-pointer group">
                       <span>Tải file lên</span>
                       <UploadCloud className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                     </button>
@@ -530,7 +530,7 @@ export default function FileUpload({
                     <button
                       onClick={resetState}
                       type="button"
-                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:hover:bg-white/20">
+                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:cursor-pointer">
                       Cancel
                     </button>
                   </motion.div>

@@ -3,16 +3,27 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import {
   PDFHistoryListItem,
   type PDFHistoryListItemData,
 } from "@/components/molecules/PDFHistoryListItem";
 import { getPDFHistoryApi, type PDFHistoryItem } from "@/apis/historyApi";
+import { storeCache, CacheTTL } from "@/lib/storeCache";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 // Transform PDF history from API to component format
-function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] {
+function transformPDFHistory(
+  items: PDFHistoryItem[]
+): PDFHistoryListItemData[] {
   return items.map((item) => {
     const quizCount = item.quizHistory?.quizzes?.length || 0;
     const flashcardCount = item.flashcardHistory?.flashcards?.length || 0;
@@ -32,7 +43,10 @@ function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] 
       id: item.id,
       fileName: item.filename,
       description,
-      status: (quizCount > 0 || flashcardCount > 0) ? "completed" as const : "processing" as const,
+      status:
+        quizCount > 0 || flashcardCount > 0
+          ? ("completed" as const)
+          : ("processing" as const),
       createdAt: formatTimeAgo(item.createdAt),
     };
   });
@@ -63,7 +77,11 @@ export default function PDFHistoryPage() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getPDFHistoryApi(100); // Get all for client-side pagination
+      const data = await storeCache.fetchWithCache(
+        storeCache.createKey("history-pdf-full", { limit: 100 }),
+        () => getPDFHistoryApi(100),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       setItems(transformPDFHistory(data));
     } catch (error) {
       console.error("Failed to fetch PDF history:", error);
@@ -77,7 +95,10 @@ export default function PDFHistoryPage() {
   }, [fetchData]);
 
   const totalPages = Math.ceil(items.length / itemsPerPage);
-  const paginatedItems = items.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const paginatedItems = items.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
 
   const handleDownload = (id: string) => {
     console.log("Download PDF:", id);
@@ -97,20 +118,20 @@ export default function PDFHistoryPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto px-4 pt-8 pb-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/k/history">
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Lịch sử xử lý PDF</h1>
-          <p className="text-muted-foreground mt-1">
-            Tất cả các file PDF đã tải lên và xử lý
-          </p>
-        </div>
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/k/history">Lịch sử</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Lịch sử xử lý PDF</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Content */}
       <Card className="glass-card">
@@ -143,9 +164,8 @@ export default function PDFHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -154,9 +174,8 @@ export default function PDFHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

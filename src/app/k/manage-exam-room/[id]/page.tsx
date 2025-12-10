@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { useExamRoomStore } from "@/stores/useExamRoomStore";
 import { useExamRoomDetailStore } from "@/stores/useExamRoomDetailStore";
 import { Button } from "@/components/ui/button";
@@ -13,10 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -39,6 +38,10 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
+  BarChart3,
+  PlayCircle,
+  CheckCircle2,
+  Timer,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -49,13 +52,19 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
 import { ExamSessionBasic } from "@/types/examRoom";
-import { ExamSessionParticipant, ASSESS_TYPE } from "@/types/examSession";
+import { ASSESS_TYPE } from "@/types/examSession";
 import { ExamSessionFormModal } from "@/components/organisms/ExamSessionFormModal";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const PAGE_SIZE = 10;
-
-type TabValue = "sessions" | "participants";
 
 /**
  * ExamRoom Detail Page with tabbed interface
@@ -65,33 +74,24 @@ type TabValue = "sessions" | "participants";
 export default function ExamRoomDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = params.id as string;
 
   const { currentExamRoom, fetchExamRoomById, loading } = useExamRoomStore();
   const {
     sessions,
     sessionsTotalPages,
+    totalDistinctParticipants,
     loadingSessions,
-    participants,
-    participantsTotalPages,
-    loadingParticipants,
     mutationLoading,
     fetchSessions,
-    fetchParticipants,
     createSession,
     updateSession,
     deleteSession,
     reset,
   } = useExamRoomDetailStore();
 
-  // Tab state from URL
-  const tabFromUrl = (searchParams.get("tab") as TabValue) || "sessions";
-  const [activeTab, setActiveTab] = useState<TabValue>(tabFromUrl);
-
-  // Pagination states
+  // Pagination state
   const [sessionsPage, setSessionsPage] = useState(1);
-  const [participantsPage, setParticipantsPage] = useState(1);
 
   // Share dialog
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -127,27 +127,41 @@ export default function ExamRoomDetailPage() {
 
   // Fetch sessions data with caching
   useEffect(() => {
-    if (id && activeTab === "sessions") {
+    if (id) {
       fetchSessions(id, sessionsPage, PAGE_SIZE);
     }
-  }, [id, activeTab, sessionsPage, fetchSessions]);
+  }, [id, sessionsPage, fetchSessions]);
 
-  // Fetch participants data with caching
-  useEffect(() => {
-    if (id && activeTab === "participants") {
-      fetchParticipants(id, participantsPage, PAGE_SIZE);
-    }
-  }, [id, activeTab, participantsPage, fetchParticipants]);
+  // Calculate stats from sessions
+  const stats = useMemo(() => {
+    const now = new Date();
 
-  // Update URL when tab changes
-  const handleTabChange = useCallback(
-    (value: string) => {
-      const tab = value as TabValue;
-      setActiveTab(tab);
-      router.push(`/k/manage-exam-room/${id}?tab=${tab}`, { scroll: false });
-    },
-    [id, router]
-  );
+    const total = sessions.length;
+    const upcoming = sessions.filter((s) => new Date(s.startTime) > now).length;
+    const ongoing = sessions.filter((s) => {
+      const start = new Date(s.startTime);
+      const end = s.endTime ? new Date(s.endTime) : null;
+      return start <= now && (!end || end > now);
+    }).length;
+    const completed = sessions.filter((s) => {
+      const end = s.endTime ? new Date(s.endTime) : null;
+      return end && end <= now;
+    }).length;
+
+    const totalAttempts = sessions.reduce(
+      (sum, s) => sum + (s._count?.examAttempts || 0),
+      0
+    );
+
+    return {
+      total,
+      upcoming,
+      ongoing,
+      completed,
+      totalAttempts,
+      totalParticipants: totalDistinctParticipants,
+    };
+  }, [sessions, totalDistinctParticipants]);
 
   // Get session status badge
   const getStatusBadge = (startTime: string, endTime: string) => {
@@ -160,34 +174,6 @@ export default function ExamRoomDetailPage() {
       return <Badge variant="default">Đang diễn ra</Badge>;
     } else {
       return <Badge variant="outline">Đã kết thúc</Badge>;
-    }
-  };
-
-  // Get participant status badge
-  const getParticipantStatusBadge = (status: number) => {
-    switch (status) {
-      case 0:
-        return (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-            Đang chờ
-          </Badge>
-        );
-      case 1:
-        return (
-          <Badge variant="default" className="bg-green-100 text-green-800">
-            Đã duyệt
-          </Badge>
-        );
-      case 2:
-        return (
-          <Badge variant="destructive" className="bg-red-100 text-red-800">
-            Từ chối
-          </Badge>
-        );
-      case 3:
-        return <Badge variant="outline">Đã rời</Badge>;
-      default:
-        return <Badge variant="outline">Không xác định</Badge>;
     }
   };
 
@@ -347,265 +333,276 @@ export default function ExamRoomDetailPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
+      {/* Header with Breadcrumb */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/k/manage-exam-room")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{currentExamRoom.title}</h1>
-            {currentExamRoom.description && (
-              <p className="text-muted-foreground">
-                {currentExamRoom.description}
-              </p>
-            )}
-          </div>
+        <div className="flex-1">
+          <Breadcrumb className="mb-2">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/k/manage-exam-room">Quản lý Phòng thi</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{currentExamRoom.title}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
-        <Button onClick={handleCreateSession}>
+        <Button onClick={handleCreateSession} size="lg">
           <Plus className="h-4 w-4 mr-2" />
           Tạo phiên thi
         </Button>
       </div>
 
-      {/* Info Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardContent className="flex items-center gap-4 py-4">
-            <Calendar className="h-8 w-8 text-muted-foreground" />
+          <CardContent className="flex items-center gap-4 py-6">
+            <div className="rounded-full p-3 bg-blue-500/10">
+              <Calendar className="h-6 w-6 text-blue-500" />
+            </div>
             <div>
-              <p className="text-sm text-muted-foreground">Bộ đề</p>
-              <p className="font-medium">{currentExamRoom.quizSet?.title}</p>
+              <p className="text-2xl font-bold">{stats.total}</p>
+              <p className="text-sm text-muted-foreground">Tổng phiên thi</p>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="flex items-center gap-4 py-4">
-            <Clock className="h-8 w-8 text-muted-foreground" />
+          <CardContent className="flex items-center gap-4 py-6">
+            <div className="rounded-full p-3 bg-green-500/10">
+              <PlayCircle className="h-6 w-6 text-green-500" />
+            </div>
             <div>
-              <p className="text-sm text-muted-foreground">Số phiên thi</p>
-              <p className="font-medium">
-                {currentExamRoom._count?.examSessions || 0}
-              </p>
+              <p className="text-2xl font-bold">{stats.ongoing}</p>
+              <p className="text-sm text-muted-foreground">Đang diễn ra</p>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="flex items-center gap-4 py-4">
-            <Users className="h-8 w-8 text-muted-foreground" />
+          <CardContent className="flex items-center gap-4 py-6">
+            <div className="rounded-full p-3 bg-purple-500/10">
+              <Users className="h-6 w-6 text-purple-500" />
+            </div>
             <div>
-              <p className="text-sm text-muted-foreground">Người tổ chức</p>
-              <p className="font-medium">
-                {currentExamRoom.host?.name || currentExamRoom.host?.username}
-              </p>
+              <p className="text-2xl font-bold">{stats.totalParticipants}</p>
+              <p className="text-sm text-muted-foreground">Thí sinh tham gia</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="flex items-center gap-4 py-6">
+            <div className="rounded-full p-3 bg-orange-500/10">
+              <CheckCircle2 className="h-6 w-6 text-orange-500" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{stats.totalAttempts}</p>
+              <p className="text-sm text-muted-foreground">Lượt làm bài</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tabs */}
-      <Tabs
-        value={activeTab}
-        onValueChange={handleTabChange}
-        className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="sessions" className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Danh sách phiên thi
-          </TabsTrigger>
-          <TabsTrigger value="participants" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            Người tham gia
-          </TabsTrigger>
-        </TabsList>
+      {/* Room Info Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Thông tin phòng thi</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg p-2 bg-muted">
+                <Calendar className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Bộ đề</p>
+                <p className="text-sm text-muted-foreground">
+                  {currentExamRoom.quizSet?.title || "Chưa có bộ đề"}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg p-2 bg-muted">
+                <Users className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Người tổ chức</p>
+                <p className="text-sm text-muted-foreground">
+                  {currentExamRoom.host?.name || currentExamRoom.host?.username}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="rounded-lg p-2 bg-muted">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-medium">Ngày tạo</p>
+                <p className="text-sm text-muted-foreground">
+                  {format(new Date(currentExamRoom.createdAt), "dd/MM/yyyy")}
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Sessions Tab */}
-        <TabsContent value="sessions" className="mt-6">
-          <Card>
-            <CardHeader>
+      {/* Sessions List */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
               <CardTitle>Danh sách phiên thi</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingSessions ? (
-                <div className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))}
+              <p className="text-sm text-muted-foreground mt-1">
+                Quản lý các phiên thi trong phòng
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="text-blue-500 flex items-center">
+                <div className="flex items-center">
+                  <Timer className="h-3 w-3 mr-1" />
+                  <p>{stats.upcoming} sắp tới</p>
                 </div>
-              ) : sessions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Chưa có phiên thi nào</p>
-                  <Button variant="link" onClick={handleCreateSession}>
-                    Tạo phiên thi đầu tiên
-                  </Button>
+              </Badge>
+              <Badge variant="outline" className="text-green-500">
+                <div className="flex items-center">
+                  <PlayCircle className="h-3 w-3 mr-1" />
+                  {stats.ongoing} đang thi
                 </div>
-              ) : (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Trạng thái</TableHead>
-                        <TableHead>Thời gian bắt đầu</TableHead>
-                        <TableHead>Thời gian kết thúc</TableHead>
-                        <TableHead>Số người tham gia</TableHead>
-                        <TableHead>Số bài làm</TableHead>
-                        <TableHead className="text-right">Hành động</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sessions.map((session: ExamSessionBasic) => (
-                        <TableRow key={session.id}>
-                          <TableCell>
-                            {getStatusBadge(
-                              session.startTime,
-                              session.endTime || ""
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {formatDateTime(session.startTime)}
-                          </TableCell>
-                          <TableCell>
-                            {session.endTime
-                              ? formatDateTime(session.endTime)
-                              : "—"}
-                          </TableCell>
-                          <TableCell>
-                            {session._count?.participants || 0}
-                          </TableCell>
-                          <TableCell>
+              </Badge>
+              <Badge variant="outline" className="text-gray-500">
+                <div className="flex items-center">
+                  <CheckCircle2 className="h-3 w-3 mr-1" />
+                  {stats.completed} đã kết thúc
+                </div>
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loadingSessions ? (
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
+          ) : sessions.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Calendar className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg font-medium mb-2">Chưa có phiên thi nào</p>
+              <p className="text-sm mb-4">
+                Tạo phiên thi đầu tiên để bắt đầu tổ chức bài kiểm tra
+              </p>
+              <Button onClick={handleCreateSession}>
+                <Plus className="h-4 w-4 mr-2" />
+                Tạo phiên thi đầu tiên
+              </Button>
+            </div>
+          ) : (
+            <>
+              <div className="rounded-lg border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50">
+                      <TableHead className="w-[140px]">Trạng thái</TableHead>
+                      <TableHead>Thời gian bắt đầu</TableHead>
+                      <TableHead>Thời gian kết thúc</TableHead>
+                      <TableHead className="text-center">
+                        <Users className="h-4 w-4 inline mr-1" />
+                        Thí sinh
+                      </TableHead>
+                      <TableHead className="text-center">
+                        <CheckCircle2 className="h-4 w-4 inline mr-1" />
+                        Bài làm
+                      </TableHead>
+                      <TableHead className="text-right w-[100px]">
+                        Hành động
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sessions.map((session: ExamSessionBasic) => (
+                      <TableRow key={session.id} className="hover:bg-muted/30">
+                        <TableCell>
+                          {getStatusBadge(
+                            session.startTime,
+                            session.endTime || ""
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {formatDateTime(session.startTime)}
+                        </TableCell>
+                        <TableCell>
+                          {session.endTime ? (
+                            formatDateTime(session.endTime)
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline">
+                            {session.distinctUserCount || 0}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant="outline">
                             {session._count?.examAttempts || 0}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() =>
-                                    handleShareSession(session.id)
-                                  }>
-                                  <Share2 className="h-4 w-4 mr-2" />
-                                  Chia sẻ
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleEditSession(session)}>
-                                  <Pencil className="h-4 w-4 mr-2" />
-                                  Chỉnh sửa
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => handleDeleteClick(session.id)}
-                                  className="text-red-600 focus:text-red-600">
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Xóa
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {renderPagination(
-                    sessionsPage,
-                    sessionsTotalPages,
-                    setSessionsPage
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Participants Tab */}
-        <TabsContent value="participants" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Danh sách người tham gia</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingParticipants ? (
-                <div className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))}
-                </div>
-              ) : participants.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Chưa có người tham gia nào</p>
-                </div>
-              ) : (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Người tham gia</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Trạng thái</TableHead>
-                        <TableHead>Phiên thi</TableHead>
-                        <TableHead>Thời gian tham gia</TableHead>
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => handleShareSession(session.id)}>
+                                <Share2 className="h-4 w-4 mr-2" />
+                                Chia sẻ
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(
+                                    `/k/manage-exam-room/${id}/session/${session.id}`
+                                  )
+                                }>
+                                <BarChart3 className="h-4 w-4 mr-2" />
+                                Xem thống kê
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleEditSession(session)}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Chỉnh sửa
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteClick(session.id)}
+                                className="text-red-600 focus:text-red-600">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Xóa
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
                       </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {participants.map(
-                        (participant: ExamSessionParticipant) => (
-                          <TableRow key={participant.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={participant.user?.avatar} />
-                                  <AvatarFallback>
-                                    {participant.user?.name?.[0] ||
-                                      participant.user?.username?.[0] ||
-                                      "?"}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <span>
-                                  {participant.user?.name ||
-                                    participant.user?.username}
-                                </span>
-                              </div>
-                            </TableCell>
-                            <TableCell>{participant.user?.email}</TableCell>
-                            <TableCell>
-                              {getParticipantStatusBadge(participant.status)}
-                            </TableCell>
-                            <TableCell>
-                              {participant.examSession &&
-                                formatDateTime(
-                                  participant.examSession.startTime
-                                )}
-                            </TableCell>
-                            <TableCell>
-                              {participant.joinedAt
-                                ? formatDateTime(participant.joinedAt)
-                                : "—"}
-                            </TableCell>
-                          </TableRow>
-                        )
-                      )}
-                    </TableBody>
-                  </Table>
-                  {renderPagination(
-                    participantsPage,
-                    participantsTotalPages,
-                    setParticipantsPage
-                  )}
-                </>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              {renderPagination(
+                sessionsPage,
+                sessionsTotalPages,
+                setSessionsPage
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Share Dialog */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>

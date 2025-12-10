@@ -78,16 +78,6 @@ export default function QuizPracticePage({ params }: QuizPracticePageProps) {
       if (!attempt || isSubmitted) return;
 
       const answersToSave = overrideAnswers ?? answers;
-
-      // Debug: log payload being saved
-      console.log("DEBUG: saveProgress payload", {
-        attemptId: attempt.id,
-        answers: answersToSave,
-        currentIndex: currentQuestionIndex,
-        markedQuestions: Array.from(markedForReview),
-        timeSpentSeconds,
-      });
-
       try {
         await updateAttemptApi(attempt.id, {
           answers: answersToSave,

@@ -91,7 +91,7 @@ export function PricingTable({
               onClick={() => handlePlanSelect(plan.level)}
               className={cn(
                 "flex-1 p-4 rounded-xl text-left transition-all",
-                "border border-zinc-200 dark:border-zinc-800",
+                "border border-border dark:border-border",
                 selectedPlan === plan.level && "ring-2 ring-blue-500 dark:ring-blue-400",
               )}
             >
@@ -122,7 +122,7 @@ export function PricingTable({
           ))}
         </div>
 
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
+        <div className="border border-border dark:border-border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <div className="min-w-[640px] divide-y divide-zinc-200 dark:divide-zinc-800">
               <div className="flex items-center p-4 bg-zinc-50 dark:bg-zinc-900">

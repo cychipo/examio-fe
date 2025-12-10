@@ -25,7 +25,6 @@ export function ExamHeaderSection({ examInfo }: ExamHeaderSectionProps) {
           </h1>
           <p className="mt-1 text-muted-foreground">{examInfo.subtitle}</p>
         </div>
-        <SecureBadge />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

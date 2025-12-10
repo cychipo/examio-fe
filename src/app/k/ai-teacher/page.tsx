@@ -18,6 +18,7 @@ import {
   Pencil,
   Trash2,
   RefreshCw,
+  Square,
 } from "lucide-react";
 import { useAITeacherStore } from "@/stores/useAITeacherStore";
 import { ChatInputBar } from "@/components/molecules/ChatInputBar";
@@ -97,6 +98,7 @@ export default function AITeacherPage() {
     uploadPdf,
     speakResponse,
     stopSpeaking,
+    abortStream,
   } = useAITeacherStore();
 
   const [speechSupported, setSpeechSupported] = useState(true);
@@ -227,8 +229,8 @@ export default function AITeacherPage() {
   // Handle file selection
   const handleSelectRecentFile = (file: RecentUpload) => {
     // Avoid duplicates
-    if (!selectedUploads.some(u => u.id === file.id)) {
-        addSelectedUpload(file);
+    if (!selectedUploads.some((u) => u.id === file.id)) {
+      addSelectedUpload(file);
     }
   };
 
@@ -306,7 +308,7 @@ export default function AITeacherPage() {
         <div className="flex items-center gap-4 mb-2">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
-            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
               <Bot className="w-7 h-7 text-primary" />
             </div>
           </div>
@@ -342,7 +344,7 @@ export default function AITeacherPage() {
 
           {/* Chat Area */}
           <div className="flex-1 min-w-0">
-            <Card className="border-white/10 bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
+            <Card className="border-border bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
               <CardContent className="p-0">
                 {/* Messages Area */}
                 <ScrollArea
@@ -383,27 +385,47 @@ export default function AITeacherPage() {
                           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                             <Bot className="w-4 h-4 text-primary" />
                           </div>
-                          <div className="flex-1 bg-white/5 dark:bg-white/[0.03] border border-white/10 rounded-2xl rounded-tl-sm px-4 py-3">
+                          <div className="flex-1 bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-2xl rounded-tl-sm px-4 py-3">
                             <p className="text-sm whitespace-pre-wrap">
                               {streamingContent}
                             </p>
-                            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              <span className="text-xs">Đang trả lời...</span>
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                <span className="text-xs">Đang trả lời...</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                onClick={() => abortStream?.()}>
+                                <Square className="w-3 h-3 mr-1 fill-current" />
+                                Dừng
+                              </Button>
                             </div>
                           </div>
                         </div>
                       )}
                       {/* Loading indicator when processing but no streaming content yet */}
                       {isProcessing && !streamingContent && (
-                        <div className="flex items-center gap-3 text-muted-foreground">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                            <Bot className="w-4 h-4 text-primary" />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                              <Bot className="w-4 h-4 text-primary" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span className="text-sm">Đang suy nghĩ...</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span className="text-sm">Đang suy nghĩ...</span>
-                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-3 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                            onClick={() => abortStream?.()}>
+                            <Square className="w-3 h-3 mr-1 fill-current" />
+                            Dừng
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -412,7 +434,7 @@ export default function AITeacherPage() {
 
                 {/* Transcript Preview */}
                 {isListening && transcript && (
-                  <div className="px-4 py-2 border-t border-white/10 bg-primary/5">
+                  <div className="px-4 py-2 border-t border-border bg-primary/5">
                     <p className="text-sm text-muted-foreground">
                       <span className="text-primary font-medium">
                         Đang nghe:{" "}
@@ -423,29 +445,31 @@ export default function AITeacherPage() {
                 )}
 
                 {/* Input Area */}
-                <div className="border-t border-white/10 p-4">
+                <div className="border-t border-border p-4">
                   {/* Selected File Preview - above input like images */}
                   {selectedUploads.length > 0 && (
                     <div className="mb-3 flex flex-wrap gap-2">
-                        {selectedUploads.map(file => (
-                            <div key={file.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit animate-in fade-in zoom-in duration-200">
-                                <FileText className="w-4 h-4 text-blue-400" />
-                                <span className="text-sm text-blue-300/90 max-w-[200px] truncate">
-                                    {file.filename}
-                                </span>
-                                {file.id.startsWith('processing-') ? (
-                                    <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
-                                ) : (
-                                    <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-5 w-5 p-0 hover:bg-blue-500/20 text-blue-400"
-                                    onClick={() => removeSelectedUpload(file.id)}>
-                                    ×
-                                    </Button>
-                                )}
-                            </div>
-                        ))}
+                      {selectedUploads.map((file) => (
+                        <div
+                          key={file.id}
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit animate-in fade-in zoom-in duration-200">
+                          <FileText className="w-4 h-4 text-blue-400" />
+                          <span className="text-sm text-blue-300/90 max-w-[200px] truncate">
+                            {file.filename}
+                          </span>
+                          {file.id.startsWith("processing-") ? (
+                            <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-5 w-5 p-0 hover:bg-blue-500/20 text-blue-400"
+                              onClick={() => removeSelectedUpload(file.id)}>
+                              ×
+                            </Button>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   )}
 
@@ -528,7 +552,7 @@ export default function AITeacherPage() {
       <AlertDialog
         open={!!deleteMessageId}
         onOpenChange={(open) => !open && setDeleteMessageId(null)}>
-        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10">
+        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Xóa tin nhắn?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -537,7 +561,7 @@ export default function AITeacherPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10">
+            <AlertDialogCancel className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction
@@ -573,7 +597,7 @@ function MessageBubble({
   const isUser = message.role === "user";
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(message.content);
-  const {user} = useAuthStore()
+  const { user } = useAuthStore();
 
   const handleSaveEdit = () => {
     if (editContent.trim() && editContent !== message.content) {
@@ -594,7 +618,11 @@ function MessageBubble({
           isUser ? "bg-primary/20" : "bg-purple-500/20"
         )}>
         {isUser ? (
-          <img src={user?.avatar || '/avt-default.webp'} alt="User" className="w-8 h-8 rounded-full" />
+          <img
+            src={user?.avatar || "/avt-default.webp"}
+            alt="User"
+            className="w-8 h-8 rounded-full"
+          />
         ) : (
           <Bot className="w-4 h-4 text-purple-400" />
         )}
@@ -610,7 +638,7 @@ function MessageBubble({
             <img
               src={message.imageUrl}
               alt="Attached"
-              className="max-w-[200px] rounded-lg border border-white/10"
+              className="max-w-[200px] rounded-lg border border-border"
             />
           </div>
         )}
@@ -633,7 +661,7 @@ function MessageBubble({
             "rounded-2xl px-4 py-2",
             isUser
               ? "bg-primary text-primary-foreground rounded-tr-sm"
-              : "bg-white/5 dark:bg-white/[0.03] border border-white/10 rounded-tl-sm"
+              : "bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-tl-sm"
           )}>
           {isEditing ? (
             <div className="flex flex-col gap-2">
@@ -658,9 +686,9 @@ function MessageBubble({
             </div>
           ) : (
             <div className="text-sm prose dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
-               <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                 {message.content}
-               </ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
             </div>
           )}
         </div>

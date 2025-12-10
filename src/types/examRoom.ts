@@ -12,6 +12,9 @@ export interface ExamRoom {
     title: string;
     questionCount?: number;
     thumbnail?: string;
+    _count?: {
+      detailsQuizQuestions?: number;
+    };
   };
   host?: {
     id: string;
@@ -36,6 +39,7 @@ export interface ExamSessionBasic {
   allowRetake: boolean;
   maxAttempts: number;
   showAnswersAfterSubmit: boolean;
+  distinctUserCount?: number;
   _count?: {
     participants?: number;
     examAttempts?: number;

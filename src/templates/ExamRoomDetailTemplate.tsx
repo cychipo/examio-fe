@@ -3,7 +3,6 @@ import { ExamInstructionsSection } from "@/components/organisms/k/ExamInstructio
 import { SystemCheckSection } from "@/components/molecules/SystemCheckSection";
 import { CountdownTimer } from "@/components/atoms/k/CountdownTimer";
 import { ExamProgressSection } from "@/components/organisms/k/ExamProgressSection";
-import { NeedHelpSection } from "@/components/organisms/k/NeedHelpSection";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -33,12 +32,9 @@ interface TimeRemaining {
 interface ExamRoomDetailTemplateProps {
   examInfo: ExamInfo;
   progress: ExamProgress;
-  timeRemaining: TimeRemaining;
+  timeRemaining?: TimeRemaining | null;
   examStartTime: string;
   onStartExam: () => void;
-  onContactProctor?: () => void;
-  onViewGuidelines?: () => void;
-  onTechnicalSupport?: () => void;
 }
 
 export function ExamRoomDetailTemplate({
@@ -47,9 +43,6 @@ export function ExamRoomDetailTemplate({
   timeRemaining,
   examStartTime,
   onStartExam,
-  onContactProctor,
-  onViewGuidelines,
-  onTechnicalSupport,
 }: ExamRoomDetailTemplateProps) {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
@@ -109,26 +102,21 @@ export function ExamRoomDetailTemplate({
 
           {/* Sidebar - Right Side (1 column) */}
           <div className="space-y-6 lg:col-span-1">
-            {/* Countdown Timer */}
-            <Card className="p-6">
-              <CountdownTimer
-                hours={timeRemaining.hours}
-                minutes={timeRemaining.minutes}
-                seconds={timeRemaining.seconds}
-                label="Thời gian còn lại"
-                description="Bài thi sẽ tự động nộp khi hết thời gian"
-              />
-            </Card>
+            {/* Countdown Timer - only show if timeRemaining exists */}
+            {timeRemaining && (
+              <Card className="p-6">
+                <CountdownTimer
+                  hours={timeRemaining.hours}
+                  minutes={timeRemaining.minutes}
+                  seconds={timeRemaining.seconds}
+                  label="Thời gian còn lại"
+                  description="Bài thi sẽ tự động nộp khi hết thời gian"
+                />
+              </Card>
+            )}
 
             {/* Exam Progress */}
             <ExamProgressSection progress={progress} />
-
-            {/* Need Help */}
-            <NeedHelpSection
-              onContactProctor={onContactProctor}
-              onViewGuidelines={onViewGuidelines}
-              onTechnicalSupport={onTechnicalSupport}
-            />
           </div>
         </div>
       </div>

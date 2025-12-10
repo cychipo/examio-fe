@@ -214,7 +214,8 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
   setKeyword: (keyword) => set({ keyword }),
 
   generateTest: async () => {
-    const { file, uploadId, questionCount, isNarrow, keyword } = get();
+    const { file, uploadId, fileInfo, questionCount, isNarrow, keyword } =
+      get();
 
     if (!file && !uploadId) {
       toast.error("Chưa có file", {
@@ -226,6 +227,34 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
     if (isNarrow && !keyword.trim()) {
       toast.error("Chưa nhập từ khóa", {
         description: "Vui lòng nhập từ khóa khi sử dụng định dạng hẹp",
+      });
+      return;
+    }
+
+    // Check balance before proceeding
+    const user = useAuthStore.getState().user;
+    const balance = user?.wallet?.balance || 0;
+
+    // Calculate cost
+    const { calculateTotalCost, calculateRegenerateCost, checkBalance } =
+      await import("@/lib/creditUtils");
+
+    let requiredCost: number;
+    if (uploadId && fileInfo) {
+      // Regenerating from existing file - only question cost
+      requiredCost = calculateRegenerateCost(questionCount);
+    } else if (file) {
+      // New file - OCR + question cost
+      const costs = calculateTotalCost(file.size, questionCount);
+      requiredCost = costs.totalCost;
+    } else {
+      requiredCost = calculateRegenerateCost(questionCount);
+    }
+
+    const { isEnough, deficit } = checkBalance(balance, requiredCost);
+    if (!isEnough) {
+      toast.error("Không đủ tín dụng", {
+        description: `Cần ${requiredCost} token, hiện có ${balance} token. Thiếu ${deficit} token.`,
       });
       return;
     }
@@ -346,7 +375,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
     setCurrentCard: (currentCard) => set({ currentCard }),
 
     generateFlashcards: async () => {
-      const { file, uploadId, cardCount, isNarrow, keyword } = get();
+      const { file, uploadId, fileInfo, cardCount, isNarrow, keyword } = get();
 
       if (!file && !uploadId) {
         toast.error("Chưa có file", {
@@ -358,6 +387,34 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
       if (isNarrow && !keyword.trim()) {
         toast.error("Chưa nhập từ khóa", {
           description: "Vui lòng nhập từ khóa khi sử dụng định dạng thẻ hẹp",
+        });
+        return;
+      }
+
+      // Check balance before proceeding
+      const user = useAuthStore.getState().user;
+      const balance = user?.wallet?.balance || 0;
+
+      // Calculate cost
+      const { calculateTotalCost, calculateRegenerateCost, checkBalance } =
+        await import("@/lib/creditUtils");
+
+      let requiredCost: number;
+      if (uploadId && fileInfo) {
+        // Regenerating from existing file - only question cost
+        requiredCost = calculateRegenerateCost(cardCount);
+      } else if (file) {
+        // New file - OCR + question cost
+        const costs = calculateTotalCost(file.size, cardCount);
+        requiredCost = costs.totalCost;
+      } else {
+        requiredCost = calculateRegenerateCost(cardCount);
+      }
+
+      const { isEnough, deficit } = checkBalance(balance, requiredCost);
+      if (!isEnough) {
+        toast.error("Không đủ tín dụng", {
+          description: `Cần ${requiredCost} token, hiện có ${balance} token. Thiếu ${deficit} token.`,
         });
         return;
       }

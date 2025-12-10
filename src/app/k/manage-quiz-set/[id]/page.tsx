@@ -2,24 +2,25 @@
 
 import { use, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ArrowLeft,
-  Plus,
-  Edit,
-  Trash2,
-  FileText,
-  Eye,
-  PlayCircle,
-} from "lucide-react";
+import { Plus, Edit, Trash2, FileText, PlayCircle } from "lucide-react";
 import { Quizz } from "@/types/quizset";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import { QuestionEditorDialog } from "@/components/organisms/QuestionEditorDialog";
 import { RichTextViewer } from "@/components/molecules/RichTextViewer";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 /**
  * Quiz Set Detail Page
@@ -56,10 +57,6 @@ export default function QuizSetDetailPage({
   }, [id, fetchQuizSetById]);
 
   // Handlers
-  const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
   const handleAddQuestion = useCallback(() => {
     setSelectedQuestion(null);
     setShowQuestionForm(true);
@@ -124,28 +121,23 @@ export default function QuizSetDetailPage({
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header with Breadcrumb */}
         <div className="mb-8">
           <div className="flex items-center justify-between gap-4 mb-4">
-            <div className="flex items-start gap-2">
-              <Button variant="ghost" size="icon" onClick={handleBack}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex items-start gap-2">
-                <div className="flex-1">
-                  <h1 className="text-3xl font-bold tracking-tight">
-                    {currentQuizSet.title}
-                  </h1>
-                  <p className="text-muted-foreground mt-1">
-                    {currentQuizSet.description || "Không có mô tả"}
-                  </p>
-                </div>
-                <Badge
-                  variant={currentQuizSet.isPublic ? "default" : "outline"}
-                  className="mt-1">
-                  {currentQuizSet.isPublic ? "Công khai" : "Riêng tư"}
-                </Badge>
-              </div>
+            <div className="flex-1">
+              <Breadcrumb className="mb-3">
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href="/k/manage-exam">Quản lý bộ đề</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{currentQuizSet.title}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -172,7 +164,7 @@ export default function QuizSetDetailPage({
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3 mb-8">
+        <div className="grid gap-4 md:grid-cols-2 mb-8">
           <Card className="p-6">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-primary/10">
@@ -185,20 +177,6 @@ export default function QuizSetDetailPage({
                 <p className="text-2xl font-bold">
                   {currentQuizSet.questions?.length || 0}
                 </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <Eye className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Lượt xem
-                </p>
-                <p className="text-2xl font-bold">0</p>
               </div>
             </div>
           </Card>
@@ -271,9 +249,6 @@ export default function QuizSetDetailPage({
                                   ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
                                   : "bg-muted/50"
                               }`}>
-                              <span className="font-medium flex-shrink-0">
-                                {optionLetter}.
-                              </span>
                               <div className="flex-1">
                                 <RichTextViewer content={option} />
                               </div>

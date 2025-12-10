@@ -126,7 +126,7 @@ export default function ProfileDropdown({
             side="left"
             align="end"
             sideOffset={4}
-            className="w-fit p-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border border-zinc-200/60 dark:border-zinc-800/60 rounded-2xl shadow-xl shadow-zinc-900/5 dark:shadow-zinc-950/20
+            className="w-fit p-2 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border border-border/60 dark:border-border/60 rounded-2xl shadow-xl shadow-zinc-900/5 dark:shadow-zinc-950/20
                     data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-top-right z-[1000]">
             <div className="space-y-1">
               {menuItems.map((item) => (

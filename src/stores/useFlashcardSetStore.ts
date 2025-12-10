@@ -112,17 +112,10 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       const flashcardSet = await getFlashcardSetByIdApi(id);
 
-      // Normalize data: API trả về flashCards (uppercase C), chuyển thành flashcards (lowercase)
       const normalizedFlashcardSet: FlashcardSet = {
         ...flashcardSet,
-        flashCards:
-          (flashcardSet as any).flashCards || flashcardSet.flashCards || [],
+        flashCards: flashcardSet.flashCards || [],
       };
-
-      // Remove old flashCards field if exists
-      if ((normalizedFlashcardSet as any).flashCards) {
-        delete (normalizedFlashcardSet as any).flashCards;
-      }
 
       set({
         currentFlashcardSet: normalizedFlashcardSet,

@@ -3,23 +3,36 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import {
   ExamHistoryListItem,
   type ExamHistoryListItemData,
 } from "@/components/molecules/ExamHistoryListItem";
 import { getExamHistoryApi, type ExamHistoryItem } from "@/apis/historyApi";
+import { storeCache, CacheTTL } from "@/lib/storeCache";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 // Transform exam history from API to component format
-function transformExamHistory(items: ExamHistoryItem[]): ExamHistoryListItemData[] {
+function transformExamHistory(
+  items: ExamHistoryItem[]
+): ExamHistoryListItemData[] {
   return items.map((item) => ({
     id: item.id,
     examTitle: item.examSession.examRoom.title,
     score: item.score,
     totalQuestions: item.totalQuestions,
     correctAnswers: item.correctAnswers,
-    completedAt: `Hoàn thành ${formatTimeAgo(item.finishedAt || item.startedAt)}`,
+    completedAt: `Hoàn thành ${formatTimeAgo(
+      item.finishedAt || item.startedAt
+    )}`,
     passed: item.score >= 50,
   }));
 }
@@ -51,7 +64,15 @@ export default function ExamHistoryPage() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getExamHistoryApi(page, itemsPerPage);
+      const cacheKey = storeCache.createKey("history-exam-page", {
+        page,
+        limit: itemsPerPage,
+      });
+      const data = await storeCache.fetchWithCache(
+        cacheKey,
+        () => getExamHistoryApi(page, itemsPerPage),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       setItems(transformExamHistory(data.examAttempts));
       setTotalPages(data.totalPages);
       setTotal(data.total);
@@ -80,20 +101,20 @@ export default function ExamHistoryPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto px-4 pt-8 pb-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/k/history">
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Lịch sử làm bài</h1>
-          <p className="text-muted-foreground mt-1">
-            Tất cả các bài thi đã hoàn thành
-          </p>
-        </div>
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/k/history">Lịch sử</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Lịch sử làm bài</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Content */}
       <Card className="glass-card">
@@ -125,9 +146,8 @@ export default function ExamHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -136,9 +156,8 @@ export default function ExamHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

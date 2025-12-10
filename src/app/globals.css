@@ -210,6 +210,24 @@
   border-color: oklch(1 0 0 / 0.3);
 }
 
+/* Glass surface - Compatible with both light and dark modes */
+/* Use this instead of bg-white/5 which is invisible in light mode */
+.glass-surface {
+  background: oklch(0 0 0 / 0.04);
+}
+
+.dark .glass-surface {
+  background: oklch(1 0 0 / 0.05);
+}
+
+.glass-surface-hover:hover {
+  background: oklch(0 0 0 / 0.08);
+}
+
+.dark .glass-surface-hover:hover {
+  background: oklch(1 0 0 / 0.1);
+}
+
 .glow {
   box-shadow: 0 0 20px oklch(0.6 0.2 275 / 0.3);
 }

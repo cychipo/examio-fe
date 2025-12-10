@@ -80,21 +80,26 @@ export function SidebarKit() {
       label: "Quản lý Đề thi",
       active:
         pathname === "/k/manage-exam" ||
-        pathname.startsWith("/k/manage-quiz-set"),
+        pathname.startsWith("/k/manage-quiz-set") ||
+        pathname.startsWith("/k/practice-quiz"),
     },
     {
       name: "Flash Card",
       href: "/k/flash-card",
       icon: <CardStackIcon className="w-5 h-5" />,
       label: "Quản lý Flashcard",
-      active: pathname === "/k/flash-card",
+      active:
+        pathname === "/k/flash-card" ||
+        pathname.startsWith("/k/manage-flashcard-set"),
     },
     {
       name: "Manage Exam Room",
       href: "/k/manage-exam-room",
       icon: <TokensIcon className="w-5 h-5" />,
       label: "Quản lý Phòng thi",
-      active: pathname === "/k/manage-exam-room",
+      active:
+        pathname === "/k/manage-exam-room" ||
+        pathname.startsWith("/k/manage-exam-room"),
     },
     {
       name: "History",
@@ -102,23 +107,6 @@ export function SidebarKit() {
       icon: <ClockIcon className="w-5 h-5" />,
       label: "Lịch sử",
       active: pathname === "/k/history",
-    },
-  ];
-
-  const itemSecondarySiderbar = [
-    {
-      name: "Notifications",
-      href: "/k/notifications",
-      icon: <BellIcon className="w-5 h-5" />,
-      label: "Thông báo",
-      active: pathname === "/k/notifications",
-    },
-    {
-      name: "Settings",
-      href: "/k/settings",
-      icon: <GearIcon className="w-5 h-5" />,
-      label: "Cài đặt",
-      active: pathname === "/k/settings",
     },
   ];
 
@@ -135,13 +123,6 @@ export function SidebarKit() {
 
   const secondaryDockItems = [
     ...itemSiderbar.slice(5).map(({ name, href, icon, label, active }) => ({
-      name,
-      href,
-      icon,
-      label,
-      active,
-    })),
-    ...itemSecondarySiderbar.map(({ name, href, icon, label, active }) => ({
       name,
       href,
       icon,
@@ -194,22 +175,6 @@ export function SidebarKit() {
           </div>
 
           <div className="flex flex-col gap-y-2 mb-2 w-full">
-            {itemSecondarySiderbar.map((item, index) => (
-              <Button
-                asChild
-                key={index}
-                variant="ghost"
-                className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] dark:hover:bg-[#1A1B1C] dark:hover:text-[#608CFC] rounded-sm ${
-                  item.active
-                    ? "bg-[#EFF6FF] text-[#2D68FE] dark:bg-[#1A1B1C] dark:text-[#608CFC]"
-                    : ""
-                }`}>
-                <Link href={item.href} className="flex items-center gap-x-3">
-                  {item.icon}
-                  {item.label}
-                </Link>
-              </Button>
-            ))}
             <div className="mt-2">
               <ProfileDropdown data={profile} />
             </div>

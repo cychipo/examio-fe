@@ -23,13 +23,12 @@ export interface ExamSession {
   accessCode?: string;
   whitelist?: string[];
   showAnswersAfterSubmit?: boolean;
+  passingScore?: number;
   createdAt?: string;
   updatedAt?: string;
   // Relations
   examRoom?: ExamRoomBasic;
-  participants?: ExamSessionParticipant[];
   _count?: {
-    participants?: number;
     examAttempts?: number;
   };
 }
@@ -50,28 +49,6 @@ export interface ExamRoomBasic {
     name?: string;
     avatar?: string;
     email?: string;
-  };
-}
-
-export interface ExamSessionParticipant {
-  id: string;
-  examSessionId: string;
-  userId: string;
-  status: number; // 0: PENDING, 1: APPROVED, 2: REJECTED, 3: LEFT
-  joinedAt?: string;
-  leftAt?: string;
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-    username: string;
-    avatar?: string;
-  };
-  examSession?: {
-    id: string;
-    startTime: string;
-    endTime?: string;
-    status: number;
   };
 }
 

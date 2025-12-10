@@ -23,6 +23,7 @@ import {
   Eye,
   Key,
   UserPlus,
+  Trophy,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ExamSessionBasic } from "@/types/examRoom";
@@ -45,6 +46,7 @@ interface ExamSessionFormData {
   allowRetake: boolean;
   maxAttempts: number;
   showAnswersAfterSubmit: boolean;
+  passingScore: number;
 }
 
 interface ExamSessionFormModalProps {
@@ -62,6 +64,7 @@ interface ExamSessionFormModalProps {
     allowRetake: boolean;
     maxAttempts: number;
     showAnswersAfterSubmit?: boolean;
+    passingScore?: number;
   }) => Promise<boolean>;
   isLoading?: boolean;
 }
@@ -75,6 +78,7 @@ const initialFormData: ExamSessionFormData = {
   allowRetake: false,
   maxAttempts: 1,
   showAnswersAfterSubmit: true,
+  passingScore: 40,
 };
 
 /**
@@ -146,6 +150,7 @@ export function ExamSessionFormModal({
           allowRetake: sessionAny.allowRetake || false,
           maxAttempts: sessionAny.maxAttempts || 1,
           showAnswersAfterSubmit: sessionAny.showAnswersAfterSubmit ?? true,
+          passingScore: sessionAny.passingScore ?? 0,
         });
 
         // Load whitelist users if editing
@@ -247,6 +252,7 @@ export function ExamSessionFormModal({
         allowRetake: formData.allowRetake,
         maxAttempts: formData.maxAttempts,
         showAnswersAfterSubmit: formData.showAnswersAfterSubmit,
+        passingScore: formData.passingScore,
       };
 
       const success = await onSubmit(submitData);
@@ -467,6 +473,32 @@ export function ExamSessionFormModal({
               )}
             </div>
           )}
+
+          {/* Passing Score */}
+          <div className="space-y-2">
+            <Label htmlFor="passingScore" className="flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              Điểm đạt (%)
+            </Label>
+            <div className="">
+              <Input
+                id="passingScore"
+                type="number"
+                min={0}
+                max={100}
+                value={formData.passingScore}
+                onChange={(e) => {
+                  const value = Math.min(
+                    100,
+                    Math.max(0, Number.parseInt(e.target.value) || 0)
+                  );
+                  handleChange("passingScore", value);
+                }}
+                disabled={isFormLoading}
+                className="w-full"
+              />
+            </div>
+          </div>
 
           {/* Submit Buttons */}
           <div className="flex justify-end gap-3 pt-4">

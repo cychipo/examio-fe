@@ -2,24 +2,25 @@
 
 import { use, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useFlashcardSetStore } from "@/stores/useFlashcardSetStore";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ArrowLeft,
-  Plus,
-  Edit,
-  Trash2,
-  CreditCard,
-  Eye,
-  PlayCircle,
-} from "lucide-react";
+import { Plus, Edit, Trash2, CreditCard, Eye, PlayCircle } from "lucide-react";
 import { Flashcard as FlashCard } from "@/types/flashcardSet";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import { FlashcardEditorDialog } from "@/components/organisms/FlashcardEditorDialog";
 import { RichTextViewer } from "@/components/molecules/RichTextViewer";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 /**
  * Flashcard Set Detail Page
@@ -56,10 +57,6 @@ export default function FlashcardSetDetailPage({
   }, [id, fetchFlashcardSetById]);
 
   // Handlers
-  const handleBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
   const handleAddCard = useCallback(() => {
     setSelectedCard(null);
     setShowCardForm(true);
@@ -124,19 +121,28 @@ export default function FlashcardSetDetailPage({
   return (
     <div className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header with Breadcrumb */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <Button variant="ghost" size="icon" onClick={handleBack}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
             <div className="flex-1">
-              <h1 className="text-3xl font-bold tracking-tight">
-                {currentFlashcardSet.title}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                {currentFlashcardSet.description || "Không có mô tả"}
-              </p>
+              <Breadcrumb className="mb-3">
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href="/k/flash-card">Quản lý Flashcard</Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem>
+                    <BreadcrumbPage>{currentFlashcardSet.title}</BreadcrumbPage>
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              {currentFlashcardSet.description && (
+                <p className="text-muted-foreground mt-1">
+                  {currentFlashcardSet.description}
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -150,15 +156,6 @@ export default function FlashcardSetDetailPage({
                 <PlayCircle className="h-4 w-4" />
                 Học ngay
               </Button>
-              <Badge
-                variant={
-                  currentFlashcardSet.isPublic ? "default" : "secondary"
-                }>
-                {currentFlashcardSet.isPublic ? "Công khai" : "Riêng tư"}
-              </Badge>
-              {currentFlashcardSet.isPinned && (
-                <Badge variant="outline">📌 Đã ghim</Badge>
-              )}
             </div>
           </div>
 

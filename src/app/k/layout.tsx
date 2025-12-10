@@ -75,7 +75,6 @@ export default function RootLayout({
                   </Announcement>
                 )}
 
-                <BellIcon className="p-0 hover:bg-transparent cursor-pointer w-4 h-4" />
                 {mounted && (
                   <div className="flex items-center gap-x-1">
                     <SunIcon className="w-4 h-4 cursor-pointer" />
