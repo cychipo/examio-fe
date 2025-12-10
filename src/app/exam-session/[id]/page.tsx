@@ -3,14 +3,11 @@
 import { use, useEffect, useState } from "react";
 import {
   checkExamSessionAccessApi,
-  getExamSessionPublicInfoApi,
   verifyExamSessionAccessCodeApi,
+  getExamSessionStatsApi,
+  ExamSessionStats,
 } from "@/apis/examSessionApi";
-import {
-  AccessCheckResult,
-  ExamSessionPublicInfo,
-  EXAM_SESSION_STATUS,
-} from "@/types/examSession";
+import { AccessCheckResult, EXAM_SESSION_STATUS } from "@/types/examSession";
 import { ExamRoomDetailTemplate } from "@/templates/ExamRoomDetailTemplate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -44,9 +41,7 @@ export default function ExamSessionPage({
   // States
   const [loading, setLoading] = useState(true);
   const [accessInfo, setAccessInfo] = useState<AccessCheckResult | null>(null);
-  const [publicInfo, setPublicInfo] = useState<ExamSessionPublicInfo | null>(
-    null
-  );
+  const [stats, setStats] = useState<ExamSessionStats | null>(null);
   const [sessionNotFound, setSessionNotFound] = useState(false);
 
   // Code dialog
@@ -64,10 +59,10 @@ export default function ExamSessionPage({
         const access = await checkExamSessionAccessApi(id);
         setAccessInfo(access);
 
-        // Only load session info if has access
+        // Only load session stats if has access
         if (access.hasAccess) {
-          const info = await getExamSessionPublicInfoApi(id);
-          setPublicInfo(info);
+          const sessionStats = await getExamSessionStatsApi(id);
+          setStats(sessionStats);
         } else if (access.accessType === "code_required") {
           // Show code dialog - don't load any info yet
           setShowCodeDialog(true);
@@ -107,9 +102,9 @@ export default function ExamSessionPage({
     try {
       await verifyExamSessionAccessCodeApi(id, accessCode);
 
-      // Load session info after successful verification
-      const info = await getExamSessionPublicInfoApi(id);
-      setPublicInfo(info);
+      // Load session stats after successful verification
+      const sessionStats = await getExamSessionStatsApi(id);
+      setStats(sessionStats);
       setAccessInfo({ hasAccess: true, accessType: "whitelist" });
       setShowCodeDialog(false);
       toast.success("Xác thực thành công!");
@@ -139,7 +134,6 @@ export default function ExamSessionPage({
             <div className="space-y-6 lg:col-span-1">
               <Skeleton className="h-32 w-full" />
               <Skeleton className="h-48 w-full" />
-              <Skeleton className="h-40 w-full" />
             </div>
           </div>
         </div>
@@ -266,8 +260,8 @@ export default function ExamSessionPage({
     );
   }
 
-  // Has access but no public info loaded yet (shouldn't happen, but safety check)
-  if (!publicInfo) {
+  // Has access but no stats loaded yet (shouldn't happen, but safety check)
+  if (!stats) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -275,26 +269,64 @@ export default function ExamSessionPage({
     );
   }
 
-  // Map data from BE to template format
+  // Format attempts display
+  const formatAttempts = (): string => {
+    if (stats.maxAttempts === null) {
+      // Unlimited - just show current attempt
+      return stats.currentAttempt === 0
+        ? "Lần đầu"
+        : `Lần ${stats.currentAttempt}`;
+    }
+    // Has max attempts - show X/Y format
+    const nextAttempt = stats.currentAttempt + 1;
+    return `${nextAttempt}/${stats.maxAttempts}`;
+  };
+
+  // Format duration display
+  const formatDuration = (): number | string => {
+    if (stats.durationMinutes === null) {
+      return "Không giới hạn";
+    }
+    return stats.durationMinutes;
+  };
+
+  // Format passing score
+  const formatPassingScore = (): number | string => {
+    if (stats.passingScore === 0) {
+      return "Không có";
+    }
+    return stats.passingScore;
+  };
+
+  // Map stats to template format
   const examInfo = {
-    title: publicInfo.title,
-    subtitle: publicInfo.description || "Thi trực tuyến",
-    duration: 120, // Will be calculated from settings
-    totalQuestions: 50, // Will be fetched when starting exam
-    passingScore: 70,
-    attempts: "0/1",
+    title: stats.title,
+    subtitle: stats.description || "Thi trực tuyến",
+    duration:
+      typeof formatDuration() === "number" ? (formatDuration() as number) : 0,
+    totalQuestions: stats.totalQuestions,
+    passingScore:
+      typeof formatPassingScore() === "number"
+        ? (formatPassingScore() as number)
+        : 0,
+    attempts: formatAttempts(),
   };
 
-  const progress = {
-    answered: 0,
-    total: 50,
-    marked: 0,
-  };
+  const progress = stats.progress;
 
-  // Calculate time remaining based on status
-  const calculateTimeRemaining = () => {
-    if (publicInfo.status === EXAM_SESSION_STATUS.UPCOMING) {
-      const startTime = new Date(publicInfo.startTime);
+  // Calculate time remaining based on status & endTime
+  const calculateTimeRemaining = (): {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  } | null => {
+    // If no endTime, don't show countdown
+    if (!stats.endTime) {
+      return null;
+    }
+
+    if (stats.status === EXAM_SESSION_STATUS.UPCOMING) {
+      const startTime = new Date(stats.startTime);
       const now = new Date();
       const diff = startTime.getTime() - now.getTime();
 
@@ -306,11 +338,8 @@ export default function ExamSessionPage({
       }
     }
 
-    if (
-      publicInfo.status === EXAM_SESSION_STATUS.ONGOING &&
-      publicInfo.endTime
-    ) {
-      const endTime = new Date(publicInfo.endTime);
+    if (stats.status === EXAM_SESSION_STATUS.ONGOING && stats.endTime) {
+      const endTime = new Date(stats.endTime);
       const now = new Date();
       const diff = endTime.getTime() - now.getTime();
 
@@ -322,45 +351,30 @@ export default function ExamSessionPage({
       }
     }
 
-    return { hours: 2, minutes: 0, seconds: 0 };
+    return null;
   };
 
   const timeRemaining = calculateTimeRemaining();
 
-  const examStartTime = new Date(publicInfo.startTime).toLocaleDateString(
-    "vi-VN",
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }
-  );
+  const examStartTime = new Date(stats.startTime).toLocaleDateString("vi-VN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   const handleStartExam = () => {
-    if (publicInfo.startTime > new Date().toISOString()) {
+    if (stats.startTime > new Date().toISOString()) {
       toast.info("Phiên thi chưa bắt đầu. Vui lòng quay lại đúng giờ.");
       return;
     }
-    if (publicInfo.endTime && publicInfo.endTime < new Date().toISOString()) {
+    if (stats.endTime && stats.endTime < new Date().toISOString()) {
       toast.info("Phiên thi đã kết thúc.");
       return;
     }
     // Navigate to exam quiz page
     router.push(`/exam-session/${id}/quiz`);
-  };
-
-  const handleContactProctor = () => {
-    toast.info("Chức năng đang được phát triển");
-  };
-
-  const handleViewGuidelines = () => {
-    toast.info("Chức năng đang được phát triển");
-  };
-
-  const handleTechnicalSupport = () => {
-    toast.info("Chức năng đang được phát triển");
   };
 
   return (
@@ -370,9 +384,6 @@ export default function ExamSessionPage({
       timeRemaining={timeRemaining}
       examStartTime={examStartTime}
       onStartExam={handleStartExam}
-      onContactProctor={handleContactProctor}
-      onViewGuidelines={handleViewGuidelines}
-      onTechnicalSupport={handleTechnicalSupport}
     />
   );
 }

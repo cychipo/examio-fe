@@ -194,3 +194,34 @@ export async function searchUsersForWhitelistApi(query: string): Promise<
   });
   return response.data;
 }
+
+// ==================== STATS API ====================
+
+export interface ExamSessionStats {
+  id: string;
+  title: string;
+  description: string | null;
+  startTime: string;
+  endTime: string | null;
+  status: number;
+  // Stats fields
+  durationMinutes: number | null;
+  totalQuestions: number;
+  passingScore: number;
+  // Attempt info
+  currentAttempt: number;
+  maxAttempts: number | null;
+  // Progress
+  progress: {
+    answered: number;
+    marked: number;
+    total: number;
+  };
+}
+
+export async function getExamSessionStatsApi(
+  id: string
+): Promise<ExamSessionStats> {
+  const response = await api.get(`/examsessions/study/${id}/stats`);
+  return response.data;
+}
