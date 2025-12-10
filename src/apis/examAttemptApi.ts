@@ -146,6 +146,7 @@ export interface ExamAttemptListItem {
     startTime: string;
     endTime: string | null;
   };
+  violationCount?: number;
 }
 
 export interface ExamAttemptsByRoomResponse {
@@ -193,5 +194,19 @@ export async function getExamAttemptDetailApi(
   attemptId: string
 ): Promise<ExamAttemptDetail> {
   const response = await api.get(`/examattempts/${attemptId}/detail`);
+  return response.data;
+}
+
+/**
+ * Get all exam attempts for a specific session (owner only)
+ */
+export async function getExamAttemptsBySessionApi(
+  sessionId: string,
+  page: number = 1,
+  limit: number = 50
+): Promise<ExamAttemptsByRoomResponse> {
+  const response = await api.get(`/examattempts/list-by-session/${sessionId}`, {
+    params: { page, limit },
+  });
   return response.data;
 }

@@ -38,6 +38,7 @@ import {
   MoreHorizontal,
   Pencil,
   Trash2,
+  BarChart3,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -417,6 +418,15 @@ export default function ExamRoomDetailPage() {
                               onClick={() => handleShareSession(session.id)}>
                               <Share2 className="h-4 w-4 mr-2" />
                               Chia sẻ
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                router.push(
+                                  `/k/manage-exam-room/${id}/session/${session.id}`
+                                )
+                              }>
+                              <BarChart3 className="h-4 w-4 mr-2" />
+                              Xem thống kê
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleEditSession(session)}>

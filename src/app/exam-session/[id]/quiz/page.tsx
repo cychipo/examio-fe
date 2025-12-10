@@ -23,6 +23,8 @@ import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/organisms/ConfirmDialog";
 import { toast } from "@/components/ui/toast";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useCheatingDetection } from "@/hooks/useCheatingDetection";
+import { CheatingWarningModal } from "@/components/molecules/CheatingWarningModal";
 import {
   startExamAttemptApi,
   updateExamAttemptProgressApi,
@@ -79,6 +81,12 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   // Debounce for auto-save
   const debouncedAnswers = useDebounce(answers, 1000);
   const debouncedCurrentIndex = useDebounce(currentQuestionIndex, 1000);
+
+  // Cheating detection
+  const cheatingDetection = useCheatingDetection({
+    examAttemptId: attemptId || "",
+    enabled: !!attemptId && !isSubmitted && !loading,
+  });
 
   // Save progress callback
   const saveProgress = useCallback(
@@ -721,7 +729,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                 </p>
               </div>
 
-              <div className="grid grid-cols-4 gap-4 max-w-lg mx-auto">
+              <div className="grid grid-cols-5 gap-4 max-w-2xl mx-auto">
                 <div className="text-center p-4 bg-muted rounded-lg">
                   <div className="text-2xl font-bold text-green-600">
                     {correctAnswersCount}
@@ -745,6 +753,17 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                     {formatTime(timeSpentSeconds)}
                   </div>
                   <div className="text-sm text-muted-foreground">Thời gian</div>
+                </div>
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <div
+                    className={`text-2xl font-bold ${
+                      cheatingDetection.totalViolations > 0
+                        ? "text-orange-500"
+                        : "text-green-600"
+                    }`}>
+                    {cheatingDetection.totalViolations}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Vi phạm</div>
                 </div>
               </div>
 
@@ -784,6 +803,13 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         confirmText="Nộp bài"
         cancelText="Tiếp tục làm"
         onConfirm={doSubmit}
+      />
+
+      <CheatingWarningModal
+        open={cheatingDetection.isWarningVisible}
+        onClose={cheatingDetection.dismissWarning}
+        violationType={cheatingDetection.lastViolationType}
+        totalViolations={cheatingDetection.totalViolations}
       />
 
       <div className="min-h-screen">
