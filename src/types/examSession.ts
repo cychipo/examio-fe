@@ -23,6 +23,7 @@ export interface ExamSession {
   accessCode?: string;
   whitelist?: string[];
   showAnswersAfterSubmit?: boolean;
+  passingScore?: number;
   createdAt?: string;
   updatedAt?: string;
   // Relations

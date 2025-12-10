@@ -20,6 +20,7 @@ export type CredentialsCreateExamSession = {
   accessCode?: string | null;
   whitelist?: string[];
   showAnswersAfterSubmit?: boolean;
+  passingScore?: number;
 };
 
 export type CredentialsUpdateExamSession = {
@@ -33,6 +34,7 @@ export type CredentialsUpdateExamSession = {
   accessCode?: string | null;
   whitelist?: string[];
   showAnswersAfterSubmit?: boolean;
+  passingScore?: number;
 };
 
 export type CredentialsGetExamSessions = {
