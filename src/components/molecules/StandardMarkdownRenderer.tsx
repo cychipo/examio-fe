@@ -4,6 +4,7 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { cn } from "@/lib/utils";
 
 interface StandardMarkdownRendererProps {
@@ -26,7 +27,21 @@ export function StandardMarkdownRenderer({
       style={{ fontSize: `${fontSize}px` }}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
+        rehypePlugins={[
+          rehypeRaw,
+          [
+            rehypeSanitize,
+            {
+              ...defaultSchema,
+              attributes: {
+                ...defaultSchema.attributes,
+                "*": ["className", "class", "style"], // Allow class/style for styling
+                img: ["src", "alt", "width", "height", "className", "class"],
+                a: ["href", "name", "target", "rel", "className", "class"],
+              },
+            },
+          ],
+        ]}
         components={{
           img: ({ node, ...props }) => (
             <img
