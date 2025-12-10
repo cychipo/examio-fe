@@ -433,7 +433,7 @@ export default function FileUpload({
         <div className="relative w-full rounded-[10px] bg-gray-50/50 dark:bg-white/[0.02] p-1.5">
           <div
             className={cn(
-              "relative mx-auto w-full overflow-hidden rounded-lg border border-gray-100 dark:border-white/[0.08] bg-white dark:bg-black/50",
+              "relative mx-auto w-full overflow-hidden rounded-lg border border-border dark:border-border[0.08] bg-white dark:bg-black/50",
               error ? "border-red-500/50" : ""
             )}>
             <div

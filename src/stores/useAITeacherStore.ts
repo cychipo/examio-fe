@@ -6,8 +6,9 @@ import {
   SendMessageRequest,
 } from "@/apis/aiChatApi";
 import { toast } from "@/components/ui/toast";
-import { RecentUpload, aiApi } from "@/apis/aiApi";
+import { RecentUpload } from "@/apis/aiApi";
 import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
+import { storeCache, CacheTTL } from "@/lib/storeCache";
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -54,7 +55,7 @@ interface AITeacherState {
   abortStream: (() => void) | null;
 
   // Actions - Chat CRUD
-  fetchChats: () => Promise<void>;
+  fetchChats: (options?: { forceRefresh?: boolean }) => Promise<void>;
   createChat: () => Promise<string | null>;
   selectChat: (chatId: string | null, updateUrl?: boolean) => Promise<void>;
   updateChatTitle: (chatId: string, title: string) => Promise<void>;
@@ -177,10 +178,17 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
   // ================== CHAT CRUD ==================
 
-  fetchChats: async () => {
+  fetchChats: async (options: { forceRefresh?: boolean } = {}) => {
+    const { forceRefresh = false } = options;
+    const cacheKey = storeCache.createKey("ai-teacher-chats", {});
+
     set({ isLoadingChats: true });
     try {
-      const response = await aiChatApi.getChats();
+      const response = await storeCache.fetchWithCache(
+        cacheKey,
+        () => aiChatApi.getChats(),
+        { ttl: CacheTTL.FIVE_MINUTES, forceRefresh }
+      );
       set({ chats: response.chats });
     } catch (error) {
       console.error("Error fetching chats:", error);
@@ -203,6 +211,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
         selectedChatId: chat.id,
         messages: [],
       }));
+      storeCache.invalidate("ai-teacher-chats");
       updateUrlQuery(chat.id);
       return chat.id;
     } catch (error) {
@@ -233,11 +242,24 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     set({ selectedUploads: [], uploadedImageUrl: null });
 
     try {
-      const messages = await aiChatApi.getChatMessages(chatId);
+      // Cache messages per chatId
+      const messagesCacheKey = storeCache.createKey("ai-teacher-messages", {
+        chatId,
+      });
+      const messages = await storeCache.fetchWithCache(
+        messagesCacheKey,
+        () => aiChatApi.getChatMessages(chatId),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       set({ messages });
 
-      // Load chat's linked documents from server (O(1) via index)
-      const docs = await aiChatApi.getDocuments(chatId);
+      // Cache documents per chatId
+      const docsCacheKey = storeCache.createKey("ai-teacher-docs", { chatId });
+      const docs = await storeCache.fetchWithCache(
+        docsCacheKey,
+        () => aiChatApi.getDocuments(chatId),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       if (docs.length > 0) {
         set({
           selectedUploads: docs.map((d) => ({
@@ -284,6 +306,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
           chat.id === chatId ? { ...chat, title } : chat
         ),
       }));
+      storeCache.invalidate("ai-teacher-chats");
       toast.success("Đã cập nhật tên chat");
     } catch (error) {
       console.error("Error updating chat:", error);
@@ -303,6 +326,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       if (selectedChatId === chatId) {
         updateUrlQuery(null);
       }
+      storeCache.invalidate("ai-teacher");
       toast.success("Đã xóa chat");
     } catch (error) {
       console.error("Error deleting chat:", error);

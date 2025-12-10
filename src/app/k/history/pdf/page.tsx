@@ -10,9 +10,12 @@ import {
   type PDFHistoryListItemData,
 } from "@/components/molecules/PDFHistoryListItem";
 import { getPDFHistoryApi, type PDFHistoryItem } from "@/apis/historyApi";
+import { storeCache, CacheTTL } from "@/lib/storeCache";
 
 // Transform PDF history from API to component format
-function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] {
+function transformPDFHistory(
+  items: PDFHistoryItem[]
+): PDFHistoryListItemData[] {
   return items.map((item) => {
     const quizCount = item.quizHistory?.quizzes?.length || 0;
     const flashcardCount = item.flashcardHistory?.flashcards?.length || 0;
@@ -32,7 +35,10 @@ function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] 
       id: item.id,
       fileName: item.filename,
       description,
-      status: (quizCount > 0 || flashcardCount > 0) ? "completed" as const : "processing" as const,
+      status:
+        quizCount > 0 || flashcardCount > 0
+          ? ("completed" as const)
+          : ("processing" as const),
       createdAt: formatTimeAgo(item.createdAt),
     };
   });
@@ -63,7 +69,11 @@ export default function PDFHistoryPage() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getPDFHistoryApi(100); // Get all for client-side pagination
+      const data = await storeCache.fetchWithCache(
+        storeCache.createKey("history-pdf-full", { limit: 100 }),
+        () => getPDFHistoryApi(100),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       setItems(transformPDFHistory(data));
     } catch (error) {
       console.error("Failed to fetch PDF history:", error);
@@ -77,7 +87,10 @@ export default function PDFHistoryPage() {
   }, [fetchData]);
 
   const totalPages = Math.ceil(items.length / itemsPerPage);
-  const paginatedItems = items.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const paginatedItems = items.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
 
   const handleDownload = (id: string) => {
     console.log("Download PDF:", id);
@@ -105,7 +118,9 @@ export default function PDFHistoryPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Lịch sử xử lý PDF</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            Lịch sử xử lý PDF
+          </h1>
           <p className="text-muted-foreground mt-1">
             Tất cả các file PDF đã tải lên và xử lý
           </p>
@@ -143,9 +158,8 @@ export default function PDFHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -154,9 +168,8 @@ export default function PDFHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

@@ -43,7 +43,7 @@ export default function StackSection() {
   const iconsPerOrbit = Math.ceil(iconConfigs.length / orbitCount);
 
   return (
-    <section className="relative max-w-6xl mx-auto pl-10 flex items-center justify-between h-[30rem] border border-gray-200 dark:border-gray-700 bg-white dark:bg-black overflow-hidden rounded-3xl ">
+    <section className="relative max-w-6xl mx-auto pl-10 flex items-center justify-between h-[30rem] border border-border dark:border-border bg-white dark:bg-black overflow-hidden rounded-3xl ">
       {/* Left side: Heading and Text */}
       <div className="w-1/2 z-10">
         <h1 className="text-4xl sm:text-6xl font-bold mb-4 text-gray-900 dark:text-white">
@@ -83,7 +83,7 @@ export default function StackSection() {
             return (
               <div
                 key={orbitIdx}
-                className="absolute rounded-full border-2 border-dotted border-gray-300 dark:border-gray-600"
+                className="absolute rounded-full border-2 border-dotted border-border dark:border-border"
                 style={{
                   width: size,
                   height: size,

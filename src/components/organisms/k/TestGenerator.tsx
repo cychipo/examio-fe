@@ -135,7 +135,7 @@ export function TestGenerator() {
   return (
     <div className="gap-6 flex w-full flex-col">
       {/* Upload & Settings */}
-      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl h-fit w-full">
+      <Card className="border-border bg-white/[0.02] backdrop-blur-xl h-fit w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
@@ -185,7 +185,7 @@ export function TestGenerator() {
           </div>
 
           {/* Narrow Format Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-border">
             <Label
               htmlFor="narrow-toggle-test"
               className="flex items-center gap-2 cursor-pointer text-muted-foreground">
@@ -219,7 +219,7 @@ export function TestGenerator() {
                     placeholder="Nhập từ khóa..."
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="bg-white/5 border-white/10"
+                    className="bg-white/5 border-border"
                   />
                 </FieldContent>
               </Field>
@@ -248,7 +248,7 @@ export function TestGenerator() {
       </Card>
 
       {/* Preview */}
-      <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl w-full">
+      <Card className="border-border bg-white/[0.02] backdrop-blur-xl w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center border border-blue-500/20">
@@ -280,7 +280,7 @@ export function TestGenerator() {
             </div>
           ) : !generatedTest ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-border flex items-center justify-center mb-4">
                 <FileText className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground">
@@ -307,7 +307,7 @@ export function TestGenerator() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white/5 border-white/10 hover:bg-white/10">
+                    className="bg-white/5 border-border hover:bg-white/10">
                     <SaveAll size={15} className="mr-2" />
                     Lưu
                   </Button>
@@ -319,7 +319,7 @@ export function TestGenerator() {
                   {generatedTest.map((q: Quizz, idx: number) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
+                      className="p-4 rounded-xl bg-white/5 border border-border hover:border-border transition-colors">
                       <div className="flex items-start gap-3">
                         <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center">
                           {idx + 1}

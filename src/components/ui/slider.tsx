@@ -117,7 +117,7 @@ function Slider({
             "outline-none disabled:pointer-events-none disabled:opacity-50 cursor-grab active:cursor-grabbing",
             "h-3 w-8",
             showGlass
-              ? "scale-105 bg-white/8 backdrop-blur-lg backdrop-brightness-100 border border-white/25 border-t-white/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.25)] ring-2 ring-foreground/15"
+              ? "scale-105 bg-white/8 backdrop-blur-lg backdrop-brightness-100 border border-border border-t-white/50 shadow-[0_8px_32px_0_rgba(31,38,135,0.25)] ring-2 ring-foreground/15"
               : "bg-background border border-primary shadow-sm"
           )}>
           {showGlass && (

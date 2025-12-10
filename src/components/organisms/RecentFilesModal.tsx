@@ -91,7 +91,7 @@ export function RecentFilesModal({
         </div>
       ) : recentUploads.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+          <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-border">
             <FolderOpen className="w-8 h-8 text-muted-foreground" />
           </div>
           <p className="text-muted-foreground">Chưa có file nào được tải lên</p>
@@ -134,11 +134,11 @@ export function RecentFilesModal({
             </div>
           </ScrollArea>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+          <div className="flex justify-end gap-2 pt-2 border-t border-border">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="bg-white/5 border-white/10 hover:bg-white/10">
+              className="bg-white/5 border-border hover:bg-white/10">
               Hủy
             </Button>
             <Button onClick={handleConfirm} disabled={!selectedId}>
@@ -154,7 +154,7 @@ export function RecentFilesModal({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-lg bg-background/95 backdrop-blur-xl border-white/10">
+        <DialogContent className="max-w-lg bg-background/95 backdrop-blur-xl border-border">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
@@ -170,7 +170,7 @@ export function RecentFilesModal({
   // Mobile: Drawer
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="bg-background/95 backdrop-blur-xl border-white/10 max-h-[85vh]">
+      <DrawerContent className="bg-background/95 backdrop-blur-xl border-border max-h-[85vh]">
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-primary" />

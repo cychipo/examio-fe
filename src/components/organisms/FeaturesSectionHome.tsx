@@ -201,7 +201,7 @@ function ChartAnimation({ value }: { value: number }) {
 function IconsFeature() {
   return (
     <div className="grid grid-cols-3 gap-4 mt-4">
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
+      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
         <div className="relative w-8 h-8 flex items-center justify-center">
           <OpenAI className="w-7 h-7 dark:hidden transition-transform " />
           <OpenAIDark className="w-7 h-7 hidden dark:block transition-transform " />
@@ -210,7 +210,7 @@ function IconsFeature() {
           OpenAI
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
+      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
         <div className="relative w-8 h-8 flex items-center justify-center">
           <Anthropic className="w-7 h-7 dark:hidden transition-transform " />
           <AnthropicDark className="w-7 h-7 hidden dark:block transition-transform " />
@@ -219,7 +219,7 @@ function IconsFeature() {
           Anthropic
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
+      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
         <div className="relative w-8 h-8 flex items-center justify-center">
           <Google className="w-7 h-7 transition-transform " />
         </div>
@@ -227,7 +227,7 @@ function IconsFeature() {
           Google
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
+      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
         <div className="relative w-8 h-8 flex items-center justify-center">
           <MistralAI className="w-7 h-7 transition-transform " />
         </div>
@@ -235,7 +235,7 @@ function IconsFeature() {
           Mistral
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
+      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
         <div className="relative w-8 h-8 flex items-center justify-center">
           <DeepSeek className="w-7 h-7 transition-transform " />
         </div>
@@ -243,7 +243,7 @@ function IconsFeature() {
           DeepSeek
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-neutral-200/50 dark:border-neutral-700/50 group transition-all duration-300 hover:border-neutral-300 dark:hover:border-neutral-600">
+      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
         <div className="relative w-8 h-8 flex items-center justify-center">
           <Plus className="w-6 h-6 text-neutral-600 dark:text-neutral-400 transition-transform " />
         </div>
@@ -529,7 +529,7 @@ function BentoCard({ item }: { item: BentoItem }) {
                     group relative flex flex-col gap-4 h-full rounded-xl p-5
                     bg-gradient-to-b from-neutral-50/60 via-neutral-50/40 to-neutral-50/30
                     dark:from-neutral-900/60 dark:via-neutral-900/40 dark:to-neutral-900/30
-                    border border-neutral-200/60 dark:border-neutral-800/60
+                    border border-border dark:border-border
                     before:absolute before:inset-0 before:rounded-xl
                     before:bg-gradient-to-b before:from-white/10 before:via-white/20 before:to-transparent
                     dark:before:from-black/10 dark:before:via-black/20 dark:before:to-transparent
@@ -537,7 +537,7 @@ function BentoCard({ item }: { item: BentoItem }) {
                     after:absolute after:inset-0 after:rounded-xl after:bg-neutral-50/70 dark:after:bg-neutral-900/70 after:z-[-1]
                     backdrop-blur-[4px]
                     shadow-[0_4px_20px_rgb(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgb(0,0,0,0.2)]
-                    hover:border-neutral-300/50 dark:hover:border-neutral-700/50
+                    hover:border-border dark:hover:border-border
                     hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)]
                     hover:backdrop-blur-[6px]
                     hover:bg-gradient-to-b hover:from-neutral-50/60 hover:via-neutral-50/30 hover:to-neutral-50/20
@@ -601,7 +601,7 @@ function BentoCard({ item }: { item: BentoItem }) {
             )}
 
             {item.icons && !item.feature && (
-              <div className="mt-auto pt-4 flex items-center flex-wrap gap-4 border-t border-neutral-200/70 dark:border-neutral-800/70">
+              <div className="mt-auto pt-4 flex items-center flex-wrap gap-4 border-t border-border dark:border-border">
                 <OpenAI className="w-5 h-5 dark:hidden opacity-70 hover:opacity-100 transition-opacity" />
                 <OpenAIDark className="w-5 h-5 hidden dark:block opacity-70 hover:opacity-100 transition-opacity" />
                 <AnthropicDark className="w-5 h-5 dark:block hidden opacity-70 hover:opacity-100 transition-opacity" />
@@ -650,7 +650,7 @@ export default function FeaturesSection() {
             </motion.div>
             <motion.div
               variants={fadeInUp}
-              className="md:col-span-1 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-neutral-50 dark:from-neutral-900/80 dark:to-neutral-900 border border-neutral-200/50 dark:border-neutral-800/50 hover:border-neutral-400/30 dark:hover:border-neutral-600/30 hover:shadow-lg hover:shadow-neutral-200/20 dark:hover:shadow-neutral-900/20 transition-all duration-300">
+              className="md:col-span-1 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-neutral-50 dark:from-neutral-900/80 dark:to-neutral-900 border border-border dark:border-border hover:border-border dark:hover:border-border hover:shadow-lg hover:shadow-neutral-200/20 dark:hover:shadow-neutral-900/20 transition-all duration-300">
               <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">

@@ -108,7 +108,7 @@ export function ChatHistoryCard({
 
   return (
     <>
-      <Card className="border-white/10 bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
+      <Card className="border-border bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -171,7 +171,7 @@ export function ChatHistoryCard({
                         <Input
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
-                          className="h-7 text-sm bg-white/10 border-white/20"
+                          className="h-7 text-sm bg-white/10 border-border"
                           onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") saveEditing();
@@ -255,7 +255,7 @@ export function ChatHistoryCard({
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10">
+        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-border">
           <AlertDialogHeader>
             <AlertDialogTitle>Xóa cuộc trò chuyện?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -264,7 +264,7 @@ export function ChatHistoryCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-white/10 hover:bg-white/10">
+            <AlertDialogCancel className="bg-white/5 border-border hover:bg-white/10">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction

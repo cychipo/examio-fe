@@ -66,7 +66,7 @@ export function SigninForm() {
                 </label>
                 <input
                   name="credential"
-                  className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 h-12 rounded-lg focus-visible:ring-2 w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  className="bg-gray-50 border-border text-gray-900 placeholder:text-gray-400 h-12 rounded-lg focus-visible:ring-2 w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                   placeholder="Tên Đăng Nhập hoặc Email"
                 />
               </div>
@@ -82,7 +82,7 @@ export function SigninForm() {
                   <input
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    className="bg-gray-50 border-gray-200 text-gray-900 pr-12 h-12 rounded-lg focus-visible:ring-2   w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="bg-gray-50 border-border text-gray-900 pr-12 h-12 rounded-lg focus-visible:ring-2   w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                     placeholder="••••••••"
                   />
                   <button

@@ -10,11 +10,11 @@ const badgeVariants = cva(
         default:
           "border-transparent bg-primary/90 text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary",
         secondary:
-          "border-white/20 dark:border-white/10 bg-white/20 dark:bg-white/10 backdrop-blur-sm text-secondary-foreground hover:bg-white/30",
+          "border-border dark:border-border bg-white/20 dark:bg-white/10 backdrop-blur-sm text-secondary-foreground hover:bg-white/30",
         destructive:
           "border-transparent bg-destructive/90 text-destructive-foreground shadow-sm shadow-destructive/25 hover:bg-destructive",
         outline:
-          "text-foreground border-white/30 dark:border-white/20 bg-white/10 backdrop-blur-sm",
+          "text-foreground border-border dark:border-border bg-white/10 backdrop-blur-sm",
       },
       shiny: {
         true: "relative overflow-hidden",

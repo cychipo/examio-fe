@@ -14,7 +14,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/25 hover:bg-destructive/90 hover:shadow-xl hover:shadow-destructive/30",
         outline:
-          "border border-border bg-white/15 dark:bg-white/5 backdrop-blur-lg shadow-md hover:bg-white/25 dark:hover:bg-white/10 hover:border-primary/40 dark:hover:border-white/20",
+          "border border-border bg-white/15 dark:bg-white/5 backdrop-blur-lg shadow-md hover:bg-white/25 dark:hover:bg-white/10 hover:border-primary/40 dark:hover:border-border",
         secondary:
           "bg-secondary/80 backdrop-blur-sm text-secondary-foreground shadow-sm hover:bg-secondary/90",
         ghost:
@@ -30,7 +30,7 @@ const buttonVariants = cva(
         gradient:
           "bg-gradient-to-r from-primary via-accent to-pink-500 text-white shadow-lg hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5",
         glass:
-          "bg-white/15 dark:bg-white/5 backdrop-blur-xl text-foreground border border-border hover:bg-white/25 dark:hover:bg-white/10 hover:border-primary/40 dark:hover:border-white/15 shadow-lg",
+          "bg-white/15 dark:bg-white/5 backdrop-blur-xl text-foreground border border-border hover:bg-white/25 dark:hover:bg-white/10 hover:border-primary/40 dark:hover:border-border shadow-lg",
         error:
           "bg-red-600 text-white shadow-lg shadow-red-600/25 hover:bg-red-700",
         errorGhost: "hover:bg-red-600/10 text-red-600",

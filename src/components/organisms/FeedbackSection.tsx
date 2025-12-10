@@ -259,7 +259,7 @@ export default function FeedbackSection() {
                   style={{ cursor: "grab" }}
                 >
                   <motion.div
-                    className="relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg shadow-primary/5 dark:shadow-primary-light/5"
+                    className="relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full bg-white dark:bg-gray-800 border border-border dark:border-border shadow-lg shadow-primary/5 dark:shadow-primary-light/5"
                     whileHover={{
                       boxShadow:
                         "0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -2px rgba(79, 70, 229, 0.05)",
@@ -279,7 +279,7 @@ export default function FeedbackSection() {
                         &rdquo;
                       </p>
 
-                      <div className="mt-auto pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700">
+                      <div className="mt-auto pt-3 sm:pt-4 border-t border-border dark:border-border">
                         <div className="flex items-center">
                           <div className="relative flex-shrink-0">
                             <img
@@ -287,7 +287,7 @@ export default function FeedbackSection() {
                               height={48}
                               src={testimonial.avatar}
                               alt={testimonial.name}
-                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-sm"
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-border dark:border-border shadow-sm"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src
                                   = "/api/placeholder/48/48";

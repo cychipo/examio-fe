@@ -48,7 +48,7 @@ function AIGeneratorContent() {
         <div className="flex items-center gap-4 mb-2">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
-            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
+            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
               <Cpu className="w-7 h-7 text-primary" />
             </div>
           </div>
@@ -65,7 +65,7 @@ function AIGeneratorContent() {
 
         {/* Stats Bar */}
         <div className="flex items-center gap-4 mt-6">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-border">
             <Zap className="w-4 h-4 text-yellow-400" />
             <span className="text-sm text-muted-foreground">
               Powered by{" "}
@@ -85,7 +85,7 @@ function AIGeneratorContent() {
               value={activeTab}
               onValueChange={handleTabChange}
               className="w-full">
-              <TabsList className="grid grid-cols-2 h-14 p-1.5 bg-white/[0.03] border border-white/10 backdrop-blur-xl w-full md:w-fit rounded-xl">
+              <TabsList className="grid grid-cols-2 h-14 p-1.5 bg-white/[0.03] border border-border backdrop-blur-xl w-full md:w-fit rounded-xl">
                 <TabsTrigger
                   value="test"
                   className="flex items-center gap-2.5 px-6 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300">
@@ -114,7 +114,7 @@ function AIGeneratorContent() {
 
           {/* Sidebar - Recent Files - Now on the right */}
           <aside className="w-full lg:w-xl flex-shrink-0 mt-22">
-            <Card className="border-white/10 bg-white/[0.02] backdrop-blur-xl lg:sticky lg:top-6">
+            <Card className="border-border bg-white/[0.02] backdrop-blur-xl lg:sticky lg:top-6">
               <CardContent>
                 <RecentFilesList onSelectUpload={handleSelectUpload} />
               </CardContent>

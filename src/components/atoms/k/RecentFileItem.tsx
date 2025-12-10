@@ -49,7 +49,7 @@ export function RecentFileItem({
     <div
       className={cn(
         "group relative flex items-start gap-3 p-3 rounded-xl transition-all duration-200 cursor-pointer",
-        "bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20",
+        "bg-white/5 hover:bg-white/10 border border-border hover:border-border",
         isSelected && "bg-white/15 border-primary/50 ring-1 ring-primary/30",
         isDeleting && "opacity-50 pointer-events-none"
       )}

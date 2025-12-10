@@ -96,7 +96,7 @@ export function ChatInputBar({
     <div className="relative">
       {/* Image Preview */}
       {uploadedImageUrl && (
-        <div className="absolute -top-16 left-4 flex items-center gap-2 bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-lg p-2 border border-white/20 dark:border-white/10">
+        <div className="absolute -top-16 left-4 flex items-center gap-2 bg-white/10 dark:bg-black/20 backdrop-blur-md rounded-lg p-2 border border-border dark:border-border">
           <img
             src={uploadedImageUrl}
             alt="Upload preview"
@@ -118,7 +118,7 @@ export function ChatInputBar({
           "flex items-center gap-2 p-2 rounded-xl",
           "bg-white/10 dark:bg-white/[0.05]",
           "backdrop-blur-xl",
-          "border border-white/20 dark:border-white/10",
+          "border border-border dark:border-border",
           "shadow-lg shadow-black/5 dark:shadow-black/20",
           "transition-all duration-300",
           isListening && "ring-2 ring-primary/50"
@@ -188,7 +188,7 @@ export function ChatInputBar({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="bg-background/95 backdrop-blur-xl border-white/10">
+              className="bg-background/95 backdrop-blur-xl border-border">
               <DropdownMenuItem onClick={onUploadPdf}>
                 <FileText className="w-4 h-4 mr-2" />
                 Tải file mới

@@ -10,16 +10,21 @@ import {
   type ExamHistoryListItemData,
 } from "@/components/molecules/ExamHistoryListItem";
 import { getExamHistoryApi, type ExamHistoryItem } from "@/apis/historyApi";
+import { storeCache, CacheTTL } from "@/lib/storeCache";
 
 // Transform exam history from API to component format
-function transformExamHistory(items: ExamHistoryItem[]): ExamHistoryListItemData[] {
+function transformExamHistory(
+  items: ExamHistoryItem[]
+): ExamHistoryListItemData[] {
   return items.map((item) => ({
     id: item.id,
     examTitle: item.examSession.examRoom.title,
     score: item.score,
     totalQuestions: item.totalQuestions,
     correctAnswers: item.correctAnswers,
-    completedAt: `Hoàn thành ${formatTimeAgo(item.finishedAt || item.startedAt)}`,
+    completedAt: `Hoàn thành ${formatTimeAgo(
+      item.finishedAt || item.startedAt
+    )}`,
     passed: item.score >= 50,
   }));
 }
@@ -51,7 +56,15 @@ export default function ExamHistoryPage() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await getExamHistoryApi(page, itemsPerPage);
+      const cacheKey = storeCache.createKey("history-exam-page", {
+        page,
+        limit: itemsPerPage,
+      });
+      const data = await storeCache.fetchWithCache(
+        cacheKey,
+        () => getExamHistoryApi(page, itemsPerPage),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
       setItems(transformExamHistory(data.examAttempts));
       setTotalPages(data.totalPages);
       setTotal(data.total);
@@ -88,7 +101,9 @@ export default function ExamHistoryPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Lịch sử làm bài</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            Lịch sử làm bài
+          </h1>
           <p className="text-muted-foreground mt-1">
             Tất cả các bài thi đã hoàn thành
           </p>
@@ -125,9 +140,8 @@ export default function ExamHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -136,9 +150,8 @@ export default function ExamHistoryPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
