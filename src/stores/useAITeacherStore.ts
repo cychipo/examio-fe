@@ -72,9 +72,7 @@ interface AITeacherState {
   setTranscript: (value: string) => void;
 
   // Actions - Files
-  setSelectedUploads: (
-    uploads: RecentUpload[]
-  ) => void;
+  setSelectedUploads: (uploads: RecentUpload[]) => void;
   addSelectedUpload: (upload: RecentUpload) => void;
   removeSelectedUpload: (uploadId: string) => void;
   setUploadedImageUrl: (url: string | null) => void;
@@ -343,7 +341,9 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
     // Sync documents to server before sending message
     // Filter out placeholders and sync real documents
-    const realDocs = selectedUploads.filter((u) => !u.id.startsWith("processing-"));
+    const realDocs = selectedUploads.filter(
+      (u) => !u.id.startsWith("processing-")
+    );
     for (const doc of realDocs) {
       try {
         await aiChatApi.addDocument(chatId, doc.id, doc.filename);
@@ -614,89 +614,47 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
+  /**
+   * Upload PDF files using quick-upload (no waiting for OCR).
+   * OCR/vectorization happens on-demand when first message is sent.
+   */
   uploadPdf: async (files: File[]) => {
     set({ isProcessingPdf: true });
 
     try {
       // Process all files concurrently
-      await Promise.all(files.map(async (file) => {
-        const placeholderId = `processing-${Date.now()}-${Math.random()}`;
-        const placeholder: RecentUpload = {
-          id: placeholderId,
-          filename: file.name,
-          url: "",
-          size: file.size,
-          mimeType: "application/pdf",
-          createdAt: new Date().toISOString(),
-          quizHistory: null,
-          flashcardHistory: null,
-        };
-        // Add placeholder
-        get().addSelectedUpload(placeholder);
+      await Promise.all(
+        files.map(async (file) => {
+          try {
+            // Use quick upload - returns immediately after R2 upload
+            const result = await virtualTeacherApi.quickUploadFile(file);
 
-        // Wrap polling in a promise to await it
-        await new Promise<void>((resolve) => {
-            (async () => {
-                try {
-                    const { jobId } = await virtualTeacherApi.uploadFile(file);
+            if (result.success) {
+              const upload: RecentUpload = {
+                id: result.userStorageId,
+                filename: result.filename,
+                url: result.url,
+                size: file.size,
+                mimeType: "application/pdf",
+                createdAt: new Date().toISOString(),
+                quizHistory: null,
+                flashcardHistory: null,
+              };
 
-                    // Poll for status
-                    const pollInterval = setInterval(async () => {
-                        try {
-                            const status = await aiApi.getJobStatus(jobId);
-
-                            if (status.status === "completed" && status.result?.fileInfo) {
-                                clearInterval(pollInterval);
-                                const fileInfo = status.result.fileInfo;
-
-                                const upload: RecentUpload = {
-                                    id: fileInfo.id,
-                                    filename: fileInfo.filename,
-                                    url: (fileInfo as any).url || "",
-                                    size: file.size,
-                                    mimeType: "application/pdf",
-                                    createdAt: new Date().toISOString(),
-                                    quizHistory: status.result.historyId ? { id: status.result.historyId, quizzes: status.result.quizzes || [], createdAt: new Date().toISOString() } : null,
-                                    flashcardHistory: status.result.historyId ? { id: status.result.historyId, flashcards: status.result.flashcards || [], createdAt: new Date().toISOString() } : null,
-                                };
-
-                                get().removeSelectedUpload(placeholderId);
-                                get().addSelectedUpload(upload);
-                                resolve(); // Done
-                            } else if (status.status === "failed") {
-                                clearInterval(pollInterval);
-                                get().removeSelectedUpload(placeholderId);
-                                toast.error(`Lỗi xử lý file: ${file.name}`);
-                                resolve(); // Resolved as failed but handled
-                            }
-                        } catch {
-                            // Transient error
-                        }
-                    }, 2000);
-
-                    // Timeout
-                    setTimeout(() => {
-                        clearInterval(pollInterval);
-                        const current = get().selectedUploads.find(u => u.id === placeholderId);
-                        if (current) {
-                            get().removeSelectedUpload(placeholderId);
-                            toast.error(`Quá thời gian xử lý: ${file.name}`);
-                        }
-                        resolve(); // Timeout is also a completion of sort
-                    }, 5 * 60 * 1000);
-
-                } catch {
-                    get().removeSelectedUpload(placeholderId);
-                    toast.error(`Không thể tải lên: ${file.name}`);
-                    resolve(); // Handled
-                }
-            })();
-        });
-      }));
+              get().addSelectedUpload(upload);
+              console.log(
+                `[Quick Upload] Success: ${result.filename} (${result.userStorageId})`
+              );
+            }
+          } catch (error) {
+            console.error(`Error uploading ${file.name}:`, error);
+            toast.error(`Không thể tải lên: ${file.name}`);
+          }
+        })
+      );
 
       set({ isProcessingPdf: false });
-      toast.success("Đã xử lý xong các tài liệu");
-
+      toast.success("Đã tải lên tài liệu thành công");
     } catch (error) {
       console.error("Error in batch upload:", error);
       set({ isProcessingPdf: false });

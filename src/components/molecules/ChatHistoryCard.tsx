@@ -124,7 +124,7 @@ export function ChatHistoryCard({
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="pt-2">
+        <CardContent className="-mt-8">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-primary" />
