@@ -18,6 +18,7 @@ import {
   Pencil,
   Trash2,
   RefreshCw,
+  Square,
 } from "lucide-react";
 import { useAITeacherStore } from "@/stores/useAITeacherStore";
 import { ChatInputBar } from "@/components/molecules/ChatInputBar";
@@ -97,6 +98,7 @@ export default function AITeacherPage() {
     uploadPdf,
     speakResponse,
     stopSpeaking,
+    abortStream,
   } = useAITeacherStore();
 
   const [speechSupported, setSpeechSupported] = useState(true);
@@ -387,23 +389,43 @@ export default function AITeacherPage() {
                             <p className="text-sm whitespace-pre-wrap">
                               {streamingContent}
                             </p>
-                            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              <span className="text-xs">Đang trả lời...</span>
+                            <div className="flex items-center justify-between mt-2">
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                                <span className="text-xs">Đang trả lời...</span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                onClick={() => abortStream?.()}>
+                                <Square className="w-3 h-3 mr-1 fill-current" />
+                                Dừng
+                              </Button>
                             </div>
                           </div>
                         </div>
                       )}
                       {/* Loading indicator when processing but no streaming content yet */}
                       {isProcessing && !streamingContent && (
-                        <div className="flex items-center gap-3 text-muted-foreground">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                            <Bot className="w-4 h-4 text-primary" />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3 text-muted-foreground">
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                              <Bot className="w-4 h-4 text-primary" />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span className="text-sm">Đang suy nghĩ...</span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span className="text-sm">Đang suy nghĩ...</span>
-                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-3 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                            onClick={() => abortStream?.()}>
+                            <Square className="w-3 h-3 mr-1 fill-current" />
+                            Dừng
+                          </Button>
                         </div>
                       )}
                     </div>
