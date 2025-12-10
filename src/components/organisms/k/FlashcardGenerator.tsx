@@ -202,7 +202,7 @@ export function FlashcardGenerator() {
             />
           </div>
 
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-border">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
             <Label
               htmlFor="narrow-toggle"
               className="flex items-center gap-2 cursor-pointer text-muted-foreground">
@@ -235,7 +235,7 @@ export function FlashcardGenerator() {
                     placeholder="Nhập từ khóa..."
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="bg-white/5 border-border"
+                    className="bg-black/5 dark:bg-white/5 border-border"
                   />
                 </FieldContent>
               </Field>
@@ -297,7 +297,7 @@ export function FlashcardGenerator() {
             </div>
           ) : !generatedCards || generatedCards.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-border flex items-center justify-center mb-4">
+              <div className="w-20 h-20 rounded-2xl bg-black/5 dark:bg-white/5 border border-border flex items-center justify-center mb-4">
                 <SquareSplitVertical className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground">
@@ -324,7 +324,7 @@ export function FlashcardGenerator() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-white/5 border-border cursor-pointer">
+                      className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
                       <SaveAll size={15} className="mr-2" />
                       Lưu
                     </Button>
@@ -361,7 +361,7 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={prevCard}
                   disabled={currentCard === 0}
-                  className="flex-1 bg-white/5 border-border cursor-pointer">
+                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer">
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Trước
                 </Button>
@@ -370,7 +370,7 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={nextCard}
                   disabled={currentCard === generatedCards.length - 1}
-                  className="flex-1 bg-white/5 border-border cursor-pointer">
+                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer">
                   Sau
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>

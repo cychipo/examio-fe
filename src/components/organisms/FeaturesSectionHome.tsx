@@ -465,7 +465,7 @@ function AIInput_Voice() {
               className={cn(
                 "w-0.5 rounded-full transition-all duration-300",
                 submitted
-                  ? "bg-black/50 dark:bg-white/50 animate-pulse"
+                  ? "bg-black/50 dark:bg-black/5 dark:bg-white/50 animate-pulse"
                   : "bg-black/10 dark:bg-white/10 h-1"
               )}
               style={

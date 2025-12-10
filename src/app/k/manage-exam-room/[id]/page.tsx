@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useExamRoomStore } from "@/stores/useExamRoomStore";
 import { useExamRoomDetailStore } from "@/stores/useExamRoomDetailStore";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,14 @@ import { ExamSessionBasic } from "@/types/examRoom";
 import { ExamSessionParticipant, ASSESS_TYPE } from "@/types/examSession";
 import { ExamSessionFormModal } from "@/components/organisms/ExamSessionFormModal";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const PAGE_SIZE = 10;
 
@@ -168,19 +177,25 @@ export default function ExamRoomDetailPage() {
     switch (status) {
       case 0:
         return (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+          <Badge
+            variant="secondary"
+            className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
             Đang chờ
           </Badge>
         );
       case 1:
         return (
-          <Badge variant="default" className="bg-green-100 text-green-800">
+          <Badge
+            variant="default"
+            className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
             Đã duyệt
           </Badge>
         );
       case 2:
         return (
-          <Badge variant="destructive" className="bg-red-100 text-red-800">
+          <Badge
+            variant="destructive"
+            className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
             Từ chối
           </Badge>
         );
@@ -347,24 +362,22 @@ export default function ExamRoomDetailPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
+      {/* Header with Breadcrumb */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/k/manage-exam-room")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Quay lại
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{currentExamRoom.title}</h1>
-            {currentExamRoom.description && (
-              <p className="text-muted-foreground">
-                {currentExamRoom.description}
-              </p>
-            )}
-          </div>
+        <div className="flex-1">
+          <Breadcrumb className="mb-3">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/k/manage-exam-room">Quản lý Phòng thi</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>{currentExamRoom.title}</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
         <Button onClick={handleCreateSession}>
           <Plus className="h-4 w-4 mr-2" />

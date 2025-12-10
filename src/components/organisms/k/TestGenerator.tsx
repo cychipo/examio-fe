@@ -185,7 +185,7 @@ export function TestGenerator() {
           </div>
 
           {/* Narrow Format Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-border">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
             <Label
               htmlFor="narrow-toggle-test"
               className="flex items-center gap-2 cursor-pointer text-muted-foreground">
@@ -219,7 +219,7 @@ export function TestGenerator() {
                     placeholder="Nhập từ khóa..."
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="bg-white/5 border-border"
+                    className="bg-black/5 dark:bg-white/5 border-border"
                   />
                 </FieldContent>
               </Field>
@@ -280,7 +280,7 @@ export function TestGenerator() {
             </div>
           ) : !generatedTest ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-white/5 border border-border flex items-center justify-center mb-4">
+              <div className="w-20 h-20 rounded-2xl bg-black/5 dark:bg-white/5 border border-border flex items-center justify-center mb-4">
                 <FileText className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground">
@@ -307,7 +307,7 @@ export function TestGenerator() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white/5 border-border cursor-pointer">
+                    className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
                     <SaveAll size={15} className="mr-2" />
                     Lưu
                   </Button>
@@ -319,7 +319,7 @@ export function TestGenerator() {
                   {generatedTest.map((q: Quizz, idx: number) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-xl bg-white/5 border border-border hover:border-border transition-colors">
+                      className="p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-border hover:border-border transition-colors">
                       <div className="flex items-start gap-3">
                         <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center">
                           {idx + 1}
@@ -345,7 +345,7 @@ export function TestGenerator() {
                                     "flex items-start gap-2 p-2 rounded-lg transition-colors",
                                     isCorrect
                                       ? "bg-green-500/10 border border-green-500/20"
-                                      : "bg-white/5 border border-transparent"
+                                      : "bg-black/5 dark:bg-white/5 border border-transparent"
                                   )}>
                                   <span
                                     className={cn(

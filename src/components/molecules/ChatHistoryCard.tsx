@@ -264,7 +264,7 @@ export function ChatHistoryCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-border cursor-pointer">
+            <AlertDialogCancel className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction

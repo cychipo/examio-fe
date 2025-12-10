@@ -65,7 +65,7 @@ function AIGeneratorContent() {
 
         {/* Stats Bar */}
         <div className="flex items-center gap-4 mt-6">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-border">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
             <Zap className="w-4 h-4 text-yellow-400" />
             <span className="text-sm text-muted-foreground">
               Powered by{" "}

@@ -383,7 +383,7 @@ export default function AITeacherPage() {
                           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                             <Bot className="w-4 h-4 text-primary" />
                           </div>
-                          <div className="flex-1 bg-white/5 dark:bg-white/[0.03] border border-border rounded-2xl rounded-tl-sm px-4 py-3">
+                          <div className="flex-1 bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-2xl rounded-tl-sm px-4 py-3">
                             <p className="text-sm whitespace-pre-wrap">
                               {streamingContent}
                             </p>
@@ -539,7 +539,7 @@ export default function AITeacherPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-border cursor-pointer">
+            <AlertDialogCancel className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction
@@ -639,7 +639,7 @@ function MessageBubble({
             "rounded-2xl px-4 py-2",
             isUser
               ? "bg-primary text-primary-foreground rounded-tr-sm"
-              : "bg-white/5 dark:bg-white/[0.03] border border-border rounded-tl-sm"
+              : "bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-tl-sm"
           )}>
           {isEditing ? (
             <div className="flex flex-col gap-2">

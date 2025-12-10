@@ -87,14 +87,18 @@ export function SidebarKit() {
       href: "/k/flash-card",
       icon: <CardStackIcon className="w-5 h-5" />,
       label: "Quản lý Flashcard",
-      active: pathname === "/k/flash-card",
+      active:
+        pathname === "/k/flash-card" ||
+        pathname.startsWith("/k/manage-flashcard-set"),
     },
     {
       name: "Manage Exam Room",
       href: "/k/manage-exam-room",
       icon: <TokensIcon className="w-5 h-5" />,
       label: "Quản lý Phòng thi",
-      active: pathname === "/k/manage-exam-room",
+      active:
+        pathname === "/k/manage-exam-room" ||
+        pathname.startsWith("/k/manage-exam-room"),
     },
     {
       name: "History",

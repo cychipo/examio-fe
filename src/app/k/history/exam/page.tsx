@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import {
   ExamHistoryListItem,
@@ -11,6 +11,14 @@ import {
 } from "@/components/molecules/ExamHistoryListItem";
 import { getExamHistoryApi, type ExamHistoryItem } from "@/apis/historyApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 // Transform exam history from API to component format
 function transformExamHistory(
@@ -93,22 +101,20 @@ export default function ExamHistoryPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto px-4 pt-8 pb-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/k/history">
-          <Button variant="ghost" size="icon" className="h-9 w-9">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Lịch sử làm bài
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Tất cả các bài thi đã hoàn thành
-          </p>
-        </div>
-      </div>
+      {/* Breadcrumb */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link href="/k/history">Lịch sử</Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Lịch sử làm bài</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
       {/* Content */}
       <Card className="glass-card">
