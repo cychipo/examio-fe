@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -10,42 +9,50 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Maximize, XCircle, ShieldCheck } from "lucide-react";
-import ReCAPTCHA from "react-google-recaptcha";
-import { useTheme } from "next-themes";
+import { Maximize, XCircle, ShieldCheck, Loader2 } from "lucide-react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import { toast } from "@/components/ui/toast";
 
 interface FullscreenConfirmDialogProps {
   open: boolean;
-  onConfirm: () => void;
+  onConfirm: (token?: string) => void;
   onCancel: () => void;
 }
 
 /**
  * FullscreenConfirmDialog
  * Bắt buộc người dùng xác nhận bật fullscreen trước khi làm bài thi
- * Yêu cầu xác thực CAPTCHA để chống bot
+ * Yêu cầu xác thực CAPTCHA v3 để chống bot
  */
 export function FullscreenConfirmDialog({
   open,
   onConfirm,
   onCancel,
 }: FullscreenConfirmDialogProps) {
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const { theme } = useTheme();
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
-
-  const handleCaptchaChange = (token: string | null) => {
-    setCaptchaToken(token);
-  };
+  const [loading, setLoading] = useState(false);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   // Request fullscreen
   const requestFullscreen = async () => {
-    // Validate CAPTCHA
-    if (!captchaToken) {
-      return;
-    }
-
+    setLoading(true);
     try {
+      // Execute reCAPTCHA v3
+      if (!executeRecaptcha) {
+        toast.error("Chưa tải được dịch vụ bảo mật", {
+          description: "Vui lòng tải lại trang và thử lại",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const token = await executeRecaptcha("fullscreen_exam");
+
+      if (!token) {
+        toast.error("Xác thực bảo mật thất bại");
+        setLoading(false);
+        return;
+      }
+
       await document.documentElement.requestFullscreen();
 
       // Disable devtools keyboard shortcuts
@@ -104,18 +111,19 @@ export function FullscreenConfirmDialog({
         preventRightClick,
       };
 
-      // Call onConfirm after fullscreen is enabled
+      // Call onConfirm after fullscreen is enabled with the token
       setTimeout(() => {
         if (document.fullscreenElement) {
-          onConfirm();
+          onConfirm(token);
         }
       }, 100);
     } catch (error) {
       console.error("Failed to enter fullscreen:", error);
+      toast.error("Không thể bật chế độ toàn màn hình");
+    } finally {
+      setLoading(false);
     }
   };
-
-  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "";
 
   return (
     <AlertDialog open={open}>
@@ -146,24 +154,9 @@ export function FullscreenConfirmDialog({
                 </ul>
               </div>
 
-              {/* CAPTCHA Section */}
-              <div className="flex flex-col items-center justify-center p-4 border rounded-lg bg-background/50">
-                <p className="text-sm font-medium mb-3 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-primary" />
-                  Xác thực bạn không phải là robot
-                </p>
-                {siteKey ? (
-                  <ReCAPTCHA
-                    ref={recaptchaRef}
-                    sitekey={siteKey}
-                    onChange={handleCaptchaChange}
-                    theme={theme === "dark" ? "dark" : "light"}
-                  />
-                ) : (
-                  <div className="p-3 text-sm text-destructive bg-destructive/10 rounded">
-                    Chưa cấu hình Google reCAPTCHA Site Key
-                  </div>
-                )}
+              <div className="flex items-center gap-2 p-3 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <ShieldCheck className="w-5 h-5 flex-shrink-0" />
+                <span>Được bảo vệ bởi Google reCAPTCHA v3</span>
               </div>
 
               <p className="text-amber-600 dark:text-amber-500 font-medium text-center">
@@ -176,16 +169,26 @@ export function FullscreenConfirmDialog({
           <Button
             variant="outline"
             onClick={onCancel}
+            disabled={loading}
             className="w-full sm:w-auto">
             <XCircle className="h-4 w-4 mr-2" />
             Hủy bỏ
           </Button>
           <Button
             onClick={requestFullscreen}
-            disabled={!captchaToken}
+            disabled={loading}
             className="w-full sm:w-auto bg-primary">
-            <Maximize className="h-4 w-4 mr-2" />
-            {captchaToken ? "Vào thi ngay" : "Vui lòng xác thực CAPTCHA"}
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Đang xử lý...
+              </>
+            ) : (
+              <>
+                <Maximize className="h-4 w-4 mr-2" />
+                Vào thi ngay
+              </>
+            )}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

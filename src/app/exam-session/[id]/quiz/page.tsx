@@ -50,6 +50,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   // Fullscreen confirmation state
   const [showFullscreenDialog, setShowFullscreenDialog] = useState(true);
   const [fullscreenConfirmed, setFullscreenConfirmed] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   // Attempt state
   const [attemptId, setAttemptId] = useState<string | null>(null);
@@ -166,7 +167,11 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
 
       try {
         // Start or resume attempt
-        const startResult = await startExamAttemptApi(examSessionId);
+        // Access token from state if needed, though here we rely on the flow
+        const startResult = await startExamAttemptApi(
+          examSessionId,
+          captchaToken || undefined
+        );
         setAttemptId(startResult.examAttempt.id);
 
         // Get secure quiz data with encrypted questions
@@ -233,10 +238,13 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
     };
 
     initExam();
-  }, [examSessionId, fullscreenConfirmed]);
+  }, [examSessionId, fullscreenConfirmed, captchaToken]);
 
   // Handle fullscreen dialog
-  const handleFullscreenConfirm = () => {
+  const handleFullscreenConfirm = (token?: string) => {
+    if (token) {
+      setCaptchaToken(token);
+    }
     setShowFullscreenDialog(false);
     setFullscreenConfirmed(true);
   };

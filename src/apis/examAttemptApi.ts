@@ -83,9 +83,13 @@ export interface SubmitExamAttemptResponse {
  * Start or resume an exam attempt
  */
 export async function startExamAttemptApi(
-  examSessionId: string
+  examSessionId: string,
+  captchaToken?: string
 ): Promise<StartExamAttemptResponse> {
-  const response = await api.post("/examattempts/start", { examSessionId });
+  const response = await api.post("/examattempts/start", {
+    examSessionId,
+    captchaToken,
+  });
   return response.data;
 }
 

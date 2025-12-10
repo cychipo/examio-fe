@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { ToastProvider } from "@/components/ui/toast";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { ReCaptchaProvider } from "@/provider/ReCaptchaProvider";
 
 const tikTokSans = TikTok_Sans({
   subsets: ["latin"],
@@ -25,17 +26,19 @@ export default function RootLayout({
     <html lang="vi" suppressHydrationWarning>
       <GoogleAnalytics />
       <body className={`${tikTokSans.className}`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          disableTransitionOnChange>
-          <ToastProvider>
-            <div className="min-h-screen [&::-webkit-scrollbar]:w-2">
-              {children}
-            </div>
-          </ToastProvider>
-        </ThemeProvider>
+        <ReCaptchaProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={false}
+            disableTransitionOnChange>
+            <ToastProvider>
+              <div className="min-h-screen [&::-webkit-scrollbar]:w-2">
+                {children}
+              </div>
+            </ToastProvider>
+          </ThemeProvider>
+        </ReCaptchaProvider>
       </body>
     </html>
   );
