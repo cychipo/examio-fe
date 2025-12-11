@@ -23,6 +23,7 @@ import {
   getPaymentStatusApi,
   getSubscriptionApi,
   getSubscriptionPlansApi,
+  cancelPaymentApi,
 } from "@/apis/subscriptionApi";
 import { toast } from "@/components/ui/toast";
 import { Crown } from "lucide-react";
@@ -105,6 +106,12 @@ export function SubscriptionTemplate({
       setTimeout(() => window.location.reload(), 2000);
     }
     return status;
+  };
+
+  // Cancel payment
+  const handleCancelPayment = async (paymentId: string) => {
+    await cancelPaymentApi(paymentId);
+    setPaymentData(null);
   };
 
   return (
@@ -200,6 +207,8 @@ export function SubscriptionTemplate({
         onOpenChange={setShowQRDialog}
         paymentData={paymentData}
         onCheckStatus={handleCheckStatus}
+        onCancelPayment={handleCancelPayment}
+        pollInterval={3000}
       />
     </div>
   );
