@@ -51,13 +51,13 @@ export default function ProfileDropdown({
   const menuItems: MenuItem[] = [
     {
       label: "Hồ sơ",
-      href: "#",
+      href: "/k/profile",
       icon: <PersonIcon className="w-4 h-4" />,
     },
     {
       label: "Subscription",
       value: data.subscription || "Free",
-      href: "#",
+      href: "/k/subscription",
       icon: <CardStackMinusIcon className="w-4 h-4" />,
     },
   ];

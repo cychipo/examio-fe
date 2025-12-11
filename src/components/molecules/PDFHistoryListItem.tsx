@@ -74,8 +74,10 @@ export function PDFHistoryListItem({
         variant="secondary"
         className={cn("flex items-center gap-1 border-0 text-xs", config.className)}
       >
-        <StatusIcon className={cn("h-3 w-3", item.status === "processing" && "animate-spin")} />
-        {config.label}
+        <div className="flex items-center gap-1">
+          <StatusIcon className={cn("h-3 w-3", item.status === "processing" && "animate-spin")} />
+          {config.label}
+        </div>
       </Badge>
 
       {/* Menu */}
