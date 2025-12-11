@@ -1,6 +1,7 @@
 "use client";
 
 import { ProfileForm } from "@/components/molecules/profile/ProfileForm";
+import { DeviceList } from "@/components/molecules/profile/DeviceList";
 import type { UserProfile, UpdateProfileData } from "@/apis/profileApi";
 
 interface ProfileTemplateProps {
@@ -33,6 +34,9 @@ export function ProfileTemplate({
         onImageUploaded={onImageUploaded}
         isSubmitting={isSubmitting}
       />
+
+      {/* Device Management */}
+      <DeviceList />
     </div>
   );
 }
