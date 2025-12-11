@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { PersonIcon, CardStackMinusIcon } from "@radix-ui/react-icons";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/useAuthStore";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +49,13 @@ export default function ProfileDropdown({
   ...props
 }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const router = useRouter();
+  const { logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   const menuItems: MenuItem[] = [
     {
@@ -168,6 +177,7 @@ export default function ProfileDropdown({
               className="focus:bg-red-500/20 focus-visible:bg-red-500/20 ">
               <button
                 type="button"
+                onClick={handleLogout}
                 className="w-full flex items-center gap-3 p-3 duration-200 bg-red-500/10 rounded-sm hover:bg-red-500/20 cursor-pointer transition-all group focus:outline-none focus-visible:outline-none">
                 <ArrowLeftStartOnRectangleIcon className="w-4 h-4 text-red-500 group-hover:text-red-600" />
                 <span className="text-sm font-medium text-red-500 group-hover:text-red-600">
