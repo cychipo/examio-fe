@@ -38,13 +38,27 @@ export function ProfileForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Parent handles cache invalidation
-    await onSubmit({
-      name: name || undefined,
-      bio: bio || undefined,
-      avatar: avatar || null,
-      banner: banner || null,
-    });
+
+    // Only include fields that have changed
+    const changedData: UpdateProfileData = {};
+
+    if (name !== (profile.name || "")) {
+      changedData.name = name || undefined;
+    }
+    if (bio !== (profile.bio || "")) {
+      changedData.bio = bio || undefined;
+    }
+    if (avatar !== (profile.avatar || "")) {
+      changedData.avatar = avatar || null;
+    }
+    if (banner !== (profile.banner || "")) {
+      changedData.banner = banner || null;
+    }
+
+    // Only submit if there are changes
+    if (Object.keys(changedData).length > 0) {
+      await onSubmit(changedData);
+    }
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,8 +134,7 @@ export function ProfileForm({
               )}
               <div
                 className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-                onClick={() => bannerInputRef.current?.click()}
-              >
+                onClick={() => bannerInputRef.current?.click()}>
                 {isUploadingBanner ? (
                   <Loader2 className="h-6 w-6 text-white animate-spin" />
                 ) : (
@@ -148,8 +161,7 @@ export function ProfileForm({
             <div className="flex items-center gap-4">
               <div
                 className="relative cursor-pointer group"
-                onClick={() => avatarInputRef.current?.click()}
-              >
+                onClick={() => avatarInputRef.current?.click()}>
                 <Avatar className="h-20 w-20">
                   <AvatarImage
                     src={avatar || undefined}
@@ -249,8 +261,7 @@ export function ProfileForm({
           <Button
             type="submit"
             className="w-full sm:w-auto"
-            disabled={isSubmitting || isUploadingAvatar || isUploadingBanner}
-          >
+            disabled={isSubmitting || isUploadingAvatar || isUploadingBanner}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
