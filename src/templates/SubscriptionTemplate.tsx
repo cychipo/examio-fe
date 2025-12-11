@@ -1,31 +1,111 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { CreditPackageCard } from "@/components/atoms/subscription/CreditPackageCard";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CreditSlider } from "@/components/molecules/subscription/CreditSlider";
 import { CreditStatisticsCard } from "@/components/molecules/subscription/CreditStatisticsCard";
 import { UsageBreakdownCard } from "@/components/molecules/subscription/UsageBreakdownCard";
 import { TransactionHistoryTable } from "@/components/molecules/subscription/TransactionHistoryTable";
-import type { WalletDetails } from "@/apis/subscriptionApi";
-import { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import {
+  SubscriptionPlanCard,
+  SubscriptionPlan,
+} from "@/components/molecules/subscription/SubscriptionPlanCard";
+import { QRPaymentDialog } from "@/components/organisms/subscription/QRPaymentDialog";
+import type {
+  WalletDetails,
+  PaymentWithQR,
+  UserSubscription,
+} from "@/apis/subscriptionApi";
+import {
+  createCreditPaymentApi,
+  createSubscriptionPaymentApi,
+  getPaymentStatusApi,
+  getSubscriptionApi,
+  getSubscriptionPlansApi,
+} from "@/apis/subscriptionApi";
+import { toast } from "@/components/ui/toast";
+import { Crown } from "lucide-react";
 
 interface SubscriptionTemplateProps {
   walletDetails: WalletDetails;
   onPageChange: (page: number) => void;
 }
 
-const CREDIT_PACKAGES = [
-  { credits: 500, price: 9.99, pricePerCredit: 0.02 },
-  { credits: 1500, price: 24.99, pricePerCredit: 0.017, isPopular: true },
-  { credits: 3000, price: 39.99, pricePerCredit: 0.013 },
-];
-
 export function SubscriptionTemplate({
   walletDetails,
   onPageChange,
 }: SubscriptionTemplateProps) {
-  const [selectedPackage, setSelectedPackage] = useState<number | null>(1); // Default to popular
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
+    "monthly"
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const [showQRDialog, setShowQRDialog] = useState(false);
+  const [paymentData, setPaymentData] = useState<PaymentWithQR | null>(null);
+  const [currentSubscription, setCurrentSubscription] =
+    useState<UserSubscription | null>(null);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+
+  // Load subscription data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [subscription, subscriptionPlans] = await Promise.all([
+          getSubscriptionApi(),
+          getSubscriptionPlansApi(),
+        ]);
+        setCurrentSubscription(subscription);
+        setPlans(subscriptionPlans);
+      } catch {
+        // Ignore errors - user might not be logged in
+      }
+    };
+    loadData();
+  }, []);
+
+  // Handle credit purchase
+  const handleCreditPurchase = async (credits: number) => {
+    setIsLoading(true);
+    try {
+      const payment = await createCreditPaymentApi(credits);
+      setPaymentData(payment);
+      setShowQRDialog(true);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Có lỗi xảy ra";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle subscription purchase
+  const handleSubscriptionSelect = async (plan: SubscriptionPlan) => {
+    setIsLoading(true);
+    try {
+      const payment = await createSubscriptionPaymentApi(
+        plan.tier,
+        billingCycle
+      );
+      setPaymentData(payment);
+      setShowQRDialog(true);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Có lỗi xảy ra";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Check payment status
+  const handleCheckStatus = async (paymentId: string) => {
+    const status = await getPaymentStatusApi(paymentId);
+    if (status.status === 1) {
+      toast.success("Thanh toán thành công!");
+      // Reload page to refresh wallet
+      setTimeout(() => window.location.reload(), 2000);
+    }
+    return status;
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 pt-8 pb-6">
@@ -33,10 +113,10 @@ export function SubscriptionTemplate({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            Credits & Thanh toán
+            Credits & Gói đăng ký
           </h1>
           <p className="text-muted-foreground mt-1">
-            Quản lý credits và xem lịch sử giao dịch
+            Quản lý credits và nâng cấp tài khoản
           </p>
         </div>
         <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-xl">
@@ -49,37 +129,52 @@ export function SubscriptionTemplate({
         </div>
       </div>
 
+      {/* Subscription Plans Section */}
+      <Card className="glass-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Crown className="h-5 w-5 text-amber-500" />
+              Gói đăng ký
+            </CardTitle>
+            <Tabs
+              value={billingCycle}
+              onValueChange={(v) => setBillingCycle(v as "monthly" | "yearly")}>
+              <TabsList className="grid w-[200px] grid-cols-2">
+                <TabsTrigger value="monthly">Tháng</TabsTrigger>
+                <TabsTrigger value="yearly">Năm (-10%)</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {plans.map((plan) => (
+              <SubscriptionPlanCard
+                key={plan.tier}
+                plan={plan}
+                billingCycle={billingCycle}
+                isCurrentPlan={
+                  currentSubscription?.tier === plan.tier &&
+                  currentSubscription?.isActive
+                }
+                onSelect={handleSubscriptionSelect}
+                isLoading={isLoading}
+              />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Main Layout */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Left Column - Purchase & History */}
+        {/* Left Column - Credit Slider & History */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Purchase Credits */}
-          <Card className="glass-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold">
-                Mua thêm credits
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                {CREDIT_PACKAGES.map((pkg, index) => (
-                  <CreditPackageCard
-                    key={pkg.credits}
-                    credits={pkg.credits}
-                    price={pkg.price}
-                    pricePerCredit={pkg.pricePerCredit}
-                    isPopular={pkg.isPopular}
-                    isSelected={selectedPackage === index}
-                    onSelect={() => setSelectedPackage(index)}
-                  />
-                ))}
-              </div>
-              <Button className="w-full" size="lg">
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Mua gói đã chọn
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Credit Slider */}
+          <CreditSlider
+            onPurchase={handleCreditPurchase}
+            isLoading={isLoading}
+          />
 
           {/* Transaction History */}
           <TransactionHistoryTable
@@ -98,6 +193,14 @@ export function SubscriptionTemplate({
           <UsageBreakdownCard breakdown={walletDetails.usageBreakdown} />
         </div>
       </div>
+
+      {/* QR Payment Dialog */}
+      <QRPaymentDialog
+        open={showQRDialog}
+        onOpenChange={setShowQRDialog}
+        paymentData={paymentData}
+        onCheckStatus={handleCheckStatus}
+      />
     </div>
   );
 }

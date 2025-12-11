@@ -50,3 +50,103 @@ export async function getWalletDetailsApi(
   });
   return response.data;
 }
+
+// ==================== Payment Types ====================
+
+export interface PaymentWithQR {
+  paymentId: string;
+  amount: number;
+  qrUrl: string;
+  bankInfo: {
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+  };
+}
+
+export interface PaymentStatus {
+  id: string;
+  amount: number;
+  status: number;
+  statusLabel: string;
+  createdAt: string;
+}
+
+export interface SubscriptionPlan {
+  tier: number;
+  name: string;
+  nameVi: string;
+  creditsPerMonth: number;
+  filesPerMonth: number;
+  messagesPerMinute: number;
+  chatMessagesLimit: number;
+  priceMonthly: number;
+  priceYearly: number;
+}
+
+export interface UserSubscription {
+  id?: string;
+  tier: number;
+  tierName: string;
+  billingCycle?: string;
+  isActive: boolean;
+  benefits: SubscriptionPlan;
+  lastPaymentDate?: string;
+  nextPaymentDate?: string;
+}
+
+// ==================== Payment API Functions ====================
+
+/**
+ * Create payment for credits purchase
+ */
+export async function createCreditPaymentApi(
+  credits: number
+): Promise<PaymentWithQR> {
+  const response = await api.post("/payment/create", {
+    type: "credits",
+    credits,
+  });
+  return response.data;
+}
+
+/**
+ * Create payment for subscription
+ */
+export async function createSubscriptionPaymentApi(
+  tier: number,
+  billingCycle: "monthly" | "yearly"
+): Promise<PaymentWithQR> {
+  const response = await api.post("/payment/create", {
+    type: "subscription",
+    subscriptionTier: tier,
+    billingCycle,
+  });
+  return response.data;
+}
+
+/**
+ * Check payment status
+ */
+export async function getPaymentStatusApi(
+  paymentId: string
+): Promise<PaymentStatus> {
+  const response = await api.get(`/payment/status/${paymentId}`);
+  return response.data;
+}
+
+/**
+ * Get current user subscription
+ */
+export async function getSubscriptionApi(): Promise<UserSubscription> {
+  const response = await api.get("/payment/subscription");
+  return response.data;
+}
+
+/**
+ * Get all subscription plans
+ */
+export async function getSubscriptionPlansApi(): Promise<SubscriptionPlan[]> {
+  const response = await api.get("/payment/subscription/plans");
+  return response.data;
+}
