@@ -5,6 +5,12 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Lock, ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@/components/ui/input-otp";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -89,16 +95,24 @@ function ResetPasswordForm() {
           className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
           Mã xác nhận
         </label>
-        <input
-          id="code"
-          type="text"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="Nhập mã 6 số"
-          required
-          maxLength={6}
-          className="w-full px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-center text-lg tracking-widest"
-        />
+        <div className="flex justify-center">
+          <InputOTP
+            maxLength={6}
+            value={code}
+            onChange={(value) => setCode(value)}>
+            <InputOTPGroup>
+              <InputOTPSlot index={0} className="h-12 w-12 text-lg" />
+              <InputOTPSlot index={1} className="h-12 w-12 text-lg" />
+              <InputOTPSlot index={2} className="h-12 w-12 text-lg" />
+            </InputOTPGroup>
+            <InputOTPSeparator />
+            <InputOTPGroup>
+              <InputOTPSlot index={3} className="h-12 w-12 text-lg" />
+              <InputOTPSlot index={4} className="h-12 w-12 text-lg" />
+              <InputOTPSlot index={5} className="h-12 w-12 text-lg" />
+            </InputOTPGroup>
+          </InputOTP>
+        </div>
       </div>
 
       <div>
