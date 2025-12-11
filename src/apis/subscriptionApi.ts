@@ -61,6 +61,10 @@ export interface PaymentWithQR {
     bankName: string;
     accountNumber: string;
     accountName: string;
+    bank_full_name: string;
+    account_full_name: string;
+    account_number: string;
+    account_holder_name: string;
   };
 }
 

@@ -30,6 +30,10 @@ interface PaymentWithQR {
     bankName: string;
     accountNumber: string;
     accountName: string;
+    bank_full_name: string;
+    account_full_name: string;
+    account_number: string;
+    account_holder_name: string;
   };
 }
 
@@ -133,7 +137,7 @@ export function QRPaymentDialog({
 
   if (!paymentData) return null;
 
-  const transferContent = `EXAMIO${paymentData.paymentId}`;
+  const transferContent = `EXAMIO${paymentData.paymentId.toUpperCase()}`;
 
   return (
     <>
@@ -187,35 +191,39 @@ export function QRPaymentDialog({
 
                 {/* Bank Info */}
                 <div className="space-y-2 p-4 bg-muted/50 rounded-xl">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Ngân hàng</span>
-                    <span className="font-medium">
-                      {paymentData.bankInfo.bankName}
+                  <div className="flex justify-between items-start gap-x-2">
+                    <span className="text-muted-foreground min-w-fit">
+                      Ngân hàng
+                    </span>
+                    <span className="font-medium line-clamp-1">
+                      {paymentData.bankInfo.bank_full_name}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center gap-x-2">
                     <span className="text-muted-foreground">Số tài khoản</span>
                     <span className="font-medium">
-                      {paymentData.bankInfo.accountNumber}
+                      {paymentData.bankInfo.account_number}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center gap-x-2">
                     <span className="text-muted-foreground">Tên TK</span>
                     <span className="font-medium">
-                      {paymentData.bankInfo.accountName}
+                      {paymentData.bankInfo.account_holder_name}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center gap-2">
+                  <div className="flex justify-between items-center gap-x-2 gap-2">
                     <span className="text-muted-foreground">Nội dung CK</span>
                     <div className="flex items-center gap-2">
                       <code className="bg-primary/10 text-primary px-2 py-1 rounded text-sm">
-                        {transferContent}
+                        {transferContent.toUpperCase()}
                       </code>
                       <Button
                         size="icon"
                         variant="ghost"
                         className="h-6 w-6"
-                        onClick={() => handleCopy(transferContent)}>
+                        onClick={() =>
+                          handleCopy(transferContent.toUpperCase())
+                        }>
                         {copied ? (
                           <Check className="h-3 w-3 text-green-500" />
                         ) : (
