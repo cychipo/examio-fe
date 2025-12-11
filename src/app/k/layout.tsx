@@ -88,7 +88,7 @@ export default function RootLayout({
               </Link>
               <button
                 onClick={() => setShowVerifyAlert(false)}
-                className="p-1 hover:bg-white/20 rounded transition-colors">
+                className="p-1 hover:bg-white/20 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>

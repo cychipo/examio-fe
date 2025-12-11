@@ -1,17 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { ShieldCheck, Loader2, ArrowLeft, Mail } from "lucide-react";
+import {
+  ShieldCheck,
+  Loader2,
+  ArrowLeft,
+  Mail,
+  CheckCircle2,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function VerifyPage() {
   const [code, setCode] = useState("");
   const [success, setSuccess] = useState(false);
+  const [autoSentEmail, setAutoSentEmail] = useState(false);
+  const hasSentEmailRef = useRef(false);
   const router = useRouter();
   const { verifyAccount, sendVerificationEmail, loading, user } =
     useAuthStore();
+
+  // Auto-send verification email on first load (only once)
+  useEffect(() => {
+    if (user && !user.isVerified && !hasSentEmailRef.current) {
+      hasSentEmailRef.current = true;
+      sendVerificationEmail()
+        .then(() => {
+          setAutoSentEmail(true);
+        })
+        .catch((error) => {
+          console.error("Failed to auto-send verification email:", error);
+        });
+    }
+  }, [user, sendVerificationEmail]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,23 +59,29 @@ export default function VerifyPage() {
     }
   };
 
-  // If already verified, redirect
+  // If already verified, show success message
   if (user?.isVerified) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ShieldCheck className="w-8 h-8 text-green-600 dark:text-green-400" />
+        <div className="w-full max-w-md">
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl border border-zinc-200 dark:border-zinc-700 p-8 text-center">
+            <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">
+              Tài khoản đã được xác minh!
+            </h1>
+            <p className="text-zinc-500 dark:text-zinc-400 mb-6">
+              Tài khoản của bạn đã được xác minh thành công. Bạn có thể sử dụng
+              đầy đủ các tính năng của hệ thống.
+            </p>
+            <Link
+              href="/k"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-xl transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+              Quay lại trang chủ
+            </Link>
           </div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">
-            Tài khoản đã được xác minh!
-          </h1>
-          <Link
-            href="/k"
-            className="text-blue-600 hover:underline inline-flex items-center gap-2 mt-4">
-            <ArrowLeft className="w-4 h-4" />
-            Quay lại trang chủ
-          </Link>
         </div>
       </div>
     );
@@ -80,6 +108,19 @@ export default function VerifyPage() {
               </p>
             )}
           </div>
+
+          {/* Auto-sent notification */}
+          {autoSentEmail && !success && (
+            <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Email xác minh đã được gửi tự động. Vui lòng kiểm tra hộp thư
+                  của bạn.
+                </p>
+              </div>
+            </div>
+          )}
 
           {success ? (
             <div className="text-center py-4">
