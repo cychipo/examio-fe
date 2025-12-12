@@ -1,6 +1,7 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CreditCard, LogOut, Menu, Settings, User, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -28,7 +29,14 @@ const menuItems = [
 export default function HeaderSection() {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const { user, isAuthenticated, initializing, getUser } = useAuthStore();
+  const router = useRouter();
+  const { user, isAuthenticated, initializing, getUser, logout } =
+    useAuthStore();
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   useLayoutEffect(() => {
     getUser();
@@ -166,7 +174,9 @@ export default function HeaderSection() {
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive">
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={handleLogout}>
                       <LogOut className="h-4 w-4" />
                       Log out
                     </DropdownMenuItem>

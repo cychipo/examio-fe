@@ -61,6 +61,10 @@ export interface PaymentWithQR {
     bankName: string;
     accountNumber: string;
     accountName: string;
+    bank_full_name: string;
+    account_full_name: string;
+    account_number: string;
+    account_holder_name: string;
   };
 }
 
@@ -148,5 +152,15 @@ export async function getSubscriptionApi(): Promise<UserSubscription> {
  */
 export async function getSubscriptionPlansApi(): Promise<SubscriptionPlan[]> {
   const response = await api.get("/payment/subscription/plans");
+  return response.data;
+}
+
+/**
+ * Cancel a pending payment
+ */
+export async function cancelPaymentApi(
+  paymentId: string
+): Promise<{ success: boolean; message: string }> {
+  const response = await api.delete(`/payment/cancel/${paymentId}`);
   return response.data;
 }

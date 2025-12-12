@@ -74,7 +74,9 @@ export function SigninForm() {
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
                   <label className="text-sm font-medium">Mật Khẩu</label>
-                  <Link href="#" className="text-xs hover:underline">
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs hover:underline">
                     Quên mật khẩu?
                   </Link>
                 </div>

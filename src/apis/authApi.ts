@@ -77,3 +77,24 @@ export async function getUserApi(): Promise<{ user: User }> {
   const response = await api.get("/auth/me");
   return response.data;
 }
+
+export interface VerifyAccountResponse {
+  message: string;
+}
+
+export async function sendVerificationEmailApi(): Promise<{ message: string }> {
+  const response = await api.post("/auth/sendVerificationEmail");
+  return response.data;
+}
+
+export async function verifyAccountApi(
+  code: string
+): Promise<VerifyAccountResponse> {
+  const response = await api.post("/auth/verifyAccount", { code });
+  return response.data;
+}
+
+export async function logoutApi(): Promise<{ success: boolean }> {
+  const response = await api.post("/auth/logout");
+  return response.data;
+}

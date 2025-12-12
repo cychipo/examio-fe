@@ -10,6 +10,9 @@ import {
   SendCodeResetPassWordCredentials,
   ResetPasswordCredentials,
   getUserApi,
+  sendVerificationEmailApi,
+  verifyAccountApi,
+  logoutApi,
 } from "@/apis/authApi";
 import { toast } from "@/components/ui/toast";
 import { setAuthToken, clearAuthToken } from "@/hooks/useAuthSync";
@@ -25,8 +28,10 @@ interface AuthState {
     credentials: SendCodeResetPassWordCredentials
   ) => Promise<void>;
   resetPassword: (credentials: ResetPasswordCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   getUser: () => void;
+  sendVerificationEmail: () => Promise<void>;
+  verifyAccount: (code: string) => Promise<void>;
   loginWithGoogle?: () => Promise<void>;
   loginWithFacebook?: () => Promise<void>;
   loginWithGithub?: () => Promise<void>;
@@ -128,7 +133,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  logout: () => {
+  logout: async () => {
+    try {
+      await logoutApi();
+    } catch (error) {
+      console.error("Logout API error:", error);
+    }
     set({ user: null, isAuthenticated: false });
     clearAuthToken();
   },
@@ -147,6 +157,41 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: null, isAuthenticated: false });
     } finally {
       set({ initializing: false });
+    }
+  },
+
+  sendVerificationEmail: async () => {
+    set({ loading: true });
+    try {
+      const response = await sendVerificationEmailApi();
+      if (response.message) {
+        toast.success(response.message);
+      }
+    } catch (error) {
+      toast.error((error as Error).message || "Gửi email xác minh thất bại");
+      throw error;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  verifyAccount: async (code: string) => {
+    set({ loading: true });
+    try {
+      const response = await verifyAccountApi(code);
+      if (response.message) {
+        toast.success(response.message);
+        // Refresh user data to update isVerified status
+        const userData = await getUserApi();
+        if (userData) {
+          set({ user: userData.user });
+        }
+      }
+    } catch (error) {
+      toast.error((error as Error).message || "Xác minh tài khoản thất bại");
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 

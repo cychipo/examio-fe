@@ -23,6 +23,7 @@ import {
   getPaymentStatusApi,
   getSubscriptionApi,
   getSubscriptionPlansApi,
+  cancelPaymentApi,
 } from "@/apis/subscriptionApi";
 import { toast } from "@/components/ui/toast";
 import { Crown } from "lucide-react";
@@ -107,6 +108,12 @@ export function SubscriptionTemplate({
     return status;
   };
 
+  // Cancel payment
+  const handleCancelPayment = async (paymentId: string) => {
+    await cancelPaymentApi(paymentId);
+    setPaymentData(null);
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 pt-8 pb-6">
       {/* Header */}
@@ -118,14 +125,6 @@ export function SubscriptionTemplate({
           <p className="text-muted-foreground mt-1">
             Quản lý credits và nâng cấp tài khoản
           </p>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-xl">
-          <span className="text-sm font-medium text-muted-foreground">
-            Số dư hiện tại
-          </span>
-          <span className="text-lg font-bold text-primary">
-            {walletDetails.balance.toLocaleString()} Credits
-          </span>
         </div>
       </div>
 
@@ -200,6 +199,8 @@ export function SubscriptionTemplate({
         onOpenChange={setShowQRDialog}
         paymentData={paymentData}
         onCheckStatus={handleCheckStatus}
+        onCancelPayment={handleCancelPayment}
+        pollInterval={3000}
       />
     </div>
   );

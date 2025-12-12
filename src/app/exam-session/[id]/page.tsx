@@ -11,7 +11,6 @@ import { AccessCheckResult, EXAM_SESSION_STATUS } from "@/types/examSession";
 import { ExamRoomDetailTemplate } from "@/templates/ExamRoomDetailTemplate";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -20,6 +19,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@/components/ui/input-otp";
 import { Lock, XCircle, Loader2, KeyRound } from "lucide-react";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
@@ -185,23 +190,64 @@ export default function ExamSessionPage({
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Input
-                  type="text"
-                  placeholder="Nhập mã 6 chữ số"
-                  value={accessCode}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-                    setAccessCode(value);
-                    setCodeError("");
-                  }}
-                  className={cn(
-                    "text-center text-2xl tracking-widest font-mono",
-                    codeError && "border-red-500"
-                  )}
-                  maxLength={6}
-                  disabled={verifying}
-                  autoFocus
-                />
+                <div className="flex justify-center">
+                  <InputOTP
+                    maxLength={6}
+                    value={accessCode}
+                    onChange={(value) => {
+                      setAccessCode(value);
+                      setCodeError("");
+                    }}
+                    disabled={verifying}>
+                    <InputOTPGroup>
+                      <InputOTPSlot
+                        index={0}
+                        className={cn(
+                          "h-12 w-12 text-lg",
+                          codeError && "border-red-500"
+                        )}
+                      />
+                      <InputOTPSlot
+                        index={1}
+                        className={cn(
+                          "h-12 w-12 text-lg",
+                          codeError && "border-red-500"
+                        )}
+                      />
+                      <InputOTPSlot
+                        index={2}
+                        className={cn(
+                          "h-12 w-12 text-lg",
+                          codeError && "border-red-500"
+                        )}
+                      />
+                    </InputOTPGroup>
+                    <InputOTPSeparator />
+                    <InputOTPGroup>
+                      <InputOTPSlot
+                        index={3}
+                        className={cn(
+                          "h-12 w-12 text-lg",
+                          codeError && "border-red-500"
+                        )}
+                      />
+                      <InputOTPSlot
+                        index={4}
+                        className={cn(
+                          "h-12 w-12 text-lg",
+                          codeError && "border-red-500"
+                        )}
+                      />
+                      <InputOTPSlot
+                        index={5}
+                        className={cn(
+                          "h-12 w-12 text-lg",
+                          codeError && "border-red-500"
+                        )}
+                      />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
                 {codeError && (
                   <p className="text-sm text-red-500 text-center">
                     {codeError}
