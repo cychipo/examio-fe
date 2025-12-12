@@ -99,7 +99,13 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full"
+                      onClick={() => {
+                        window.open(
+                          "https://www.facebook.com/fayedu.org",
+                          "_blank"
+                        );
+                      }}>
                       <Facebook className="h-4 w-4" />
                       <span className="sr-only">Facebook</span>
                     </Button>
@@ -180,7 +186,7 @@ export default function FooterSection() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground flex items-center gap-x-1">
             <Copyright size={15} className="-mt-1" /> {new Date().getFullYear()}{" "}
-            Examio. All rights reserved.
+            FayEdu. All rights reserved.
           </p>
           <nav className="flex gap-4 text-sm">
             <a href="#" className="transition-colors hover:text-primary">

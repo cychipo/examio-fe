@@ -22,7 +22,7 @@ export default function Logo({ className, sizeLogo, sizeText }: LogoProps) {
         animate={{ opacity: 1 }}
         className="font-medium whitespace-pre text-black dark:text-white">
         <p className={cn(sizeText ? `text-[${sizeText}px]` : "text-2xl")}>
-          Examio
+          FayEdu
         </p>
       </motion.span>
     </div>
