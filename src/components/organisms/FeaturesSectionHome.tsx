@@ -57,38 +57,38 @@ interface BentoItem {
 const bentoItems: BentoItem[] = [
   {
     id: "main",
-    title: "Học tập thông minh cùng AI",
+    title: "Tạo Quiz & Flashcard từ tài liệu",
     description:
-      "Sứ mệnh của chúng tôi là giúp người học và giảng viên dễ dàng biến tài liệu thành bài kiểm tra, flashcard và tóm tắt súc tích, nâng cao hiệu quả tiếp thu kiến thức.",
+      "Upload file PDF, Word hoặc hình ảnh - AI sẽ tự động phân tích và tạo bộ câu hỏi, flashcard giúp bạn học tập hiệu quả trong tích tắc.",
     href: "#",
     feature: "spotlight",
     spotlightItems: [
-      "Tự động tạo bài kiểm tra từ tài liệu",
-      "Flashcard hỗ trợ ghi nhớ nhanh",
-      "Tóm tắt văn bản ngắn gọn, súc tích",
-      "Hỗ trợ giảng dạy và ôn luyện hiệu quả",
-      "Ứng dụng AI trong giáo dục hiện đại",
+      "Hỗ trợ PDF, Word, hình ảnh và nhiều định dạng khác",
+      "Tạo quiz trắc nghiệm với nhiều dạng câu hỏi",
+      "Tự động sinh flashcard từ nội dung tài liệu",
+      "Tùy chỉnh số lượng và độ khó câu hỏi",
+      "Lưu trữ và quản lý lịch sử tạo nội dung",
     ],
     size: "lg",
     className: "col-span-2 row-span-1 md:col-span-2 md:row-span-1",
   },
   {
     id: "stat1",
-    title: "Công cụ & Tài nguyên",
+    title: "Phòng thi & Chống gian lận",
     description:
-      "Kho công cụ thông minh giúp bạn học tập và giảng dạy dễ dàng hơn, từ tạo đề thi đến flashcard.",
+      "Tạo phòng thi trực tuyến với hệ thống giám sát thông minh, theo dõi hành vi và ngăn chặn gian lận hiệu quả.",
     href: "#",
     feature: "typing",
     typingText:
-      "const learnSmart = async () => {\n  const quiz = await generateQuiz(file);\n  const cards = await makeFlashcards(file);\n  const summary = await summarize(file);\n\n  return { quiz, cards, summary };\n};",
+      "const examRoom = await createExamRoom({\n  title: 'Kiểm tra giữa kỳ',\n  duration: 60,\n  antiCheat: true,\n  webcamRequired: true,\n});\n\nawait inviteStudents(examRoom.id, emails);",
     size: "md",
     className: "col-span-2 row-span-1 col-start-1 col-end-3",
   },
   {
     id: "partners",
-    title: "Cộng đồng học tập",
+    title: "Đa nền tảng AI",
     description:
-      "Kết nối người học và giảng viên để chia sẻ tài liệu, kinh nghiệm và phương pháp học hiệu quả.",
+      "Tích hợp nhiều mô hình AI hàng đầu để đảm bảo chất lượng nội dung tốt nhất cho việc học tập.",
     icons: true,
     href: "#",
     feature: "icons",
@@ -654,12 +654,12 @@ export default function FeaturesSection() {
               <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-                    Trợ lý giọng nói AI
+                    Giáo viên AI thông minh
                   </h3>
                 </div>
                 <p className="text-sm text-neutral-600 dark:text-neutral-400 tracking-tight mb-4">
-                  Tương tác với hệ thống qua giọng nói để tăng tốc quy trình làm
-                  việc và cải thiện hiệu suất.
+                  Tương tác với giáo viên AI qua tin nhắn hoặc giọng nói để hỏi
+                  đáp cũng như thảo luận về các chủ đề học tập.
                 </p>
                 <AIInput_Voice />
               </div>

@@ -78,16 +78,6 @@ export default function FooterSection() {
               <a
                 href="#"
                 className="block transition-colors hover:text-primary">
-                Services
-              </a>
-              <a
-                href="#"
-                className="block transition-colors hover:text-primary">
-                Products
-              </a>
-              <a
-                href="#"
-                className="block transition-colors hover:text-primary">
                 Contact
               </a>
             </nav>
@@ -95,10 +85,9 @@ export default function FooterSection() {
           <div>
             <h3 className="mb-4 text-lg font-semibold">Liên hệ</h3>
             <address className="space-y-2 text-sm not-italic">
-              <p>123 Innovation Street</p>
-              <p>Tech City, TC 12345</p>
-              <p>Phone: (123) 456-7890</p>
-              <p>Email: hello@example.com</p>
+              <p>Hà Nội, Việt Nam</p>
+              <p>Phone: +84 977 836 517</p>
+              <p>Email: fayeteam2004@gmail.com</p>
             </address>
           </div>
           <div className="relative">
