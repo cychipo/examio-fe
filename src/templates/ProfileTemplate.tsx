@@ -2,6 +2,7 @@
 
 import { ProfileForm } from "@/components/molecules/profile/ProfileForm";
 import { DeviceList } from "@/components/molecules/profile/DeviceList";
+import { ChangePasswordSection } from "@/components/molecules/profile/ChangePasswordSection";
 import type { UserProfile, UpdateProfileData } from "@/apis/profileApi";
 
 interface ProfileTemplateProps {
@@ -34,6 +35,9 @@ export function ProfileTemplate({
         onImageUploaded={onImageUploaded}
         isSubmitting={isSubmitting}
       />
+
+      {/* Change Password Section */}
+      <ChangePasswordSection />
 
       {/* Device Management */}
       <DeviceList />
