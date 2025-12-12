@@ -17,6 +17,7 @@ import {
   AnnouncementTitle,
 } from "@/components/ui/announcement";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useRouter } from "next/navigation";
 
 export default function RootLayout({
   children,
@@ -28,7 +29,7 @@ export default function RootLayout({
   const { user, sendVerificationEmail, loading } = useAuthStore();
   const { isDarkMode, setTheme } = useThemeContext();
   const isDesktop = useIsDesktop();
-
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [showVerifyAlert, setShowVerifyAlert] = useState(true);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -111,7 +112,10 @@ export default function RootLayout({
 
                 {/* Conditionally render based on screen size - no DOM bloat */}
                 {mounted && isDesktop && (
-                  <Announcement movingBorder className="cursor-pointer">
+                  <Announcement
+                    movingBorder
+                    className="cursor-pointer"
+                    onClick={() => router.push("/k/subscription")}>
                     <AnnouncementTag lustre>Nâng cấp</AnnouncementTag>
                     <AnnouncementTitle>
                       Nâng cấp tài khoản

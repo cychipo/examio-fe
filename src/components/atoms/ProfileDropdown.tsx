@@ -78,7 +78,7 @@ export default function ProfileDropdown({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="flex items-center gap-16 focus:outline-none cursor-pointer">
+              className="flex items-center gap-16 focus:outline-none cursor-pointer justify-between">
               <div className="text-left flex-1">
                 <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100 tracking-tight leading-tight">
                   {data.name}
