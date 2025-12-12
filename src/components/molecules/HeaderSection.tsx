@@ -20,10 +20,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const menuItems = [
-  { name: "Features", href: "#features" },
-  { name: "Solution", href: "#link" },
-  { name: "Pricing", href: "#link" },
-  { name: "About", href: "#link" },
+  { name: "Tính năng", href: "/#features" },
+  { name: "Bảng giá", href: "/#pricing" },
+  { name: "Giới thiệu", href: "/about" },
+  { name: "Liên hệ", href: "/contact" },
 ];
 
 export default function HeaderSection() {
@@ -89,6 +89,15 @@ export default function HeaderSection() {
                     </Link>
                   </li>
                 ))}
+                {isAuthenticated && (
+                  <li>
+                    <Link
+                      href="/k"
+                      className="text-muted-foreground hover:text-accent-foreground block duration-150">
+                      <span>Công cụ</span>
+                    </Link>
+                  </li>
+                )}
               </ul>
             </div>
 
@@ -104,6 +113,15 @@ export default function HeaderSection() {
                       </Link>
                     </li>
                   ))}
+                  {isAuthenticated && (
+                    <li>
+                      <Link
+                        href="/k"
+                        className="text-muted-foreground hover:text-accent-foreground block duration-150">
+                        <span>Công cụ</span>
+                      </Link>
+                    </li>
+                  )}
                 </ul>
               </div>
               {initializing ? (
@@ -160,17 +178,15 @@ export default function HeaderSection() {
                       Tài khoản
                     </DropdownMenuLabel>
                     <DropdownMenuGroup>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => router.push("/k/profile")}>
                         <User className="h-4 w-4" />
                         Hồ sơ
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => router.push("/k/subscription")}>
                         <CreditCard className="h-4 w-4" />
                         Thanh toán
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Settings className="h-4 w-4" />
-                        Cài đặt
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />

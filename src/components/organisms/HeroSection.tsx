@@ -106,7 +106,7 @@ export function HeroSection() {
                       asChild
                       size="lg"
                       className="rounded-xl px-5 text-base bg-blue-600 hover:bg-blue-700 text-white">
-                      <Link href="#link">
+                      <Link href="/k">
                         <span className="text-nowrap">Bắt đầu ngay</span>
                       </Link>
                     </Button>
@@ -117,7 +117,7 @@ export function HeroSection() {
                     size="lg"
                     variant="ghost"
                     className="h-10.5 rounded-xl px-5">
-                    <Link href="#link">
+                    <Link href="/k">
                       <span className="text-nowrap text-base">Xem thêm</span>
                     </Link>
                   </Button>

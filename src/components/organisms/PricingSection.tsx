@@ -155,6 +155,7 @@ export default function PricingSection() {
       }
       containerClassName="py-12"
       buttonClassName="bg-primary hover:bg-primary/90"
+      id="pricing"
     />
   );
 }

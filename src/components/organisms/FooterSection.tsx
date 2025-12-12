@@ -66,17 +66,17 @@ export default function FooterSection() {
             <h3 className="mb-4 text-lg font-semibold">Liên kết</h3>
             <nav className="space-y-2 text-sm">
               <a
-                href="#"
+                href="/"
                 className="block transition-colors hover:text-primary">
                 Home
               </a>
               <a
-                href="#"
+                href="/about"
                 className="block transition-colors hover:text-primary">
                 About Us
               </a>
               <a
-                href="#"
+                href="/contact"
                 className="block transition-colors hover:text-primary">
                 Contact
               </a>
