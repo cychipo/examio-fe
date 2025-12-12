@@ -126,14 +126,6 @@ export function SubscriptionTemplate({
             Quản lý credits và nâng cấp tài khoản
           </p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-xl">
-          <span className="text-sm font-medium text-muted-foreground">
-            Số dư hiện tại
-          </span>
-          <span className="text-lg font-bold text-primary">
-            {walletDetails.balance.toLocaleString()} Credits
-          </span>
-        </div>
       </div>
 
       {/* Subscription Plans Section */}
