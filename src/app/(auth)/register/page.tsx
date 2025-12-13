@@ -1,8 +1,8 @@
 import { SignupForm } from "@/components/organisms/auth/signup-form";
 
 export const metadata = {
-  title: "Đăng ký - Examio",
-  description: "Tạo tài khoản Examio của bạn",
+  title: "Đăng ký - FayEdu",
+  description: "Tạo tài khoản FayEdu của bạn",
 };
 
 export default function RegisterPage() {

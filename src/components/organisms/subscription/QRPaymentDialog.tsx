@@ -137,7 +137,7 @@ export function QRPaymentDialog({
 
   if (!paymentData) return null;
 
-  const transferContent = `EXAMIO${paymentData.paymentId.toUpperCase()}`;
+  const transferContent = `FAYEDU${paymentData.paymentId.toUpperCase()}`;
 
   return (
     <>

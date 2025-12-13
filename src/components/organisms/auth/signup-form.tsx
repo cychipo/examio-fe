@@ -32,7 +32,7 @@ export function SignupForm() {
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black shadow-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
       <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-blue-100 via-blue-50 to-transparent opacity-40 blur-3xl -mt-20"></div>
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200 mb-[10px]">
-        Chào Mừng Đến Với Examio
+        Chào Mừng Đến Với FayEdu
       </h2>
       <h1 className="text-4xl justify-self-center font-semibold">Đăng Ký</h1>
 

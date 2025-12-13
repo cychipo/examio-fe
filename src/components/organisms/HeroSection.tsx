@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AnimatedGroup } from "@/components/ui/animated-group";
-import { RetroGrid } from "../magicui/retro-grid";
+import { RetroGrid } from "../ui/retro-grid";
 import { Highlighter } from "../magicui/highlighter";
 
 const transitionVariants = {
@@ -29,7 +29,7 @@ export function HeroSection() {
   return (
     <>
       <main className="overflow-hidden">
-        <RetroGrid className="max-w-[99%]" />
+        <RetroGrid />
         <section>
           <div className="relative pt-12 md:pt-16">
             <AnimatedGroup
@@ -57,8 +57,7 @@ export function HeroSection() {
                   },
                 },
               }}
-              className="absolute inset-0 -z-20"
-            >
+              className="absolute inset-0 -z-20">
               {" "}
             </AnimatedGroup>
             <div
@@ -73,18 +72,14 @@ export function HeroSection() {
                   </h1>
                   <div className="text-center mx-auto mt-8 max-w-2xl text-balance text-lg">
                     <p className="leading-relaxed">
-                      Nền tảng của chúng tôi mang sức mạnh
-                      {" "}
+                      Nền tảng của chúng tôi mang sức mạnh{" "}
                       <Highlighter action="underline" color="#FF9800">
                         trí tuệ nhân tạo
-                      </Highlighter>
-                      {" "}
-                      để biến tài liệu thành
-                      {" "}
+                      </Highlighter>{" "}
+                      để biến tài liệu thành{" "}
                       <Highlighter action="highlight" color="#87CEFA">
                         bài kiểm tra, flashcard và tóm tắt
-                      </Highlighter>
-                      {" "}
+                      </Highlighter>{" "}
                       giúp học tập hiệu quả hơn.
                     </p>
                   </div>
@@ -102,19 +97,16 @@ export function HeroSection() {
                     },
                     ...transitionVariants,
                   }}
-                  className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row"
-                >
+                  className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row">
                   <div
                     key={1}
-                    className="bg-foreground/10 rounded-[14px] border p-0.5"
-                  >
+                    className="bg-foreground/10 rounded-[14px] border p-0.5">
                     <Button
                       variant="default"
                       asChild
                       size="lg"
-                      className="rounded-xl px-5 text-base bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      <Link href="#link">
+                      className="rounded-xl px-5 text-base bg-blue-600 hover:bg-blue-700 text-white">
+                      <Link href="/k">
                         <span className="text-nowrap">Bắt đầu ngay</span>
                       </Link>
                     </Button>
@@ -124,9 +116,8 @@ export function HeroSection() {
                     asChild
                     size="lg"
                     variant="ghost"
-                    className="h-10.5 rounded-xl px-5"
-                  >
-                    <Link href="#link">
+                    className="h-10.5 rounded-xl px-5">
+                    <Link href="/k">
                       <span className="text-nowrap text-base">Xem thêm</span>
                     </Link>
                   </Button>
@@ -145,8 +136,7 @@ export function HeroSection() {
                   },
                 },
                 ...transitionVariants,
-              }}
-            >
+              }}>
               <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
                 <div
                   aria-hidden

@@ -66,27 +66,17 @@ export default function FooterSection() {
             <h3 className="mb-4 text-lg font-semibold">Liên kết</h3>
             <nav className="space-y-2 text-sm">
               <a
-                href="#"
+                href="/"
                 className="block transition-colors hover:text-primary">
                 Home
               </a>
               <a
-                href="#"
+                href="/about"
                 className="block transition-colors hover:text-primary">
                 About Us
               </a>
               <a
-                href="#"
-                className="block transition-colors hover:text-primary">
-                Services
-              </a>
-              <a
-                href="#"
-                className="block transition-colors hover:text-primary">
-                Products
-              </a>
-              <a
-                href="#"
+                href="/contact"
                 className="block transition-colors hover:text-primary">
                 Contact
               </a>
@@ -95,10 +85,9 @@ export default function FooterSection() {
           <div>
             <h3 className="mb-4 text-lg font-semibold">Liên hệ</h3>
             <address className="space-y-2 text-sm not-italic">
-              <p>123 Innovation Street</p>
-              <p>Tech City, TC 12345</p>
-              <p>Phone: (123) 456-7890</p>
-              <p>Email: hello@example.com</p>
+              <p>Hà Nội, Việt Nam</p>
+              <p>Phone: +84 977 836 517</p>
+              <p>Email: fayeteam2004@gmail.com</p>
             </address>
           </div>
           <div className="relative">
@@ -110,7 +99,13 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full"
+                      onClick={() => {
+                        window.open(
+                          "https://www.facebook.com/fayedu.org",
+                          "_blank"
+                        );
+                      }}>
                       <Facebook className="h-4 w-4" />
                       <span className="sr-only">Facebook</span>
                     </Button>
@@ -191,7 +186,7 @@ export default function FooterSection() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground flex items-center gap-x-1">
             <Copyright size={15} className="-mt-1" /> {new Date().getFullYear()}{" "}
-            Examio. All rights reserved.
+            FayEdu. All rights reserved.
           </p>
           <nav className="flex gap-4 text-sm">
             <a href="#" className="transition-colors hover:text-primary">

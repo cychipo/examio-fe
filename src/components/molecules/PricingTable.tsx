@@ -168,19 +168,6 @@ export function PricingTable({
             </div>
           </div>
         </div>
-
-        <div className="mt-8 text-center">
-          <Button
-            className={cn(
-              "w-full sm:w-auto bg-blue-500 hover:bg-blue-600 px-8 py-2 rounded-xl text-lg",
-            )}
-          >
-            Bắt đầu với gói
-            {" "}
-            {plans.find((p) => p.level === selectedPlan)?.name}
-            <ArrowRightIcon className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
       </div>
     </section>
   );

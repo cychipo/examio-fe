@@ -98,3 +98,29 @@ export async function logoutApi(): Promise<{ success: boolean }> {
   const response = await api.post("/auth/logout");
   return response.data;
 }
+
+// ==================== Change Password (Authenticated) ====================
+
+export interface ChangePasswordCredentials {
+  code: string;
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+}
+
+export async function sendCodeChangePasswordApi(): Promise<{
+  message: string;
+}> {
+  const response = await api.post("/auth/send-code-change-password");
+  return response.data;
+}
+
+export async function changePasswordApi(
+  credentials: ChangePasswordCredentials
+): Promise<ChangePasswordResponse> {
+  const response = await api.post("/auth/change-password", credentials);
+  return response.data;
+}

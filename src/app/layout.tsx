@@ -13,7 +13,7 @@ const tikTokSans = TikTok_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Examio - Ôn tập và thi cùng với AI",
+  title: "FayEdu - Ôn tập và thi cùng với AI",
   description: "Nền tảng ôn tập và thi trực tuyến hỗ trợ bởi AI",
 };
 
