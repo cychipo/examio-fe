@@ -74,7 +74,7 @@ export default function ContactSection() {
             className="mb-10 text-center">
             <motion.h1
               variants={fadeInUp}
-              className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
+              className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
               Liên Hệ Với Chúng Tôi
             </motion.h1>
             <motion.p
@@ -93,7 +93,7 @@ export default function ContactSection() {
             className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md rounded-3xl overflow-hidden p-1 shadow-2xl border border-white/60 dark:border-white/10">
             <div className="flex flex-col lg:flex-row">
               {/* Left Column: Contact Form */}
-              <div className="flex-1 p-8 lg:p-12">
+              <div className="flex-1 p-5 sm:p-8 lg:p-12">
                 <div className="mb-8">
                   <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
                     Gửi tin nhắn
@@ -103,8 +103,10 @@ export default function ContactSection() {
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                     <label className="flex flex-col">
                       <span className="text-slate-700 dark:text-slate-300 text-sm font-semibold mb-2 ml-1">
                         Họ và tên
@@ -186,7 +188,7 @@ export default function ContactSection() {
               </div>
 
               {/* Right Column: Info & Map */}
-              <div className="w-full lg:w-[400px] bg-white/40 dark:bg-white/5 backdrop-blur-md border-t lg:border-t-0 lg:border-l border-white/50 dark:border-white/10 p-8 flex flex-col gap-8">
+              <div className="w-full lg:w-[350px] xl:w-[400px] bg-white/40 dark:bg-white/5 backdrop-blur-md border-t lg:border-t-0 lg:border-l border-white/50 dark:border-white/10 p-5 sm:p-8 flex flex-col gap-6 sm:gap-8">
                 {/* Info Cards */}
                 <div>
                   <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6">
@@ -245,7 +247,7 @@ export default function ContactSection() {
                 </div>
 
                 {/* Map */}
-                <div className="relative w-full h-48 rounded-2xl overflow-hidden shadow-inner border border-white/50 dark:border-white/10 group">
+                <div className="relative w-full h-40 sm:h-48 rounded-2xl overflow-hidden shadow-inner border border-white/50 dark:border-white/10 group">
                   <img
                     src="https://images.unsplash.com/photo-1524168272322-bf73616d9cb5?w=800&h=400&fit=crop"
                     alt="Map Location - Hanoi"

@@ -64,13 +64,13 @@ export function HeroSection() {
               aria-hidden
               className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--background)_75%)]"
             />
-            <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
                 <AnimatedGroup variants={transitionVariants}>
-                  <h1 className="mt-8 max-w-4xl mx-auto text-balance text-6xl md:text-7xl lg:mt-16 xl:text-[5.25rem]">
+                  <h1 className="mt-8 max-w-4xl mx-auto text-balance text-3xl sm:text-4xl md:text-5xl lg:mt-16 lg:text-6xl xl:text-[5.25rem]">
                     Từ trang giấy đến kiến thức, chỉ trong tích tắc.
                   </h1>
-                  <div className="text-center mx-auto mt-8 max-w-2xl text-balance text-lg">
+                  <div className="text-center mx-auto mt-6 sm:mt-8 max-w-2xl text-balance text-base sm:text-lg px-2 sm:px-0">
                     <p className="leading-relaxed">
                       Nền tảng của chúng tôi mang sức mạnh{" "}
                       <Highlighter action="underline" color="#FF9800">
@@ -97,7 +97,7 @@ export function HeroSection() {
                     },
                     ...transitionVariants,
                   }}
-                  className="mt-12 flex flex-col items-center justify-center gap-2 md:flex-row">
+                  className="mt-8 sm:mt-12 flex flex-col items-center justify-center gap-3 sm:gap-2 md:flex-row">
                   <div
                     key={1}
                     className="bg-foreground/10 rounded-[14px] border p-0.5">
@@ -137,7 +137,7 @@ export function HeroSection() {
                 },
                 ...transitionVariants,
               }}>
-              <div className="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20">
+              <div className="relative mt-8 overflow-hidden px-2 sm:mt-12 md:mt-20">
                 <div
                   aria-hidden
                   className="bg-gradient-to-b to-background absolute inset-0 z-10 from-transparent from-35%"
