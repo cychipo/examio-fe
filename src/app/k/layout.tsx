@@ -66,15 +66,15 @@ export default function RootLayout({
       <div className="w-full m-0 pb-20 md:ml-[288px]">
         {/* Verification Alert Banner */}
         {showVerificationBanner && (
-          <div className="w-full bg-amber-500/90 dark:bg-amber-600/90 text-white px-4 py-2.5 flex items-center justify-between gap-4">
+          <div className="w-full bg-amber-500/90 dark:bg-amber-600/90 text-white px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-3 flex-1">
               <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-              <p className="text-sm font-medium">
+              <p className="text-xs sm:text-sm font-medium">
                 Tài khoản chưa được xác minh. Vui lòng kiểm tra email để xác
                 minh tài khoản.
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
               <button
                 onClick={handleResendVerification}
                 disabled={sendingEmail || loading}
@@ -103,8 +103,8 @@ export default function RootLayout({
               <div className="flex items-center gap-3"></div>
 
               <div className="flex items-center gap-x-3 justify-between">
-                <div className="flex items-center gap-x-2 p-2 rounded-xl cursor-pointer">
-                  <div className="text-[12px] text-nowrap font-semibold">
+                <div className="flex items-center gap-x-2 p-1.5 sm:p-2 rounded-xl cursor-pointer">
+                  <div className="text-[11px] sm:text-[12px] text-nowrap font-semibold">
                     {user?.wallet?.balance || 0} Credits
                   </div>
                   <Image src="/coin.png" alt="" width={15} height={15} />

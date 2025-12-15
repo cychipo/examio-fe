@@ -78,9 +78,9 @@ export default function AboutSection() {
     <div className="relative min-h-screen pt-12">
       {/* Ambient Background Blobs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute w-[500px] h-[500px] -top-20 -left-20 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-[80px] animate-pulse" />
-        <div className="absolute w-[600px] h-[600px] bottom-0 right-0 bg-purple-400/15 dark:bg-purple-400/10 rounded-full blur-[80px]" />
-        <div className="absolute w-[400px] h-[400px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-300/15 dark:bg-blue-300/10 rounded-full blur-[80px]" />
+        <div className="absolute w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px] -top-20 -left-20 bg-blue-500/20 dark:bg-blue-500/10 rounded-full blur-[80px] animate-pulse" />
+        <div className="absolute w-[400px] sm:w-[500px] md:w-[600px] h-[400px] sm:h-[500px] md:h-[600px] bottom-0 right-0 bg-purple-400/15 dark:bg-purple-400/10 rounded-full blur-[80px]" />
+        <div className="absolute w-[250px] sm:w-[300px] md:w-[400px] h-[250px] sm:h-[300px] md:h-[400px] top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-300/15 dark:bg-blue-300/10 rounded-full blur-[80px]" />
       </div>
 
       <main className="relative z-10 flex flex-col items-center w-full">
@@ -106,12 +106,12 @@ export default function AboutSection() {
 
                 <motion.h1
                   variants={fadeInUp}
-                  className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-slate-900 dark:text-white">
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-slate-900 dark:text-white">
                   Sáng tạo. <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
                     Tận tâm.
                   </span>{" "}
-                  <br />
+                  <br className="hidden sm:block" />
                   Đột phá.
                 </motion.h1>
 
@@ -123,11 +123,13 @@ export default function AboutSection() {
                   việc học tập trở nên hiệu quả và thú vị hơn.
                 </motion.p>
 
-                <motion.div variants={fadeInUp} className="flex gap-4 mt-2">
-                  <button className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-1">
+                <motion.div
+                  variants={fadeInUp}
+                  className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 w-full sm:w-auto">
+                  <button className="h-11 sm:h-12 px-6 sm:px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-1 text-sm sm:text-base">
                     Khám phá ngay
                   </button>
-                  <button className="h-12 px-8 bg-white/65 dark:bg-white/10 backdrop-blur-md text-slate-800 dark:text-white font-bold rounded-lg hover:bg-white/80 dark:hover:bg-white/20 transition-all border border-white/50 dark:border-white/20">
+                  <button className="h-11 sm:h-12 px-6 sm:px-8 bg-white/65 dark:bg-white/10 backdrop-blur-md text-slate-800 dark:text-white font-bold rounded-lg hover:bg-white/80 dark:hover:bg-white/20 transition-all border border-white/50 dark:border-white/20 text-sm sm:text-base">
                     Xem hồ sơ
                   </button>
                 </motion.div>
@@ -181,11 +183,11 @@ export default function AboutSection() {
                 <motion.div
                   key={index}
                   variants={fadeInUp}
-                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col gap-2 border border-white/60 dark:border-white/10">
-                  <div className="text-blue-600 dark:text-blue-400 mb-2">
-                    <stat.icon className="w-10 h-10" />
+                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-5 sm:p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col gap-2 border border-white/60 dark:border-white/10">
+                  <div className="text-blue-600 dark:text-blue-400 mb-1 sm:mb-2">
+                    <stat.icon className="w-8 h-8 sm:w-10 sm:h-10" />
                   </div>
-                  <p className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">
+                  <p className="text-3xl sm:text-4xl font-black text-slate-800 dark:text-white tracking-tight">
                     {stat.value}
                   </p>
                   <p className="text-slate-500 dark:text-slate-400 font-medium">
@@ -210,7 +212,7 @@ export default function AboutSection() {
               <motion.div
                 variants={fadeInUp}
                 className="text-center max-w-2xl mx-auto space-y-4">
-                <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                   Tầm nhìn & Sứ mệnh
                 </h2>
                 <p className="text-slate-600 dark:text-slate-300 text-lg">
@@ -223,7 +225,7 @@ export default function AboutSection() {
                 {/* Vision Card */}
                 <motion.div
                   variants={fadeInUp}
-                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group">
+                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Eye className="w-24 h-24" />
                   </div>
@@ -247,7 +249,7 @@ export default function AboutSection() {
                 {/* Mission Card */}
                 <motion.div
                   variants={fadeInUp}
-                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group">
+                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Target className="w-24 h-24" />
                   </div>
@@ -326,13 +328,13 @@ export default function AboutSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md rounded-3xl p-10 md:p-16 text-center border border-white/50 dark:border-white/10 shadow-xl relative overflow-hidden">
+              className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md rounded-3xl p-6 sm:p-10 md:p-16 text-center border border-white/50 dark:border-white/10 shadow-xl relative overflow-hidden">
               {/* Decorative circles */}
               <div className="absolute top-0 left-0 w-32 h-32 bg-blue-600/20 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2" />
               <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-400/20 rounded-full blur-2xl translate-x-1/2 translate-y-1/2" />
 
               <div className="relative z-10 flex flex-col items-center gap-6">
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
                   Sẵn sàng trải nghiệm FayEdu?
                 </h2>
                 <p className="text-slate-600 dark:text-slate-300 max-w-xl text-lg">

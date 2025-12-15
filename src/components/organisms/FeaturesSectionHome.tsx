@@ -200,52 +200,52 @@ function ChartAnimation({ value }: { value: number }) {
 
 function IconsFeature() {
   return (
-    <div className="grid grid-cols-3 gap-4 mt-4">
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
-        <div className="relative w-8 h-8 flex items-center justify-center">
-          <OpenAI className="w-7 h-7 dark:hidden transition-transform " />
-          <OpenAIDark className="w-7 h-7 hidden dark:block transition-transform " />
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4">
+      <motion.div className="flex flex-col items-center gap-2 p-2 sm:p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
+        <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
+          <OpenAI className="w-5 h-5 sm:w-7 sm:h-7 dark:hidden transition-transform " />
+          <OpenAIDark className="w-5 h-5 sm:w-7 sm:h-7 hidden dark:block transition-transform " />
         </div>
         <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
           OpenAI
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
-        <div className="relative w-8 h-8 flex items-center justify-center">
-          <Anthropic className="w-7 h-7 dark:hidden transition-transform " />
-          <AnthropicDark className="w-7 h-7 hidden dark:block transition-transform " />
+      <motion.div className="flex flex-col items-center gap-2 p-2 sm:p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
+        <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
+          <Anthropic className="w-5 h-5 sm:w-7 sm:h-7 dark:hidden transition-transform " />
+          <AnthropicDark className="w-5 h-5 sm:w-7 sm:h-7 hidden dark:block transition-transform " />
         </div>
         <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
           Anthropic
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
-        <div className="relative w-8 h-8 flex items-center justify-center">
-          <Google className="w-7 h-7 transition-transform " />
+      <motion.div className="flex flex-col items-center gap-2 p-2 sm:p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
+        <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
+          <Google className="w-5 h-5 sm:w-7 sm:h-7 transition-transform " />
         </div>
         <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
           Google
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
-        <div className="relative w-8 h-8 flex items-center justify-center">
-          <MistralAI className="w-7 h-7 transition-transform " />
+      <motion.div className="flex flex-col items-center gap-2 p-2 sm:p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
+        <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
+          <MistralAI className="w-5 h-5 sm:w-7 sm:h-7 transition-transform " />
         </div>
         <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
           Mistral
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
-        <div className="relative w-8 h-8 flex items-center justify-center">
-          <DeepSeek className="w-7 h-7 transition-transform " />
+      <motion.div className="flex flex-col items-center gap-2 p-2 sm:p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
+        <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
+          <DeepSeek className="w-5 h-5 sm:w-7 sm:h-7 transition-transform " />
         </div>
         <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
           DeepSeek
         </span>
       </motion.div>
-      <motion.div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
-        <div className="relative w-8 h-8 flex items-center justify-center">
-          <Plus className="w-6 h-6 text-neutral-600 dark:text-neutral-400 transition-transform " />
+      <motion.div className="flex flex-col items-center gap-2 p-2 sm:p-3 rounded-xl bg-gradient-to-b from-neutral-100/80 to-neutral-100 dark:from-neutral-800/80 dark:to-neutral-800 border border-border dark:border-border group transition-all duration-300 hover:border-border dark:hover:border-border">
+        <div className="relative w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center">
+          <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-600 dark:text-neutral-400 transition-transform " />
         </div>
         <span className="text-xs font-medium text-center text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-900 dark:group-hover:text-neutral-200">
           More
@@ -290,7 +290,7 @@ function TypingCodeFeature({ text }: { text: string }) {
       </div>
       <div
         ref={terminalRef}
-        className="bg-neutral-900 dark:bg-black text-neutral-100 p-3 rounded-md text-xs font-mono h-[150px] overflow-y-auto">
+        className="bg-neutral-900 dark:bg-black text-neutral-100 p-2.5 sm:p-3 rounded-md text-[11px] sm:text-xs font-mono h-[120px] sm:h-[150px] overflow-y-auto">
         <pre className="whitespace-pre-wrap">
           {displayedText}
           <span className="animate-pulse">|</span>
@@ -465,7 +465,7 @@ function AIInput_Voice() {
               className={cn(
                 "w-0.5 rounded-full transition-all duration-300",
                 submitted
-                  ? "bg-black/50 dark:bg-black/5 dark:bg-white/50 animate-pulse"
+                  ? "bg-black/50 dark:bg-white/50 animate-pulse"
                   : "bg-black/10 dark:bg-white/10 h-1"
               )}
               style={
@@ -622,10 +622,10 @@ export default function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative py-24 sm:py-36 bg-white dark:bg-black overflow-hidden">
+      className="relative py-16 sm:py-24 lg:py-36 bg-white dark:bg-black overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div variants={fadeInUp}>
-          <SparklesText className="text-5xl text-center pb-12">
+          <SparklesText className="text-3xl sm:text-4xl lg:text-5xl text-center pb-8 sm:pb-12">
             Tính năng nổi bật
           </SparklesText>
         </motion.div>
@@ -635,8 +635,8 @@ export default function FeaturesSection() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
-          className="grid gap-6">
-          <div className="grid md:grid-cols-3 gap-6">
+          className="grid gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             <motion.div variants={fadeInUp} className="md:col-span-1">
               <BentoCard item={bentoItems[0]} />
             </motion.div>
@@ -644,14 +644,14 @@ export default function FeaturesSection() {
               <BentoCard item={bentoItems[1]} />
             </motion.div>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <motion.div variants={fadeInUp} className="md:col-span-1">
               <BentoCard item={bentoItems[2]} />
             </motion.div>
             <motion.div
               variants={fadeInUp}
               className="md:col-span-1 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-neutral-50 dark:from-neutral-900/80 dark:to-neutral-900 border border-border dark:border-border hover:border-border dark:hover:border-border hover:shadow-lg hover:shadow-neutral-200/20 dark:hover:shadow-neutral-900/20 transition-all duration-300">
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
                     Giáo viên AI thông minh

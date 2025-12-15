@@ -38,9 +38,9 @@ export default function FooterSection() {
 
   return (
     <footer className="relative border-t mt-16 bg-background text-foreground transition-colors duration-300">
-      <div className="container mx-auto px-4 py-12 md:px-6 lg:px-8">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-4">
-          <div className="relative">
+      <div className="container mx-auto px-4 py-8 sm:py-12 md:px-6 lg:px-8">
+        <div className="grid gap-8 sm:gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative sm:col-span-2 lg:col-span-1">
             <Logo />
             <p className="mb-6 text-muted-foreground">
               Đăng ký để nhận bản tin của chúng tôi và cập nhật những thông tin
@@ -60,9 +60,9 @@ export default function FooterSection() {
                 <span className="sr-only">Đăng ký</span>
               </Button>
             </form>
-            <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+            <div className="absolute -right-4 top-0 h-24 w-24 rounded-full bg-primary/10 blur-2xl hidden lg:block" />
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h3 className="mb-4 text-lg font-semibold">Liên kết</h3>
             <nav className="space-y-2 text-sm">
               <a
@@ -90,9 +90,9 @@ export default function FooterSection() {
               <p>Email: fayeteam2004@gmail.com</p>
             </address>
           </div>
-          <div className="relative">
+          <div className="relative sm:col-span-2 lg:col-span-1 flex flex-col items-center sm:items-start">
             <h3 className="mb-4 text-lg font-semibold">Theo dõi</h3>
-            <div className="mb-6 flex space-x-4">
+            <div className="mb-6 flex flex-wrap justify-center sm:justify-start gap-3 sm:space-x-4">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -164,7 +164,7 @@ export default function FooterSection() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-center sm:justify-start space-x-2">
               <Sun className="h-4 w-4" />
               {mounted ? (
                 <Switch
@@ -183,7 +183,7 @@ export default function FooterSection() {
             </div>
           </div>
         </div>
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 text-center md:flex-row">
+        <div className="mt-8 sm:mt-12 flex flex-col items-center justify-between gap-4 border-t pt-6 sm:pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground flex items-center gap-x-1">
             <Copyright size={15} className="-mt-1" /> {new Date().getFullYear()}{" "}
             FayEdu. All rights reserved.
