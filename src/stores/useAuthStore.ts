@@ -196,14 +196,30 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loginWithGoogle: async () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/k";
+    const searchParams = typeof window !== "undefined" ? window.location.search : "";
+    // Try to get 'from' param from current URL (if on login page), otherwise use current path
+    const urlParams = new URLSearchParams(searchParams);
+    const redirectPath = urlParams.get("from") || currentPath;
+    const redirectParam = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?redirect=${redirectParam}`;
   },
 
   loginWithFacebook: async () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
+    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/k";
+    const searchParams = typeof window !== "undefined" ? window.location.search : "";
+    const urlParams = new URLSearchParams(searchParams);
+    const redirectPath = urlParams.get("from") || currentPath;
+    const redirectParam = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook?redirect=${redirectParam}`;
   },
 
   loginWithGithub: async () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github`;
+    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/k";
+    const searchParams = typeof window !== "undefined" ? window.location.search : "";
+    const urlParams = new URLSearchParams(searchParams);
+    const redirectPath = urlParams.get("from") || currentPath;
+    const redirectParam = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github?redirect=${redirectParam}`;
   },
 }));
