@@ -131,4 +131,24 @@ export const aiApi = {
     const response = await api.delete(`/ai/job/${jobId}`);
     return response.data;
   },
+
+  /**
+   * Get full quiz and flashcard history for an upload
+   * Used when selecting a recent file to load previous results
+   */
+  getUploadHistory: async (
+    uploadId: string
+  ): Promise<{
+    uploadId: string;
+    filename: string;
+    quizHistory: { id: string; quizzes: Quizz[]; createdAt: string } | null;
+    flashcardHistory: {
+      id: string;
+      flashcards: Flashcard[];
+      createdAt: string;
+    } | null;
+  }> => {
+    const response = await api.get(`/ai/upload/${uploadId}/history`);
+    return response.data;
+  },
 };

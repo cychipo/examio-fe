@@ -612,7 +612,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
     }
   },
 
-  loadFromUpload: (upload) => {
+  loadFromUpload: async (upload) => {
     set({ selectedUpload: upload });
 
     // Create a mock File object info for the upload card
@@ -622,27 +622,48 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
       type: upload.mimeType,
     };
 
-    // ALWAYS set file info to BOTH generators so switching tabs works
+    // Set initial file info to BOTH generators
     useTestGeneratorStore.setState({
-      file: null, // No actual file, but we have upload ID
+      file: null,
       uploadId: upload.id,
       fileInfo,
-      // Load existing quiz if available
-      generatedTest: upload.quizHistory?.quizzes as Quizz[] | null,
-      generatedTestId: upload.quizHistory ? upload.quizHistory.id : null, // Use history ID, not upload ID
+      generatedTest: null,
+      generatedTestId: null,
     });
 
     useFlashcardGeneratorStore.setState({
       file: null,
       uploadId: upload.id,
       fileInfo,
-      // Load existing flashcards if available
-      generatedCards: upload.flashcardHistory?.flashcards as Flashcard[] | null,
-      generatedCardsId: upload.flashcardHistory
-        ? upload.flashcardHistory.id
-        : null, // Use history ID, not upload ID
+      generatedCards: null,
+      generatedCardsId: null,
       currentCard: 0,
     });
+
+    // If there's quiz or flashcard history, fetch the full data
+    if (upload.quizHistory || upload.flashcardHistory) {
+      try {
+        const history = await aiApi.getUploadHistory(upload.id);
+
+        // Load quiz if available
+        if (history.quizHistory) {
+          useTestGeneratorStore.setState({
+            generatedTest: history.quizHistory.quizzes as Quizz[],
+            generatedTestId: history.quizHistory.id,
+          });
+        }
+
+        // Load flashcard if available
+        if (history.flashcardHistory) {
+          useFlashcardGeneratorStore.setState({
+            generatedCards: history.flashcardHistory.flashcards as Flashcard[],
+            generatedCardsId: history.flashcardHistory.id,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching history data:", error);
+      }
+    }
 
     toast.success("Đã chọn file", {
       description: `File "${upload.filename}" đã được chọn sẵn cho cả Quiz và Flashcard.`,
