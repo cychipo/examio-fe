@@ -147,7 +147,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   getUser: async () => {
     set({ initializing: true });
     try {
-      const user = await getUserApi();
+      const user = await getUserApi(true);
       if (user) {
         set({ user: user.user, isAuthenticated: true });
       } else {
@@ -200,7 +200,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (response.message) {
         toast.success(response.message);
         // Refresh user data to update isVerified status
-        const userData = await getUserApi();
+        const userData = await getUserApi(true);
         if (userData) {
           set({ user: userData.user });
         }
