@@ -35,6 +35,7 @@ interface AuthState {
   loginWithGoogle?: () => Promise<void>;
   loginWithFacebook?: () => Promise<void>;
   loginWithGithub?: () => Promise<void>;
+  updateWalletBalance: (newBalance: number) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -175,6 +176,23 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
+  updateWalletBalance: (newBalance: number) => {
+    set((state) => {
+      if (state.user && state.user.wallet) {
+        return {
+          user: {
+            ...state.user,
+            wallet: {
+              ...state.user.wallet,
+              balance: newBalance,
+            },
+          },
+        };
+      }
+      return state;
+    });
+  },
+
   verifyAccount: async (code: string) => {
     set({ loading: true });
     try {
@@ -196,8 +214,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loginWithGoogle: async () => {
-    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams = typeof window !== "undefined" ? window.location.search : "";
+    const currentPath =
+      typeof window !== "undefined" ? window.location.pathname : "/k";
+    const searchParams =
+      typeof window !== "undefined" ? window.location.search : "";
     // Try to get 'from' param from current URL (if on login page), otherwise use current path
     const urlParams = new URLSearchParams(searchParams);
     const redirectPath = urlParams.get("from") || currentPath;
@@ -206,8 +226,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loginWithFacebook: async () => {
-    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams = typeof window !== "undefined" ? window.location.search : "";
+    const currentPath =
+      typeof window !== "undefined" ? window.location.pathname : "/k";
+    const searchParams =
+      typeof window !== "undefined" ? window.location.search : "";
     const urlParams = new URLSearchParams(searchParams);
     const redirectPath = urlParams.get("from") || currentPath;
     const redirectParam = encodeURIComponent(redirectPath);
@@ -215,8 +237,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loginWithGithub: async () => {
-    const currentPath = typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams = typeof window !== "undefined" ? window.location.search : "";
+    const currentPath =
+      typeof window !== "undefined" ? window.location.pathname : "/k";
+    const searchParams =
+      typeof window !== "undefined" ? window.location.search : "";
     const urlParams = new URLSearchParams(searchParams);
     const redirectPath = urlParams.get("from") || currentPath;
     const redirectParam = encodeURIComponent(redirectPath);

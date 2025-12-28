@@ -272,6 +272,9 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
           isNarrowSearch: isNarrow,
           keyword: isNarrow ? keyword : undefined,
         });
+        if (jobResponse.newBalance !== undefined) {
+          useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
+        }
         jobId = jobResponse.jobId;
       } else {
         // Nếu có file mới, sử dụng generate API với job queue
@@ -282,6 +285,9 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
           isNarrowSearch: isNarrow,
           keyword: isNarrow ? keyword : undefined,
         });
+        if (jobResponse.newBalance !== undefined) {
+          useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
+        }
         jobId = jobResponse.jobId;
       }
 
@@ -432,6 +438,9 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
             isNarrowSearch: isNarrow,
             keyword: isNarrow ? keyword : undefined,
           });
+          if (jobResponse.newBalance !== undefined) {
+            useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
+          }
           jobId = jobResponse.jobId;
         } else {
           // Nếu có file mới, sử dụng generate API với job queue
@@ -442,6 +451,9 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
             isNarrowSearch: isNarrow,
             keyword: isNarrow ? keyword : undefined,
           });
+          if (jobResponse.newBalance !== undefined) {
+            useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
+          }
           jobId = jobResponse.jobId;
         }
 

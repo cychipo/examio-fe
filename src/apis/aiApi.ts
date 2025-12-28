@@ -61,6 +61,7 @@ export interface RegenerateResponse {
 // Job response when creating regenerate job
 export interface JobCreateResponse {
   jobId: string;
+  newBalance?: number;
 }
 
 export const aiApi = {

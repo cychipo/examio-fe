@@ -14,6 +14,7 @@ export interface ResponseGenerateExam {
   jobId: string;
   status: string;
   message: string;
+  newBalance?: number;
 }
 
 export async function generateExamApi(
