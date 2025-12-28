@@ -16,6 +16,7 @@ export interface PDFHistoryItem {
   size: number;
   mimetype: string;
   createdAt: string;
+  processingStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
   quizHistory: {
     id: string;
     quizzes: unknown[];

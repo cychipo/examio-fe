@@ -34,18 +34,33 @@ function transformPDFHistory(
       description = `Tạo ${quizCount} câu hỏi`;
     } else if (flashcardCount > 0) {
       description = `Tạo ${flashcardCount} flashcard`;
+    } else if (item.processingStatus === "COMPLETED") {
+      description = "Đã xử lý - sẵn sàng tạo nội dung";
+    } else if (item.processingStatus === "FAILED") {
+      description = "Xử lý thất bại";
     } else {
       description = "Đang xử lý...";
+    }
+
+    // Status based on processingStatus field from backend
+    let status: "completed" | "processing" | "failed";
+    if (
+      item.processingStatus === "COMPLETED" ||
+      quizCount > 0 ||
+      flashcardCount > 0
+    ) {
+      status = "completed";
+    } else if (item.processingStatus === "FAILED") {
+      status = "failed";
+    } else {
+      status = "processing";
     }
 
     return {
       id: item.id,
       fileName: item.filename,
       description,
-      status:
-        quizCount > 0 || flashcardCount > 0
-          ? ("completed" as const)
-          : ("processing" as const),
+      status,
       createdAt: formatTimeAgo(item.createdAt),
     };
   });
@@ -207,21 +222,24 @@ export default function HistoryPage() {
     fetchData();
   }, [fetchData]);
 
-  const handlePdfDownload = useCallback(async (id: string) => {
-    const pdfItem = pdfDataMapRef.current.get(id); // O(1) lookup
-    if (!pdfItem) {
-      toast.error("Không tìm thấy file PDF");
-      return;
-    }
+  const handlePdfDownload = useCallback(
+    async (id: string) => {
+      const pdfItem = pdfDataMapRef.current.get(id); // O(1) lookup
+      if (!pdfItem) {
+        toast.error("Không tìm thấy file PDF");
+        return;
+      }
 
-    try {
-      toast.info("Đang tải file...");
-      await downloadFile(pdfItem.url, pdfItem.filename);
-      toast.success("Tải file thành công!");
-    } catch (error) {
-      toast.error("Không thể tải file. Vui lòng thử lại.");
-    }
-  }, [toast]);
+      try {
+        toast.info("Đang tải file...");
+        await downloadFile(pdfItem.url, pdfItem.filename);
+        toast.success("Tải file thành công!");
+      } catch (error) {
+        toast.error("Không thể tải file. Vui lòng thử lại.");
+      }
+    },
+    [toast]
+  );
 
   const handlePdfDelete = (id: string) => {
     console.log("Delete PDF:", id);

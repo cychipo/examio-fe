@@ -26,16 +26,29 @@ const persistJobId = (jobId: string | null) => {
   }
 };
 
+// Pending job info returned when checking for orphaned jobs
+interface PendingJobInfo {
+  jobId: string;
+  status: "pending" | "processing" | "completed" | "failed";
+}
+
 // Shared job state for both stores
 interface JobState {
   currentJobId: string | null;
+  pendingJobInfo: PendingJobInfo | null;
+  showPendingJobDialog: boolean;
   setCurrentJobId: (jobId: string | null) => void;
   cancelCurrentJob: () => Promise<void>;
-  checkAndCleanupPendingJob: () => Promise<void>;
+  checkForPendingJob: () => Promise<PendingJobInfo | null>;
+  resumePendingJob: () => void;
+  cancelPendingJob: () => Promise<void>;
+  closePendingJobDialog: () => void;
 }
 
 export const useJobStore = create<JobState>((set, get) => ({
   currentJobId: null,
+  pendingJobInfo: null,
+  showPendingJobDialog: false,
   setCurrentJobId: (jobId) => {
     set({ currentJobId: jobId });
     persistJobId(jobId);
@@ -56,40 +69,149 @@ export const useJobStore = create<JobState>((set, get) => ({
       persistJobId(null);
     }
   },
-  // Check for orphaned job from previous session and clean up
-  checkAndCleanupPendingJob: async () => {
-    if (typeof window === "undefined") return;
+  // Check for pending job from previous session (does NOT auto-cancel)
+  checkForPendingJob: async () => {
+    if (typeof window === "undefined") return null;
 
     const pendingJobId = localStorage.getItem(PENDING_JOB_STORAGE_KEY);
-    if (!pendingJobId) return;
+    if (!pendingJobId) return null;
 
-    console.log(`🔍 Found orphaned job from previous session: ${pendingJobId}`);
+    console.log(`🔍 Found pending job from previous session: ${pendingJobId}`);
 
     try {
       // Check job status
       const jobStatus = await aiApi.getJobStatus(pendingJobId);
 
       if (jobStatus.status === "processing" || jobStatus.status === "pending") {
-        // Job is still running, cancel it
-        console.log(`🚫 Canceling orphaned job ${pendingJobId}...`);
-        await aiApi.cancelJob(pendingJobId);
-        toast.info("Đã hủy tác vụ trước đó", {
-          description:
-            "Trang đã được tải lại trong khi đang tạo đề. Dữ liệu đã được khôi phục.",
+        // Job is still running, show dialog to ask user
+        const pendingInfo: PendingJobInfo = {
+          jobId: pendingJobId,
+          status: jobStatus.status,
+        };
+        set({
+          pendingJobInfo: pendingInfo,
+          showPendingJobDialog: true,
         });
+        return pendingInfo;
       } else if (jobStatus.status === "completed") {
-        // Job completed, just notify
-        console.log(`✅ Orphaned job ${pendingJobId} had completed`);
-        // Could optionally show the result here
+        // Job completed, just clean up
+        console.log(`✅ Pending job ${pendingJobId} had completed`);
+        localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+        return null;
+      } else if (jobStatus.status === "failed") {
+        // Job failed, clean up
+        console.log(`❌ Pending job ${pendingJobId} had failed`);
+        localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+        return null;
       }
     } catch (error) {
       // Job not found or already cleaned up
       console.log(`Job ${pendingJobId} not found, already cleaned up`);
+      localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
     }
 
-    // Clean up localStorage
+    return null;
+  },
+  // Resume polling for pending job
+  resumePendingJob: () => {
+    const { pendingJobInfo } = get();
+    if (!pendingJobInfo) return;
+
+    const { jobId } = pendingJobInfo;
+    console.log(`🔄 Resuming polling for job ${jobId}...`);
+
+    // Set current job ID and mark as generating in both stores
+    set({
+      currentJobId: jobId,
+      showPendingJobDialog: false,
+      pendingJobInfo: null,
+    });
+
+    // Set isGenerating in both stores (we don't know which one started the job)
+    useTestGeneratorStore.setState({ isGenerating: true });
+    useFlashcardGeneratorStore.setState({ isGenerating: true });
+
+    // Determine which store to use based on job (we'll poll and update both for simplicity)
+    // The success callback will update the appropriate store based on result type
+    pollJobStatus(
+      jobId,
+      // onProgress
+      (progress) => {
+        console.log(`📊 Resumed job ${jobId} progress: ${progress}%`);
+      },
+      // onSuccess
+      (result) => {
+        console.log(`✅ Resumed job ${jobId} completed:`, result);
+
+        // Update appropriate store based on result type
+        if (result.quizzes && result.quizzes.length > 0) {
+          useTestGeneratorStore.setState({
+            generatedTest: result.quizzes,
+            generatedTestId: result.historyId || null,
+            isGenerating: false,
+          });
+          useFlashcardGeneratorStore.setState({ isGenerating: false });
+          toast.success("Tạo đề thành công!", {
+            description: `Đã tạo ${result.quizzes.length} câu hỏi từ tài liệu của bạn`,
+          });
+        } else if (result.flashcards && result.flashcards.length > 0) {
+          useFlashcardGeneratorStore.setState({
+            generatedCards: result.flashcards,
+            generatedCardsId: result.historyId || null,
+            currentCard: 0,
+            isGenerating: false,
+          });
+          useTestGeneratorStore.setState({ isGenerating: false });
+          toast.success("Tạo flashcard thành công!", {
+            description: `Đã tạo ${result.flashcards.length} thẻ flashcard từ tài liệu của bạn`,
+          });
+        } else {
+          // Unknown result type, clear both
+          useTestGeneratorStore.setState({ isGenerating: false });
+          useFlashcardGeneratorStore.setState({ isGenerating: false });
+        }
+
+        // Refresh data
+        useRecentUploadsStore.getState().fetchRecentUploads(true);
+        useAuthStore.getState().getUser();
+      },
+      // onError
+      (error) => {
+        console.error(`❌ Resumed job ${jobId} failed:`, error);
+        useTestGeneratorStore.setState({ isGenerating: false });
+        useFlashcardGeneratorStore.setState({ isGenerating: false });
+        toast.error("Lỗi xử lý tác vụ", {
+          description: error,
+        });
+      }
+    );
+  },
+  // Cancel pending job from previous session
+  cancelPendingJob: async () => {
+    const { pendingJobInfo } = get();
+    if (!pendingJobInfo) return;
+
+    const { jobId } = pendingJobInfo;
+    console.log(`🚫 Canceling pending job ${jobId}...`);
+
+    try {
+      await aiApi.cancelJob(jobId);
+      toast.info("Đã hủy tác vụ trước đó", {
+        description: "Dữ liệu đã được khôi phục.",
+      });
+    } catch (error) {
+      console.error("Error canceling pending job:", error);
+    }
+
     localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
-    set({ currentJobId: null });
+    set({
+      currentJobId: null,
+      pendingJobInfo: null,
+      showPendingJobDialog: false,
+    });
+  },
+  closePendingJobDialog: () => {
+    set({ showPendingJobDialog: false });
   },
 }));
 
@@ -602,6 +724,34 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
       // Remove from local state
       const { recentUploads, selectedUpload } = get();
       const newUploads = recentUploads.filter((u) => u.id !== uploadId);
+
+      // Check if deleted file was selected in either generator store
+      const testStore = useTestGeneratorStore.getState();
+      const flashcardStore = useFlashcardGeneratorStore.getState();
+
+      // Clear TestGeneratorStore if it was using the deleted file
+      if (testStore.uploadId === uploadId) {
+        useTestGeneratorStore.setState({
+          file: null,
+          uploadId: null,
+          fileInfo: null,
+          generatedTest: null,
+          generatedTestId: null,
+        });
+      }
+
+      // Clear FlashcardGeneratorStore if it was using the deleted file
+      if (flashcardStore.uploadId === uploadId) {
+        useFlashcardGeneratorStore.setState({
+          file: null,
+          uploadId: null,
+          fileInfo: null,
+          generatedCards: null,
+          generatedCardsId: null,
+          currentCard: 0,
+        });
+      }
+
       set({
         recentUploads: newUploads,
         isDeleting: false,

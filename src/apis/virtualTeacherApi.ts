@@ -31,6 +31,7 @@ export const virtualTeacherApi = {
   /**
    * Quick upload - uploads file to R2 immediately without waiting for OCR/vectorization.
    * OCR happens on-demand when first message is sent.
+   * Uses /ai/quick-upload endpoint in exam-service.
    */
   quickUploadFile: async (
     file: File
@@ -42,7 +43,7 @@ export const virtualTeacherApi = {
   }> => {
     const formData = new FormData();
     formData.append("file", file);
-    const response = await api.post("/virtual-teacher/quick-upload", formData, {
+    const response = await api.post("/ai/quick-upload", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
