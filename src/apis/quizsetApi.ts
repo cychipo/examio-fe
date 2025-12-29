@@ -55,6 +55,8 @@ export async function createQuizSetApi(
       formData.append("description", credentials.description);
     if (credentials.isPublic !== undefined)
       formData.append("isPublic", String(credentials.isPublic));
+    if (credentials.isPinned !== undefined)
+      formData.append("isPinned", String(credentials.isPinned));
     if (credentials.tags)
       formData.append("tags", JSON.stringify(credentials.tags));
 
@@ -135,6 +137,36 @@ export async function getQuizSetByIdApi(id: string): Promise<QuizSet> {
   return response.data;
 }
 
+// Pagination types
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ResponseQuizSetQuestions {
+  questions: Quizz[];
+  pagination: PaginationInfo;
+}
+
+/**
+ * Get paginated questions for a quiz set
+ * @param id Quiz set ID
+ * @param page Page number (default: 1)
+ * @param limit Items per page (default: 10)
+ */
+export async function getQuizSetQuestionsApi(
+  id: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<ResponseQuizSetQuestions> {
+  const response = await api.get(`/quizsets/${id}/questions`, {
+    params: { page, limit },
+  });
+  return response.data;
+}
+
 export async function updateQuizSetApi(
   id: string,
   credentials: Partial<CredentialsQuizSet>,
@@ -149,6 +181,8 @@ export async function updateQuizSetApi(
       formData.append("description", credentials.description);
     if (credentials.isPublic !== undefined)
       formData.append("isPublic", String(credentials.isPublic));
+    if (credentials.isPinned !== undefined)
+      formData.append("isPinned", String(credentials.isPinned));
     if (credentials.tags)
       formData.append("tags", JSON.stringify(credentials.tags));
 
