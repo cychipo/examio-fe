@@ -45,6 +45,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { ModelSelector } from "@/components/atoms/ModelSelector";
 
 // Check if speech recognition is supported
 const isSpeechRecognitionSupported = () => {
@@ -99,6 +100,8 @@ export default function AITeacherPage() {
     speakResponse,
     stopSpeaking,
     abortStream,
+    selectedModel,
+    setSelectedModel,
   } = useAITeacherStore();
 
   const [speechSupported, setSpeechSupported] = useState(true);
@@ -305,22 +308,30 @@ export default function AITeacherPage() {
 
       {/* Header Section */}
       <section className="relative container mx-auto px-4 pt-8 pb-4">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
-            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
-              <Bot className="w-7 h-7 text-primary" />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
+              <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
+                <Bot className="w-7 h-7 text-primary" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+                Giáo viên AI
+              </h1>
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Trò chuyện thông minh với AI
+              </p>
             </div>
           </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
-              Giáo viên AI
-            </h1>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              Trò chuyện thông minh với AI
-            </p>
-          </div>
+          {/* Model Selector */}
+          <ModelSelector
+            value={selectedModel}
+            onChange={setSelectedModel}
+            disabled={isProcessing || isStreaming}
+          />
         </div>
       </section>
 

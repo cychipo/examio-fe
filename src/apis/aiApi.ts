@@ -45,6 +45,7 @@ export interface RegenerateParams {
   quantityQuizz?: number;
   isNarrowSearch?: boolean;
   keyword?: string;
+  modelType?: string; // 'gemini' or 'fayedark'
 }
 
 export interface RegenerateResponse {

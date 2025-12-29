@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/toast";
 import { RecentUpload } from "@/apis/aiApi";
 import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
+import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -19,6 +20,9 @@ const TTS_CONFIG = {
 };
 
 interface AITeacherState {
+  // AI Model selection
+  selectedModel: AIModelType;
+
   // Chat list
   chats: AIChat[];
   isLoadingChats: boolean;
@@ -84,6 +88,9 @@ interface AITeacherState {
   speakResponse: (text: string) => void;
   stopSpeaking: () => void;
   setIsSpeaking: (value: boolean) => void;
+
+  // Actions - Model selection
+  setSelectedModel: (model: AIModelType) => void;
 
   // Actions - Clear
   clearCurrentChat: () => void;
@@ -154,6 +161,7 @@ const getChatIdFromUrl = (): string | null => {
 
 export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   // Initial states
+  selectedModel: DEFAULT_AI_MODEL,
   chats: [],
   isLoadingChats: false,
   selectedChatId: null,
@@ -341,6 +349,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       selectedChatId,
       selectedUploads,
       uploadedImageUrl,
+      selectedModel,
       createChat,
       speakResponse,
       stopSpeaking,
@@ -391,6 +400,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       documentIds: realDocs.length > 0 ? realDocs.map((d) => d.id) : undefined,
       documentId: realDocs.length > 0 ? realDocs[0].id : undefined, // Legacy
       documentName: realDocs.length > 0 ? realDocs[0].filename : undefined, // Legacy
+      modelType: selectedModel, // Add model type to request
     };
 
     const abort = aiChatApi.streamMessage(
@@ -755,6 +765,12 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       currentAudio: null,
       audioQueue: [],
     });
+  },
+
+  // ================== MODEL SELECTION ==================
+
+  setSelectedModel: (model: AIModelType) => {
+    set({ selectedModel: model });
   },
 
   // ================== CLEAR ==================

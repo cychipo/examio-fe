@@ -42,6 +42,7 @@ import {
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
 import { useGenerationGuard } from "@/hooks/useGenerationGuard";
+import { ModelSelector } from "@/components/atoms/ModelSelector";
 
 export function FlashcardGenerator() {
   const {
@@ -51,6 +52,7 @@ export function FlashcardGenerator() {
     cardCount,
     isNarrow,
     keyword,
+    selectedModel,
     generatedCards,
     currentCard,
     isGenerating,
@@ -58,6 +60,7 @@ export function FlashcardGenerator() {
     setCardCount,
     setIsNarrow,
     setKeyword,
+    setSelectedModel,
     setCurrentCard,
     generateFlashcards,
     clearFlashcards,
@@ -205,6 +208,16 @@ export function FlashcardGenerator() {
               onRemove={handleRemoveFile}
             />
           )}
+
+          {/* AI Model Selection */}
+          <div className="space-y-2">
+            <Label className="text-muted-foreground">Model AI</Label>
+            <ModelSelector
+              value={selectedModel}
+              onChange={setSelectedModel}
+              disabled={isGenerating}
+            />
+          </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
