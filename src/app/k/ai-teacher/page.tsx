@@ -9,15 +9,10 @@ import {
   Volume2,
   VolumeX,
   Sparkles,
-  User,
   Bot,
   FileText,
   Loader2,
   AlertCircle,
-  MoreVertical,
-  Pencil,
-  Trash2,
-  RefreshCw,
   Square,
 } from "lucide-react";
 import { useAITeacherStore } from "@/stores/useAITeacherStore";
@@ -26,22 +21,6 @@ import { ChatHistoryCard } from "@/components/molecules/ChatHistoryCard";
 import { RecentFilesModal } from "@/components/organisms/RecentFilesModal";
 import { RecentUpload } from "@/apis/aiApi";
 import { AIChatMessage } from "@/apis/aiChatApi";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -85,10 +64,6 @@ export default function AITeacherPage() {
     updateChatTitle,
     deleteChat,
     sendMessage,
-    regenerateFromMessage,
-    isRegenerating,
-    updateMessage,
-    deleteMessage,
     checkAndLoadChatFromUrl,
     setIsListening,
     setTranscript,
@@ -109,7 +84,6 @@ export default function AITeacherPage() {
     "granted" | "denied" | "prompt"
   >("prompt");
   const [recentFilesModalOpen, setRecentFilesModalOpen] = useState(false);
-  const [deleteMessageId, setDeleteMessageId] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
@@ -253,18 +227,6 @@ export default function AITeacherPage() {
     speakResponse(content);
   };
 
-  // Handle message deletion
-  const handleDeleteMessage = (messageId: string) => {
-    setDeleteMessageId(messageId);
-  };
-
-  const confirmDeleteMessage = () => {
-    if (deleteMessageId) {
-      deleteMessage(deleteMessageId);
-      setDeleteMessageId(null);
-    }
-  };
-
   if (!speechSupported) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -381,13 +343,7 @@ export default function AITeacherPage() {
                           key={message.id}
                           message={message}
                           isSpeaking={isSpeaking}
-                          isRegenerating={isRegenerating}
                           onReplay={() => replayMessage(message.content)}
-                          onEdit={(content) =>
-                            updateMessage(message.id, content)
-                          }
-                          onDelete={() => handleDeleteMessage(message.id)}
-                          onRegenerate={() => regenerateFromMessage(message.id)}
                         />
                       ))}
                       {/* Streaming Response Display */}
@@ -558,31 +514,6 @@ export default function AITeacherPage() {
         selectedFileId={undefined} // Don't highlight single file as we support multiple
         includeHistory={false}
       />
-
-      {/* Delete Message Confirmation */}
-      <AlertDialog
-        open={!!deleteMessageId}
-        onOpenChange={(open) => !open && setDeleteMessageId(null)}>
-        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-border">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xóa tin nhắn?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc muốn xóa tin nhắn này? Hành động này không thể hoàn
-              tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
-              Hủy
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteMessage}
-              className="bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30">
-              Xóa
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
@@ -591,31 +522,14 @@ export default function AITeacherPage() {
 function MessageBubble({
   message,
   isSpeaking,
-  isRegenerating,
   onReplay,
-  onEdit,
-  onDelete,
-  onRegenerate,
 }: {
   message: AIChatMessage;
   isSpeaking: boolean;
-  isRegenerating: boolean;
   onReplay: () => void;
-  onEdit: (content: string) => void;
-  onDelete: () => void;
-  onRegenerate: () => void;
 }) {
   const isUser = message.role === "user";
-  const [isEditing, setIsEditing] = useState(false);
-  const [editContent, setEditContent] = useState(message.content);
   const { user } = useAuthStore();
-
-  const handleSaveEdit = () => {
-    if (editContent.trim() && editContent !== message.content) {
-      onEdit(editContent.trim());
-    }
-    setIsEditing(false);
-  };
 
   return (
     <div
@@ -654,7 +568,7 @@ function MessageBubble({
           </div>
         )}
 
-        {/* Document Card - styled like image attachment */}
+        {/* Document Card */}
         {message.documentName && (
           <div className="mb-2">
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit">
@@ -674,39 +588,16 @@ function MessageBubble({
               ? "bg-primary text-primary-foreground rounded-tr-sm"
               : "bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-tl-sm"
           )}>
-          {isEditing ? (
-            <div className="flex flex-col gap-2">
-              <textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                className="bg-transparent border-none outline-none resize-none text-sm w-full min-h-[60px]"
-                autoFocus
-              />
-              <div className="flex gap-2 justify-end">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7"
-                  onClick={() => setIsEditing(false)}>
-                  Hủy
-                </Button>
-                <Button size="sm" className="h-7" onClick={handleSaveEdit}>
-                  Lưu
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-sm prose dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {message.content}
-              </ReactMarkdown>
-            </div>
-          )}
+          <div className="text-sm prose dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {message.content}
+            </ReactMarkdown>
+          </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {!isUser && (
+        {/* Actions - Only TTS for assistant messages */}
+        {!isUser && (
+          <div className="flex items-center gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="sm"
@@ -716,44 +607,8 @@ function MessageBubble({
               <Volume2 className="w-3 h-3 mr-1" />
               Đọc lại
             </Button>
-          )}
-
-          {isUser && !isEditing && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-muted-foreground">
-                  <MoreVertical className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-background/95 backdrop-blur-xl">
-                <DropdownMenuItem
-                  onClick={onRegenerate}
-                  disabled={isRegenerating}>
-                  <RefreshCw
-                    className={cn(
-                      "w-4 h-4 mr-2",
-                      isRegenerating && "animate-spin"
-                    )}
-                  />
-                  Tạo lại câu trả lời
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Chỉnh sửa
-                </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-500" onClick={onDelete}>
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Xóa
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
