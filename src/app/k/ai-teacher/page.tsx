@@ -116,6 +116,19 @@ export default function AITeacherPage() {
     }
   }, [messages, streamingContent, isProcessing, isProcessingPdf]);
 
+  // Page reload guard - warn user if streaming is in progress
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isStreaming || isProcessing) {
+        e.preventDefault();
+        e.returnValue = "Đang trả lời. Bạn có chắc muốn rời đi?";
+        return "Đang trả lời. Bạn có chắc muốn rời đi?";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isStreaming, isProcessing]);
+
   // Initialize speech recognition
   const initRecognition = useCallback(() => {
     if (!isSpeechRecognitionSupported()) return null;

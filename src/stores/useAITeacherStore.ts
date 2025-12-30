@@ -246,11 +246,16 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   },
 
   selectChat: async (chatId: string | null, updateUrl = true) => {
-    // Abort any ongoing stream
+    // Abort any ongoing stream and clear ALL streaming state
     const { abortStream } = get();
     if (abortStream) {
       abortStream();
-      set({ abortStream: null, isStreaming: false, streamingContent: "" });
+      set({
+        abortStream: null,
+        isStreaming: false,
+        isProcessing: false, // Clear processing state too
+        streamingContent: "",
+      });
     }
 
     if (chatId === null) {
@@ -410,6 +415,24 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       selectedUploads: [], // Clear files after syncing
     });
 
+    // Create a temporary user message to show immediately
+    const tempMessageId = `temp-${Date.now()}`;
+    const tempUserMessage: AIChatMessage = {
+      id: tempMessageId,
+      chatId,
+      role: "user",
+      content: message,
+      imageUrl: uploadedImageUrl || undefined,
+      documentId: realDocs.length > 0 ? realDocs[0].id : undefined,
+      documentName: realDocs.length > 0 ? realDocs[0].filename : undefined,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Add temp message to show immediately
+    set((state) => ({
+      messages: [...state.messages, tempUserMessage],
+    }));
+
     const request: SendMessageRequest = {
       message,
       imageUrl: uploadedImageUrl || undefined,
@@ -428,10 +451,12 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
           streamingContent: state.streamingContent + chunk,
         }));
       },
-      // onUserMessage
+      // onUserMessage - replace temp message with real one from server
       (userMessage: AIChatMessage) => {
         set((state) => ({
-          messages: [...state.messages, userMessage],
+          messages: state.messages.map((m) =>
+            m.id === tempMessageId ? userMessage : m
+          ),
         }));
       },
       // onComplete

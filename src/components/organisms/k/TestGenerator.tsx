@@ -43,7 +43,6 @@ import {
 } from "@/components/organisms/k/DialogAddExam";
 import { cn } from "@/lib/utils";
 import { useGenerationGuard } from "@/hooks/useGenerationGuard";
-import { ModelSelector } from "@/components/atoms/ModelSelector";
 
 export function TestGenerator() {
   const {
@@ -53,14 +52,12 @@ export function TestGenerator() {
     questionCount,
     isNarrow,
     keyword,
-    selectedModel,
     generatedTest,
     isGenerating,
     setFile,
     setQuestionCount,
     setIsNarrow,
     setKeyword,
-    setSelectedModel,
     generateTest,
     clearTest,
   } = useTestGeneratorStore();
@@ -189,16 +186,6 @@ export function TestGenerator() {
               onRemove={handleRemoveFile}
             />
           )}
-
-          {/* AI Model Selection */}
-          <div className="space-y-2">
-            <Label className="text-muted-foreground">Model AI</Label>
-            <ModelSelector
-              value={selectedModel}
-              onChange={setSelectedModel}
-              disabled={isGenerating}
-            />
-          </div>
 
           {/* Question Count */}
           <div className="space-y-3">
