@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,25 +39,20 @@ export function QuizSetForm({
   onCancel,
   submitLabel = "Lưu",
 }: QuizSetFormProps) {
-  // State quản lý form data
-  const [formData, setFormData] = useState<QuizSetFormData>({
-    title: "",
-    description: "",
-    isPublic: false,
-    isPinned: false,
-    tags: [],
-    thumbnail: "",
-  });
+  // State quản lý form data - khởi tạo từ initialData nếu có
+  const [formData, setFormData] = useState<QuizSetFormData>(
+    initialData || {
+      title: "",
+      description: "",
+      isPublic: false,
+      isPinned: false,
+      tags: [],
+      thumbnail: "",
+    }
+  );
 
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Load initial data nếu có (cho edit mode)
-  useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    }
-  }, [initialData]);
 
   /**
    * Validate form data

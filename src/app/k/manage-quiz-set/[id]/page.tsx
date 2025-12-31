@@ -8,7 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Edit, Trash2, FileText, PlayCircle } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  FileText,
+  PlayCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Quizz } from "@/types/quizset";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import { QuestionEditorDialog } from "@/components/organisms/QuestionEditorDialog";
@@ -21,6 +29,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getQuizSetQuestionsApi, type PaginationInfo } from "@/apis/quizsetApi";
 
 /**
  * Quiz Set Detail Page
@@ -49,12 +58,43 @@ export default function QuizSetDetailPage({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState<string | null>(null);
 
-  // Fetch quiz set by ID
+  // Pagination state - now fetched from backend
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedQuestions, setPaginatedQuestions] = useState<Quizz[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const itemsPerPage = 9;
+
+  // Fetch quiz set by ID (basic info only)
   useEffect(() => {
     if (id) {
       fetchQuizSetById(id);
     }
   }, [id, fetchQuizSetById]);
+
+  // Fetch paginated questions from backend
+  const fetchQuestions = useCallback(async () => {
+    if (!id) return;
+
+    setQuestionsLoading(true);
+    try {
+      const response = await getQuizSetQuestionsApi(
+        id,
+        currentPage,
+        itemsPerPage
+      );
+      setPaginatedQuestions(response.questions);
+      setPagination(response.pagination);
+    } catch (error) {
+      console.error("Failed to fetch questions:", error);
+    } finally {
+      setQuestionsLoading(false);
+    }
+  }, [id, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   // Handlers
   const handleAddQuestion = useCallback(() => {
@@ -81,8 +121,22 @@ export default function QuizSetDetailPage({
       await deleteQuestion(id, questionToDelete);
       setIsDeleteDialogOpen(false);
       setQuestionToDelete(null);
+      // Refetch questions after delete
+      // If current page has no items, go back to previous page
+      if (paginatedQuestions.length === 1 && currentPage > 1) {
+        setCurrentPage((prev) => prev - 1);
+      } else {
+        fetchQuestions();
+      }
     }
-  }, [questionToDelete, id, deleteQuestion]);
+  }, [
+    questionToDelete,
+    id,
+    deleteQuestion,
+    paginatedQuestions.length,
+    currentPage,
+    fetchQuestions,
+  ]);
 
   const handleSaveQuestion = useCallback(
     async (questionData: any) => {
@@ -97,9 +151,15 @@ export default function QuizSetDetailPage({
       }
       setShowQuestionForm(false);
       setSelectedQuestion(null);
+      // Refetch questions to get updated list
+      fetchQuestions();
     },
-    [selectedQuestion, id, addQuestion, updateQuestion]
+    [selectedQuestion, id, addQuestion, updateQuestion, fetchQuestions]
   );
+
+  // Derived values from pagination
+  const totalQuestions = pagination?.total || 0;
+  const totalPages = pagination?.totalPages || 0;
 
   // Loading state
   if (loading || !currentQuizSet) {
@@ -211,76 +271,153 @@ export default function QuizSetDetailPage({
         {/* Questions List */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold">Danh sách câu hỏi</h2>
+            <h2 className="text-xl font-semibold">
+              Danh sách câu hỏi
+              {totalQuestions > 0 && (
+                <span className="text-sm font-normal text-muted-foreground ml-2">
+                  ({totalQuestions} câu)
+                </span>
+              )}
+            </h2>
             <Button onClick={handleAddQuestion} disabled={showQuestionForm}>
               <Plus className="mr-2 h-4 w-4" />
               Thêm câu hỏi
             </Button>
           </div>
 
-          {currentQuizSet.questions && currentQuizSet.questions.length > 0 ? (
+          {questionsLoading ? (
             <div className="space-y-4">
-              {currentQuizSet.questions.map((question, index) => (
-                <Card
-                  key={question.id}
-                  className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="mb-2">
-                        <RichTextViewer content={question.question} />
-                      </div>
-                      <div className="space-y-1">
-                        {question.options.map((option, optIndex) => {
-                          // Compare with letter (A, B, C, D) or index
-                          const optionLetter = String.fromCharCode(
-                            65 + optIndex
-                          );
-                          const isCorrect =
-                            question.answer === optionLetter ||
-                            question.answer === optIndex.toString();
-                          return (
-                            <div
-                              key={optIndex}
-                              className={`text-sm p-2 rounded flex items-start gap-2 ${
-                                isCorrect
-                                  ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
-                                  : "bg-muted/50"
-                              }`}>
-                              <div className="flex-1">
-                                <RichTextViewer content={option} />
-                              </div>
-                              {isCorrect && (
-                                <span className="ml-2 flex-shrink-0">
-                                  ✓ Đáp án đúng
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditQuestion(question)}
-                        disabled={showQuestionForm}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="errorGhost"
-                        size="sm"
-                        onClick={() => handleDeleteQuestion(question.id)}
-                        disabled={showQuestionForm}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 w-full" />
               ))}
+            </div>
+          ) : paginatedQuestions && paginatedQuestions.length > 0 ? (
+            <div className="space-y-4">
+              {paginatedQuestions.map((question, index) => {
+                // Calculate actual index across all pages
+                const actualIndex = (currentPage - 1) * itemsPerPage + index;
+                return (
+                  <Card
+                    key={question.id}
+                    className="p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                        {actualIndex + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="mb-2">
+                          <RichTextViewer content={question.question} />
+                        </div>
+                        <div className="space-y-1">
+                          {question.options.map((option, optIndex) => {
+                            // Compare with letter (A, B, C, D) or index
+                            const optionLetter = String.fromCharCode(
+                              65 + optIndex
+                            );
+                            const isCorrect =
+                              question.answer === optionLetter ||
+                              question.answer === optIndex.toString();
+                            return (
+                              <div
+                                key={optIndex}
+                                className={`text-sm p-2 rounded flex items-start gap-2 ${
+                                  isCorrect
+                                    ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
+                                    : "bg-muted/50"
+                                }`}>
+                                <div className="flex-1">
+                                  <RichTextViewer content={option} />
+                                </div>
+                                {isCorrect && (
+                                  <span className="ml-2 flex-shrink-0">
+                                    ✓ Đáp án đúng
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditQuestion(question)}
+                          disabled={showQuestionForm}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="errorGhost"
+                          size="sm"
+                          onClick={() => handleDeleteQuestion(question.id)}
+                          disabled={showQuestionForm}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{" "}
+                    {Math.min(currentPage * itemsPerPage, totalQuestions)} /{" "}
+                    {totalQuestions} câu hỏi
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}>
+                      <ChevronLeft className="h-4 w-4" />
+                      Trước
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          let pageNum: number;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={
+                                currentPage === pageNum ? "default" : "outline"
+                              }
+                              size="sm"
+                              className="w-8 h-8 p-0"
+                              onClick={() => setCurrentPage(pageNum)}>
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}>
+                      Sau
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground">

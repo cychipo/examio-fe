@@ -35,18 +35,33 @@ function transformPDFHistory(
       description = `Tạo ${quizCount} câu hỏi`;
     } else if (flashcardCount > 0) {
       description = `Tạo ${flashcardCount} flashcard`;
+    } else if (item.processingStatus === "COMPLETED") {
+      description = "Đã xử lý - sẵn sàng tạo nội dung";
+    } else if (item.processingStatus === "FAILED") {
+      description = "Xử lý thất bại";
     } else {
       description = "Đang xử lý...";
+    }
+
+    // Status based on processingStatus field from backend
+    let status: "completed" | "processing" | "failed";
+    if (
+      item.processingStatus === "COMPLETED" ||
+      quizCount > 0 ||
+      flashcardCount > 0
+    ) {
+      status = "completed";
+    } else if (item.processingStatus === "FAILED") {
+      status = "failed";
+    } else {
+      status = "processing";
     }
 
     return {
       id: item.id,
       fileName: item.filename,
       description,
-      status:
-        quizCount > 0 || flashcardCount > 0
-          ? ("completed" as const)
-          : ("processing" as const),
+      status,
       createdAt: formatTimeAgo(item.createdAt),
     };
   });

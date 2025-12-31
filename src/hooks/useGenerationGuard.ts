@@ -11,17 +11,12 @@ import { useJobStore } from "@/stores/useAIGeneratorStore";
  * We cannot show custom dialogs or make async calls during beforeunload.
  * Instead, we show the native browser confirmation dialog.
  *
- * If the user confirms reload, the job will be orphaned on the server.
- * The store's checkAndCleanupPendingJob will handle cleanup on next page load.
+ * If the user confirms reload, the job will continue on the server.
+ * On next page load, the layout's checkForPendingJob will detect it and show a dialog
+ * asking the user if they want to resume or cancel the pending job.
  */
 export function useGenerationGuard(isGenerating: boolean) {
-  const { currentJobId, cancelCurrentJob, checkAndCleanupPendingJob } =
-    useJobStore();
-
-  // Check for orphaned jobs on mount
-  useEffect(() => {
-    checkAndCleanupPendingJob();
-  }, [checkAndCleanupPendingJob]);
+  const { currentJobId, cancelCurrentJob } = useJobStore();
 
   // Handle beforeunload event
   const handleBeforeUnload = useCallback(

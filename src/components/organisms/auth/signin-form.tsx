@@ -36,7 +36,7 @@ export function SigninForm() {
       await login({ credential, password });
       // Đợi một chút để cookie được set
       await new Promise((resolve) => setTimeout(resolve, 100));
-      router.push(decodeURIComponent(from) || "/k");
+      router.push(from ? decodeURIComponent(from) : "/k");
     } catch (error) {
       console.error("Login failed:", error);
     }

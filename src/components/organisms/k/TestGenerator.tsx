@@ -73,7 +73,28 @@ export function TestGenerator() {
   const displayFileSize = file?.size || fileInfo?.size;
   const hasFile = !!file || !!uploadId;
 
-  const handleFileUpload = (uploadedFile: File) => {
+  const handleFileUpload = async (uploadedFile: File) => {
+    // Validate PDF page count before accepting the file
+    try {
+      const { valid, pageCount } = await validatePdfPageCount(uploadedFile, 50);
+      if (!valid) {
+        toast({
+          title: "File PDF quá lớn",
+          description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch (error) {
+      toast({
+        title: "Lỗi đọc file PDF",
+        description:
+          error instanceof Error ? error.message : "Không thể đọc file PDF",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setFile(uploadedFile);
     toast({
       title: "File đã được tải lên",

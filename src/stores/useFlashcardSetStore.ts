@@ -317,8 +317,17 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       toast.success("Thêm flashcard thành công");
 
-      // Invalidate all cache
+      // Invalidate all cache and refetch current flashcard set
       storeCache.clear();
+
+      // Refetch to ensure we have the latest data from server
+      const freshFlashcardSet = await getFlashcardSetByIdApi(flashcardSetId);
+      set({
+        currentFlashcardSet: {
+          ...freshFlashcardSet,
+          flashCards: freshFlashcardSet.flashCards || [],
+        },
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -370,8 +379,17 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       toast.success("Cập nhật flashcard thành công");
 
-      // Invalidate all cache
+      // Invalidate all cache and refetch current flashcard set
       storeCache.clear();
+
+      // Refetch to ensure we have the latest data from server
+      const freshFlashcardSet = await getFlashcardSetByIdApi(flashcardSetId);
+      set({
+        currentFlashcardSet: {
+          ...freshFlashcardSet,
+          flashCards: freshFlashcardSet.flashCards || [],
+        },
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
@@ -415,8 +433,17 @@ export const useFlashcardSetStore = create<FlashcardSetStore>((set) => ({
 
       toast.success("Xóa flashcard thành công");
 
-      // Invalidate all cache
+      // Invalidate all cache and refetch current flashcard set
       storeCache.clear();
+
+      // Refetch to ensure we have the latest data from server
+      const freshFlashcardSet = await getFlashcardSetByIdApi(flashcardSetId);
+      set({
+        currentFlashcardSet: {
+          ...freshFlashcardSet,
+          flashCards: freshFlashcardSet.flashCards || [],
+        },
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";

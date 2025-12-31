@@ -60,6 +60,7 @@ export function QuizSetModal({
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <QuizSetForm
+            key={initialData ? JSON.stringify(initialData) : "create"}
             initialData={initialData}
             isLoading={isLoading}
             onSubmit={onSubmit}
@@ -80,6 +81,7 @@ export function QuizSetModal({
         </DrawerHeader>
         <div className="overflow-y-auto px-1 pb-4">
           <QuizSetForm
+            key={initialData ? JSON.stringify(initialData) : "create"}
             initialData={initialData}
             isLoading={isLoading}
             onSubmit={onSubmit}
