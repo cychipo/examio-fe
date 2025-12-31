@@ -17,7 +17,9 @@ import {
   AnnouncementTitle,
 } from "@/components/ui/announcement";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useJobStore } from "@/stores/useAIGeneratorStore";
 import { useRouter } from "next/navigation";
+import { PendingJobDialog } from "@/components/organisms/PendingJobDialog";
 
 export default function RootLayout({
   children,
@@ -27,16 +29,26 @@ export default function RootLayout({
   // Sync token from localStorage to cookie on mount
   useAuthSync();
   const { user, sendVerificationEmail, loading } = useAuthStore();
+  const {
+    showPendingJobDialog,
+    resumePendingJob,
+    cancelPendingJob,
+    closePendingJobDialog,
+    checkForPendingJob,
+  } = useJobStore();
   const { isDarkMode, setTheme } = useThemeContext();
   const isDesktop = useIsDesktop();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [showVerifyAlert, setShowVerifyAlert] = useState(true);
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [isCancelingJob, setIsCancelingJob] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Check for pending jobs on mount
+    checkForPendingJob();
+  }, [checkForPendingJob]);
 
   function handleThemeToggle(checked: boolean) {
     setTheme(checked ? "dark" : "light");
@@ -50,6 +62,21 @@ export default function RootLayout({
       console.error("Failed to send verification email:", error);
     } finally {
       setSendingEmail(false);
+    }
+  };
+
+  const handleContinueJob = () => {
+    resumePendingJob();
+    // Navigate to ai-tool page to see the result
+    router.push("/k/ai-tool");
+  };
+
+  const handleCancelJob = async () => {
+    setIsCancelingJob(true);
+    try {
+      await cancelPendingJob();
+    } finally {
+      setIsCancelingJob(false);
     }
   };
 
@@ -147,6 +174,15 @@ export default function RootLayout({
         </header>
         {children}
       </div>
+
+      {/* Pending Job Dialog */}
+      <PendingJobDialog
+        open={showPendingJobDialog}
+        onOpenChange={closePendingJobDialog}
+        isLoading={isCancelingJob}
+        onContinue={handleContinueJob}
+        onCancel={handleCancelJob}
+      />
     </div>
   );
 }

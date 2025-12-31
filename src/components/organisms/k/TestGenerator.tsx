@@ -88,7 +88,8 @@ export function TestGenerator() {
     } catch (error) {
       toast({
         title: "Lỗi đọc file PDF",
-        description: error instanceof Error ? error.message : "Không thể đọc file PDF",
+        description:
+          error instanceof Error ? error.message : "Không thể đọc file PDF",
         variant: "destructive",
       });
       return;

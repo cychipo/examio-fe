@@ -36,6 +36,7 @@ export interface SendMessageRequest {
   documentId?: string;
   documentIds?: string[];
   documentName?: string;
+  modelType?: string; // 'gemini' or 'fayedark'
 }
 
 export interface SendMessageResponse {

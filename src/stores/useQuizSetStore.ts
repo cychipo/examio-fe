@@ -294,8 +294,12 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
 
       toast.success("Thêm câu hỏi thành công");
 
-      // Invalidate all quizsets cache
+      // Invalidate all quizsets cache and refetch current quiz set
       storeCache.clear();
+
+      // Refetch to ensure we have the latest data from server
+      const freshQuizSet = await getQuizSetByIdApi(quizSetId);
+      set({ currentQuizSet: freshQuizSet });
     } catch (error) {
       toast.error("Thêm câu hỏi thất bại", {
         description: (error as Error).message,
@@ -338,8 +342,12 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
 
       toast.success("Cập nhật câu hỏi thành công");
 
-      // Invalidate all cache
+      // Invalidate all cache and refetch current quiz set
       storeCache.clear();
+
+      // Refetch to ensure we have the latest data from server
+      const freshQuizSet = await getQuizSetByIdApi(quizSetId);
+      set({ currentQuizSet: freshQuizSet });
     } catch (error) {
       toast.error("Cập nhật câu hỏi thất bại", {
         description: (error as Error).message,
@@ -374,8 +382,12 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
 
       toast.success("Xóa câu hỏi thành công");
 
-      // Invalidate all cache
+      // Invalidate all cache and refetch current quiz set
       storeCache.clear();
+
+      // Refetch to ensure we have the latest data from server
+      const freshQuizSet = await getQuizSetByIdApi(quizSetId);
+      set({ currentQuizSet: freshQuizSet });
     } catch (error) {
       toast.error("Xóa câu hỏi thất bại", {
         description: (error as Error).message,

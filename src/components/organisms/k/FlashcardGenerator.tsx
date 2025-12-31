@@ -89,7 +89,8 @@ export function FlashcardGenerator() {
     } catch (error) {
       toast({
         title: "Lỗi đọc file PDF",
-        description: error instanceof Error ? error.message : "Không thể đọc file PDF",
+        description:
+          error instanceof Error ? error.message : "Không thể đọc file PDF",
         variant: "destructive",
       });
       return;
@@ -362,6 +363,7 @@ export function FlashcardGenerator() {
               {/* Flashcard */}
               {generatedCards[currentCard] && (
                 <FlipCard
+                  key={currentCard}
                   front={{
                     label: "Câu hỏi",
                     content: generatedCards[currentCard].question,

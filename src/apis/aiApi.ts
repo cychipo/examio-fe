@@ -45,6 +45,7 @@ export interface RegenerateParams {
   quantityQuizz?: number;
   isNarrowSearch?: boolean;
   keyword?: string;
+  modelType?: string; // 'gemini' or 'fayedark'
 }
 
 export interface RegenerateResponse {
@@ -61,6 +62,7 @@ export interface RegenerateResponse {
 // Job response when creating regenerate job
 export interface JobCreateResponse {
   jobId: string;
+  newBalance?: number;
 }
 
 export const aiApi = {
@@ -129,6 +131,26 @@ export const aiApi = {
     jobId: string
   ): Promise<{ success: boolean; message: string }> => {
     const response = await api.delete(`/ai/job/${jobId}`);
+    return response.data;
+  },
+
+  /**
+   * Get full quiz and flashcard history for an upload
+   * Used when selecting a recent file to load previous results
+   */
+  getUploadHistory: async (
+    uploadId: string
+  ): Promise<{
+    uploadId: string;
+    filename: string;
+    quizHistory: { id: string; quizzes: Quizz[]; createdAt: string } | null;
+    flashcardHistory: {
+      id: string;
+      flashcards: Flashcard[];
+      createdAt: string;
+    } | null;
+  }> => {
+    const response = await api.get(`/ai/upload/${uploadId}/history`);
     return response.data;
   },
 };

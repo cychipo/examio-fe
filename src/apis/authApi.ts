@@ -73,8 +73,11 @@ export async function resetPasswordApi(
   return response.data;
 }
 
-export async function getUserApi(): Promise<{ user: User }> {
-  const response = await api.get("/auth/me");
+export async function getUserApi(
+  forceRefresh = false
+): Promise<{ user: User }> {
+  const params = forceRefresh ? `?_t=${Date.now()}` : "";
+  const response = await api.get(`/auth/me${params}`);
   return response.data;
 }
 

@@ -16,6 +16,7 @@ export interface PDFHistoryItem {
   size: number;
   mimetype: string;
   createdAt: string;
+  processingStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
   quizHistory: {
     id: string;
     quizzes: unknown[];
@@ -75,9 +76,12 @@ export async function getHistoryStatsApi(): Promise<HistoryStats> {
 /**
  * Get PDF processing history (recent uploads)
  */
-export async function getPDFHistoryApi(limit: number = 10): Promise<PDFHistoryItem[]> {
+export async function getPDFHistoryApi(
+  limit: number = 10
+): Promise<PDFHistoryItem[]> {
   const response = await api.get(`/ai/recent-uploads?limit=${limit}`);
-  return response.data;
+  // API returns paginated response {data: [], total, page, size}, extract data array
+  return response.data.data || response.data;
 }
 
 /**
@@ -88,7 +92,7 @@ export async function getExamHistoryApi(
   limit: number = 10
 ): Promise<ExamHistoryResponse> {
   const response = await api.get("/examattempts/list", {
-    params: { page, limit }
+    params: { page, limit },
   });
   return response.data;
 }

@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/toast";
 import { RecentUpload } from "@/apis/aiApi";
 import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
+import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -19,6 +20,9 @@ const TTS_CONFIG = {
 };
 
 interface AITeacherState {
+  // AI Model selection
+  selectedModel: AIModelType;
+
   // Chat list
   chats: AIChat[];
   isLoadingChats: boolean;
@@ -36,7 +40,6 @@ interface AITeacherState {
   isListening: boolean;
   isSpeaking: boolean;
   isProcessing: boolean;
-  isRegenerating: boolean;
   transcript: string;
   usedMicForLastMessage: boolean;
 
@@ -64,9 +67,6 @@ interface AITeacherState {
 
   // Actions - Messages (now with streaming)
   sendMessage: (message: string, fromMic?: boolean) => Promise<void>;
-  regenerateFromMessage: (messageId: string) => Promise<void>;
-  updateMessage: (messageId: string, content: string) => Promise<void>;
-  deleteMessage: (messageId: string) => Promise<void>;
 
   // Actions - Input
   setIsListening: (value: boolean) => void;
@@ -84,6 +84,9 @@ interface AITeacherState {
   speakResponse: (text: string) => void;
   stopSpeaking: () => void;
   setIsSpeaking: (value: boolean) => void;
+
+  // Actions - Model selection
+  setSelectedModel: (model: AIModelType) => void;
 
   // Actions - Clear
   clearCurrentChat: () => void;
@@ -134,6 +137,27 @@ const buildTTSUrl = (text: string): string => {
   return `${TTS_CONFIG.API_URL}?${params.toString()}`;
 };
 
+/**
+ * Strip markdown characters from text for clean TTS reading
+ */
+const stripMarkdown = (text: string): string => {
+  return text
+    .replace(/#{1,6}\s/g, "") // Headers
+    .replace(/\*\*([^*]+)\*\*/g, "$1") // Bold **text**
+    .replace(/\*([^*]+)\*/g, "$1") // Italic *text*
+    .replace(/__([^_]+)__/g, "$1") // Bold alt __text__
+    .replace(/_([^_]+)_/g, "$1") // Italic alt _text_
+    .replace(/~~([^~]+)~~/g, "$1") // Strikethrough
+    .replace(/`([^`]+)`/g, "$1") // Inline code
+    .replace(/```[\s\S]*?```/g, "") // Code blocks
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Links [text](url)
+    .replace(/^\s*[-*+]\s/gm, "") // List bullets
+    .replace(/^\s*\d+\.\s/gm, "") // Numbered lists
+    .replace(/>\s/g, "") // Blockquotes
+    .replace(/\n{3,}/g, "\n\n") // Multiple newlines
+    .trim();
+};
+
 // URL Query helpers
 const updateUrlQuery = (chatId: string | null) => {
   if (typeof window === "undefined") return;
@@ -154,6 +178,7 @@ const getChatIdFromUrl = (): string | null => {
 
 export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   // Initial states
+  selectedModel: DEFAULT_AI_MODEL,
   chats: [],
   isLoadingChats: false,
   selectedChatId: null,
@@ -164,7 +189,6 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   isListening: false,
   isSpeaking: false,
   isProcessing: false,
-  isRegenerating: false,
   transcript: "",
   usedMicForLastMessage: false,
   selectedUploads: [],
@@ -222,11 +246,16 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   },
 
   selectChat: async (chatId: string | null, updateUrl = true) => {
-    // Abort any ongoing stream
+    // Abort any ongoing stream and clear ALL streaming state
     const { abortStream } = get();
     if (abortStream) {
       abortStream();
-      set({ abortStream: null, isStreaming: false, streamingContent: "" });
+      set({
+        abortStream: null,
+        isStreaming: false,
+        isProcessing: false, // Clear processing state too
+        streamingContent: "",
+      });
     }
 
     if (chatId === null) {
@@ -341,6 +370,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       selectedChatId,
       selectedUploads,
       uploadedImageUrl,
+      selectedModel,
       createChat,
       speakResponse,
       stopSpeaking,
@@ -385,12 +415,31 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       selectedUploads: [], // Clear files after syncing
     });
 
+    // Create a temporary user message to show immediately
+    const tempMessageId = `temp-${Date.now()}`;
+    const tempUserMessage: AIChatMessage = {
+      id: tempMessageId,
+      chatId,
+      role: "user",
+      content: message,
+      imageUrl: uploadedImageUrl || undefined,
+      documentId: realDocs.length > 0 ? realDocs[0].id : undefined,
+      documentName: realDocs.length > 0 ? realDocs[0].filename : undefined,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Add temp message to show immediately
+    set((state) => ({
+      messages: [...state.messages, tempUserMessage],
+    }));
+
     const request: SendMessageRequest = {
       message,
       imageUrl: uploadedImageUrl || undefined,
       documentIds: realDocs.length > 0 ? realDocs.map((d) => d.id) : undefined,
       documentId: realDocs.length > 0 ? realDocs[0].id : undefined, // Legacy
       documentName: realDocs.length > 0 ? realDocs[0].filename : undefined, // Legacy
+      modelType: selectedModel, // Add model type to request
     };
 
     const abort = aiChatApi.streamMessage(
@@ -402,10 +451,12 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
           streamingContent: state.streamingContent + chunk,
         }));
       },
-      // onUserMessage
+      // onUserMessage - replace temp message with real one from server
       (userMessage: AIChatMessage) => {
         set((state) => ({
-          messages: [...state.messages, userMessage],
+          messages: state.messages.map((m) =>
+            m.id === tempMessageId ? userMessage : m
+          ),
         }));
       },
       // onComplete
@@ -459,114 +510,6 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     );
 
     set({ abortStream: abort });
-  },
-
-  regenerateFromMessage: async (messageId: string) => {
-    const { stopSpeaking, abortStream } = get();
-
-    if (abortStream) {
-      abortStream();
-    }
-
-    stopSpeaking();
-    set({
-      isRegenerating: true,
-      isStreaming: true,
-      streamingContent: "",
-    });
-
-    const abort = aiChatApi.streamRegenerate(
-      messageId,
-      // onChunk
-      (chunk: string) => {
-        set((state) => ({
-          streamingContent: state.streamingContent + chunk,
-        }));
-      },
-      // onMessagesDeleted
-      (chatId: string, userMessage: AIChatMessage) => {
-        // Remove all messages after the user message
-        set((state) => {
-          const userMsgIndex = state.messages.findIndex(
-            (m) => m.id === userMessage.id
-          );
-          if (userMsgIndex >= 0) {
-            return {
-              messages: state.messages.slice(0, userMsgIndex + 1),
-            };
-          }
-          return state;
-        });
-      },
-      // onComplete
-      (assistantMessage: AIChatMessage | null) => {
-        if (assistantMessage) {
-          // First add the message
-          set((state) => ({
-            messages: [...state.messages, assistantMessage],
-          }));
-
-          // Then clear streaming state after delay
-          setTimeout(() => {
-            set({
-              isRegenerating: false,
-              isStreaming: false,
-              streamingContent: "",
-              abortStream: null,
-            });
-          }, 50);
-
-          toast.success("Đã tạo lại câu trả lời");
-        } else {
-          set({
-            isRegenerating: false,
-            isStreaming: false,
-            streamingContent: "",
-            abortStream: null,
-          });
-        }
-      },
-      // onError
-      (error: string) => {
-        set({
-          isRegenerating: false,
-          isStreaming: false,
-          streamingContent: "",
-          abortStream: null,
-        });
-        toast.error(error);
-      }
-    );
-
-    set({ abortStream: abort });
-  },
-
-  updateMessage: async (messageId: string, content: string) => {
-    try {
-      const updated = await aiChatApi.updateMessage(messageId, { content });
-      set((state) => ({
-        messages: state.messages.map((m) =>
-          m.id === messageId ? { ...m, content: updated.content } : m
-        ),
-      }));
-      toast.success("Đã cập nhật tin nhắn");
-    } catch (error) {
-      console.error("Error updating message:", error);
-      toast.error("Không thể cập nhật tin nhắn");
-    }
-  },
-
-  deleteMessage: async (messageId: string) => {
-    try {
-      await aiChatApi.deleteMessage(messageId);
-      set((state) => ({
-        messages: state.messages.filter((m) => m.id !== messageId),
-      }));
-      toast.success("Đã xóa tin nhắn");
-    } catch (error) {
-      console.error("Error deleting message:", error);
-      toast.error("Không thể xóa tin nhắn");
-    }
   },
 
   // ================== INPUT ==================
@@ -694,7 +637,9 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     const { stopSpeaking, setIsSpeaking } = get();
     stopSpeaking();
 
-    const chunks = splitTextIntoChunks(text, TTS_CONFIG.MAX_CHUNK_LENGTH);
+    // Strip markdown before splitting into chunks
+    const cleanText = stripMarkdown(text);
+    const chunks = splitTextIntoChunks(cleanText, TTS_CONFIG.MAX_CHUNK_LENGTH);
     if (chunks.length === 0) return;
 
     const audioUrls = chunks.map((chunk) => buildTTSUrl(chunk));
@@ -755,6 +700,12 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       currentAudio: null,
       audioQueue: [],
     });
+  },
+
+  // ================== MODEL SELECTION ==================
+
+  setSelectedModel: (model: AIModelType) => {
+    set({ selectedModel: model });
   },
 
   // ================== CLEAR ==================

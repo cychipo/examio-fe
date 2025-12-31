@@ -61,6 +61,7 @@ export function FlashcardSetModal({
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
           <FlashcardSetForm
+            key={initialData ? JSON.stringify(initialData) : "create"}
             initialData={initialData}
             isLoading={isLoading}
             onSubmit={onSubmit}
@@ -81,6 +82,7 @@ export function FlashcardSetModal({
         </DrawerHeader>
         <div className="overflow-y-auto px-1 pb-4">
           <FlashcardSetForm
+            key={initialData ? JSON.stringify(initialData) : "create"}
             initialData={initialData}
             isLoading={isLoading}
             onSubmit={onSubmit}

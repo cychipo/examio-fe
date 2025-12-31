@@ -8,12 +8,14 @@ export interface CredentialsGenerateExam {
   typeResult: TypeResultGenerateExam;
   isNarrowSearch: boolean;
   keyword?: string; // valuable when valuable isNarrowSearch is true
+  modelType?: string; // 'gemini' or 'fayedark'
 }
 
 export interface ResponseGenerateExam {
   jobId: string;
   status: string;
   message: string;
+  newBalance?: number;
 }
 
 export async function generateExamApi(
@@ -34,6 +36,9 @@ export async function generateExamApi(
   }
   if (credentials.keyword) {
     formData.append("keyword", credentials.keyword);
+  }
+  if (credentials.modelType) {
+    formData.append("modelType", credentials.modelType);
   }
 
   const response = await api.post("/ai/generate-from-file", formData, {
