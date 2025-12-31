@@ -235,6 +235,7 @@ export default function HistoryPage() {
         await downloadFile(pdfItem.url, pdfItem.filename);
         toast.success("Tải file thành công!");
       } catch (error) {
+        console.error("Failed to download file:", error);
         toast.error("Không thể tải file. Vui lòng thử lại.");
       }
     },
