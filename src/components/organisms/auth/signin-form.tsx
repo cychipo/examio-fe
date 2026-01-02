@@ -30,13 +30,13 @@ export function SigninForm() {
     const formData = new FormData(form);
     const credential = formData.get("credential") as string;
     const password = formData.get("password") as string;
-    const from = searchParams.get("from") as string;
+    // searchParams.get already returns the decoded value
+    const from = searchParams.get("from");
 
     try {
       await login({ credential, password });
-      // Đợi một chút để cookie được set
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      router.push(from ? decodeURIComponent(from) : "/k");
+      // Use replace to avoid login page in browser history
+      router.replace(from || "/k");
     } catch (error) {
       console.error("Login failed:", error);
     }
