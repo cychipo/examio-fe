@@ -14,11 +14,16 @@ export type CredentialsSetQuizToQuizset = {
 export type CredentialSetHistoryToQuizset = {
   quizsetIds: string[];
   historyId: string;
+  labelId?: string; // Existing label ID to assign questions to
+  labelName?: string; // Create new label with this name
+  labelColor?: string; // Color for new label
 };
 
 export type ResponseSetQuizzesToQuizset = {
   message?: string;
   createdCount: number;
+  updatedCount?: number;
+  skippedCount?: number;
 };
 
 export type CredentialsGetQuizsets = {
@@ -203,6 +208,7 @@ export type CreateQuestionData = {
   question: string;
   options: string[];
   answer: string;
+  labelId?: string | null;
 };
 
 export type UpdateQuestionData = CreateQuestionData;
@@ -250,6 +256,120 @@ export async function deleteQuestionFromQuizSet(
 ): Promise<{ message: string }> {
   const response = await api.delete(
     `/quizsets/${quizSetId}/questions/${questionId}`
+  );
+  return response.data;
+}
+
+// ==================== Labels API ====================
+
+export interface QuizSetLabel {
+  id: string;
+  quizSetId: string;
+  name: string;
+  description?: string | null;
+  color?: string | null;
+  order: number;
+  questionCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResponseLabels {
+  labels: QuizSetLabel[];
+  unlabeledCount: number;
+}
+
+export interface CreateLabelData {
+  name: string;
+  description?: string;
+  color?: string;
+  order?: number;
+}
+
+export interface UpdateLabelData {
+  name?: string;
+  description?: string | null;
+  color?: string | null;
+  order?: number;
+}
+
+/**
+ * Get all labels for a quiz set
+ */
+export async function getQuizSetLabelsApi(
+  quizSetId: string
+): Promise<ResponseLabels> {
+  const response = await api.get(`/quizsets/${quizSetId}/labels`);
+  return response.data;
+}
+
+/**
+ * Create a new label for a quiz set
+ */
+export async function createLabelApi(
+  quizSetId: string,
+  data: CreateLabelData
+): Promise<{ message: string; label: QuizSetLabel }> {
+  const response = await api.post(`/quizsets/${quizSetId}/labels`, data);
+  return response.data;
+}
+
+/**
+ * Update a label
+ */
+export async function updateLabelApi(
+  quizSetId: string,
+  labelId: string,
+  data: UpdateLabelData
+): Promise<{ message: string; label: QuizSetLabel }> {
+  const response = await api.put(
+    `/quizsets/${quizSetId}/labels/${labelId}`,
+    data
+  );
+  return response.data;
+}
+
+/**
+ * Delete a label
+ */
+export async function deleteLabelApi(
+  quizSetId: string,
+  labelId: string
+): Promise<{ message: string }> {
+  const response = await api.delete(`/quizsets/${quizSetId}/labels/${labelId}`);
+  return response.data;
+}
+
+/**
+ * Assign questions to a label
+ */
+export async function assignQuestionsToLabelApi(
+  quizSetId: string,
+  labelId: string,
+  questionIds: string[]
+): Promise<{ message: string; updatedCount: number }> {
+  const response = await api.post(
+    `/quizsets/${quizSetId}/labels/${labelId}/questions`,
+    { questionIds }
+  );
+  return response.data;
+}
+
+/**
+ * Get questions by label (paginated)
+ */
+export async function getQuestionsByLabelApi(
+  quizSetId: string,
+  labelId: string | null,
+  page: number = 1,
+  limit: number = 100
+): Promise<ResponseQuizSetQuestions> {
+  const actualLabelId = labelId === null ? "unlabeled" : labelId;
+  const response = await api.get(
+    `/quizsets/${quizSetId}/labels/${actualLabelId}/questions`,
+    {
+      params: { page, limit },
+    }
   );
   return response.data;
 }

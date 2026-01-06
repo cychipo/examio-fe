@@ -15,25 +15,35 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Tag } from "lucide-react";
 import { Quizz } from "@/types/quizset";
+import { getQuizSetLabelsApi, QuizSetLabel } from "@/apis/quizsetApi";
 
 interface QuestionEditorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   question: Quizz | null;
   onSave: (data: QuestionFormData) => void;
+  quizSetId?: string; // Optional: để fetch labels
 }
 
 export interface QuestionFormData {
   question: string;
   options: string[];
   answer: string;
+  labelId?: string | null; // Optional: label ID to assign to question
 }
 
 /**
@@ -46,6 +56,7 @@ export function QuestionEditorDialog({
   onOpenChange,
   question,
   onSave,
+  quizSetId,
 }: QuestionEditorDialogProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -53,6 +64,11 @@ export function QuestionEditorDialog({
   const [questionText, setQuestionText] = useState("");
   const [options, setOptions] = useState<string[]>(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState("");
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
+
+  // Labels state
+  const [labels, setLabels] = useState<QuizSetLabel[]>([]);
+  const [loadingLabels, setLoadingLabels] = useState(false);
 
   // Helper: Convert letter answer (A, B, C, D) to index
   const letterToIndex = (letter: string): string => {
@@ -88,14 +104,35 @@ export function QuestionEditorDialog({
         setOptions(filledOptions);
         // Convert letter answer to index for radio selection
         setCorrectAnswer(letterToIndex(question.answer));
+        // Set label if exists
+        setSelectedLabelId(question.label?.id || null);
       } else {
         // Reset form
         setQuestionText("");
         setOptions(["", "", "", ""]);
         setCorrectAnswer("");
+        setSelectedLabelId(null);
       }
     }
   }, [open, question]);
+
+  // Load labels when dialog opens and quizSetId is provided
+  useEffect(() => {
+    if (open && quizSetId) {
+      setLoadingLabels(true);
+      getQuizSetLabelsApi(quizSetId)
+        .then((response) => {
+          setLabels(response.labels);
+        })
+        .catch((error) => {
+          console.error("Failed to load labels:", error);
+          setLabels([]);
+        })
+        .finally(() => {
+          setLoadingLabels(false);
+        });
+    }
+  }, [open, quizSetId]);
 
   const handleAddOption = () => {
     setOptions([...options, ""]);
@@ -143,6 +180,7 @@ export function QuestionEditorDialog({
       question: questionText,
       options: filledOptions,
       answer: indexToLetter(correctAnswer),
+      labelId: selectedLabelId,
     });
 
     // Close dialog
@@ -163,6 +201,47 @@ export function QuestionEditorDialog({
           minHeight="150px"
         />
       </div>
+
+      {/* Label selector */}
+      {quizSetId && labels.length > 0 && (
+        <div className="space-y-2">
+          <Label htmlFor="label" className="flex items-center gap-2">
+            <Tag className="h-4 w-4" />
+            Nhãn (tùy chọn)
+          </Label>
+          <Select
+            value={selectedLabelId || "none"}
+            onValueChange={(value) =>
+              setSelectedLabelId(value === "none" ? null : value)
+            }
+          >
+            <SelectTrigger id="label">
+              <SelectValue placeholder="Chọn nhãn..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">
+                <span className="text-muted-foreground">Không gán nhãn</span>
+              </SelectItem>
+              {labels.map((label) => (
+                <SelectItem key={label.id} value={label.id}>
+                  <div className="flex items-center gap-2">
+                    {label.color && (
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: label.color }}
+                      />
+                    )}
+                    <span>{label.name}</span>
+                    <span className="text-muted-foreground text-xs">
+                      ({label.questionCount || 0} câu)
+                    </span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Options */}
       <div className="space-y-4">

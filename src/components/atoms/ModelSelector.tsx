@@ -24,6 +24,8 @@ interface ModelSelectorProps {
   disabled?: boolean;
   className?: string;
   size?: "sm" | "default";
+  /** Models to disable with custom tooltip messages */
+  disabledModels?: Partial<Record<AIModelType, string>>;
 }
 
 const MODEL_ICONS = {
@@ -44,6 +46,7 @@ export function ModelSelector({
   disabled = false,
   className,
   size = "default",
+  disabledModels = {},
 }: ModelSelectorProps) {
   const selectedModel = AI_MODELS.find((m) => m.id === value) || AI_MODELS[0];
   const IconComponent = MODEL_ICONS[value] || Sparkles;
@@ -79,35 +82,81 @@ export function ModelSelector({
               <SelectContent>
                 {AI_MODELS.map((model) => {
                   const Icon = MODEL_ICONS[model.id] || Sparkles;
+                  const isModelDisabled =
+                    model.disabled || !!disabledModels[model.id];
+                  const disabledTooltip = disabledModels[model.id];
+
+                  const itemContent = (
+                    <div className="flex items-center gap-3 py-1">
+                      <Icon
+                        className={cn(
+                          "size-4",
+                          model.id === "gemini" && "text-blue-500",
+                          model.id === "fayedark" && "text-purple-500",
+                          isModelDisabled && "opacity-50"
+                        )}
+                      />
+                      <div className="flex flex-col gap-0.5">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "font-medium",
+                              isModelDisabled && "opacity-50"
+                            )}>
+                            {model.name}
+                          </span>
+                          {model.badge && !isModelDisabled && (
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] px-1.5 py-0">
+                              {model.badge}
+                            </Badge>
+                          )}
+                          {isModelDisabled && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0 opacity-60">
+                              Coming soon
+                            </Badge>
+                          )}
+                        </div>
+                        <span
+                          className={cn(
+                            "text-xs text-muted-foreground",
+                            isModelDisabled && "opacity-50"
+                          )}>
+                          {model.description}
+                        </span>
+                      </div>
+                    </div>
+                  );
+
+                  if (isModelDisabled && disabledTooltip) {
+                    return (
+                      <Tooltip key={model.id}>
+                        <TooltipTrigger asChild>
+                          <div>
+                            <SelectItem
+                              value={model.id}
+                              disabled={true}
+                              className="cursor-not-allowed">
+                              {itemContent}
+                            </SelectItem>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p className="text-xs">{disabledTooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }
+
                   return (
                     <SelectItem
                       key={model.id}
                       value={model.id}
-                      disabled={model.disabled}>
-                      <div className="flex items-center gap-3 py-1">
-                        <Icon
-                          className={cn(
-                            "size-4",
-                            model.id === "gemini" && "text-blue-500",
-                            model.id === "fayedark" && "text-purple-500"
-                          )}
-                        />
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{model.name}</span>
-                            {model.badge && (
-                              <Badge
-                                variant="secondary"
-                                className="text-[10px] px-1.5 py-0">
-                                {model.badge}
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="text-xs text-muted-foreground">
-                            {model.description}
-                          </span>
-                        </div>
-                      </div>
+                      disabled={isModelDisabled}>
+                      {itemContent}
                     </SelectItem>
                   );
                 })}

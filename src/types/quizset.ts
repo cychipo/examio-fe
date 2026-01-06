@@ -1,3 +1,15 @@
+export interface QuizSetLabel {
+  id: string;
+  quizSetId: string;
+  name: string;
+  description?: string | null;
+  color?: string | null;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  questionCount?: number;
+}
+
 export interface Quizz {
   id: string;
   question: string;
@@ -5,6 +17,7 @@ export interface Quizz {
   answer: string;
   createdAt: string;
   updatedAt: string;
+  label?: QuizSetLabel | null; // Optional label for the question
 }
 
 export interface LastAttemptInfo {

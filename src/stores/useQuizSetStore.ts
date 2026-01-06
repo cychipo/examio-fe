@@ -55,7 +55,7 @@ interface QuizSetState {
   // Question CRUD methods
   addQuestion: (
     quizSetId: string,
-    questionData: CreateQuestionData
+    questionData: CreateQuestionData & { labelId?: string | null }
   ) => Promise<void>;
   updateQuestion: (
     quizSetId: string,
@@ -177,9 +177,14 @@ export const useQuizSetStore = create<QuizSetState>((set) => ({
     try {
       const response: ResponseSetQuizzesToQuizset =
         await setHistoryQuizzesToQuizset(credentials);
-      response.createdCount > 0
-        ? toast.success(`Thêm danh sách câu hỏi vào bộ đề thành công`)
-        : toast.info("Danh sách câu hỏi này đã được thêm trước đó");
+
+      if (response.updatedCount && response.updatedCount > 0) {
+        toast.success(`Đã cập nhật nhãn cho ${response.updatedCount} câu hỏi`);
+      } else if (response.createdCount > 0) {
+        toast.success(`Thêm danh sách câu hỏi vào bộ đề thành công`);
+      } else {
+        toast.info("Danh sách câu hỏi này đã được thêm trước đó");
+      }
 
       // Invalidate cache sau khi thêm câu hỏi
       storeCache.invalidate("quizsets");
