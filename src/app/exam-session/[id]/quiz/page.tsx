@@ -536,7 +536,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
     // Detailed results view
     if (showDetailedResults && resultData.showAnswers && resultData.questions) {
       const reviewQuestion = resultData.questions[reviewQuestionIndex];
-      const userAnswer = answers[reviewQuestion.id];
+      // Use userAnswer from API response (not from local answers state)
+      const userAnswer = reviewQuestion.userAnswer;
       const isCorrect = userAnswer === reviewQuestion.answer;
 
       return (
@@ -679,7 +680,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
 
                     <div className="grid grid-cols-5 gap-2 p-1">
                       {resultData.questions.map((q, index) => {
-                        const qUserAnswer = answers[q.id];
+                        // Use userAnswer from API response (not from local answers state)
+                        const qUserAnswer = q.userAnswer;
                         const qIsCorrect = qUserAnswer === q.answer;
                         const isCurrent = index === reviewQuestionIndex;
 
@@ -711,16 +713,18 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                         <div className="w-4 h-4 bg-destructive rounded" />
                         <span>
                           Sai (
-                          {totalQuestions -
-                            correctAnswersCount -
-                            (totalQuestions - answeredCount)}
+                          {resultData.questions.filter(
+                            (q) => q.userAnswer && q.userAnswer !== q.answer
+                          ).length}
                           )
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-4 h-4 bg-yellow-500 rounded" />
                         <span>
-                          Chưa trả lời ({totalQuestions - answeredCount})
+                          Chưa trả lời (
+                          {resultData.questions.filter((q) => !q.userAnswer).length}
+                          )
                         </span>
                       </div>
                     </div>
