@@ -8,23 +8,29 @@ import { cn } from "@/lib/utils";
 import {
   Volume2,
   VolumeX,
-  Sparkles,
-  Bot,
   FileText,
   Loader2,
   AlertCircle,
   Square,
+  ArrowLeft,
+  GraduationCap,
+  BookOpen,
+  Trash2,
 } from "lucide-react";
 import { useAITeacherStore } from "@/stores/useAITeacherStore";
 import { ChatInputBar } from "@/components/molecules/ChatInputBar";
 import { ChatHistoryCard } from "@/components/molecules/ChatHistoryCard";
 import { RecentFilesModal } from "@/components/organisms/RecentFilesModal";
+import { SubjectSelector } from "@/components/organisms/SubjectSelector";
+import { ConfirmDialog } from "@/components/organisms/ConfirmDialog";
 import { RecentUpload } from "@/apis/aiApi";
 import { AIChatMessage } from "@/apis/aiChatApi";
+import { Subject } from "@/apis/subjectApi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ModelSelector } from "@/components/atoms/ModelSelector";
+import { Badge } from "@/components/ui/badge";
 
 // Check if speech recognition is supported
 const isSpeechRecognitionSupported = () => {
@@ -34,8 +40,135 @@ const isSpeechRecognitionSupported = () => {
   );
 };
 
+// Import Lucide icons dynamically (same as SubjectSelector)
+import {
+  Calculator,
+  Microscope,
+  MonitorSpeaker,
+  Languages,
+  Settings,
+  TrendingUp,
+  Scale,
+  Palette,
+  Activity,
+  UserCheck,
+  Plus,
+  Divide,
+  Sigma,
+  FunctionSquare,
+  Atom,
+  FlaskConical,
+  Dna,
+  Leaf,
+  Book,
+  Clock,
+  Map,
+  Shield,
+  DollarSign,
+  Monitor,
+  HardDrive,
+  Globe,
+  Bot,
+  Zap,
+  Wrench,
+  Radio,
+  BarChart3,
+  Building2,
+  Receipt,
+  Megaphone,
+  Scroll,
+  Briefcase,
+  Users,
+  Building,
+  Presentation,
+  Laptop,
+  Music,
+  Theater,
+  Brain,
+  Dumbbell,
+  Heart,
+  TestTube,
+  Sparkles,
+  Lightbulb,
+  Flag,
+} from "lucide-react";
+
+// Icon mapping for dynamic rendering
+const iconMap = {
+  // Categories
+  Calculator,
+  Microscope,
+  BookOpen,
+  MonitorSpeaker,
+  Languages,
+  Settings,
+  TrendingUp,
+  Scale,
+  Palette,
+  Activity,
+  UserCheck,
+
+  // Subjects
+  Plus,
+  Divide,
+  Sigma,
+  FunctionSquare,
+  Atom,
+  FlaskConical,
+  Dna,
+  Leaf,
+  Book,
+  Clock,
+  Map,
+  Shield,
+  DollarSign,
+  Monitor,
+  HardDrive,
+  Globe,
+  Bot,
+  Flag,
+  Zap,
+  Wrench,
+  Radio,
+  BarChart3,
+  Building2,
+  Receipt,
+  Megaphone,
+  Scroll,
+  Briefcase,
+  Users,
+  Building,
+  Presentation,
+  Laptop,
+  Music,
+  Theater,
+  Brain,
+  Dumbbell,
+  Heart,
+  TestTube,
+  Sparkles,
+  Lightbulb,
+} as const;
+
+// Helper function to render icon by name
+function renderIcon(iconName: string | null | undefined, className?: string) {
+  if (!iconName) return null;
+
+  const IconComponent = iconMap[iconName as keyof typeof iconMap];
+  if (!IconComponent) return null;
+
+  return <IconComponent className={className} />;
+}
+
 export default function AITeacherPage() {
   const {
+    // Subject
+    categories,
+    isLoadingCategories,
+    selectedSubject,
+    fetchCategories,
+    selectSubject,
+    startChatWithSubject,
     // Chat list
     chats,
     isLoadingChats,
@@ -52,7 +185,6 @@ export default function AITeacherPage() {
     isProcessing,
     transcript,
     // File states
-    // File states
     selectedUploads,
     uploadedImageUrl,
     isUploadingImage,
@@ -63,6 +195,7 @@ export default function AITeacherPage() {
     selectChat,
     updateChatTitle,
     deleteChat,
+    clearChatWithFiles,
     sendMessage,
     checkAndLoadChatFromUrl,
     setIsListening,
@@ -84,6 +217,8 @@ export default function AITeacherPage() {
     "granted" | "denied" | "prompt"
   >("prompt");
   const [recentFilesModalOpen, setRecentFilesModalOpen] = useState(false);
+  const [showSubjectSelector, setShowSubjectSelector] = useState(false);
+  const [clearChatDialogOpen, setClearChatDialogOpen] = useState(false);
   const recognitionRef = useRef<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
@@ -92,6 +227,7 @@ export default function AITeacherPage() {
   useEffect(() => {
     setSpeechSupported(isSpeechRecognitionSupported());
     fetchChats();
+    fetchCategories();
     checkAndLoadChatFromUrl();
 
     // Load voices for TTS
@@ -101,7 +237,7 @@ export default function AITeacherPage() {
         window.speechSynthesis.getVoices();
       };
     }
-  }, [fetchChats, checkAndLoadChatFromUrl]);
+  }, [fetchChats, fetchCategories, checkAndLoadChatFromUrl]);
 
   // Auto-scroll on new messages or streaming content
   useEffect(() => {
@@ -240,6 +376,51 @@ export default function AITeacherPage() {
     speakResponse(content);
   };
 
+  // Handle subject selection
+  const handleSelectSubject = (subject: Subject) => {
+    startChatWithSubject(subject);
+    setShowSubjectSelector(false);
+  };
+
+  // Handle create new chat with subject selection
+  const handleCreateNewChat = () => {
+    setShowSubjectSelector(true);
+    selectChat(null);
+  };
+
+  // Handle back to chat from subject selector
+  const handleBackToChat = () => {
+    setShowSubjectSelector(false);
+  };
+
+  // Handle clear chat
+  const handleClearChat = () => {
+    if (selectedChatId) {
+      const hasFiles = selectedUploads.length > 0;
+      if (hasFiles) {
+        setClearChatDialogOpen(true);
+      } else {
+        clearChatWithFiles(selectedChatId, false);
+      }
+    }
+  };
+
+  // Handle confirm clear chat with files
+  const handleConfirmClearWithFiles = () => {
+    if (selectedChatId) {
+      clearChatWithFiles(selectedChatId, true);
+      setClearChatDialogOpen(false);
+    }
+  };
+
+  // Handle confirm clear chat without files
+  const handleConfirmClearWithoutFiles = () => {
+    if (selectedChatId) {
+      clearChatWithFiles(selectedChatId, false);
+      setClearChatDialogOpen(false);
+    }
+  };
+
   if (!speechSupported) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -258,6 +439,59 @@ export default function AITeacherPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  // Show subject selector screen
+  if (showSubjectSelector || (!selectedChatId && !selectedSubject)) {
+    return (
+      <div className="min-h-screen relative overflow-hidden max-w-7xl mx-auto">
+        {/* Header Section */}
+        <section className="relative container mx-auto px-4 pt-8 pb-4">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              {selectedChatId && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToChat}
+                  className="mr-2"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-1" />
+                  Quay lại
+                </Button>
+              )}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
+                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
+                  <GraduationCap className="w-7 h-7 text-primary" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+                  Chọn Giáo viên AI
+                </h1>
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  Mỗi giáo viên chuyên về một môn học
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Subject Selector */}
+        <section className="relative container mx-auto px-4 pb-8">
+          <Card className="border-border bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
+            <CardContent className="p-6">
+              <SubjectSelector
+                onSelectSubject={handleSelectSubject}
+                selectedSubjectId={selectedSubject?.id}
+              />
+            </CardContent>
+          </Card>
+        </section>
       </div>
     );
   }
@@ -287,26 +521,60 @@ export default function AITeacherPage() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
-              <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
-                <Bot className="w-7 h-7 text-primary" />
-              </div>
+                <div
+                  className="relative w-14 h-14 rounded-2xl border border-border flex items-center justify-center"
+                  style={{
+                    backgroundColor: selectedSubject?.color
+                      ? `${selectedSubject.color}20`
+                      : "rgba(var(--primary), 0.1)",
+                  }}
+                >
+                  {renderIcon(selectedSubject?.icon, "w-7 h-7 text-primary") || <Bot className="w-7 h-7 text-primary" />}
+                </div>
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
-                Giáo viên AI
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+                  {selectedSubject?.name || "Giáo viên AI"}
+                </h1>
+                {selectedSubject && (
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-secondary/80"
+                    onClick={handleCreateNewChat}
+                  >
+                    Đổi môn
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
-                Trò chuyện thông minh với AI
+                {selectedSubject
+                  ? "Chỉ trả lời trong phạm vi môn này"
+                  : "Trò chuyện thông minh với AI"}
               </p>
             </div>
           </div>
-          {/* Model Selector */}
-          <ModelSelector
-            value={selectedModel}
-            onChange={setSelectedModel}
-            disabled={isProcessing || isStreaming}
-          />
+          {/* Model Selector & Clear Chat */}
+          <div className="flex items-center gap-2">
+            {selectedChatId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearChat}
+                disabled={isProcessing || isStreaming}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Xóa chat
+              </Button>
+            )}
+            <ModelSelector
+              value={selectedModel}
+              onChange={setSelectedModel}
+              disabled={isProcessing || isStreaming}
+            />
+          </div>
         </div>
       </section>
 
@@ -321,7 +589,7 @@ export default function AITeacherPage() {
                 selectedChatId={selectedChatId}
                 isLoading={isLoadingChats}
                 onSelectChat={selectChat}
-                onCreateChat={createChat}
+                onCreateChat={handleCreateNewChat}
                 onRenameChat={updateChatTitle}
                 onDeleteChat={deleteChat}
               />
@@ -342,11 +610,24 @@ export default function AITeacherPage() {
                     </div>
                   ) : messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                      <Bot className="w-16 h-16 mb-4 opacity-50" />
-                      <p className="text-lg font-medium">Xin chào!</p>
+                      <div
+                        className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4"
+                        style={{
+                          backgroundColor: selectedSubject?.color
+                            ? `${selectedSubject.color}20`
+                            : "rgba(var(--primary), 0.1)",
+                        }}
+                      >
+                        {renderIcon(selectedSubject?.icon, "w-10 h-10 opacity-50") || <Bot className="w-10 h-10 opacity-50" />}
+                      </div>
+                      <p className="text-lg font-medium">
+                        Xin chào! Tôi là giáo viên{" "}
+                        {selectedSubject?.name || "AI"}
+                      </p>
                       <p className="text-sm mt-2 max-w-md">
-                        Tôi là giáo viên AI của bạn. Hãy nhập tin nhắn hoặc nhấn
-                        mic để bắt đầu cuộc trò chuyện.
+                        {selectedSubject
+                          ? `Hãy đặt câu hỏi về ${selectedSubject.name} và tôi sẽ giúp bạn!`
+                          : "Hãy nhập tin nhắn hoặc nhấn mic để bắt đầu cuộc trò chuyện."}
                       </p>
                     </div>
                   ) : (
@@ -357,13 +638,24 @@ export default function AITeacherPage() {
                           message={message}
                           isSpeaking={isSpeaking}
                           onReplay={() => replayMessage(message.content)}
+                          subjectIcon={selectedSubject?.icon}
+                          subjectColor={selectedSubject?.color}
                         />
                       ))}
                       {/* Streaming Response Display */}
                       {isStreaming && streamingContent && (
                         <div className="flex gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                            <Bot className="w-4 h-4 text-primary" />
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{
+                              backgroundColor: selectedSubject?.color
+                                ? `${selectedSubject.color}20`
+                                : "rgba(var(--primary), 0.2)",
+                            }}
+                          >
+                            {renderIcon(selectedSubject?.icon, "w-4 h-4 text-primary") || (
+                              <Bot className="w-4 h-4 text-primary" />
+                            )}
                           </div>
                           <div className="flex-1 bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-2xl rounded-tl-sm px-4 py-3">
                             <p className="text-sm whitespace-pre-wrap">
@@ -390,8 +682,17 @@ export default function AITeacherPage() {
                       {isProcessing && !streamingContent && (
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3 text-muted-foreground">
-                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                              <Bot className="w-4 h-4 text-primary" />
+                            <div
+                              className="w-8 h-8 rounded-full flex items-center justify-center"
+                              style={{
+                                backgroundColor: selectedSubject?.color
+                                  ? `${selectedSubject.color}20`
+                                  : "rgba(var(--primary), 0.2)",
+                              }}
+                            >
+                              {renderIcon(selectedSubject?.icon, "w-4 h-4 text-primary") || (
+                                <Bot className="w-4 h-4 text-primary" />
+                              )}
                             </div>
                             <div className="flex items-center gap-2">
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -511,13 +812,34 @@ export default function AITeacherPage() {
               selectedChatId={selectedChatId}
               isLoading={isLoadingChats}
               onSelectChat={selectChat}
-              onCreateChat={createChat}
+              onCreateChat={handleCreateNewChat}
               onRenameChat={updateChatTitle}
               onDeleteChat={deleteChat}
             />
           </div>
         </div>
       </section>
+
+      {/* Clear Chat Confirm Dialog */}
+      <ConfirmDialog
+        open={clearChatDialogOpen}
+        onOpenChange={setClearChatDialogOpen}
+        title="Xóa cuộc trò chuyện"
+        description={
+          selectedUploads.length > 0
+            ? `Cuộc trò chuyện này có ${selectedUploads.length} file PDF. Bạn có muốn xóa luôn các file này không?`
+            : "Bạn có chắc muốn xóa cuộc trò chuyện này không?"
+        }
+        confirmText={selectedUploads.length > 0 ? "Xóa chat và files" : "Xóa chat"}
+        cancelText={selectedUploads.length > 0 ? "Chỉ xóa chat" : "Hủy"}
+        onConfirm={
+          selectedUploads.length > 0 ? handleConfirmClearWithFiles : handleConfirmClearWithoutFiles
+        }
+        onCancel={
+          selectedUploads.length > 0 ? handleConfirmClearWithoutFiles : () => setClearChatDialogOpen(false)
+        }
+        variant={selectedUploads.length > 0 ? "destructive" : "default"}
+      />
 
       {/* Recent Files Modal - excludes quiz/flashcard history for AI Teacher */}
       <RecentFilesModal
@@ -536,10 +858,14 @@ function MessageBubble({
   message,
   isSpeaking,
   onReplay,
+  subjectIcon,
+  subjectColor,
 }: {
   message: AIChatMessage;
   isSpeaking: boolean;
   onReplay: () => void;
+  subjectIcon?: string | null;
+  subjectColor?: string | null;
 }) {
   const isUser = message.role === "user";
   const { user } = useAuthStore();
@@ -552,16 +878,23 @@ function MessageBubble({
       )}>
       <div
         className={cn(
-          "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
-          isUser ? "bg-primary/20" : "bg-purple-500/20"
-        )}>
+          "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+        )}
+        style={{
+          backgroundColor: isUser
+            ? "rgba(var(--primary), 0.2)"
+            : subjectColor
+            ? `${subjectColor}20`
+            : "rgba(168, 85, 247, 0.2)",
+        }}
+      >
         {isUser ? (
           <img
             src={user?.avatar || "/avt-default.webp"}
             alt="User"
             className="w-8 h-8 rounded-full"
           />
-        ) : (
+        ) : renderIcon(subjectIcon, "w-4 h-4 text-purple-400") || (
           <Bot className="w-4 h-4 text-purple-400" />
         )}
       </div>
