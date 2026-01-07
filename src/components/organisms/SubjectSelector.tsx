@@ -264,14 +264,14 @@ export function SubjectSelector({
                     <Card
                       key={subject.id}
                       className={cn(
-                        "cursor-pointer transition-all hover:shadow-md",
+                        "cursor-pointer transition-all hover:shadow-md py-3",
                         "border-border/50 hover:border-primary/30",
                         selectedSubjectId === subject.id &&
                           "border-primary ring-2 ring-primary/20"
                       )}
                       onClick={() => onSelectSubject(subject)}
                     >
-                      <CardContent className="p-3 flex items-center gap-3">
+                      <CardContent className="flex items-center gap-3">
                         <div
                           className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                           style={{ backgroundColor: `${subject.color}20` }}

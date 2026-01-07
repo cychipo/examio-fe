@@ -61,7 +61,7 @@ export function ChatHistoryCard({
 
   const startEditing = (chat: AIChat) => {
     setEditingId(chat.id);
-    setEditValue(chat.title || "Chat mới");
+    setEditValue(chat.title || (chat.subject ? chat.subject.name : "Chat mới"));
   };
 
   const cancelEditing = () => {
@@ -202,10 +202,10 @@ export function ChatHistoryCard({
                       </div>
                     ) : (
                       <>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate line-clamp-2">
-                            {chat.title || "Chat mới"}
-                          </p>
+                         <div className="flex-1 min-w-0">
+                           <p className="text-sm font-medium truncate line-clamp-2">
+                             {chat.title || (chat.subject ? chat.subject.name : "Chat mới")}
+                           </p>
                           <p className="text-xs text-muted-foreground">
                             {formatDate(chat.updatedAt)}
                           </p>
@@ -259,7 +259,7 @@ export function ChatHistoryCard({
           <AlertDialogHeader>
             <AlertDialogTitle>Xóa cuộc trò chuyện?</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc muốn xóa &quot;{chatToDelete?.title || "Chat mới"}
+              Bạn có chắc muốn xóa &quot;{chatToDelete?.title || (chatToDelete?.subject ? chatToDelete.subject.name : "Chat mới")}
               &quot;? Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>

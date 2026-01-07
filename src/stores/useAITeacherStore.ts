@@ -66,7 +66,7 @@ interface AITeacherState {
   // Actions - Chat CRUD
   fetchChats: (options?: { forceRefresh?: boolean }) => Promise<void>;
   createChat: (subjectId?: string) => Promise<string | null>;
-  selectChat: (chatId: string | null, updateUrl?: boolean) => Promise<void>;
+  selectChat: (chatId: string | null, updateUrl?: boolean, forceRefresh?: boolean) => Promise<void>;
   updateChatTitle: (chatId: string, title: string) => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
   checkAndLoadChatFromUrl: () => Promise<void>;
@@ -242,10 +242,19 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
   startChatWithSubject: async (subject: Subject) => {
     set({ selectedSubject: subject });
-    // Always create a new chat for the subject (don't clear existing chats)
-    const chatId = await get().createChat(subject.id);
-    if (chatId) {
-      await get().selectChat(chatId, true);
+
+    // Check if there's already a chat with this subject
+    const existingChat = get().chats.find(chat => chat.subjectId === subject.id);
+
+    if (existingChat) {
+      // Use existing chat
+      await get().selectChat(existingChat.id, true);
+    } else {
+      // Create new chat for the subject
+      const chatId = await get().createChat(subject.id);
+      if (chatId) {
+        await get().selectChat(chatId, true);
+      }
     }
   },
 
@@ -312,7 +321,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
-  selectChat: async (chatId: string | null, updateUrl = true) => {
+  selectChat: async (chatId: string | null, updateUrl = true, forceRefresh = false) => {
     // Abort any ongoing stream and clear ALL streaming state
     const { abortStream } = get();
     if (abortStream) {
@@ -338,24 +347,37 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     set({ selectedUploads: [], uploadedImageUrl: null });
 
     try {
-      // Cache messages per chatId
+      // Cache messages per chatId - force refresh if requested
       const messagesCacheKey = storeCache.createKey("ai-teacher-messages", {
         chatId,
       });
-      const messages = await storeCache.fetchWithCache(
-        messagesCacheKey,
-        () => aiChatApi.getChatMessages(chatId),
-        { ttl: CacheTTL.FIVE_MINUTES }
-      );
+
+      let messages;
+      if (forceRefresh) {
+        storeCache.invalidate(messagesCacheKey);
+        messages = await aiChatApi.getChatMessages(chatId);
+      } else {
+        messages = await storeCache.fetchWithCache(
+          messagesCacheKey,
+          () => aiChatApi.getChatMessages(chatId),
+          { ttl: CacheTTL.FIVE_MINUTES }
+        );
+      }
       set({ messages });
 
-      // Cache documents per chatId
+      // Cache documents per chatId - force refresh if requested
       const docsCacheKey = storeCache.createKey("ai-teacher-docs", { chatId });
-      const docs = await storeCache.fetchWithCache(
-        docsCacheKey,
-        () => aiChatApi.getDocuments(chatId),
-        { ttl: CacheTTL.FIVE_MINUTES }
-      );
+      let docs;
+      if (forceRefresh) {
+        storeCache.invalidate(docsCacheKey);
+        docs = await aiChatApi.getDocuments(chatId);
+      } else {
+        docs = await storeCache.fetchWithCache(
+          docsCacheKey,
+          () => aiChatApi.getDocuments(chatId),
+          { ttl: CacheTTL.FIVE_MINUTES }
+        );
+      }
       if (docs.length > 0) {
         set({
           selectedUploads: docs.map((d) => ({

@@ -14,7 +14,6 @@ import {
   Square,
   ArrowLeft,
   GraduationCap,
-  BookOpen,
   Trash2,
 } from "lucide-react";
 import { useAITeacherStore } from "@/stores/useAITeacherStore";
@@ -28,9 +27,66 @@ import { AIChatMessage } from "@/apis/aiChatApi";
 import { Subject } from "@/apis/subjectApi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ModelSelector } from "@/components/atoms/ModelSelector";
 import { Badge } from "@/components/ui/badge";
+
+// Import Lucide icons for dynamic rendering
+import {
+  Calculator,
+  Microscope,
+  BookOpen,
+  MonitorSpeaker,
+  Languages,
+  Settings,
+  TrendingUp,
+  Scale,
+  Palette,
+  Activity,
+  UserCheck,
+  Plus,
+  Divide,
+  Sigma,
+  FunctionSquare,
+  Atom,
+  FlaskConical,
+  Dna,
+  Leaf,
+  Book,
+  Clock,
+  Map,
+  Shield,
+  DollarSign,
+  Monitor,
+  HardDrive,
+  Globe,
+  Bot,
+  Zap,
+  Wrench,
+  Radio,
+  BarChart3,
+  Building2,
+  Receipt,
+  Megaphone,
+  Scroll,
+  Briefcase,
+  Users,
+  Building,
+  Presentation,
+  Laptop,
+  Music,
+  Theater,
+  Brain,
+  Dumbbell,
+  Heart,
+  TestTube,
+  Sparkles,
+  Lightbulb,
+  Flag,
+} from "lucide-react";
 
 // Check if speech recognition is supported
 const isSpeechRecognitionSupported = () => {
@@ -535,7 +591,7 @@ export default function AITeacherPage() {
                 chats={chats}
                 selectedChatId={selectedChatId}
                 isLoading={isLoadingChats}
-                onSelectChat={selectChat}
+                onSelectChat={(chatId) => selectChat(chatId, true, true)} // Force refresh
                 onCreateChat={handleCreateNewChat}
                 onRenameChat={updateChatTitle}
                 onDeleteChat={deleteChat}
@@ -758,7 +814,7 @@ export default function AITeacherPage() {
               chats={chats}
               selectedChatId={selectedChatId}
               isLoading={isLoadingChats}
-              onSelectChat={selectChat}
+              onSelectChat={(chatId) => selectChat(chatId, true, true)} // Force refresh
               onCreateChat={handleCreateNewChat}
               onRenameChat={updateChatTitle}
               onDeleteChat={deleteChat}
@@ -882,7 +938,9 @@ function MessageBubble({
               : "bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-tl-sm"
           )}>
           <div className="text-sm prose dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm, remarkMath]}
+              rehypePlugins={[rehypeKatex]}>
               {message.content}
             </ReactMarkdown>
           </div>
