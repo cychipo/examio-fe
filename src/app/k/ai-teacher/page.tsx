@@ -40,60 +40,7 @@ const isSpeechRecognitionSupported = () => {
   );
 };
 
-// Import Lucide icons dynamically (same as SubjectSelector)
-import {
-  Calculator,
-  Microscope,
-  MonitorSpeaker,
-  Languages,
-  Settings,
-  TrendingUp,
-  Scale,
-  Palette,
-  Activity,
-  UserCheck,
-  Plus,
-  Divide,
-  Sigma,
-  FunctionSquare,
-  Atom,
-  FlaskConical,
-  Dna,
-  Leaf,
-  Book,
-  Clock,
-  Map,
-  Shield,
-  DollarSign,
-  Monitor,
-  HardDrive,
-  Globe,
-  Bot,
-  Zap,
-  Wrench,
-  Radio,
-  BarChart3,
-  Building2,
-  Receipt,
-  Megaphone,
-  Scroll,
-  Briefcase,
-  Users,
-  Building,
-  Presentation,
-  Laptop,
-  Music,
-  Theater,
-  Brain,
-  Dumbbell,
-  Heart,
-  TestTube,
-  Sparkles,
-  Lightbulb,
-  Flag,
-} from "lucide-react";
-
-// Icon mapping for dynamic rendering
+// Icon mapping for dynamic rendering (same as SubjectSelector)
 const iconMap = {
   // Categories
   Calculator,
