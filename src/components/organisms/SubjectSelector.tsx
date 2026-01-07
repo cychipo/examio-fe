@@ -180,7 +180,9 @@ export function SubjectSelector({
     );
 
   const handleCategoryClick = (categoryId: string) => {
-    setExpandedCategoryId(expandedCategoryId === categoryId ? null : categoryId);
+    setExpandedCategoryId(
+      expandedCategoryId === categoryId ? null : categoryId
+    );
   };
 
   if (isLoading) {
@@ -240,7 +242,9 @@ export function SubjectSelector({
                     className="w-10 h-10 rounded-lg flex items-center justify-center"
                     style={{ backgroundColor: `${category.color}20` }}
                   >
-                    {renderIcon(category.icon, "w-5 h-5 text-current") || <BookOpen className="w-5 h-5" />}
+                    {renderIcon(category.icon, "w-5 h-5 text-current") || (
+                      <BookOpen className="w-5 h-5" />
+                    )}
                   </div>
                   <div className="text-left">
                     <h3 className="font-medium">{category.name}</h3>
@@ -276,7 +280,9 @@ export function SubjectSelector({
                           className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                           style={{ backgroundColor: `${subject.color}20` }}
                         >
-                          {renderIcon(subject.icon, "w-5 h-5 text-current") || <BookOpen className="w-5 h-5" />}
+                          {renderIcon(subject.icon, "w-5 h-5 text-current") || (
+                            <BookOpen className="w-5 h-5" />
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="font-medium text-sm truncate">
