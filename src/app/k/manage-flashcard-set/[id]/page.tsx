@@ -21,6 +21,7 @@ import {
 import { Flashcard as FlashCard } from "@/types/flashcardSet";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import { FlashcardEditorDialog } from "@/components/organisms/FlashcardEditorDialog";
+import { FlashcardLabelManager } from "@/components/organisms/FlashcardLabelManager";
 import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 import {
   Breadcrumb,
@@ -31,8 +32,17 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   getFlashcardSetFlashcardsApi,
+  getFlashcardSetLabelsApi,
   type PaginationInfo,
+  type FlashcardSetLabel,
 } from "@/apis/flashcardSetApi";
 
 /**
@@ -71,6 +81,13 @@ export default function FlashcardSetDetailPage({
   const [flashcardsLoading, setFlashcardsLoading] = useState(false);
   const itemsPerPage = 9;
 
+  // Label filtering state
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
+  const [availableLabels, setAvailableLabels] = useState<FlashcardSetLabel[]>(
+    []
+  );
+  const [labelsLoading, setLabelsLoading] = useState(false);
+
   // Fetch flashcard set by ID (basic info only)
   useEffect(() => {
     if (id) {
@@ -87,7 +104,8 @@ export default function FlashcardSetDetailPage({
       const response = await getFlashcardSetFlashcardsApi(
         id,
         currentPage,
-        itemsPerPage
+        itemsPerPage,
+        selectedLabelId
       );
       setPaginatedFlashcards(response.flashCards);
       setPagination(response.pagination);
@@ -96,11 +114,30 @@ export default function FlashcardSetDetailPage({
     } finally {
       setFlashcardsLoading(false);
     }
-  }, [id, currentPage, itemsPerPage]);
+  }, [id, currentPage, itemsPerPage, selectedLabelId]);
+
+  // Fetch available labels
+  const fetchLabels = useCallback(async () => {
+    if (!id) return;
+
+    setLabelsLoading(true);
+    try {
+      const response = await getFlashcardSetLabelsApi(id);
+      setAvailableLabels(response.labels);
+    } catch (error) {
+      console.error("Failed to fetch labels:", error);
+    } finally {
+      setLabelsLoading(false);
+    }
+  }, [id]);
 
   useEffect(() => {
     fetchFlashcards();
   }, [fetchFlashcards]);
+
+  useEffect(() => {
+    fetchLabels();
+  }, [fetchLabels]);
 
   // Derived values from pagination
   const totalFlashcards = pagination?.total || 0;
@@ -218,7 +255,8 @@ export default function FlashcardSetDetailPage({
                     "_blank"
                   )
                 }
-                className="gap-2">
+                className="gap-2"
+              >
                 <PlayCircle className="h-4 w-4" />
                 Học ngay
               </Button>
@@ -262,7 +300,7 @@ export default function FlashcardSetDetailPage({
                 <p className="text-sm font-medium text-muted-foreground">
                   Lượt xem
                 </p>
-                <p className="text-2xl font-bold">0</p>
+                <p className="text-2xl font-bold">{currentFlashcardSet.viewCount}</p>
               </div>
             </div>
           </Card>
@@ -285,6 +323,9 @@ export default function FlashcardSetDetailPage({
             </div>
           </Card>
         </div>
+
+        {/* Label Manager */}
+        <FlashcardLabelManager flashcardSetId={id} />
 
         {/* Flashcard Editor Dialog */}
         <FlashcardEditorDialog
@@ -311,6 +352,41 @@ export default function FlashcardSetDetailPage({
             </Button>
           </div>
 
+          {/* Label Filter */}
+          <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Lọc theo nhãn:</span>
+              <Select
+                value={selectedLabelId || "all"}
+                onValueChange={(value) => {
+                  setSelectedLabelId(value === "all" ? null : value);
+                  setCurrentPage(1); // Reset to first page when filter changes
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Chọn nhãn" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả thẻ</SelectItem>
+                  <SelectItem value="unlabeled">Chưa gán nhãn</SelectItem>
+                  {availableLabels.map((label) => (
+                    <SelectItem key={label.id} value={label.id}>
+                      <div className="flex items-center gap-2">
+                        {label.color && (
+                          <div
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: label.color }}
+                          />
+                        )}
+                        {label.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {flashcardsLoading ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
@@ -326,23 +402,52 @@ export default function FlashcardSetDetailPage({
                   return (
                     <Card
                       key={card.id}
-                      className="p-4 hover:shadow-md transition-shadow">
+                      className="p-4 hover:shadow-md transition-shadow"
+                    >
                       <div className="flex flex-col h-full">
                         <div className="flex items-center justify-between mb-3">
-                          <Badge variant="outline">Thẻ {actualIndex + 1}</Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">
+                              Thẻ {actualIndex + 1}
+                            </Badge>
+                            {card.label && (
+                              <Badge
+                                variant="secondary"
+                                className="text-xs"
+                                style={{
+                                  backgroundColor: card.label.color
+                                    ? `${card.label.color}20`
+                                    : undefined,
+                                  borderColor: card.label.color || undefined,
+                                }}
+                              >
+                                {card.label.color && (
+                                  <div
+                                    className="w-2 h-2 rounded-full mr-1"
+                                    style={{
+                                      backgroundColor: card.label.color,
+                                    }}
+                                  />
+                                )}
+                                {card.label.name}
+                              </Badge>
+                            )}
+                          </div>
                           <div className="flex gap-1">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEditCard(card)}
-                              disabled={showCardForm}>
+                              disabled={showCardForm}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteCard(card.id)}
-                              disabled={showCardForm}>
+                              disabled={showCardForm}
+                            >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
@@ -384,7 +489,8 @@ export default function FlashcardSetDetailPage({
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}>
+                      disabled={currentPage === 1}
+                    >
                       <ChevronLeft className="h-4 w-4" />
                       Trước
                     </Button>
@@ -410,7 +516,8 @@ export default function FlashcardSetDetailPage({
                               }
                               size="sm"
                               className="w-8 h-8 p-0"
-                              onClick={() => setCurrentPage(pageNum)}>
+                              onClick={() => setCurrentPage(pageNum)}
+                            >
                               {pageNum}
                             </Button>
                           );
@@ -423,7 +530,8 @@ export default function FlashcardSetDetailPage({
                       onClick={() =>
                         setCurrentPage((p) => Math.min(totalPages, p + 1))
                       }
-                      disabled={currentPage === totalPages}>
+                      disabled={currentPage === totalPages}
+                    >
                       Sau
                       <ChevronRight className="h-4 w-4" />
                     </Button>

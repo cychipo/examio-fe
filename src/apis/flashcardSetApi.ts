@@ -7,6 +7,19 @@ import {
   SharingSettings,
 } from "@/types/flashcardSet";
 
+// FlashcardSetLabel type
+export interface FlashcardSetLabel {
+  id: string;
+  flashCardSetId: string;
+  name: string;
+  description: string | null;
+  color: string | null;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  flashcardCount?: number;
+}
+
 export type CredentialsFlashcardSet = Omit<
   FlashcardSet,
   | "id"
@@ -26,6 +39,9 @@ export type CredentialsSetFlashcardsToFlashcardSet = {
 export type CredentialSetHistoryToFlashcardSet = {
   flashcardsetIds: string[];
   historyId: string;
+  labelId?: string;
+  labelName?: string;
+  labelColor?: string;
 };
 
 export type ResponseSetFlashcardsToFlashcardSet = {
@@ -159,14 +175,20 @@ export interface ResponseFlashcardSetFlashcards {
  * @param id Flashcard set ID
  * @param page Page number (default: 1)
  * @param limit Items per page (default: 10)
+ * @param labelId Optional label ID to filter by (if null, shows all; if 'unlabeled', shows unlabeled)
  */
 export async function getFlashcardSetFlashcardsApi(
   id: string,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  labelId?: string | null
 ): Promise<ResponseFlashcardSetFlashcards> {
+  const params: any = { page, limit };
+  if (labelId !== undefined) {
+    params.labelId = labelId;
+  }
   const response = await api.get(`/flashcardsets/${id}/flashcards`, {
-    params: { page, limit },
+    params,
   });
   return response.data;
 }
@@ -384,6 +406,91 @@ export async function searchUsersForWhitelist(
   }
   const response = await api.get(`/flashcardsets/users/search`, {
     params: { q: query },
+  });
+  return response.data;
+}
+
+/**
+ * Get flashcard set labels
+ */
+export async function getFlashcardSetLabelsApi(
+  flashcardSetId: string
+): Promise<{ labels: FlashcardSetLabel[]; unlabeledCount: number }> {
+  const response = await api.get(`/flashcardsets/${flashcardSetId}/labels`);
+  return response.data;
+}
+
+export type CreateLabelData = {
+  name: string;
+  description?: string;
+  color?: string;
+  order?: number;
+};
+
+export type UpdateLabelData = {
+  name?: string;
+  description?: string | null;
+  color?: string | null;
+  order?: number;
+};
+
+export type AssignFlashcardsToLabelData = {
+  flashcardIds: string[];
+};
+
+export async function createFlashcardLabelApi(
+  flashcardSetId: string,
+  data: CreateLabelData
+): Promise<{ label: FlashcardSetLabel }> {
+  const response = await api.post(`/flashcardsets/${flashcardSetId}/labels`, data);
+  return response.data;
+}
+
+export async function updateFlashcardLabelApi(
+  flashcardSetId: string,
+  labelId: string,
+  data: UpdateLabelData
+): Promise<{ label: FlashcardSetLabel }> {
+  const response = await api.put(`/flashcardsets/${flashcardSetId}/labels/${labelId}`, data);
+  return response.data;
+}
+
+export async function deleteFlashcardLabelApi(
+  flashcardSetId: string,
+  labelId: string
+): Promise<{ message: string }> {
+  const response = await api.delete(`/flashcardsets/${flashcardSetId}/labels/${labelId}`);
+  return response.data;
+}
+
+export async function assignFlashcardsToLabelApi(
+  flashcardSetId: string,
+  labelId: string,
+  data: AssignFlashcardsToLabelData
+): Promise<{ message: string }> {
+  const response = await api.post(`/flashcardsets/${flashcardSetId}/labels/${labelId}/flashcards`, data);
+  return response.data;
+}
+
+export async function removeFlashcardsFromLabelApi(
+  flashcardSetId: string,
+  labelId: string,
+  data: AssignFlashcardsToLabelData
+): Promise<{ message: string }> {
+  const response = await api.delete(`/flashcardsets/${flashcardSetId}/labels/${labelId}/flashcards`, {
+    data
+  });
+  return response.data;
+}
+
+export async function getFlashcardsByLabelApi(
+  flashcardSetId: string,
+  labelId: string,
+  page?: number,
+  limit?: number
+): Promise<ResponseFlashcardSetFlashcards> {
+  const response = await api.get(`/flashcardsets/${flashcardSetId}/labels/${labelId}/flashcards`, {
+    params: { page, limit },
   });
   return response.data;
 }

@@ -4,6 +4,11 @@ export interface Flashcard {
   answer: string;
   createdAt: string;
   updatedAt: string;
+  label?: {
+    id: string;
+    name: string;
+    color: string | null;
+  };
 }
 
 export interface FlashcardStudySession {

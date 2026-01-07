@@ -50,23 +50,36 @@ export function DialogAddExam(props: DialogAddExamProps) {
   >([]);
   const [open, setOpen] = useState(false);
 
-  // Label state for quiz sets
-  const [labelMode, setLabelMode] = useState<"existing" | "new">(
-    "new"
-  );
-  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
-  const [newLabelName, setNewLabelName] = useState("");
-  const [newLabelColor, setNewLabelColor] = useState("#3B82F6");
-  const [labelRefreshKey, setLabelRefreshKey] = useState(0);
+  // Label state for quiz sets and flashcard sets
+  const [quizLabelMode, setQuizLabelMode] = useState<"existing" | "new">("new");
+  const [quizSelectedLabelId, setQuizSelectedLabelId] = useState<string | null>(null);
+  const [quizNewLabelName, setQuizNewLabelName] = useState("");
+  const [quizNewLabelColor, setQuizNewLabelColor] = useState("#3B82F6");
+  const [quizLabelRefreshKey, setQuizLabelRefreshKey] = useState(0);
+
+  const [flashcardLabelMode, setFlashcardLabelMode] = useState<"existing" | "new">("new");
+  const [flashcardSelectedLabelId, setFlashcardSelectedLabelId] = useState<string | null>(null);
+  const [flashcardNewLabelName, setFlashcardNewLabelName] = useState("");
+  const [flashcardNewLabelColor, setFlashcardNewLabelColor] = useState("#3B82F6");
+  const [flashcardLabelRefreshKey, setFlashcardLabelRefreshKey] = useState(0);
 
   // Reset label state when quizset selection changes
   useEffect(() => {
-    setLabelMode("new");
-    setSelectedLabelId(null);
-    setNewLabelName("");
-    setNewLabelColor("#3B82F6");
-    setLabelRefreshKey(prev => prev + 1);
+    setQuizLabelMode("new");
+    setQuizSelectedLabelId(null);
+    setQuizNewLabelName("");
+    setQuizNewLabelColor("#3B82F6");
+    setQuizLabelRefreshKey(prev => prev + 1);
   }, [selectedQuizSetIds]);
+
+  // Reset label state when flashcardset selection changes
+  useEffect(() => {
+    setFlashcardLabelMode("new");
+    setFlashcardSelectedLabelId(null);
+    setFlashcardNewLabelName("");
+    setFlashcardNewLabelColor("#3B82F6");
+    setFlashcardLabelRefreshKey(prev => prev + 1);
+  }, [selectedFlashcardSetIds]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,12 +96,12 @@ export function DialogAddExam(props: DialogAddExamProps) {
 
     try {
       if (props.type === DialogAddExamType.QUIZZ && generatedTest) {
-        // Validate label selection
+        // Validate label selection for quiz
         if (selectedQuizSetIds.length === 1) {
-          if (labelMode === "existing" && !selectedLabelId) {
+          if (quizLabelMode === "existing" && !quizSelectedLabelId) {
             alert("Vui lòng chọn nhãn có sẵn");
             return;
-          } else if (labelMode === "new" && !newLabelName.trim()) {
+          } else if (quizLabelMode === "new" && !quizNewLabelName.trim()) {
             alert("Vui lòng nhập tên nhãn mới");
             return;
           }
@@ -108,11 +121,11 @@ export function DialogAddExam(props: DialogAddExamProps) {
 
         // Add label info based on mode (only for single quizset)
         if (selectedQuizSetIds.length === 1) {
-          if (labelMode === "existing" && selectedLabelId) {
-            credentials.labelId = selectedLabelId;
-          } else if (labelMode === "new" && newLabelName.trim()) {
-            credentials.labelName = newLabelName.trim();
-            credentials.labelColor = newLabelColor;
+          if (quizLabelMode === "existing" && quizSelectedLabelId) {
+            credentials.labelId = quizSelectedLabelId;
+          } else if (quizLabelMode === "new" && quizNewLabelName.trim()) {
+            credentials.labelName = quizNewLabelName.trim();
+            credentials.labelColor = quizNewLabelColor;
           }
         }
 
@@ -121,10 +134,40 @@ export function DialogAddExam(props: DialogAddExamProps) {
         props.type === DialogAddExamType.FLASH_CARD &&
         generatedCards
       ) {
-        await setHistoryFlashcardsToFlashcardSet({
+        // Validate label selection for flashcard
+        if (selectedFlashcardSetIds.length === 1) {
+          if (flashcardLabelMode === "existing" && !flashcardSelectedLabelId) {
+            alert("Vui lòng chọn nhãn có sẵn");
+            return;
+          } else if (flashcardLabelMode === "new" && !flashcardNewLabelName.trim()) {
+            alert("Vui lòng nhập tên nhãn mới");
+            return;
+          }
+        }
+
+        // Build credentials with label info
+        const credentials: {
+          flashcardsetIds: string[];
+          historyId: string;
+          labelId?: string;
+          labelName?: string;
+          labelColor?: string;
+        } = {
           flashcardsetIds: selectedFlashcardSetIds,
           historyId: generatedCardsId!,
-        });
+        };
+
+        // Add label info based on mode (only for single flashcardset)
+        if (selectedFlashcardSetIds.length === 1) {
+          if (flashcardLabelMode === "existing" && flashcardSelectedLabelId) {
+            credentials.labelId = flashcardSelectedLabelId;
+          } else if (flashcardLabelMode === "new" && flashcardNewLabelName.trim()) {
+            credentials.labelName = flashcardNewLabelName.trim();
+            credentials.labelColor = flashcardNewLabelColor;
+          }
+        }
+
+        await setHistoryFlashcardsToFlashcardSet(credentials);
       }
 
       // Invalidate stats
@@ -137,11 +180,16 @@ export function DialogAddExam(props: DialogAddExamProps) {
       // Reset and close
       setSelectedQuizSetIds([]);
       setSelectedFlashcardSetIds([]);
-      setLabelMode("new");
-      setSelectedLabelId(null);
-      setNewLabelName("");
-      setNewLabelColor("#3B82F6");
-      setLabelRefreshKey(0);
+      setQuizLabelMode("new");
+      setQuizSelectedLabelId(null);
+      setQuizNewLabelName("");
+      setQuizNewLabelColor("#3B82F6");
+      setQuizLabelRefreshKey(0);
+      setFlashcardLabelMode("new");
+      setFlashcardSelectedLabelId(null);
+      setFlashcardNewLabelName("");
+      setFlashcardNewLabelColor("#3B82F6");
+      setFlashcardLabelRefreshKey(0);
       setOpen(false);
     } catch (error) {
       console.error("Error adding to set:", error);
@@ -189,16 +237,16 @@ export function DialogAddExam(props: DialogAddExamProps) {
                 {/* Label selector - only show when a single quizset is selected */}
                 {selectedQuizSetIds.length === 1 && (
                   <LabelSelector
-                    key={labelRefreshKey}
+                    key={quizLabelRefreshKey}
                     quizSetId={selectedQuizSetIds[0]}
-                    selectedLabelId={selectedLabelId}
-                    newLabelName={newLabelName}
-                    newLabelColor={newLabelColor}
-                    onLabelIdChange={setSelectedLabelId}
-                    onNewLabelNameChange={setNewLabelName}
-                    onNewLabelColorChange={setNewLabelColor}
-                    mode={labelMode}
-                    onModeChange={setLabelMode}
+                    selectedLabelId={quizSelectedLabelId}
+                    newLabelName={quizNewLabelName}
+                    newLabelColor={quizNewLabelColor}
+                    onLabelIdChange={setQuizSelectedLabelId}
+                    onNewLabelNameChange={setQuizNewLabelName}
+                    onNewLabelColorChange={setQuizNewLabelColor}
+                    mode={quizLabelMode}
+                    onModeChange={setQuizLabelMode}
                   />
                 )}
                 {selectedQuizSetIds.length > 1 && (
@@ -208,11 +256,33 @@ export function DialogAddExam(props: DialogAddExamProps) {
                 )}
               </>
             ) : (
-              <FormSelectFlashcardSet
-                selectedIds={selectedFlashcardSetIds}
-                onSelectionChange={setSelectedFlashcardSetIds}
-                onCreateSuccess={() => {}}
-              />
+              <>
+                <FormSelectFlashcardSet
+                  selectedIds={selectedFlashcardSetIds}
+                  onSelectionChange={setSelectedFlashcardSetIds}
+                  onCreateSuccess={() => {}}
+                />
+                {/* Label selector for flashcard - only show when a single flashcardset is selected */}
+                {selectedFlashcardSetIds.length === 1 && (
+                  <LabelSelector
+                    key={flashcardLabelRefreshKey}
+                    flashcardSetId={selectedFlashcardSetIds[0]}
+                    selectedLabelId={flashcardSelectedLabelId}
+                    newLabelName={flashcardNewLabelName}
+                    newLabelColor={flashcardNewLabelColor}
+                    onLabelIdChange={setFlashcardSelectedLabelId}
+                    onNewLabelNameChange={setFlashcardNewLabelName}
+                    onNewLabelColorChange={setFlashcardNewLabelColor}
+                    mode={flashcardLabelMode}
+                    onModeChange={setFlashcardLabelMode}
+                  />
+                )}
+                {selectedFlashcardSetIds.length > 1 && (
+                  <p className="text-sm text-muted-foreground">
+                    💡 Chọn 1 bộ flashcard để có thể gán nhãn
+                  </p>
+                )}
+              </>
             )}
           </div>
           <DialogFooter>
