@@ -11,17 +11,20 @@ import {
   SquareSplitVertical,
   Sparkles,
   Cpu,
-  Zap,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RecentUpload } from "@/apis/aiApi";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
+import { ModelSelector } from "@/components/atoms/ModelSelector";
+import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
 
 function AIGeneratorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab") || "test";
   const [activeTab, setActiveTab] = useState(tabFromUrl);
+  const [selectedModel, setSelectedModel] =
+    useState<AIModelType>(DEFAULT_AI_MODEL);
   const { loadFromUpload } = useRecentUploadsStore();
 
   // Sync URL with tab state
@@ -45,33 +48,32 @@ function AIGeneratorContent() {
 
       {/* Header Section */}
       <section className="relative container mx-auto px-4 pt-8 pb-6">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
-            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
-              <Cpu className="w-7 h-7 text-primary" />
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
+              <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
+                <Cpu className="w-7 h-7 text-primary" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+                AI Generator
+              </h1>
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                Tạo đề kiểm tra & flashcard từ tài liệu PDF
+              </p>
             </div>
           </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
-              AI Generator
-            </h1>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              Tạo đề kiểm tra & flashcard từ tài liệu PDF
-            </p>
-          </div>
-        </div>
-
-        {/* Stats Bar */}
-        <div className="flex items-center gap-4 mt-6">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
-            <Zap className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm text-muted-foreground">
-              Powered by{" "}
-              <span className="text-foreground font-medium">Gemini AI</span>
-            </span>
-          </div>
+          {/* Model Selector */}
+          <ModelSelector
+            value={selectedModel}
+            onChange={setSelectedModel}
+            disabledModels={{
+              fayedark: "Model chưa khả dụng, đang phát triển!",
+            }}
+          />
         </div>
       </section>
 

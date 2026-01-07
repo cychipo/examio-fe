@@ -25,6 +25,7 @@ export interface Question {
   question: string;
   options: string[];
   answer?: string; // Only present when viewing results with showAnswers
+  userAnswer?: string | null; // The user's selected answer (from secure submit)
 }
 
 export interface ExamAttemptWithQuestions extends ExamAttempt {

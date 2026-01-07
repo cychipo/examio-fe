@@ -20,6 +20,7 @@ import {
 import { Quizz } from "@/types/quizset";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import { QuestionEditorDialog } from "@/components/organisms/QuestionEditorDialog";
+import { LabelManager } from "@/components/organisms/LabelManager";
 import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 import {
   Breadcrumb,
@@ -260,12 +261,16 @@ export default function QuizSetDetailPage({
           </Card>
         </div>
 
+        {/* Label Manager */}
+        <LabelManager quizSetId={id} />
+
         {/* Question Editor Dialog */}
         <QuestionEditorDialog
           open={showQuestionForm}
           onOpenChange={setShowQuestionForm}
           question={selectedQuestion}
           onSave={handleSaveQuestion}
+          quizSetId={id}
         />
 
         {/* Questions List */}
@@ -305,6 +310,25 @@ export default function QuizSetDetailPage({
                         {actualIndex + 1}
                       </div>
                       <div className="flex-1 min-w-0">
+                        {/* Label badge */}
+                        {question.label && (
+                          <div className="mb-2">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border"
+                                 style={{
+                                   backgroundColor: question.label.color ? `${question.label.color}15` : undefined,
+                                   borderColor: question.label.color || undefined,
+                                   color: question.label.color || undefined
+                                 }}>
+                              {question.label.color && (
+                                <div
+                                  className="w-2 h-2 rounded-full"
+                                  style={{ backgroundColor: question.label.color }}
+                                />
+                              )}
+                              {question.label.name}
+                            </div>
+                          </div>
+                        )}
                         <div className="mb-2">
                           <RichTextViewer content={question.question} />
                         </div>
