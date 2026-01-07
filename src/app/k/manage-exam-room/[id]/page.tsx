@@ -236,6 +236,12 @@ export default function ExamRoomDetailPage() {
     allowRetake: boolean;
     maxAttempts: number;
     showAnswersAfterSubmit?: boolean;
+    passingScore?: number;
+    // Question configuration
+    questionCount?: number | null;
+    questionSelectionMode?: number;
+    labelQuestionConfig?: any[] | null;
+    shuffleQuestions?: boolean;
   }) => {
     let success = false;
 
@@ -250,6 +256,12 @@ export default function ExamRoomDetailPage() {
         allowRetake: data.allowRetake,
         maxAttempts: data.maxAttempts,
         showAnswersAfterSubmit: data.showAnswersAfterSubmit,
+        passingScore: data.passingScore,
+        // Question configuration
+        questionCount: data.questionCount,
+        questionSelectionMode: data.questionSelectionMode,
+        labelQuestionConfig: data.labelQuestionConfig,
+        shuffleQuestions: data.shuffleQuestions,
       });
     } else if (editingSession) {
       success = await updateSession(editingSession.id, {
@@ -261,6 +273,12 @@ export default function ExamRoomDetailPage() {
         allowRetake: data.allowRetake,
         maxAttempts: data.maxAttempts,
         showAnswersAfterSubmit: data.showAnswersAfterSubmit,
+        passingScore: data.passingScore,
+        // Question configuration
+        questionCount: data.questionCount,
+        questionSelectionMode: data.questionSelectionMode,
+        labelQuestionConfig: data.labelQuestionConfig,
+        shuffleQuestions: data.shuffleQuestions,
       });
     }
 

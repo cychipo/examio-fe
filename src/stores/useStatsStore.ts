@@ -82,7 +82,6 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
         }
       );
       const data = await response.json();
-      console.log(data);
       set({
         quizStats: {
           totalGroups: data.totalExams || 0,

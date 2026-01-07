@@ -259,7 +259,7 @@ export function SubjectSelector({
 
               {/* Subjects List */}
               {expandedCategoryId === category.id && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-4 animate-in slide-in-from-top-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 px-1 animate-in slide-in-from-top-2">
                   {category.subjects?.map((subject) => (
                     <Card
                       key={subject.id}

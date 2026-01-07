@@ -3,6 +3,8 @@ import {
   ExamSession,
   EXAM_SESSION_STATUS,
   ASSESS_TYPE,
+  QUESTION_SELECTION_MODE,
+  LabelQuestionConfig,
   AccessCheckResult,
   ExamSessionPublicInfo,
   ExamSessionForStudy,
@@ -21,6 +23,11 @@ export type CredentialsCreateExamSession = {
   whitelist?: string[];
   showAnswersAfterSubmit?: boolean;
   passingScore?: number;
+  // Question configuration
+  questionCount?: number | null;
+  questionSelectionMode?: QUESTION_SELECTION_MODE;
+  labelQuestionConfig?: LabelQuestionConfig[] | null;
+  shuffleQuestions?: boolean;
 };
 
 export type CredentialsUpdateExamSession = {
@@ -35,6 +42,11 @@ export type CredentialsUpdateExamSession = {
   whitelist?: string[];
   showAnswersAfterSubmit?: boolean;
   passingScore?: number;
+  // Question configuration
+  questionCount?: number | null;
+  questionSelectionMode?: QUESTION_SELECTION_MODE;
+  labelQuestionConfig?: LabelQuestionConfig[] | null;
+  shuffleQuestions?: boolean;
 };
 
 export type CredentialsGetExamSessions = {

@@ -5,32 +5,50 @@ export enum EXAM_SESSION_STATUS {
 }
 
 export enum ASSESS_TYPE {
-  PUBLIC = 0,
-  PRIVATE = 1,
+    PUBLIC = 0,
+    PRIVATE = 1,
+}
+
+// Question selection modes for exam sessions
+export enum QUESTION_SELECTION_MODE {
+    ALL = 0, // Use all questions from the quiz set
+    RANDOM_TOTAL = 1, // Randomly select N questions from total
+    RANDOM_BY_LABEL = 2, // Randomly select questions based on label configuration
+}
+
+// Configuration for label-based question selection
+export interface LabelQuestionConfig {
+    labelId: string; // Label ID (use 'unlabeled' for questions without label)
+    count: number; // Number of questions to randomly select from this label
 }
 
 export interface ExamSession {
-  id: string;
-  examRoomId: string;
-  status: EXAM_SESSION_STATUS;
-  startTime: string;
-  endTime?: string;
-  autoJoinByLink: boolean;
-  // Security and access control fields
-  assessType: ASSESS_TYPE;
-  allowRetake: boolean;
-  maxAttempts: number;
-  accessCode?: string;
-  whitelist?: string[];
-  showAnswersAfterSubmit?: boolean;
-  passingScore?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  // Relations
-  examRoom?: ExamRoomBasic;
-  _count?: {
-    examAttempts?: number;
-  };
+    id: string;
+    examRoomId: string;
+    status: EXAM_SESSION_STATUS;
+    startTime: string;
+    endTime?: string;
+    autoJoinByLink: boolean;
+    // Security and access control fields
+    assessType: ASSESS_TYPE;
+    allowRetake: boolean;
+    maxAttempts: number;
+    accessCode?: string;
+    whitelist?: string[];
+    showAnswersAfterSubmit?: boolean;
+    passingScore?: number;
+    // Question selection configuration
+    questionCount?: number | null;
+    questionSelectionMode?: QUESTION_SELECTION_MODE;
+    labelQuestionConfig?: LabelQuestionConfig[] | null;
+    shuffleQuestions?: boolean;
+    createdAt?: string;
+    updatedAt?: string;
+    // Relations
+    examRoom?: ExamRoomBasic;
+    _count?: {
+        examAttempts?: number;
+    };
 }
 
 export interface ExamRoomBasic {
