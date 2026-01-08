@@ -3,8 +3,11 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import rehypeRaw from "rehype-raw";
+import rehypeKatex from "rehype-katex";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import "katex/dist/katex.min.css";
 import { cn } from "@/lib/utils";
 
 interface StandardMarkdownRendererProps {
@@ -26,8 +29,9 @@ export function StandardMarkdownRenderer({
       )}
       style={{ fontSize: `${fontSize}px` }}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[
+          rehypeKatex,
           rehypeRaw,
           [
             rehypeSanitize,
@@ -38,6 +42,11 @@ export function StandardMarkdownRenderer({
                 "*": ["className", "class", "style"], // Allow class/style for styling
                 img: ["src", "alt", "width", "height", "className", "class"],
                 a: ["href", "name", "target", "rel", "className", "class"],
+                // Allow KaTeX elements and classes
+                span: [...(defaultSchema.attributes?.span || []), "className", "class"],
+                div: [...(defaultSchema.attributes?.div || []), "className", "class"],
+                math: ["display"], // Allow math elements
+                annotation: ["encoding"], // Allow math annotations
               },
             },
           ],

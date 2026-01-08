@@ -5,6 +5,7 @@ import { api } from "./api";
 export interface AIChat {
   id: string;
   userId: string;
+  subjectId: string | null;
   title: string;
   activeDocumentId?: string | null;
   activeDocumentName?: string | null;
@@ -12,6 +13,13 @@ export interface AIChat {
   updatedAt: string;
   lastMessage?: string;
   messageCount?: number;
+  subject?: {
+    id: string;
+    name: string;
+    slug: string;
+    icon: string | null;
+    color: string | null;
+  } | null;
 }
 
 export interface AIChatMessage {
@@ -49,6 +57,7 @@ export interface SendMessageResponse {
 
 export interface CreateChatRequest {
   title?: string;
+  subjectId?: string;
 }
 
 export interface UpdateChatRequest {
@@ -155,6 +164,17 @@ export const aiChatApi = {
     chatId: string
   ): Promise<{ success: boolean; message: string }> => {
     const response = await api.delete(`/ai-chat/${chatId}`);
+    return response.data;
+  },
+
+  /**
+   * Clear chat and optionally delete associated files
+   */
+  clearChat: async (
+    chatId: string,
+    deleteFiles?: boolean
+  ): Promise<{ success: boolean; message: string; deletedFiles?: string[] }> => {
+    const response = await api.post(`/ai-chat/${chatId}/clear`, { deleteFiles });
     return response.data;
   },
 

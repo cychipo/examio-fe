@@ -109,3 +109,27 @@ export async function getExamRoomSessionsApi(
   });
   return response.data;
 }
+
+export interface LabelInfo {
+  id: string;
+  name: string;
+  color?: string | null;
+  questionCount: number;
+}
+
+export interface AvailableLabelsResponse {
+  totalQuestions: number;
+  labels: LabelInfo[];
+  unlabeledCount: number;
+}
+
+/**
+ * Get available labels and their question counts for an exam room
+ * Used when configuring question selection for exam sessions
+ */
+export async function getAvailableLabelsForExamRoomApi(
+  examRoomId: string
+): Promise<AvailableLabelsResponse> {
+  const response = await api.get(`/examsessions/room/${examRoomId}/available-labels`);
+  return response.data;
+}

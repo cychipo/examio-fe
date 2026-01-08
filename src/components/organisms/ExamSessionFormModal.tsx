@@ -27,12 +27,13 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ExamSessionBasic } from "@/types/examRoom";
-import { ASSESS_TYPE } from "@/types/examSession";
+import { ASSESS_TYPE, QUESTION_SELECTION_MODE, LabelQuestionConfig } from "@/types/examSession";
 import {
   UserSearchInput,
   WhitelistUser,
 } from "@/components/molecules/UserSearchInput";
 import { getExamSessionSharingSettingsApi } from "@/apis/examSessionApi";
+import { QuestionConfigSection } from "./QuestionConfigSection";
 
 // Access type for UI
 type AccessType = "public" | "code" | "whitelist";
@@ -47,6 +48,11 @@ interface ExamSessionFormData {
   maxAttempts: number;
   showAnswersAfterSubmit: boolean;
   passingScore: number;
+  // Question configuration
+  questionCount?: number | null;
+  questionSelectionMode?: QUESTION_SELECTION_MODE;
+  labelQuestionConfig?: LabelQuestionConfig[] | null;
+  shuffleQuestions?: boolean;
 }
 
 interface ExamSessionFormModalProps {
@@ -65,6 +71,11 @@ interface ExamSessionFormModalProps {
     maxAttempts: number;
     showAnswersAfterSubmit?: boolean;
     passingScore?: number;
+    // Question configuration
+    questionCount?: number | null;
+    questionSelectionMode?: QUESTION_SELECTION_MODE;
+    labelQuestionConfig?: LabelQuestionConfig[] | null;
+    shuffleQuestions?: boolean;
   }) => Promise<boolean>;
   isLoading?: boolean;
 }
@@ -79,16 +90,16 @@ const initialFormData: ExamSessionFormData = {
   maxAttempts: 1,
   showAnswersAfterSubmit: true,
   passingScore: 40,
+  // Question configuration defaults
+  questionSelectionMode: QUESTION_SELECTION_MODE.ALL,
+  shuffleQuestions: false,
 };
 
-/**
- * Modal form component for creating/editing exam sessions
- * Includes whitelist management and show answers option
- */
 export function ExamSessionFormModal({
   open,
   onOpenChange,
   mode,
+  examRoomId,
   session,
   onSubmit,
   isLoading = false,
@@ -151,6 +162,11 @@ export function ExamSessionFormModal({
           maxAttempts: sessionAny.maxAttempts || 1,
           showAnswersAfterSubmit: sessionAny.showAnswersAfterSubmit ?? true,
           passingScore: sessionAny.passingScore ?? 0,
+          // Question configuration
+          questionCount: sessionAny.questionCount ?? null,
+          questionSelectionMode: sessionAny.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL,
+          labelQuestionConfig: sessionAny.labelQuestionConfig ?? null,
+          shuffleQuestions: sessionAny.shuffleQuestions ?? false,
         });
 
         // Load whitelist users if editing
@@ -166,6 +182,8 @@ export function ExamSessionFormModal({
         setFormData({
           ...initialFormData,
           startTime: defaultStart,
+          questionSelectionMode: QUESTION_SELECTION_MODE.ALL,
+          shuffleQuestions: false,
         });
       }
       setErrors({});
@@ -180,6 +198,22 @@ export function ExamSessionFormModal({
     },
     []
   );
+
+  // Handle question config change
+  const handleQuestionConfigChange = useCallback((config: {
+    questionCount?: number | null;
+    questionSelectionMode?: QUESTION_SELECTION_MODE;
+    labelQuestionConfig?: LabelQuestionConfig[] | null;
+    shuffleQuestions?: boolean;
+  }) => {
+    setFormData(prev => ({
+      ...prev,
+      questionCount: config.questionCount,
+      questionSelectionMode: config.questionSelectionMode,
+      labelQuestionConfig: config.labelQuestionConfig,
+      shuffleQuestions: config.shuffleQuestions,
+    }));
+  }, []);
 
   // Generate random 6-digit access code
   const generateAccessCode = useCallback(() => {
@@ -225,9 +259,7 @@ export function ExamSessionFormModal({
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleFormSubmit = async () => {
     if (!validate()) return;
 
     setSubmitting(true);
@@ -253,6 +285,11 @@ export function ExamSessionFormModal({
         maxAttempts: formData.maxAttempts,
         showAnswersAfterSubmit: formData.showAnswersAfterSubmit,
         passingScore: formData.passingScore,
+        // Question configuration
+        questionCount: formData.questionCount ?? null,
+        questionSelectionMode: formData.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL,
+        labelQuestionConfig: formData.labelQuestionConfig ?? null,
+        shuffleQuestions: formData.shuffleQuestions ?? false,
       };
 
       const success = await onSubmit(submitData);
@@ -281,7 +318,7 @@ export function ExamSessionFormModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleFormSubmit} className="space-y-6 py-4">
+        <div className="space-y-6 py-4">
           {/* Start Time */}
           <div className="space-y-2">
             <Label htmlFor="startTime" className="flex items-center gap-2">
@@ -318,7 +355,7 @@ export function ExamSessionFormModal({
             </p>
           </div>
 
-          {/* Access Type Tabs */}
+          {/* Access Configuration */}
           <div className="space-y-3">
             <Label className="flex items-center gap-2">
               <Lock className="h-4 w-4" />
@@ -349,14 +386,12 @@ export function ExamSessionFormModal({
                 </TabsTrigger>
               </TabsList>
 
-              {/* Public content */}
               <TabsContent value="public" className="mt-3">
                 <p className="text-sm text-muted-foreground">
                   Mọi người đều có thể tham gia phiên thi này.
                 </p>
               </TabsContent>
 
-              {/* Code content */}
               <TabsContent value="code" className="mt-3 space-y-3">
                 <div className="space-y-2">
                   <Label htmlFor="accessCode">
@@ -395,7 +430,6 @@ export function ExamSessionFormModal({
                 </div>
               </TabsContent>
 
-              {/* Whitelist content */}
               <TabsContent value="whitelist" className="mt-3 space-y-3">
                 <UserSearchInput
                   selectedUsers={formData.whitelistUsers}
@@ -412,6 +446,19 @@ export function ExamSessionFormModal({
               </TabsContent>
             </Tabs>
           </div>
+
+          {/* Question Configuration */}
+          <QuestionConfigSection
+            examRoomId={examRoomId}
+            initialData={{
+              questionCount: formData.questionCount,
+              questionSelectionMode: formData.questionSelectionMode,
+              labelQuestionConfig: formData.labelQuestionConfig,
+              shuffleQuestions: formData.shuffleQuestions,
+            }}
+            onConfigChange={handleQuestionConfigChange}
+            disabled={isFormLoading}
+          />
 
           {/* Show Answers After Submit */}
           <div className="flex items-center justify-between rounded-lg border p-4">
@@ -509,14 +556,14 @@ export function ExamSessionFormModal({
               disabled={isFormLoading}>
               Hủy
             </Button>
-            <Button type="submit" disabled={isFormLoading}>
+            <Button onClick={handleFormSubmit} disabled={isFormLoading}>
               {isFormLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               {mode === "create" ? "Tạo phiên thi" : "Lưu thay đổi"}
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

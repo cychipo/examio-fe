@@ -17,6 +17,10 @@ import {
   getQuizSetLabelsApi,
   QuizSetLabel,
 } from "@/apis/quizsetApi";
+import {
+  getFlashcardSetLabelsApi,
+  FlashcardSetLabel,
+} from "@/apis/flashcardSetApi";
 import { cn } from "@/lib/utils";
 
 // Predefined colors for labels
@@ -32,7 +36,8 @@ const LABEL_COLORS = [
 ];
 
 interface LabelSelectorProps {
-  quizSetId: string | null;
+  quizSetId?: string | null;
+  flashcardSetId?: string | null;
   selectedLabelId: string | null;
   newLabelName: string;
   newLabelColor: string;
@@ -45,6 +50,7 @@ interface LabelSelectorProps {
 
 export function LabelSelector({
   quizSetId,
+  flashcardSetId,
   selectedLabelId,
   newLabelName,
   newLabelColor,
@@ -54,14 +60,20 @@ export function LabelSelector({
   mode,
   onModeChange,
 }: LabelSelectorProps) {
-  const [labels, setLabels] = useState<QuizSetLabel[]>([]);
+  const [labels, setLabels] = useState<(QuizSetLabel | FlashcardSetLabel)[]>([]);
   const [loading, setLoading] = useState(false);
+  const isFlashcardMode = !!flashcardSetId;
 
-  // Fetch labels when quizSetId changes
+  // Fetch labels when quizSetId or flashcardSetId changes
   useEffect(() => {
-    if (quizSetId) {
+    const setId = quizSetId || flashcardSetId;
+    if (setId) {
       setLoading(true);
-      getQuizSetLabelsApi(quizSetId)
+      const fetchLabels = quizSetId 
+        ? getQuizSetLabelsApi(setId)
+        : getFlashcardSetLabelsApi(setId);
+
+      fetchLabels
         .then((response) => {
           setLabels(response.labels);
           // Auto-switch mode: prefer "existing" if labels exist, otherwise "new"
@@ -83,9 +95,9 @@ export function LabelSelector({
       setLabels([]);
       onModeChange("new");
     }
-  }, [quizSetId, onModeChange]);
+  }, [quizSetId, flashcardSetId, onModeChange]);
 
-  if (!quizSetId) {
+  if (!quizSetId && !flashcardSetId) {
     return null;
   }
 
@@ -152,7 +164,7 @@ export function LabelSelector({
                   )}
                   <span>{label.name}</span>
                   <span className="text-muted-foreground text-xs">
-                    ({label.questionCount || 0} câu)
+                    ({(isFlashcardMode ? (label as FlashcardSetLabel).flashcardCount : (label as QuizSetLabel).questionCount) || 0} {isFlashcardMode ? "thẻ" : "câu"})
                   </span>
                 </div>
               </SelectItem>

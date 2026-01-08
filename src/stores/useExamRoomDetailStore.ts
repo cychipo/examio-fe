@@ -115,6 +115,11 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
             allowRetake: newSession.allowRetake,
             maxAttempts: newSession.maxAttempts,
             showAnswersAfterSubmit: newSession.showAnswersAfterSubmit,
+            passingScore: newSession.passingScore,
+            questionCount: newSession.questionCount,
+            questionSelectionMode: newSession.questionSelectionMode,
+            labelQuestionConfig: newSession.labelQuestionConfig,
+            shuffleQuestions: newSession.shuffleQuestions,
             _count: { participants: 0, examAttempts: 0 },
           } as ExamSessionBasic,
           ...state.sessions,
@@ -159,6 +164,11 @@ export const useExamRoomDetailStore = create<ExamRoomDetailStore>((set) => ({
                 showAnswersAfterSubmit:
                   updatedSession.showAnswersAfterSubmit ??
                   session.showAnswersAfterSubmit,
+                passingScore: updatedSession.passingScore ?? session.passingScore,
+                questionCount: updatedSession.questionCount ?? session.questionCount,
+                questionSelectionMode: updatedSession.questionSelectionMode ?? session.questionSelectionMode,
+                labelQuestionConfig: updatedSession.labelQuestionConfig ?? session.labelQuestionConfig,
+                shuffleQuestions: updatedSession.shuffleQuestions ?? session.shuffleQuestions,
               }
             : session
         ),

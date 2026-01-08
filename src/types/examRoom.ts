@@ -39,6 +39,12 @@ export interface ExamSessionBasic {
   allowRetake: boolean;
   maxAttempts: number;
   showAnswersAfterSubmit: boolean;
+  passingScore?: number;
+  // Question configuration
+  questionCount?: number | null;
+  questionSelectionMode?: number;
+  labelQuestionConfig?: any[] | null;
+  shuffleQuestions?: boolean;
   distinctUserCount?: number;
   _count?: {
     participants?: number;

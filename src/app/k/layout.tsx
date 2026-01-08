@@ -90,7 +90,7 @@ export default function RootLayout({
       )}>
       <SidebarKit />
 
-      <div className="w-full m-0 pb-20 md:ml-[288px]">
+      <div className="w-full m-0 pb-20 md:ml-[288px] pt-12">
         {/* Verification Alert Banner */}
         {showVerificationBanner && (
           <div className="w-full bg-amber-500/90 dark:bg-amber-600/90 text-white px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
@@ -124,7 +124,7 @@ export default function RootLayout({
         )}
 
         {/* Header */}
-        <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80 ">
+        <header className="border-b border-border/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 bg-background/95 w-full md:left-[288px] md:w-[calc(100%-288px)]">
           <div className="container mx-auto py-1 px-2 w-full">
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3"></div>

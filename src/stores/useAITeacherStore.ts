@@ -10,6 +10,7 @@ import { RecentUpload } from "@/apis/aiApi";
 import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
 import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
+import { Subject, SubjectCategory, subjectApi } from "@/apis/subjectApi";
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -22,6 +23,11 @@ const TTS_CONFIG = {
 interface AITeacherState {
   // AI Model selection
   selectedModel: AIModelType;
+
+  // Subject (Giáo viên AI)
+  categories: SubjectCategory[];
+  isLoadingCategories: boolean;
+  selectedSubject: Subject | null;
 
   // Chat list
   chats: AIChat[];
@@ -59,11 +65,16 @@ interface AITeacherState {
 
   // Actions - Chat CRUD
   fetchChats: (options?: { forceRefresh?: boolean }) => Promise<void>;
-  createChat: () => Promise<string | null>;
-  selectChat: (chatId: string | null, updateUrl?: boolean) => Promise<void>;
+  createChat: (subjectId?: string) => Promise<string | null>;
+  selectChat: (chatId: string | null, updateUrl?: boolean, forceRefresh?: boolean) => Promise<void>;
   updateChatTitle: (chatId: string, title: string) => Promise<void>;
   deleteChat: (chatId: string) => Promise<void>;
   checkAndLoadChatFromUrl: () => Promise<void>;
+
+  // Actions - Subject
+  fetchCategories: () => Promise<void>;
+  selectSubject: (subject: Subject | null) => void;
+  startChatWithSubject: (subject: Subject) => Promise<void>;
 
   // Actions - Messages (now with streaming)
   sendMessage: (message: string, fromMic?: boolean) => Promise<void>;
@@ -90,6 +101,7 @@ interface AITeacherState {
 
   // Actions - Clear
   clearCurrentChat: () => void;
+  clearChatWithFiles: (chatId: string, deleteFiles: boolean) => Promise<void>;
 }
 
 // Helper functions
@@ -179,6 +191,9 @@ const getChatIdFromUrl = (): string | null => {
 export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   // Initial states
   selectedModel: DEFAULT_AI_MODEL,
+  categories: [],
+  isLoadingCategories: false,
+  selectedSubject: null,
   chats: [],
   isLoadingChats: false,
   selectedChatId: null,
@@ -199,6 +214,49 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   audioQueue: [],
   isPlayingQueue: false,
   abortStream: null,
+
+  // ================== SUBJECT ==================
+
+  fetchCategories: async () => {
+    const cacheKey = storeCache.createKey("ai-teacher-categories", {});
+
+    set({ isLoadingCategories: true });
+    try {
+      const response = await storeCache.fetchWithCache(
+        cacheKey,
+        () => subjectApi.getCategories(),
+        { ttl: CacheTTL.ONE_HOUR }
+      );
+      set({ categories: response.categories });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      toast.error("Không thể tải danh sách môn học");
+    } finally {
+      set({ isLoadingCategories: false });
+    }
+  },
+
+  selectSubject: (subject: Subject | null) => {
+    set({ selectedSubject: subject });
+  },
+
+  startChatWithSubject: async (subject: Subject) => {
+    set({ selectedSubject: subject });
+
+    // Check if there's already a chat with this subject
+    const existingChat = get().chats.find(chat => chat.subjectId === subject.id);
+
+    if (existingChat) {
+      // Use existing chat
+      await get().selectChat(existingChat.id, true);
+    } else {
+      // Create new chat for the subject
+      const chatId = await get().createChat(subject.id);
+      if (chatId) {
+        await get().selectChat(chatId, true);
+      }
+    }
+  },
 
   // ================== CHAT CRUD ==================
 
@@ -222,9 +280,9 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
-  createChat: async () => {
+  createChat: async (subjectId?: string) => {
     try {
-      const chat = await aiChatApi.createChat();
+      const chat = await aiChatApi.createChat({ subjectId });
       const existingChat = get().chats.find((c) => c.id === chat.id);
       if (existingChat) {
         get().selectChat(chat.id, true);
@@ -235,6 +293,24 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
         selectedChatId: chat.id,
         messages: [],
       }));
+      // Update selectedSubject from chat if available
+      if (chat.subject) {
+        set({
+          selectedSubject: {
+            id: chat.subject.id,
+            name: chat.subject.name,
+            slug: chat.subject.slug,
+            icon: chat.subject.icon,
+            color: chat.subject.color,
+            categoryId: "",
+            order: 0,
+            isActive: true,
+            description: null,
+            createdAt: "",
+            updatedAt: "",
+          },
+        });
+      }
       storeCache.invalidate("ai-teacher-chats");
       updateUrlQuery(chat.id);
       return chat.id;
@@ -245,7 +321,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
   },
 
-  selectChat: async (chatId: string | null, updateUrl = true) => {
+  selectChat: async (chatId: string | null, updateUrl = true, forceRefresh = false) => {
     // Abort any ongoing stream and clear ALL streaming state
     const { abortStream } = get();
     if (abortStream) {
@@ -259,7 +335,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     }
 
     if (chatId === null) {
-      set({ selectedChatId: null, messages: [] });
+      set({ selectedChatId: null, messages: [], selectedSubject: null });
       if (updateUrl) updateUrlQuery(null);
       return;
     }
@@ -271,24 +347,37 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
     set({ selectedUploads: [], uploadedImageUrl: null });
 
     try {
-      // Cache messages per chatId
+      // Cache messages per chatId - force refresh if requested
       const messagesCacheKey = storeCache.createKey("ai-teacher-messages", {
         chatId,
       });
-      const messages = await storeCache.fetchWithCache(
-        messagesCacheKey,
-        () => aiChatApi.getChatMessages(chatId),
-        { ttl: CacheTTL.FIVE_MINUTES }
-      );
+
+      let messages;
+      if (forceRefresh) {
+        storeCache.invalidate(messagesCacheKey);
+        messages = await aiChatApi.getChatMessages(chatId);
+      } else {
+        messages = await storeCache.fetchWithCache(
+          messagesCacheKey,
+          () => aiChatApi.getChatMessages(chatId),
+          { ttl: CacheTTL.FIVE_MINUTES }
+        );
+      }
       set({ messages });
 
-      // Cache documents per chatId
+      // Cache documents per chatId - force refresh if requested
       const docsCacheKey = storeCache.createKey("ai-teacher-docs", { chatId });
-      const docs = await storeCache.fetchWithCache(
-        docsCacheKey,
-        () => aiChatApi.getDocuments(chatId),
-        { ttl: CacheTTL.FIVE_MINUTES }
-      );
+      let docs;
+      if (forceRefresh) {
+        storeCache.invalidate(docsCacheKey);
+        docs = await aiChatApi.getDocuments(chatId);
+      } else {
+        docs = await storeCache.fetchWithCache(
+          docsCacheKey,
+          () => aiChatApi.getDocuments(chatId),
+          { ttl: CacheTTL.FIVE_MINUTES }
+        );
+      }
       if (docs.length > 0) {
         set({
           selectedUploads: docs.map((d) => ({
@@ -301,6 +390,26 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
             quizHistory: null,
             flashcardHistory: null,
           })),
+        });
+      }
+
+      // Get subject from chat in chats list
+      const chat = get().chats.find((c) => c.id === chatId);
+      if (chat?.subject) {
+        set({
+          selectedSubject: {
+            id: chat.subject.id,
+            name: chat.subject.name,
+            slug: chat.subject.slug,
+            icon: chat.subject.icon,
+            color: chat.subject.color,
+            categoryId: "",
+            order: 0,
+            isActive: true,
+            description: null,
+            createdAt: "",
+            updatedAt: "",
+          },
         });
       }
     } catch (error) {
@@ -371,6 +480,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       selectedUploads,
       uploadedImageUrl,
       selectedModel,
+      selectedSubject,
       createChat,
       speakResponse,
       stopSpeaking,
@@ -389,7 +499,7 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
 
     let chatId = selectedChatId;
     if (!chatId) {
-      chatId = await createChat();
+      chatId = await createChat(selectedSubject?.id);
       if (!chatId) return;
     }
 
@@ -726,5 +836,37 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
       selectedUploads: [],
     });
     updateUrlQuery(null);
+  },
+
+  clearChatWithFiles: async (chatId: string, deleteFiles: boolean) => {
+    try {
+      const result = await aiChatApi.clearChat(chatId, deleteFiles);
+
+      if (result.success) {
+        // Remove chat from local state
+        set((state) => ({
+          chats: state.chats.filter((chat) => chat.id !== chatId),
+          selectedChatId: state.selectedChatId === chatId ? null : state.selectedChatId,
+          messages: state.selectedChatId === chatId ? [] : state.messages,
+          selectedUploads: state.selectedChatId === chatId ? [] : state.selectedUploads,
+          uploadedImageUrl: state.selectedChatId === chatId ? null : state.uploadedImageUrl,
+        }));
+
+        if (get().selectedChatId === chatId) {
+          updateUrlQuery(null);
+        }
+
+        storeCache.invalidate("ai-teacher");
+
+        if (deleteFiles && result.deletedFiles?.length) {
+          toast.success(`Đã xóa chat và ${result.deletedFiles.length} file`);
+        } else {
+          toast.success("Đã xóa chat");
+        }
+      }
+    } catch (error) {
+      console.error("Error clearing chat:", error);
+      toast.error("Không thể xóa chat");
+    }
   },
 }));
