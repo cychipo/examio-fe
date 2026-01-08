@@ -103,15 +103,6 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
     loadLabels();
   }, [flashcardSetId]);
 
-  // Load flashcards for selected label
-  useEffect(() => {
-    if (selectedLabelId !== null) {
-      loadLabelFlashcards(selectedLabelId);
-    } else {
-      setLabelFlashcards([]);
-    }
-  }, [selectedLabelId]);
-
   const loadLabelFlashcards = async (labelId: string) => {
     setLoadingFlashcards(true);
     try {
@@ -125,6 +116,15 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
       setLoadingFlashcards(false);
     }
   };
+
+  // Load flashcards for selected label
+  useEffect(() => {
+    if (selectedLabelId !== null) {
+      loadLabelFlashcards(selectedLabelId);
+    } else {
+      setLabelFlashcards([]);
+    }
+  }, [selectedLabelId]);
 
   const handleCreateLabel = async () => {
     if (!newLabelName.trim()) return;
