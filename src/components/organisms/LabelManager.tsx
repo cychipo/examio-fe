@@ -102,13 +102,6 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
     loadLabels();
   }, [quizSetId]);
 
-  // Load questions for selected label
-  useEffect(() => {
-    if (selectedLabelId !== null) {
-      loadLabelQuestions(selectedLabelId);
-    }
-  }, [selectedLabelId]);
-
   const loadLabelQuestions = async (labelId: string) => {
     setLoadingQuestions(true);
     try {
@@ -121,6 +114,13 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
       setLoadingQuestions(false);
     }
   };
+
+  // Load questions for selected label
+  useEffect(() => {
+    if (selectedLabelId !== null) {
+      loadLabelQuestions(selectedLabelId);
+    }
+  }, [selectedLabelId]);
 
   const handleCreateLabel = async () => {
     if (!newLabelName.trim()) return;

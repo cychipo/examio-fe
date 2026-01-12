@@ -190,7 +190,7 @@ export function QuestionConfigSection({
           <Label className="text-base font-medium">Chế độ chọn câu hỏi</Label>
           <Select
             value={selectionMode.toString()}
-            onValueChange={(value) => setSelectionMode(parseInt(value) as QUESTION_SELECTION_MODE)}
+            onValueChange={(value) => setSelectionMode(Number.parseInt(value) as QUESTION_SELECTION_MODE)}
             disabled={disabled}
           >
             <SelectTrigger>
@@ -220,7 +220,7 @@ export function QuestionConfigSection({
               min={1}
               max={availableLabels?.totalQuestions || 999}
               value={questionCount || ""}
-              onChange={(e) => setQuestionCount(parseInt(e.target.value) || null)}
+              onChange={(e) => setQuestionCount(Number.parseInt(e.target.value) || null)}
               placeholder={`Tối đa ${availableLabels?.totalQuestions || 0} câu`}
               disabled={disabled}
             />
@@ -294,7 +294,7 @@ export function QuestionConfigSection({
                             min={0}
                             max={availableCount}
                             value={config.count}
-                            onChange={(e) => updateLabelCount(config.labelId, parseInt(e.target.value) || 0)}
+                            onChange={(e) => updateLabelCount(config.labelId, Number.parseInt(e.target.value) || 0)}
                             className="w-16 text-center"
                             disabled={disabled}
                           />
@@ -393,7 +393,7 @@ export function QuestionConfigSection({
                               min={0}
                               max={label.questionCount}
                               value={config?.count || 0}
-                              onChange={(e) => updateLabelCount(label.id, parseInt(e.target.value) || 0)}
+                              onChange={(e) => updateLabelCount(label.id, Number.parseInt(e.target.value) || 0)}
                               className="w-20"
                             />
                           </div>
@@ -420,7 +420,7 @@ export function QuestionConfigSection({
                             min={0}
                             max={availableLabels.unlabeledCount}
                             value={labelConfig.find(c => c.labelId === 'unlabeled')?.count || 0}
-                            onChange={(e) => updateLabelCount('unlabeled', parseInt(e.target.value) || 0)}
+                            onChange={(e) => updateLabelCount('unlabeled', Number.parseInt(e.target.value) || 0)}
                             className="w-20"
                           />
                         </div>

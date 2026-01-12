@@ -7,6 +7,7 @@ export interface Participant {
   name: string;
   examName: string;
   status: "online" | "offline" | "away";
+  avatar: string;
 }
 
 interface RecentParticipantsListProps {
@@ -33,6 +34,7 @@ export function RecentParticipantsList({
             name={participant.name}
             subtitle={participant.examName}
             status={participant.status}
+            avatar={participant.avatar}
           />
         ))}
       </div>

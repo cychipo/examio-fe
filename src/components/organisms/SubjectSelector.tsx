@@ -7,12 +7,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { ChevronRight, GraduationCap, Search, X } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { subjectApi, Subject, SubjectCategory } from "@/apis/subjectApi";
-
-// Import Lucide icons dynamically
 import {
+  ChevronRight,
+  GraduationCap,
+  Search,
+  X,
   Calculator,
   Microscope,
   BookOpen,
@@ -64,6 +63,8 @@ import {
   Sparkles,
   Lightbulb,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { subjectApi, Subject, SubjectCategory } from "@/apis/subjectApi";
 
 // Icon mapping for dynamic rendering
 const iconMap = {

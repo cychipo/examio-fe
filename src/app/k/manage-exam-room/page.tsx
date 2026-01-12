@@ -112,6 +112,7 @@ export default function ManageExamRoomPage() {
           name: attempt.user.name || attempt.user.username,
           examName: (attempt as any).examRoomTitle || "Phòng thi",
           status: "offline" as const, // Default status
+          avatar: attempt.user.avatar || "", // Default avatar
         }));
 
         setRecentParticipants(participants);

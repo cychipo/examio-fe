@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 interface ParticipantListItemProps {
@@ -6,6 +6,7 @@ interface ParticipantListItemProps {
   subtitle: string;
   status?: "online" | "offline" | "away";
   className?: string;
+  avatar?: string;
 }
 
 const statusColors = {
@@ -19,21 +20,13 @@ export function ParticipantListItem({
   subtitle,
   status = "offline",
   className,
+  avatar,
 }: ParticipantListItemProps) {
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
   return (
     <div className={cn("flex items-center gap-3 py-2", className)}>
       <div className="relative">
         <Avatar className="h-10 w-10">
-          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-500 text-sm text-white">
-            {initials}
-          </AvatarFallback>
+          {avatar && <AvatarImage src={avatar} alt={name} />}
         </Avatar>
         <span
           className={cn(

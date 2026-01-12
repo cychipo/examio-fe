@@ -15,27 +15,6 @@ import {
   ArrowLeft,
   GraduationCap,
   Trash2,
-} from "lucide-react";
-import { useAITeacherStore } from "@/stores/useAITeacherStore";
-import { ChatInputBar } from "@/components/molecules/ChatInputBar";
-import { ChatHistoryCard } from "@/components/molecules/ChatHistoryCard";
-import { RecentFilesModal } from "@/components/organisms/RecentFilesModal";
-import { SubjectSelector } from "@/components/organisms/SubjectSelector";
-import { ConfirmDialog } from "@/components/organisms/ConfirmDialog";
-import { RecentUpload } from "@/apis/aiApi";
-import { AIChatMessage } from "@/apis/aiChatApi";
-import { Subject } from "@/apis/subjectApi";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import "katex/dist/katex.min.css";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { ModelSelector } from "@/components/atoms/ModelSelector";
-import { Badge } from "@/components/ui/badge";
-
-// Import Lucide icons for dynamic rendering
-import {
   Calculator,
   Microscope,
   BookOpen,
@@ -87,6 +66,23 @@ import {
   Lightbulb,
   Flag,
 } from "lucide-react";
+import { useAITeacherStore } from "@/stores/useAITeacherStore";
+import { ChatInputBar } from "@/components/molecules/ChatInputBar";
+import { ChatHistoryCard } from "@/components/molecules/ChatHistoryCard";
+import { RecentFilesModal } from "@/components/organisms/RecentFilesModal";
+import { SubjectSelector } from "@/components/organisms/SubjectSelector";
+import { ConfirmDialog } from "@/components/organisms/ConfirmDialog";
+import { RecentUpload } from "@/apis/aiApi";
+import { AIChatMessage } from "@/apis/aiChatApi";
+import { Subject } from "@/apis/subjectApi";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { ModelSelector } from "@/components/atoms/ModelSelector";
+import { Badge } from "@/components/ui/badge";
 
 // Check if speech recognition is supported
 const isSpeechRecognitionSupported = () => {
