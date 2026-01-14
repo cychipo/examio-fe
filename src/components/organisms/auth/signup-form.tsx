@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -8,11 +8,20 @@ import Link from "next/link";
 import { FacebookIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "@/components/ui/toast";
+import { RoleSelection } from "./role-selection";
+import { UserRole } from "@/types/user";
+import { useRouter } from "next/navigation";
 
 export function SignupForm() {
   const { signup } = useAuthStore();
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRoleSelect = (role: UserRole) => {
+    setSelectedRole(role);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const formData = new FormData(form);
@@ -25,8 +34,24 @@ export function SignupForm() {
       return;
     }
 
-    signup({ username, email, password });
+    if (!selectedRole) {
+      toast.warning("Vui lòng chọn vai trò!");
+      return;
+    }
+
+    try {
+      await signup({ username, email, password, role: selectedRole });
+      // Redirect to home page after successful registration
+      router.replace("/k");
+    } catch (error) {
+      console.error("Signup failed:", error);
+    }
   };
+
+  // Show role selection first
+  if (!selectedRole) {
+    return <RoleSelection onSelectRole={handleRoleSelect} />;
+  }
 
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black shadow-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -35,6 +60,21 @@ export function SignupForm() {
         Chào Mừng Đến Với FayEdu
       </h2>
       <h1 className="text-4xl justify-self-center font-semibold">Đăng Ký</h1>
+
+      {/* Show selected role */}
+      <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Vai trò: <span className="font-semibold text-blue-600 dark:text-blue-400">
+            {selectedRole === "teacher" ? "Giáo Viên" : "Học Sinh"}
+          </span>
+          <button
+            onClick={() => setSelectedRole(null)}
+            className="ml-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            Thay đổi
+          </button>
+        </p>
+      </div>
 
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">

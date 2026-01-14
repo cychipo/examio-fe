@@ -78,12 +78,23 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ loading: true });
     try {
       const response = await signupApi(credentials);
-      if (response.message) {
-        toast.success(response.message);
-        set({ user: null, isAuthenticated: false });
+      if (response.success && response.token) {
+        // Auto-login after successful registration
+        set({ user: response.user, isAuthenticated: true });
+        toast.success(response.message || "Đăng ký thành công");
+
+        // Set token to both localStorage and cookie
+        if (response.token && typeof window !== "undefined") {
+          setAuthToken(response.token);
+        }
+
+        return Promise.resolve(); // Resolve successfully for redirect
       } else {
-        toast.error("Đăng ký tài khoản thất bại");
+        toast.error(response.message || "Đăng ký tài khoản thất bại");
         console.error("Đăng ký tài khoản thất bại");
+        return Promise.reject(
+          new Error(response.message || "Đăng ký tài khoản thất bại")
+        );
       }
     } catch (error) {
       toast.error(

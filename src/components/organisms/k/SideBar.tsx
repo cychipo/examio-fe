@@ -65,6 +65,7 @@ export function SidebarKit() {
       icon: <RocketIcon className="w-5 h-5" />,
       label: "Công cụ AI",
       active: pathname === "/k/ai-tool",
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "AI Teacher",
@@ -82,6 +83,7 @@ export function SidebarKit() {
         pathname === "/k/manage-exam" ||
         pathname.startsWith("/k/manage-quiz-set") ||
         pathname.startsWith("/k/practice-quiz"),
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "Flash Card",
@@ -91,6 +93,7 @@ export function SidebarKit() {
       active:
         pathname === "/k/flash-card" ||
         pathname.startsWith("/k/manage-flashcard-set"),
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "Manage Exam Room",
@@ -100,6 +103,7 @@ export function SidebarKit() {
       active:
         pathname === "/k/manage-exam-room" ||
         pathname.startsWith("/k/manage-exam-room"),
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "History",
@@ -110,8 +114,16 @@ export function SidebarKit() {
     },
   ];
 
+  // Filter sidebar items based on user role
+  const filteredSidebarItems = itemSiderbar.filter((item) => {
+    if (item.teacherOnly) {
+      return user?.role === "teacher";
+    }
+    return true;
+  });
+
   // For mobile FloatingDock
-  const primaryDockItems = itemSiderbar
+  const primaryDockItems = filteredSidebarItems
     .slice(0, 5)
     .map(({ name, href, icon, label, active }) => ({
       name,
@@ -122,7 +134,7 @@ export function SidebarKit() {
     }));
 
   const secondaryDockItems = [
-    ...itemSiderbar.slice(5).map(({ name, href, icon, label, active }) => ({
+    ...filteredSidebarItems.slice(5).map(({ name, href, icon, label, active }) => ({
       name,
       href,
       icon,
@@ -154,7 +166,7 @@ export function SidebarKit() {
             <Logo sizeLogo={28} sizeText={20} />
 
             <div className="flex flex-col gap-y-2 mb-2 w-full">
-              {itemSiderbar.map((item, index) => (
+              {filteredSidebarItems.map((item, index) => (
                 <Button
                   asChild
                   key={index}

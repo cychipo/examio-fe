@@ -10,6 +10,7 @@ export interface CredentialsSignup {
   username: string;
   password: string;
   email: string;
+  role: "teacher" | "student";
 }
 
 export interface LoginResponse {

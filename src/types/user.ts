@@ -3,6 +3,8 @@ export enum USER_STATUS {
   INACTIVE = 0,
 }
 
+export type UserRole = 'teacher' | 'student';
+
 export interface User {
   id: number;
   username: string;
@@ -11,6 +13,7 @@ export interface User {
   avatar: string;
   banner: string;
   bio: string;
+  role: UserRole;
   isAdmin: boolean;
   isVerified: boolean;
   password?: string;
