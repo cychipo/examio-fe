@@ -18,6 +18,7 @@ import {
 } from "@/apis/historyApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
 import { useToast } from "@/components/ui/toast";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // Transform PDF history from API to component format
 function transformPDFHistory(
@@ -161,6 +162,7 @@ async function downloadFile(url: string, filename: string): Promise<void> {
 }
 
 export default function HistoryPage() {
+  const { user } = useAuthStore();
   const [stats, setStats] = useState<HistoryStats>({
     totalPDFs: 0,
     examsCreated: 0,
@@ -176,47 +178,71 @@ export default function HistoryPage() {
   const pdfDataMapRef = useRef<Map<string, PDFHistoryItem>>(new Map());
   const { toast } = useToast();
 
+  // Determine user role
+  const isTeacher = user?.role === "teacher";
+  const isStudent = user?.role === "student";
+
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
 
-      // Fetch all data with cache
+      // Fetch stats always
+      const statsPromise = storeCache.fetchWithCache(
+        storeCache.createKey("history-stats", {}),
+        () => getHistoryStatsApi(),
+        { ttl: CacheTTL.FIVE_MINUTES }
+      );
+
+      // Conditionally fetch PDF history only for teachers
+      const pdfPromise = isTeacher
+        ? storeCache.fetchWithCache(
+            storeCache.createKey("history-pdf", { limit: 10 }),
+            () => getPDFHistoryApi(10),
+            { ttl: CacheTTL.FIVE_MINUTES }
+          )
+        : Promise.resolve([]);
+
+      // Conditionally fetch exam history only for students
+      const examPromise = isStudent
+        ? storeCache.fetchWithCache(
+            storeCache.createKey("history-exam", { page: 1, limit: 10 }),
+            () => getExamHistoryApi(1, 10),
+            { ttl: CacheTTL.FIVE_MINUTES }
+          )
+        : Promise.resolve({ examAttempts: [], total: 0 });
+
       const [statsData, pdfData, examData] = await Promise.all([
-        storeCache.fetchWithCache(
-          storeCache.createKey("history-stats", {}),
-          () => getHistoryStatsApi(),
-          { ttl: CacheTTL.FIVE_MINUTES }
-        ),
-        storeCache.fetchWithCache(
-          storeCache.createKey("history-pdf", { limit: 10 }),
-          () => getPDFHistoryApi(10),
-          { ttl: CacheTTL.FIVE_MINUTES }
-        ),
-        storeCache.fetchWithCache(
-          storeCache.createKey("history-exam", { page: 1, limit: 10 }),
-          () => getExamHistoryApi(1, 10),
-          { ttl: CacheTTL.FIVE_MINUTES }
-        ),
+        statsPromise,
+        pdfPromise,
+        examPromise,
       ]);
 
       setStats(statsData);
-      setPdfItems(transformPDFHistory(pdfData));
 
-      // Build Map for O(1) lookup - rebuild on each fetch
-      const newMap = new Map<string, PDFHistoryItem>();
-      pdfData.forEach((item) => newMap.set(item.id, item));
-      pdfDataMapRef.current = newMap;
+      if (isTeacher && Array.isArray(pdfData)) {
+        setPdfItems(transformPDFHistory(pdfData));
 
-      const transformedExams = transformExamHistory(examData.examAttempts);
-      setExamItems(transformedExams);
+        // Build Map for O(1) lookup - rebuild on each fetch
+        const newMap = new Map<string, PDFHistoryItem>();
+        pdfData.forEach((item) => newMap.set(item.id, item));
+        pdfDataMapRef.current = newMap;
+      }
 
-      setActivities(generateRecentActivities(pdfData, examData.examAttempts));
+      if (isStudent && examData.examAttempts) {
+        const transformedExams = transformExamHistory(examData.examAttempts);
+        setExamItems(transformedExams);
+      }
+
+      // Generate activities based on available data
+      const pdfArray = Array.isArray(pdfData) ? pdfData : [];
+      const examArray = examData?.examAttempts || [];
+      setActivities(generateRecentActivities(pdfArray, examArray));
     } catch (error) {
       console.error("Failed to fetch history data:", error);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isTeacher, isStudent]);
 
   useEffect(() => {
     fetchData();
@@ -269,6 +295,8 @@ export default function HistoryPage() {
       onPdfDownload={handlePdfDownload}
       onPdfDelete={handlePdfDelete}
       onExamClick={handleExamClick}
+      showPdfHistory={isTeacher}
+      showExamHistory={isStudent}
     />
   );
 }

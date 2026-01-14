@@ -83,6 +83,7 @@ import "katex/dist/katex.min.css";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { ModelSelector } from "@/components/atoms/ModelSelector";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
 
 // Check if speech recognition is supported
 const isSpeechRecognitionSupported = () => {
@@ -160,6 +161,9 @@ function renderIcon(iconName: string | null | undefined, className?: string) {
 }
 
 export default function AITeacherPage() {
+  const { user } = useAuthStore();
+  const router = useRouter();
+
   const {
     // Subject
     categories,
@@ -224,6 +228,12 @@ export default function AITeacherPage() {
 
   // Initialize
   useEffect(() => {
+    // Redirect teachers to /k page
+    if (user && user.role === "teacher") {
+      router.replace("/k");
+      return;
+    }
+
     setSpeechSupported(isSpeechRecognitionSupported());
     fetchChats();
     fetchCategories();
@@ -236,7 +246,7 @@ export default function AITeacherPage() {
         window.speechSynthesis.getVoices();
       };
     }
-  }, [fetchChats, fetchCategories, checkAndLoadChatFromUrl]);
+  }, [fetchChats, fetchCategories, checkAndLoadChatFromUrl, user, router]);
 
   // Auto-scroll on new messages or streaming content
   useEffect(() => {
