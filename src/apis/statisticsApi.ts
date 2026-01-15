@@ -9,7 +9,7 @@ export interface TeacherCreationStat {
 export interface TeacherActivityStat {
   day: string;
   examAttempts: number;
-  practiceAttempts: number;
+  flashcardViews: number;
 }
 
 export interface TopRoomParticipant {
@@ -58,7 +58,6 @@ export const getTeacherStats = async (range: string = '7d'): Promise<TeacherDash
 export interface StudentExamStat {
   day: string;
   examAttempts: number;
-  practiceAttempts: number;
 }
 
 export interface StudentFlashcardStat {
@@ -73,7 +72,6 @@ export interface StudentRecentScore {
 
 export interface StudentSummary {
   totalExamAttempts: number;
-  totalPracticeAttempts: number;
   totalFlashcardViews: number;
   averageScore: number;
 }

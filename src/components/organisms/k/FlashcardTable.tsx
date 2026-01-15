@@ -20,7 +20,6 @@ export interface FlashcardTableData {
 
 interface FlashcardTableProps {
   flashcards: FlashcardTableData[];
-  onStudy: (id: string) => void;
   onManage: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
@@ -29,7 +28,6 @@ interface FlashcardTableProps {
 
 export function FlashcardTable({
   flashcards,
-  onStudy,
   onManage,
   onEdit,
   onDelete,
@@ -54,15 +52,12 @@ export function FlashcardTable({
     <ManagementTable
       title="Tất cả bộ thẻ"
       data={tableData}
-      primaryActionIcon={PlayCircle}
-      primaryActionLabel="Học ngay"
-      secondaryActionIcon={Eye}
-      secondaryActionLabel="Chi tiết"
+      primaryActionIcon={Eye}
+      primaryActionLabel="Chi tiết"
       shareActionIcon={Share2}
       shareActionLabel="Chia sẻ"
       countColumnLabel="Số thẻ"
-      onPrimaryAction={onStudy}
-      onSecondaryAction={onManage}
+      onPrimaryAction={onManage}
       onShare={onShare}
       onEdit={onEdit}
       onDelete={onDelete}

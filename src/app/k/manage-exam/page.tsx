@@ -137,13 +137,6 @@ export default function ManageExamPage() {
     [router]
   );
 
-  const handlePracticeExam = useCallback(
-    (id: string) => {
-      router.push(`/k/practice-quiz/${id}`);
-    },
-    [router]
-  );
-
   const handleEditExam = useCallback(
     (id: string) => {
       const quizSet = quizSetsK.find((qs) => qs.id === id);
@@ -271,7 +264,6 @@ export default function ManageExamPage() {
         onStatusChange={setStatusFilter}
         onCreateExam={handleCreateExam}
         onViewExam={handleViewExam}
-        onPracticeExam={handlePracticeExam}
         onEditExam={handleEditExam}
         onDeleteExam={handleDeleteExam}
         onPageChange={setCurrentPage}

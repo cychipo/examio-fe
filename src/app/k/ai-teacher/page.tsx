@@ -166,11 +166,8 @@ export default function AITeacherPage() {
 
   const {
     // Subject
-    categories,
-    isLoadingCategories,
     selectedSubject,
     fetchCategories,
-    selectSubject,
     startChatWithSubject,
     // Chat list
     chats,
@@ -194,7 +191,6 @@ export default function AITeacherPage() {
     isProcessingPdf,
     // Actions
     fetchChats,
-    createChat,
     selectChat,
     updateChatTitle,
     deleteChat,

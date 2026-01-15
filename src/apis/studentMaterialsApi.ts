@@ -46,26 +46,6 @@ export interface RecentExamAttempt {
   };
 }
 
-export interface QuizPracticeAttemptWithDetails {
-  id: string;
-  quizSetId: string;
-  type: number; // 0: PRACTICE, 1: REAL
-  isSubmitted: boolean;
-  score: number | null;
-  totalQuestions: number;
-  correctAnswers: number;
-  timeSpentSeconds: number;
-  timeLimitMinutes: number | null;
-  startedAt: string;
-  submittedAt: string | null;
-  quizSet: {
-    id: string;
-    title: string;
-    description: string | null;
-    thumbnail: string | null;
-  };
-}
-
 export interface RecentMaterialsResponse {
   flashcardSets: RecentFlashcardSet[];
   total: number;
@@ -73,7 +53,6 @@ export interface RecentMaterialsResponse {
 
 export interface RecentExamsResponse {
   examAttempts: RecentExamAttempt[];
-  practiceAttempts: QuizPracticeAttemptWithDetails[];
   total: number;
 }
 

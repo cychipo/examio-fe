@@ -14,11 +14,11 @@ export default function Page() {
         // Redirect to login if not authenticated
         router.replace("/login");
       } else if (user?.role === "teacher") {
-        // Redirect teachers to AI Tool
-        router.replace("/k/ai-tool");
+        // Redirect teachers to Dashboard
+        router.replace("/k/dashboard-teacher");
       } else {
-        // Redirect students to AI Teacher
-        router.replace("/k/ai-teacher");
+        // Redirect students to Dashboard
+        router.replace("/k/dashboard-student");
       }
     }
   }, [isAuthenticated, user, initializing, router]);

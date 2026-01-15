@@ -9,12 +9,18 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  BookOpen,
   Plus,
-  Edit,
+  ArrowLeft,
+  Settings,
+  Share2,
   Trash2,
-  CreditCard,
+  Edit2,
   Eye,
-  PlayCircle,
+  MoreVertical,
+  CheckCircle2,
+  CreditCard,
+  Edit,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -248,18 +254,6 @@ export default function FlashcardSetDetailPage({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() =>
-                  window.open(
-                    `/study-flashcard/${currentFlashcardSet.id}`,
-                    "_blank"
-                  )
-                }
-                className="gap-2"
-              >
-                <PlayCircle className="h-4 w-4" />
-                Học ngay
-              </Button>
             </div>
           </div>
 

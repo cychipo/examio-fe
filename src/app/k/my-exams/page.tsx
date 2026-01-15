@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
   getRecentExamAttemptsApi,
   type RecentExamAttempt,
-  type QuizPracticeAttemptWithDetails,
 } from "@/apis/studentMaterialsApi";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,53 +36,41 @@ export default function MyExamsPage() {
   const { user } = useAuthStore();
   const { toast } = useToast();
   const [examAttempts, setExamAttempts] = useState<RecentExamAttempt[]>([]);
-  const [practiceAttempts, setPracticeAttempts] = useState<QuizPracticeAttemptWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [detailDialog, setDetailDialog] = useState<{
     open: boolean;
-    attempt: RecentExamAttempt | QuizPracticeAttemptWithDetails | null;
-    type: "exam" | "practice";
+    attempt: RecentExamAttempt | null;
+    type: "exam";
   }>({
     open: false,
     attempt: null,
     type: "exam",
   });
 
-  useEffect(() => {
-    if (user && user.role === "teacher") {
-      router.replace("/k/manage-exam");
-    }
-  }, [user, router]);
-
-  useEffect(() => {
-    fetchExams();
-  }, []);
-
-  const fetchExams = async () => {
+  const fetchExams = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getRecentExamAttemptsApi(20);
       setExamAttempts(data.examAttempts);
-      setPracticeAttempts(data.practiceAttempts);
     } catch (error) {
       console.error("Failed to fetch exams:", error);
-      toast.error("Không thể tải danh sách bài thi");
+      toast.error("Không thể tải lịch sử thi");
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchExams();
+  }, [fetchExams]);
 
   const handleContinueExam = (attemptId: string, sessionId: string) => {
     router.push(`/k/exam/${sessionId}?attemptId=${attemptId}`);
   };
 
-  const handleContinuePractice = (attemptId: string) => {
-    router.push(`/k/practice-quiz/${attemptId}`);
-  };
-
   const handleViewDetails = (
-    attempt: RecentExamAttempt | QuizPracticeAttemptWithDetails,
-    type: "exam" | "practice"
+    attempt: RecentExamAttempt,
+    type: "exam"
   ) => {
     setDetailDialog({
       open: true,
@@ -159,7 +146,6 @@ export default function MyExamsPage() {
 
   const allAttempts = [
     ...examAttempts.map(a => ({ ...a, attemptType: "exam" as const })),
-    ...practiceAttempts.map(a => ({ ...a, attemptType: "practice" as const })),
   ].sort((a, b) => {
     const dateA = new Date(a.startedAt).getTime();
     const dateB = new Date(b.startedAt).getTime();
@@ -186,24 +172,20 @@ export default function MyExamsPage() {
             Chưa có bài thi nào
           </p>
           <p className="text-sm text-muted-foreground mt-2">
-            Tham gia phòng thi hoặc làm bài luyện tập để bắt đầu
+            Tham gia phòng thi để bắt đầu
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {allAttempts.map((attempt) => {
-            const isExam = attempt.attemptType === "exam";
-            const examAttempt = isExam ? attempt as RecentExamAttempt : null;
-            const practiceAttempt = !isExam ? attempt as QuizPracticeAttemptWithDetails : null;
+            const examAttempt = attempt as RecentExamAttempt;
 
-            const title = isExam
-              ? examAttempt!.examSession.examRoom.title
-              : practiceAttempt!.quizSet.title;
-            const score = isExam ? examAttempt!.score : practiceAttempt!.score;
-            const status = isExam ? examAttempt!.status : (practiceAttempt!.isSubmitted ? 1 : 0);
-            const totalQuestions = isExam ? examAttempt!.totalQuestions : practiceAttempt!.totalQuestions;
-            const correctAnswers = isExam ? examAttempt!.correctAnswers : practiceAttempt!.correctAnswers;
-            const violationCount = isExam ? examAttempt!.violationCount : 0;
+            const title = examAttempt.examSession.examRoom.title;
+            const score = examAttempt.score;
+            const status = examAttempt.status;
+            const totalQuestions = examAttempt.totalQuestions;
+            const correctAnswers = examAttempt.correctAnswers;
+            const violationCount = examAttempt.violationCount;
 
             return (
               <Card
@@ -214,11 +196,7 @@ export default function MyExamsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-center gap-2">
-                        {isExam ? (
-                          <Trophy className="h-5 w-5 text-amber-500" />
-                        ) : (
-                          <BookOpen className="h-5 w-5 text-blue-500" />
-                        )}
+                        <Trophy className="h-5 w-5 text-amber-500" />
                         <h3 className="font-semibold text-lg">{title}</h3>
                       </div>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -227,7 +205,7 @@ export default function MyExamsPage() {
                           <span>{formatTimeAgo(attempt.startedAt)}</span>
                         </div>
                         <span>•</span>
-                        <span>{isExam ? "Thi chính thức" : "Luyện tập"}</span>
+                        <span>Thi chính thức</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
@@ -278,9 +256,7 @@ export default function MyExamsPage() {
                     {status === 0 ? (
                       <Button
                         onClick={() =>
-                          isExam
-                            ? handleContinueExam(attempt.id, examAttempt!.examSessionId)
-                            : handleContinuePractice(attempt.id)
+                          handleContinueExam(attempt.id, examAttempt.examSessionId)
                         }
                         className="flex-1"
                         size="sm"
@@ -292,7 +268,7 @@ export default function MyExamsPage() {
                       <Button
                         onClick={() =>
                           handleViewDetails(
-                            isExam ? examAttempt! : practiceAttempt!,
+                            examAttempt,
                             attempt.attemptType
                           )
                         }
@@ -323,11 +299,7 @@ export default function MyExamsPage() {
           </DialogHeader>
           {detailDialog.attempt && (
             <div className="space-y-6">
-              {detailDialog.type === "exam" ? (
-                <ExamAttemptDetails attempt={detailDialog.attempt as RecentExamAttempt} />
-              ) : (
-                <PracticeAttemptDetails attempt={detailDialog.attempt as QuizPracticeAttemptWithDetails} />
-              )}
+              <ExamAttemptDetails attempt={detailDialog.attempt as RecentExamAttempt} />
             </div>
           )}
         </DialogContent>
@@ -425,113 +397,6 @@ function ExamAttemptDetails({ attempt }: { attempt: RecentExamAttempt }) {
         </div>
         <Progress value={percentage} className="h-3" />
       </div>
-    </div>
-  );
-}
-
-function PracticeAttemptDetails({ attempt }: { attempt: QuizPracticeAttemptWithDetails }) {
-  const percentage = (attempt.correctAnswers / attempt.totalQuestions) * 100;
-  const timeSpentMinutes = Math.floor(attempt.timeSpentSeconds / 60);
-  const timeSpentSeconds = attempt.timeSpentSeconds % 60;
-
-  return (
-    <div className="space-y-6">
-      {/* Title */}
-      <div>
-        <h3 className="text-xl font-bold">{attempt.quizSet.title}</h3>
-        {attempt.quizSet.description && (
-          <p className="text-sm text-muted-foreground mt-1">
-            {attempt.quizSet.description}
-          </p>
-        )}
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <Trophy className="h-8 w-8 mx-auto text-amber-500" />
-              <p className="text-3xl font-bold text-amber-600">
-                {attempt.score?.toFixed(1) || "N/A"}
-              </p>
-              <p className="text-xs text-muted-foreground">Điểm số</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <TrendingUp className="h-8 w-8 mx-auto text-green-500" />
-              <p className="text-3xl font-bold text-green-600">{percentage.toFixed(0)}%</p>
-              <p className="text-xs text-muted-foreground">Tỷ lệ đúng</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <CheckCircle className="h-8 w-8 mx-auto text-blue-500" />
-              <p className="text-3xl font-bold text-blue-600">
-                {attempt.correctAnswers}/{attempt.totalQuestions}
-              </p>
-              <p className="text-xs text-muted-foreground">Câu đúng</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-2">
-              <Clock className="h-8 w-8 mx-auto text-purple-500" />
-              <p className="text-3xl font-bold text-purple-600">
-                {timeSpentMinutes}:{timeSpentSeconds.toString().padStart(2, "0")}
-              </p>
-              <p className="text-xs text-muted-foreground">Thời gian</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Timeline */}
-      <div className="space-y-2">
-        <h4 className="font-semibold">Thông tin thời gian</h4>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Bắt đầu:</span>
-            <span className="font-medium">
-              {new Date(attempt.startedAt).toLocaleString("vi-VN")}
-            </span>
-          </div>
-          {attempt.submittedAt && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Nộp bài:</span>
-              <span className="font-medium">
-                {new Date(attempt.submittedAt).toLocaleString("vi-VN")}
-              </span>
-            </div>
-          )}
-          {attempt.timeLimitMinutes && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Thời gian giới hạn:</span>
-              <span className="font-medium">{attempt.timeLimitMinutes} phút</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      {attempt.score !== null && (
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Tiến độ hoàn thành</span>
-            <span className="font-medium">{percentage.toFixed(1)}%</span>
-          </div>
-          <Progress value={percentage} className="h-3" />
-        </div>
-      )}
     </div>
   );
 }

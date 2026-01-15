@@ -13,7 +13,7 @@ interface RoomStatsSectionProps {
 
 export function RoomStatsSection({ stats }: RoomStatsSectionProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2">
       <RoomStatsCard
         icon={DoorOpen}
         label="Phòng thi đang hoạt động"
@@ -27,20 +27,6 @@ export function RoomStatsSection({ stats }: RoomStatsSectionProps) {
         value={stats.totalParticipants}
         iconColor="text-blue-500"
         iconBgColor="bg-blue-500/10"
-      />
-      <RoomStatsCard
-        icon={Clock}
-        label="Bài thi đang diễn ra"
-        value={stats.ongoingExams}
-        iconColor="text-purple-500"
-        iconBgColor="bg-purple-500/10"
-      />
-      <RoomStatsCard
-        icon={CheckCircle2}
-        label="Hoàn thành hôm nay"
-        value={stats.completedToday}
-        iconColor="text-green-500"
-        iconBgColor="bg-green-500/10"
       />
     </div>
   );

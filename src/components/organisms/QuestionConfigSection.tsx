@@ -18,22 +18,19 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+import { AlertTriangle, Plus, Minus, Shuffle, Target, Tag } from "lucide-react";
 import {
-  AlertTriangle,
-  Plus,
-  Minus,
-  Shuffle,
-  Target,
-  Tag,
-  HelpCircle,
-} from "lucide-react";
-import { QUESTION_SELECTION_MODE, LabelQuestionConfig } from "@/types/examSession";
-import { getAvailableLabelsForExamRoomApi, LabelInfo, AvailableLabelsResponse } from "@/apis/examRoomApi";
+  QUESTION_SELECTION_MODE,
+  LabelQuestionConfig,
+} from "@/types/examSession";
+import {
+  getAvailableLabelsForExamRoomApi,
+  LabelInfo,
+  AvailableLabelsResponse,
+} from "@/apis/examRoomApi";
 
 interface QuestionConfigSectionProps {
   examRoomId: string;
@@ -71,7 +68,8 @@ export function QuestionConfigSection({
     initialData?.shuffleQuestions ?? false
   );
 
-  const [availableLabels, setAvailableLabels] = useState<AvailableLabelsResponse | null>(null);
+  const [availableLabels, setAvailableLabels] =
+    useState<AvailableLabelsResponse | null>(null);
   const [loadingLabels, setLoadingLabels] = useState(false);
   const [showLabelConfig, setShowLabelConfig] = useState(false);
   const [validationError, setValidationError] = useState<string>("");
@@ -94,15 +92,15 @@ export function QuestionConfigSection({
         // Add unlabeled if exists
         if (data.unlabeledCount > 0) {
           initialConfig.push({
-            labelId: 'unlabeled',
+            labelId: "unlabeled",
             count: 0,
           });
         }
         setLabelConfig(initialConfig);
       }
     } catch (error) {
-      console.error('Failed to load available labels:', error);
-      setValidationError('Không thể tải danh sách nhãn');
+      console.error("Failed to load available labels:", error);
+      setValidationError("Không thể tải danh sách nhãn");
     } finally {
       setLoadingLabels(false);
     }
@@ -119,12 +117,18 @@ export function QuestionConfigSection({
   useEffect(() => {
     const config = {
       questionSelectionMode: selectionMode,
-      questionCount: selectionMode === QUESTION_SELECTION_MODE.RANDOM_TOTAL ? questionCount : null,
-      labelQuestionConfig: selectionMode === QUESTION_SELECTION_MODE.RANDOM_BY_LABEL ? labelConfig : null,
+      questionCount:
+        selectionMode === QUESTION_SELECTION_MODE.RANDOM_TOTAL
+          ? questionCount
+          : null,
+      labelQuestionConfig:
+        selectionMode === QUESTION_SELECTION_MODE.RANDOM_BY_LABEL
+          ? labelConfig
+          : null,
       shuffleQuestions,
     };
     onConfigChange(config);
-  }, [selectionMode, questionCount, labelConfig, shuffleQuestions]);
+  }, [selectionMode, questionCount, labelConfig, shuffleQuestions, onConfigChange]);
 
   // Validate configuration
   const validateConfig = useCallback(() => {
@@ -136,19 +140,26 @@ export function QuestionConfigSection({
         return false;
       }
       if (availableLabels && questionCount > availableLabels.totalQuestions) {
-        setValidationError(`Số câu hỏi không được vượt quá ${availableLabels.totalQuestions} câu`);
+        setValidationError(
+          `Số câu hỏi không được vượt quá ${availableLabels.totalQuestions} câu`
+        );
         return false;
       }
     }
 
     if (selectionMode === QUESTION_SELECTION_MODE.RANDOM_BY_LABEL) {
-      const totalConfigured = labelConfig.reduce((sum, config) => sum + config.count, 0);
+      const totalConfigured = labelConfig.reduce(
+        (sum, config) => sum + config.count,
+        0
+      );
       if (totalConfigured === 0) {
         setValidationError("Vui lòng cấu hình ít nhất 1 câu hỏi cho các nhãn");
         return false;
       }
       if (questionCount && totalConfigured !== questionCount) {
-        setValidationError(`Tổng số câu cấu hình (${totalConfigured}) phải bằng số câu tổng (${questionCount})`);
+        setValidationError(
+          `Tổng số câu cấu hình (${totalConfigured}) phải bằng số câu tổng (${questionCount})`
+        );
         return false;
       }
     }
@@ -160,21 +171,26 @@ export function QuestionConfigSection({
   const updateLabelCount = (labelId: string, count: number) => {
     if (count < 0) return;
 
-    const maxCount = availableLabels?.labels.find(l => l.id === labelId)?.questionCount ||
-                     (labelId === 'unlabeled' ? availableLabels?.unlabeledCount : 0) || 0;
+    const maxCount =
+      availableLabels?.labels.find((l) => l.id === labelId)?.questionCount ||
+      (labelId === "unlabeled" ? availableLabels?.unlabeledCount : 0) ||
+      0;
 
     if (count > maxCount) {
       count = maxCount;
     }
 
-    setLabelConfig(prev =>
-      prev.map(config =>
+    setLabelConfig((prev) =>
+      prev.map((config) =>
         config.labelId === labelId ? { ...config, count } : config
       )
     );
   };
 
-  const totalConfiguredCount = labelConfig.reduce((sum, config) => sum + config.count, 0);
+  const totalConfiguredCount = labelConfig.reduce(
+    (sum, config) => sum + config.count,
+    0
+  );
 
   return (
     <Card>
@@ -190,7 +206,11 @@ export function QuestionConfigSection({
           <Label className="text-base font-medium">Chế độ chọn câu hỏi</Label>
           <Select
             value={selectionMode.toString()}
-            onValueChange={(value) => setSelectionMode(Number.parseInt(value) as QUESTION_SELECTION_MODE)}
+            onValueChange={(value) =>
+              setSelectionMode(
+                Number.parseInt(value) as QUESTION_SELECTION_MODE
+              )
+            }
             disabled={disabled}
           >
             <SelectTrigger>
@@ -198,12 +218,16 @@ export function QuestionConfigSection({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={QUESTION_SELECTION_MODE.ALL.toString()}>
-                Tất cả câu hỏi ({availableLabels?.totalQuestions || 0} câu)
+                Tất cả câu hỏi
               </SelectItem>
-              <SelectItem value={QUESTION_SELECTION_MODE.RANDOM_TOTAL.toString()}>
+              <SelectItem
+                value={QUESTION_SELECTION_MODE.RANDOM_TOTAL.toString()}
+              >
                 Ngẫu nhiên từ tổng số
               </SelectItem>
-              <SelectItem value={QUESTION_SELECTION_MODE.RANDOM_BY_LABEL.toString()}>
+              <SelectItem
+                value={QUESTION_SELECTION_MODE.RANDOM_BY_LABEL.toString()}
+              >
                 Ngẫu nhiên theo nhãn
               </SelectItem>
             </SelectContent>
@@ -220,7 +244,9 @@ export function QuestionConfigSection({
               min={1}
               max={availableLabels?.totalQuestions || 999}
               value={questionCount || ""}
-              onChange={(e) => setQuestionCount(Number.parseInt(e.target.value) || null)}
+              onChange={(e) =>
+                setQuestionCount(Number.parseInt(e.target.value) || null)
+              }
               placeholder={`Tối đa ${availableLabels?.totalQuestions || 0} câu`}
               disabled={disabled}
             />
@@ -234,7 +260,9 @@ export function QuestionConfigSection({
         {selectionMode === QUESTION_SELECTION_MODE.RANDOM_BY_LABEL && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-base font-medium">Cấu hình theo nhãn</Label>
+              <Label className="text-base font-medium">
+                Cấu hình theo nhãn
+              </Label>
               <Button
                 type="button"
                 variant="outline"
@@ -251,22 +279,31 @@ export function QuestionConfigSection({
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span>Tổng số câu đã cấu hình:</span>
-                  <Badge variant={totalConfiguredCount > 0 ? "default" : "secondary"}>
+                  <Badge
+                    variant={totalConfiguredCount > 0 ? "default" : "secondary"}
+                  >
                     {totalConfiguredCount} câu
                   </Badge>
                 </div>
 
                 <div className="grid gap-2">
                   {labelConfig.map((config) => {
-                    const label = availableLabels?.labels.find(l => l.id === config.labelId);
-                    const isUnlabeled = config.labelId === 'unlabeled';
+                    const label = availableLabels?.labels.find(
+                      (l) => l.id === config.labelId
+                    );
+                    const isUnlabeled = config.labelId === "unlabeled";
                     const availableCount = isUnlabeled
                       ? availableLabels?.unlabeledCount || 0
                       : label?.questionCount || 0;
-                    const labelName = isUnlabeled ? 'Chưa gán nhãn' : label?.name || config.labelId;
+                    const labelName = isUnlabeled
+                      ? "Chưa gán nhãn"
+                      : label?.name || config.labelId;
 
                     return (
-                      <div key={config.labelId} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div
+                        key={config.labelId}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
                         <div className="flex items-center gap-2">
                           {!isUnlabeled && label?.color && (
                             <div
@@ -284,7 +321,9 @@ export function QuestionConfigSection({
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => updateLabelCount(config.labelId, config.count - 1)}
+                            onClick={() =>
+                              updateLabelCount(config.labelId, config.count - 1)
+                            }
                             disabled={disabled || config.count <= 0}
                           >
                             <Minus className="h-3 w-3" />
@@ -294,7 +333,12 @@ export function QuestionConfigSection({
                             min={0}
                             max={availableCount}
                             value={config.count}
-                            onChange={(e) => updateLabelCount(config.labelId, Number.parseInt(e.target.value) || 0)}
+                            onChange={(e) =>
+                              updateLabelCount(
+                                config.labelId,
+                                Number.parseInt(e.target.value) || 0
+                              )
+                            }
                             className="w-16 text-center"
                             disabled={disabled}
                           />
@@ -302,8 +346,12 @@ export function QuestionConfigSection({
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => updateLabelCount(config.labelId, config.count + 1)}
-                            disabled={disabled || config.count >= availableCount}
+                            onClick={() =>
+                              updateLabelCount(config.labelId, config.count + 1)
+                            }
+                            disabled={
+                              disabled || config.count >= availableCount
+                            }
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -359,7 +407,8 @@ export function QuestionConfigSection({
               Cấu hình câu hỏi theo nhãn
             </DialogTitle>
             <DialogDescription>
-              Phân bổ số lượng câu hỏi cho từng nhãn. Tổng số câu phải bằng số câu cần thi.
+              Phân bổ số lượng câu hỏi cho từng nhãn. Tổng số câu phải bằng số
+              câu cần thi.
             </DialogDescription>
           </DialogHeader>
 
@@ -367,7 +416,9 @@ export function QuestionConfigSection({
             {availableLabels && (
               <div className="grid gap-3">
                 {availableLabels.labels.map((label) => {
-                  const config = labelConfig.find(c => c.labelId === label.id);
+                  const config = labelConfig.find(
+                    (c) => c.labelId === label.id
+                  );
                   return (
                     <Card key={label.id}>
                       <CardContent className="p-4">
@@ -393,7 +444,12 @@ export function QuestionConfigSection({
                               min={0}
                               max={label.questionCount}
                               value={config?.count || 0}
-                              onChange={(e) => updateLabelCount(label.id, Number.parseInt(e.target.value) || 0)}
+                              onChange={(e) =>
+                                updateLabelCount(
+                                  label.id,
+                                  Number.parseInt(e.target.value) || 0
+                                )
+                              }
                               className="w-20"
                             />
                           </div>
@@ -419,8 +475,16 @@ export function QuestionConfigSection({
                             type="number"
                             min={0}
                             max={availableLabels.unlabeledCount}
-                            value={labelConfig.find(c => c.labelId === 'unlabeled')?.count || 0}
-                            onChange={(e) => updateLabelCount('unlabeled', Number.parseInt(e.target.value) || 0)}
+                            value={
+                              labelConfig.find((c) => c.labelId === "unlabeled")
+                                ?.count || 0
+                            }
+                            onChange={(e) =>
+                              updateLabelCount(
+                                "unlabeled",
+                                Number.parseInt(e.target.value) || 0
+                              )
+                            }
                             className="w-20"
                           />
                         </div>
@@ -434,13 +498,15 @@ export function QuestionConfigSection({
             <div className="flex items-center justify-between pt-4 border-t">
               <div className="text-sm">
                 <span className="font-medium">Tổng số: </span>
-                <span className={totalConfiguredCount > 0 ? "text-green-600" : "text-red-600"}>
+                <span
+                  className={
+                    totalConfiguredCount > 0 ? "text-green-600" : "text-red-600"
+                  }
+                >
                   {totalConfiguredCount} câu
                 </span>
               </div>
-              <Button onClick={() => setShowLabelConfig(false)}>
-                Xong
-              </Button>
+              <Button onClick={() => setShowLabelConfig(false)}>Xong</Button>
             </div>
           </div>
         </DialogContent>

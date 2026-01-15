@@ -10,6 +10,7 @@ interface StatCardProps {
   trend?: number;
   badge?: string;
   className?: string;
+  description?: string;
 }
 
 export function StatCard({
@@ -19,6 +20,7 @@ export function StatCard({
   iconColor,
   iconBgColor,
   className,
+  description,
 }: StatCardProps) {
   return (
     <div
@@ -34,6 +36,9 @@ export function StatCard({
       <div className="space-y-1">
         <div className="text-2xl font-bold text-foreground">{value}</div>
         <div className="text-sm text-muted-foreground">{title}</div>
+        {description && (
+          <p className="text-xs text-muted-foreground pt-1">{description}</p>
+        )}
       </div>
     </div>
   );

@@ -8,7 +8,12 @@ import {
   generateShareLinkApi,
   type RecentFlashcardSet,
 } from "@/apis/studentMaterialsApi";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Share2, Eye, Clock, User } from "lucide-react";
@@ -41,16 +46,6 @@ export default function MyMaterialsPage() {
     accessCode: "",
   });
 
-  useEffect(() => {
-    if (user && user.role === "teacher") {
-      router.replace("/k/flash-card");
-    }
-  }, [user, router]);
-
-  useEffect(() => {
-    fetchMaterials();
-  }, []);
-
   const fetchMaterials = async () => {
     try {
       setLoading(true);
@@ -64,18 +59,30 @@ export default function MyMaterialsPage() {
     }
   };
 
+  useEffect(() => {
+    if (user && user.role === "teacher") {
+      router.replace("/k/flash-card");
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
+
   const handleReview = (setId: string) => {
-    router.push(`/k/manage-flashcard-set/${setId}`);
+    router.push(`/study-flashcard/${setId}`);
   };
 
   const handleShare = async (setId: string) => {
     try {
-      const { shareUrl, accessCode } = await generateShareLinkApi(setId);
+      const data = await generateShareLinkApi(setId);
+      const shareUrl = data.shareUrl || `${window.location.origin}/study-flashcard/${setId}`;
+      
       setShareDialog({
         open: true,
         setId,
         shareUrl,
-        accessCode,
+        accessCode: data.accessCode,
       });
     } catch (error) {
       console.error("Failed to generate share link:", error);
@@ -130,7 +137,9 @@ export default function MyMaterialsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tài liệu học tập</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Tài liệu học tập
+          </h1>
           <p className="text-muted-foreground mt-1">
             Các bộ flashcard bạn đã xem gần đây
           </p>
@@ -201,7 +210,7 @@ export default function MyMaterialsPage() {
                 <div className="flex items-center gap-2 text-xs">
                   <User className="h-3 w-3 text-muted-foreground" />
                   <span className="text-muted-foreground">
-                    {material.creator.name || material.creator.username}
+                    {material.creator?.name || material.creator?.username || "Ẩn danh"}
                   </span>
                 </div>
 
@@ -245,7 +254,10 @@ export default function MyMaterialsPage() {
       )}
 
       {/* Share Dialog */}
-      <Dialog open={shareDialog.open} onOpenChange={(open) => setShareDialog({ ...shareDialog, open })}>
+      <Dialog
+        open={shareDialog.open}
+        onOpenChange={(open) => setShareDialog({ ...shareDialog, open })}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Chia sẻ tài liệu</DialogTitle>

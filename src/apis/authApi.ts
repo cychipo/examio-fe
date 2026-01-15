@@ -23,6 +23,8 @@ export interface LoginResponse {
 export interface SignupResponse {
   success: boolean;
   message: string;
+  token?: string;
+  user?: User;
 }
 
 export interface SendCodeResetPassWordCredentials {

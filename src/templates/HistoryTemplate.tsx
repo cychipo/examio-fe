@@ -23,6 +23,7 @@ interface HistoryTemplateProps {
   onExamClick?: (id: string) => void;
   showPdfHistory?: boolean;
   showExamHistory?: boolean;
+  showStats?: boolean;
 }
 
 export function HistoryTemplate({
@@ -35,6 +36,7 @@ export function HistoryTemplate({
   onExamClick,
   showPdfHistory = true,
   showExamHistory = true,
+  showStats = true,
 }: HistoryTemplateProps) {
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 pt-8 pb-6">
@@ -47,7 +49,7 @@ export function HistoryTemplate({
       </div>
 
       {/* Stats Grid */}
-      <HistoryStatsGrid stats={stats} />
+      {showStats && <HistoryStatsGrid stats={stats} />}
 
       {/* Recent Activity Section */}
       <RecentActivitySection activities={activities} />

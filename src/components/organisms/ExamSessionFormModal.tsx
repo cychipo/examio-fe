@@ -27,7 +27,11 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ExamSessionBasic } from "@/types/examRoom";
-import { ASSESS_TYPE, QUESTION_SELECTION_MODE, LabelQuestionConfig } from "@/types/examSession";
+import {
+  ASSESS_TYPE,
+  QUESTION_SELECTION_MODE,
+  LabelQuestionConfig,
+} from "@/types/examSession";
 import {
   UserSearchInput,
   WhitelistUser,
@@ -164,7 +168,8 @@ export function ExamSessionFormModal({
           passingScore: sessionAny.passingScore ?? 0,
           // Question configuration
           questionCount: sessionAny.questionCount ?? null,
-          questionSelectionMode: sessionAny.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL,
+          questionSelectionMode:
+            sessionAny.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL,
           labelQuestionConfig: sessionAny.labelQuestionConfig ?? null,
           shuffleQuestions: sessionAny.shuffleQuestions ?? false,
         });
@@ -200,20 +205,23 @@ export function ExamSessionFormModal({
   );
 
   // Handle question config change
-  const handleQuestionConfigChange = useCallback((config: {
-    questionCount?: number | null;
-    questionSelectionMode?: QUESTION_SELECTION_MODE;
-    labelQuestionConfig?: LabelQuestionConfig[] | null;
-    shuffleQuestions?: boolean;
-  }) => {
-    setFormData(prev => ({
-      ...prev,
-      questionCount: config.questionCount,
-      questionSelectionMode: config.questionSelectionMode,
-      labelQuestionConfig: config.labelQuestionConfig,
-      shuffleQuestions: config.shuffleQuestions,
-    }));
-  }, []);
+  const handleQuestionConfigChange = useCallback(
+    (config: {
+      questionCount?: number | null;
+      questionSelectionMode?: QUESTION_SELECTION_MODE;
+      labelQuestionConfig?: LabelQuestionConfig[] | null;
+      shuffleQuestions?: boolean;
+    }) => {
+      setFormData((prev) => ({
+        ...prev,
+        questionCount: config.questionCount,
+        questionSelectionMode: config.questionSelectionMode,
+        labelQuestionConfig: config.labelQuestionConfig,
+        shuffleQuestions: config.shuffleQuestions,
+      }));
+    },
+    []
+  );
 
   // Generate random 6-digit access code
   const generateAccessCode = useCallback(() => {
@@ -287,7 +295,8 @@ export function ExamSessionFormModal({
         passingScore: formData.passingScore,
         // Question configuration
         questionCount: formData.questionCount ?? null,
-        questionSelectionMode: formData.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL,
+        questionSelectionMode:
+          formData.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL,
         labelQuestionConfig: formData.labelQuestionConfig ?? null,
         shuffleQuestions: formData.shuffleQuestions ?? false,
       };
@@ -366,11 +375,13 @@ export function ExamSessionFormModal({
               onValueChange={(value) =>
                 handleChange("accessType", value as AccessType)
               }
-              className="w-full">
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger
                   value="public"
-                  className="flex items-center gap-1.5">
+                  className="flex items-center gap-1.5"
+                >
                   <Users className="h-3.5 w-3.5" />
                   Công khai
                 </TabsTrigger>
@@ -380,7 +391,8 @@ export function ExamSessionFormModal({
                 </TabsTrigger>
                 <TabsTrigger
                   value="whitelist"
-                  className="flex items-center gap-1.5">
+                  className="flex items-center gap-1.5"
+                >
                   <UserPlus className="h-3.5 w-3.5" />
                   Whitelist
                 </TabsTrigger>
@@ -420,7 +432,8 @@ export function ExamSessionFormModal({
                       size="icon"
                       onClick={generateAccessCode}
                       disabled={isFormLoading}
-                      title="Tạo mã ngẫu nhiên">
+                      title="Tạo mã ngẫu nhiên"
+                    >
                       <RefreshCw className="h-4 w-4" />
                     </Button>
                   </div>
@@ -505,7 +518,6 @@ export function ExamSessionFormModal({
                 id="maxAttempts"
                 type="number"
                 min={1}
-                max={10}
                 value={formData.maxAttempts}
                 onChange={(e) =>
                   handleChange(
@@ -553,7 +565,8 @@ export function ExamSessionFormModal({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isFormLoading}>
+              disabled={isFormLoading}
+            >
               Hủy
             </Button>
             <Button onClick={handleFormSubmit} disabled={isFormLoading}>

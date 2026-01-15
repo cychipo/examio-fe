@@ -297,6 +297,7 @@ export default function HistoryPage() {
       onExamClick={handleExamClick}
       showPdfHistory={isTeacher}
       showExamHistory={isStudent}
+      showStats={isTeacher}
     />
   );
 }

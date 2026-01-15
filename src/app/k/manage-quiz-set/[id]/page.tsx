@@ -9,11 +9,17 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  BookOpen,
   Plus,
-  Edit,
+  ArrowLeft,
+  Settings,
+  Share2,
   Trash2,
+  Edit2,
+  Eye,
+  MoreVertical,
   FileText,
-  PlayCircle,
+  Edit,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -201,14 +207,6 @@ export default function QuizSetDetailPage({
               </Breadcrumb>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() =>
-                  router.push(`/k/practice-quiz/${currentQuizSet.id}`)
-                }
-                className="gap-2">
-                <PlayCircle className="h-4 w-4" />
-                Thi thử
-              </Button>
             </div>
           </div>
 

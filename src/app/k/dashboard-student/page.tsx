@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
@@ -22,7 +22,6 @@ import {
   Award,
   RefreshCw,
   Trophy,
-  Activity,
   Calendar,
   TrendingUp,
   ChevronDown
@@ -32,7 +31,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getStudentStats, StudentDashboardStats } from "@/apis/statisticsApi";
 import { StatCard } from "@/components/molecules/StatCard";
-import { motion } from "framer-motion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,7 +59,7 @@ export default function DashboardStudentPage() {
     }
   }, [user, router]);
 
-  const fetchStats = async (selectedRange: string = range, forceRefresh: boolean = false) => {
+  const fetchStats = useCallback(async (selectedRange: string = range, forceRefresh: boolean = false) => {
     // Check if we have cached data for this range in local state
     if (!forceRefresh && statsMap[selectedRange]) {
       // If we have cached data, check if it's older than 10 minutes
@@ -84,11 +82,11 @@ export default function DashboardStudentPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [range, statsMap]);
 
   useEffect(() => {
     fetchStats();
-  }, [range]);
+  }, [fetchStats]);
 
   const stats = statsMap[range];
 
@@ -112,7 +110,6 @@ export default function DashboardStudentPage() {
 
   const pieData = [
     { name: "Lượt thi", value: stats.summary.totalExamAttempts },
-    { name: "Lượt thi thử", value: stats.summary.totalPracticeAttempts },
     { name: "Lượt học Flashcard", value: stats.summary.totalFlashcardViews },
   ];
 
@@ -160,14 +157,6 @@ export default function DashboardStudentPage() {
           description="Thi chính thức trong phòng thi"
         />
         <StatCard
-          title="Tổng lượt thi thử"
-          value={stats.summary.totalPracticeAttempts}
-          icon={Activity}
-          iconColor="text-green-600"
-          iconBgColor="bg-green-100 dark:bg-green-950"
-          description="Luyện tập với đề thi"
-        />
-        <StatCard
           title="Lượt học Flashcard"
           value={stats.summary.totalFlashcardViews}
           icon={Layers}
@@ -183,6 +172,14 @@ export default function DashboardStudentPage() {
           iconBgColor="bg-amber-100 dark:bg-amber-950"
           description="Điểm TB các bài thi"
         />
+        <StatCard
+          title="Hoạt động"
+          value={stats.summary.totalExamAttempts + stats.summary.totalFlashcardViews}
+          icon={TrendingUp}
+          iconColor="text-green-600"
+          iconBgColor="bg-green-100 dark:bg-green-950"
+          description="Tổng số hoạt động học tập"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -196,7 +193,7 @@ export default function DashboardStudentPage() {
               <div>
                 <CardTitle>Lượt thi theo thời gian</CardTitle>
                 <CardDescription>
-                  Thống kê lượt thi và luyện tập {range === "7d" ? "7 ngày qua" : "30 ngày qua"}
+                  Thống kê lượt thi {range === "7d" ? "7 ngày qua" : "30 ngày qua"}
                 </CardDescription>
               </div>
             </div>
@@ -210,10 +207,6 @@ export default function DashboardStudentPage() {
                     <linearGradient id="colorExams" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorPractice" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
@@ -231,15 +224,6 @@ export default function DashboardStudentPage() {
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorExams)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="practiceAttempts"
-                    name="Thi thử"
-                    stroke="#10b981"
-                    strokeWidth={3}
-                    fillOpacity={1}
-                    fill="url(#colorPractice)"
                   />
                 </AreaChart>
               </ResponsiveContainer>

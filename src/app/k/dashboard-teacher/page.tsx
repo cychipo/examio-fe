@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -15,22 +15,21 @@ import {
   Pie,
   Cell,
   Legend,
-  LineChart,
-  Line
+  AreaChart,
+  Area,
 } from "recharts";
-import { 
-  BookOpen, 
-  Layers, 
-  LayoutDashboard, 
-  Users, 
-  Award, 
-  ArrowUpRight,
+import {
+  BookOpen,
+  Layers,
+  Award,
+  Users,
   RefreshCw,
   Trophy,
-  Activity,
   Calendar,
+  TrendingUp,
+  ChevronDown,
+  Activity,
   Eye,
-  ChevronDown
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +65,7 @@ export default function DashboardTeacherPage() {
     }
   }, [user, router]);
 
-  const fetchStats = async (selectedRange: string = range, forceRefresh: boolean = false) => {
+  const fetchStats = useCallback(async (selectedRange: string = range, forceRefresh: boolean = false) => {
     // Check if we have cached data for this range in local state
     if (!forceRefresh && statsMap[selectedRange]) {
       // If we have cached data, check if it's older than 10 minutes
@@ -89,11 +88,11 @@ export default function DashboardTeacherPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [range, statsMap]);
 
   useEffect(() => {
     fetchStats();
-  }, [range]);
+  }, [fetchStats]);
 
   const stats = statsMap[range];
 
@@ -105,7 +104,7 @@ export default function DashboardTeacherPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center flex-col gap-4">
         <p className="text-muted-foreground">Không thể tải dữ liệu thống kê.</p>
-        <Button onClick={fetchStats} variant="outline">
+        <Button onClick={() => fetchStats(range, true)} variant="outline">
           <RefreshCw className="mr-2 h-4 w-4" /> Thử lại
         </Button>
       </div>
@@ -255,7 +254,7 @@ export default function DashboardTeacherPage() {
               <div>
                 <CardTitle>Hoạt động của học sinh</CardTitle>
                 <CardDescription>
-                  Số lượt thi và học flashcard trong {range === "7d" ? "7 ngày qua" : "30 ngày qua"}
+                  Số lượt thi trong {range === "7d" ? "7 ngày qua" : "30 ngày qua"}
                 </CardDescription>
               </div>
             </div>
@@ -270,7 +269,7 @@ export default function DashboardTeacherPage() {
                       <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
                       <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
                     </linearGradient>
-                    <linearGradient id="colorPractice" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="colorFlashcard" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
                       <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                     </linearGradient>
@@ -293,12 +292,12 @@ export default function DashboardTeacherPage() {
                   />
                   <Area 
                     type="monotone" 
-                    dataKey="practiceAttempts" 
-                    name="Thi thử/Học" 
+                    dataKey="flashcardViews" 
+                    name="Lượt học thẻ" 
                     stroke="#8b5cf6" 
                     strokeWidth={3}
                     fillOpacity={1} 
-                    fill="url(#colorPractice)"
+                    fill="url(#colorFlashcard)" 
                   />
                 </AreaChart>
               </ResponsiveContainer>

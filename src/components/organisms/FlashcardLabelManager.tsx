@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,7 +86,7 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
   const [loadingFlashcards, setLoadingFlashcards] = useState(false);
 
   // Load labels
-  const loadLabels = async () => {
+  const loadLabels = useCallback(async () => {
     try {
       const response = await getFlashcardSetLabelsApi(flashcardSetId);
       setLabels(response.labels);
@@ -97,13 +97,13 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
     } finally {
       setLoading(false);
     }
-  };
+  }, [flashcardSetId]);
 
   useEffect(() => {
     loadLabels();
-  }, [flashcardSetId]);
+  }, [loadLabels]);
 
-  const loadLabelFlashcards = async (labelId: string) => {
+  const loadLabelFlashcards = useCallback(async (labelId: string) => {
     setLoadingFlashcards(true);
     try {
       const response = await getFlashcardsByLabelApi(flashcardSetId, labelId);
@@ -115,7 +115,7 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
     } finally {
       setLoadingFlashcards(false);
     }
-  };
+  }, [flashcardSetId]);
 
   // Load flashcards for selected label
   useEffect(() => {
@@ -124,7 +124,7 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
     } else {
       setLabelFlashcards([]);
     }
-  }, [selectedLabelId]);
+  }, [selectedLabelId, loadLabelFlashcards]);
 
   const handleCreateLabel = async () => {
     if (!newLabelName.trim()) return;
