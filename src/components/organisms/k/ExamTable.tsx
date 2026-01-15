@@ -19,7 +19,6 @@ export interface ExamTableData {
 interface ExamTableProps {
   exams: ExamTableData[];
   onView: (id: string) => void;
-  onPractice: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
@@ -27,7 +26,6 @@ interface ExamTableProps {
 const ExamTableComponent = ({
   exams,
   onView,
-  onPractice,
   onEdit,
   onDelete,
 }: ExamTableProps) => {
@@ -49,16 +47,14 @@ const ExamTableComponent = ({
     <ManagementTable
       title="Tất cả đề thi"
       data={tableData}
-      primaryActionIcon={PlayCircle}
-      primaryActionLabel="Thi thử"
-      secondaryActionIcon={Eye}
-      secondaryActionLabel="Xem chi tiết"
+      primaryActionIcon={Eye}
+      primaryActionLabel="Xem chi tiết"
       countColumnLabel="Số câu hỏi"
-      onPrimaryAction={onPractice}
-      onSecondaryAction={onView}
+      onPrimaryAction={onView}
       onEdit={onEdit}
       onDelete={onDelete}
       emptyMessage="Không có đề thi nào"
+      showViewCount={false}
     />
   );
 };

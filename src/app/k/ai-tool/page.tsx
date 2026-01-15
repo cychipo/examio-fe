@@ -17,6 +17,7 @@ import { RecentUpload } from "@/apis/aiApi";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
 import { ModelSelector } from "@/components/atoms/ModelSelector";
 import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
+import { TeacherRoute } from "@/components/organisms/TeacherRoute";
 
 function AIGeneratorContent() {
   const router = useRouter();
@@ -130,8 +131,10 @@ function AIGeneratorContent() {
 
 export default function AIGeneratorPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AIGeneratorContent />
-    </Suspense>
+    <TeacherRoute>
+      <Suspense fallback={<div>Loading...</div>}>
+        <AIGeneratorContent />
+      </Suspense>
+    </TeacherRoute>
   );
 }

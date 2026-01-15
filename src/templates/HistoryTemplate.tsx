@@ -21,6 +21,9 @@ interface HistoryTemplateProps {
   onPdfDownload?: (id: string) => void;
   onPdfDelete?: (id: string) => void;
   onExamClick?: (id: string) => void;
+  showPdfHistory?: boolean;
+  showExamHistory?: boolean;
+  showStats?: boolean;
 }
 
 export function HistoryTemplate({
@@ -31,6 +34,9 @@ export function HistoryTemplate({
   onPdfDownload,
   onPdfDelete,
   onExamClick,
+  showPdfHistory = true,
+  showExamHistory = true,
+  showStats = true,
 }: HistoryTemplateProps) {
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 pt-8 pb-6">
@@ -43,22 +49,26 @@ export function HistoryTemplate({
       </div>
 
       {/* Stats Grid */}
-      <HistoryStatsGrid stats={stats} />
+      {showStats && <HistoryStatsGrid stats={stats} />}
 
       {/* Recent Activity Section */}
       <RecentActivitySection activities={activities} />
 
       {/* Two Column Layout: PDF History + Exam History */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <PDFHistoryListSection
-          items={pdfItems}
-          onDownload={onPdfDownload}
-          onDelete={onPdfDelete}
-        />
-        <ExamHistoryListSection
-          items={examItems}
-          onClick={onExamClick}
-        />
+      <div className={`grid gap-6 ${showPdfHistory && showExamHistory ? 'lg:grid-cols-2' : 'lg:grid-cols-1'}`}>
+        {showPdfHistory && (
+          <PDFHistoryListSection
+            items={pdfItems}
+            onDownload={onPdfDownload}
+            onDelete={onPdfDelete}
+          />
+        )}
+        {showExamHistory && (
+          <ExamHistoryListSection
+            items={examItems}
+            onClick={onExamClick}
+          />
+        )}
       </div>
 
 

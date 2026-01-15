@@ -138,11 +138,6 @@ export default function FlashcardsPage() {
     setIsCreateModalOpen(true);
   }, []);
 
-  const handleStudyFlashcard = useCallback((id: string) => {
-    // Mở trong tab mới
-    window.open(`/study-flashcard/${id}`, "_blank");
-  }, []);
-
   const handleManageFlashcard = useCallback((id: string) => {
     window.location.href = `/k/manage-flashcard-set/${id}`;
   }, []);
@@ -283,7 +278,6 @@ export default function FlashcardsPage() {
         onSortChange={setSortBy}
         onStatusChange={setStatusFilter}
         onCreateFlashcard={handleCreateFlashcard}
-        onStudyFlashcard={handleStudyFlashcard}
         onManageFlashcard={handleManageFlashcard}
         onEditFlashcard={handleEditFlashcard}
         onDeleteFlashcard={handleDeleteFlashcard}

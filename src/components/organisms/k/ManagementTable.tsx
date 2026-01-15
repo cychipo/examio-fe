@@ -50,6 +50,7 @@ interface ManagementTableProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   emptyMessage?: string;
+  showViewCount?: boolean;
 }
 
 export function ManagementTable({
@@ -68,6 +69,7 @@ export function ManagementTable({
   onEdit,
   onDelete,
   emptyMessage = "Không có dữ liệu",
+  showViewCount = true,
 }: ManagementTableProps) {
   return (
     <div className="bg-card rounded-lg rounded-b-none border border-border border-b-0 overflow-hidden">
@@ -84,9 +86,11 @@ export function ManagementTable({
               <TableHead className="text-muted-foreground font-medium">
                 {countColumnLabel}
               </TableHead>
-              <TableHead className="text-muted-foreground font-medium">
-                Lượt xem
-              </TableHead>
+              {showViewCount && (
+                <TableHead className="text-muted-foreground font-medium">
+                  Lượt xem
+                </TableHead>
+              )}
               <TableHead className="text-muted-foreground font-medium">
                 Trạng thái
               </TableHead>
@@ -148,12 +152,14 @@ export function ManagementTable({
                     {item.questionCount} {item.countLabel}
                   </span>
                 </TableCell>
-                <TableCell>
-                  <span className="text-muted-foreground flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    {item.viewCount ?? 0}
-                  </span>
-                </TableCell>
+                {showViewCount && (
+                  <TableCell>
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Eye className="h-3 w-3" />
+                      {item.viewCount ?? 0}
+                    </span>
+                  </TableCell>
+                )}
                 <TableCell>
                   <ExamStatusBadge status={item.status} />
                 </TableCell>

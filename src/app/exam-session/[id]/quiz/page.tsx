@@ -58,11 +58,6 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   const [tokenMap, setTokenMap] = useState<QuestionTokenMap>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [examSessionData, setExamSessionData] = useState<{
-    allowRetake: boolean;
-    showAnswersAfterSubmit: boolean;
-    examRoomTitle: string;
-  } | null>(null);
 
   // Quiz state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -88,7 +83,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   } | null>(null);
 
   // Timer state
-  const [timeSpentSeconds, setTimeSpentSeconds] = useState(0);
+  const [timeSpentSeconds, setTimeSpentSeconds] = useState(() => 0);
   const [timeLimitMinutes, setTimeLimitMinutes] = useState<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [hasWarned30s, setHasWarned30s] = useState(false);

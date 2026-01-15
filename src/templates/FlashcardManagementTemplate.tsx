@@ -30,7 +30,6 @@ interface FlashcardManagementTemplateProps {
   onSortChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onCreateFlashcard: () => void;
-  onStudyFlashcard: (id: string) => void;
   onEditFlashcard: (id: string) => void;
   onDeleteFlashcard: (id: string) => void;
   onShareFlashcard: (id: string) => void;
@@ -52,7 +51,6 @@ export function FlashcardManagementTemplate({
   onSortChange,
   onStatusChange,
   onCreateFlashcard,
-  onStudyFlashcard,
   onManageFlashcard,
   onEditFlashcard,
   onDeleteFlashcard,
@@ -81,7 +79,6 @@ export function FlashcardManagementTemplate({
 
         <FlashcardTable
           flashcards={flashcards}
-          onStudy={onStudyFlashcard}
           onManage={onManageFlashcard}
           onEdit={onEditFlashcard}
           onDelete={onDeleteFlashcard}

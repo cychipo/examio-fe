@@ -68,7 +68,6 @@ export function QuestionEditorDialog({
 
   // Labels state
   const [labels, setLabels] = useState<QuizSetLabel[]>([]);
-  const [loadingLabels, setLoadingLabels] = useState(false);
 
   // Helper: Convert letter answer (A, B, C, D) to index
   const letterToIndex = (letter: string): string => {
@@ -119,7 +118,6 @@ export function QuestionEditorDialog({
   // Load labels when dialog opens and quizSetId is provided
   useEffect(() => {
     if (open && quizSetId) {
-      setLoadingLabels(true);
       getQuizSetLabelsApi(quizSetId)
         .then((response) => {
           setLabels(response.labels);
@@ -127,9 +125,6 @@ export function QuestionEditorDialog({
         .catch((error) => {
           console.error("Failed to load labels:", error);
           setLabels([]);
-        })
-        .finally(() => {
-          setLoadingLabels(false);
         });
     }
   }, [open, quizSetId]);

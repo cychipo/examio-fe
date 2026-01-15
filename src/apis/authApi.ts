@@ -10,6 +10,7 @@ export interface CredentialsSignup {
   username: string;
   password: string;
   email: string;
+  role: "teacher" | "student";
 }
 
 export interface LoginResponse {
@@ -22,6 +23,8 @@ export interface LoginResponse {
 export interface SignupResponse {
   success: boolean;
   message: string;
+  token?: string;
+  user?: User;
 }
 
 export interface SendCodeResetPassWordCredentials {

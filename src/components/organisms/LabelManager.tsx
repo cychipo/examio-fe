@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -85,7 +85,7 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
   const [loadingQuestions, setLoadingQuestions] = useState(false);
 
   // Load labels
-  const loadLabels = async () => {
+  const loadLabels = useCallback(async () => {
     try {
       const response = await getQuizSetLabelsApi(quizSetId);
       setLabels(response.labels);
@@ -96,13 +96,13 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [quizSetId]);
 
   useEffect(() => {
     loadLabels();
-  }, [quizSetId]);
+  }, [loadLabels]);
 
-  const loadLabelQuestions = async (labelId: string) => {
+  const loadLabelQuestions = useCallback(async (labelId: string) => {
     setLoadingQuestions(true);
     try {
       const response = await getQuestionsByLabelApi(quizSetId, labelId);
@@ -113,14 +113,14 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
     } finally {
       setLoadingQuestions(false);
     }
-  };
+  }, [quizSetId]);
 
   // Load questions for selected label
   useEffect(() => {
     if (selectedLabelId !== null) {
       loadLabelQuestions(selectedLabelId);
     }
-  }, [selectedLabelId]);
+  }, [selectedLabelId, loadLabelQuestions]);
 
   const handleCreateLabel = async () => {
     if (!newLabelName.trim()) return;

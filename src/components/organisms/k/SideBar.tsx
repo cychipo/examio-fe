@@ -9,8 +9,10 @@ import {
   ClockIcon,
   BellIcon,
   GearIcon,
+  DashboardIcon,
+  FileTextIcon,
 } from "@radix-ui/react-icons";
-import { Bot } from "lucide-react";
+import { Bot, BookOpen, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FloatingDock } from "@/components/atoms/k/FloatingDock";
@@ -60,11 +62,28 @@ export function SidebarKit() {
 
   const itemSiderbar = [
     {
+      name: "Dashboard",
+      href: "/k/dashboard-teacher",
+      icon: <DashboardIcon className="w-5 h-5" />,
+      label: "Dashboard",
+      active: pathname === "/k/dashboard-teacher",
+      teacherOnly: true,
+    },
+    {
+      name: "Dashboard Student",
+      href: "/k/dashboard-student",
+      icon: <DashboardIcon className="w-5 h-5" />,
+      label: "Dashboard",
+      active: pathname === "/k/dashboard-student",
+      studentOnly: true,
+    },
+    {
       name: "Ai Tool",
       href: "/k/ai-tool",
       icon: <RocketIcon className="w-5 h-5" />,
       label: "Công cụ AI",
       active: pathname === "/k/ai-tool",
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "AI Teacher",
@@ -72,6 +91,23 @@ export function SidebarKit() {
       icon: <Bot />,
       label: "Giáo viên AI",
       active: pathname === "/k/ai-teacher",
+      studentOnly: true, // Only students can access
+    },
+    {
+      name: "My Materials",
+      href: "/k/my-materials",
+      icon: <BookOpen className="w-5 h-5" />,
+      label: "Tài liệu của tôi",
+      active: pathname === "/k/my-materials",
+      studentOnly: true,
+    },
+    {
+      name: "My Exams",
+      href: "/k/my-exams",
+      icon: <GraduationCap className="w-5 h-5" />,
+      label: "Bài thi của tôi",
+      active: pathname === "/k/my-exams",
+      studentOnly: true,
     },
     {
       name: "Manage Exam",
@@ -82,6 +118,7 @@ export function SidebarKit() {
         pathname === "/k/manage-exam" ||
         pathname.startsWith("/k/manage-quiz-set") ||
         pathname.startsWith("/k/practice-quiz"),
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "Flash Card",
@@ -91,6 +128,7 @@ export function SidebarKit() {
       active:
         pathname === "/k/flash-card" ||
         pathname.startsWith("/k/manage-flashcard-set"),
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "Manage Exam Room",
@@ -100,6 +138,7 @@ export function SidebarKit() {
       active:
         pathname === "/k/manage-exam-room" ||
         pathname.startsWith("/k/manage-exam-room"),
+      teacherOnly: true, // Add teacher-only flag
     },
     {
       name: "History",
@@ -110,8 +149,21 @@ export function SidebarKit() {
     },
   ];
 
+  // Filter sidebar items based on user role
+  const filteredSidebarItems = itemSiderbar.filter((item) => {
+    // Hide teacher-only items for anyone who is not a teacher (including admin and student)
+    if (item.teacherOnly) {
+      return user?.role === "teacher";
+    }
+    // Hide student-only items for anyone who is not a student
+    if (item.studentOnly) {
+      return user?.role === "student";
+    }
+    return true;
+  });
+
   // For mobile FloatingDock
-  const primaryDockItems = itemSiderbar
+  const primaryDockItems = filteredSidebarItems
     .slice(0, 5)
     .map(({ name, href, icon, label, active }) => ({
       name,
@@ -122,7 +174,7 @@ export function SidebarKit() {
     }));
 
   const secondaryDockItems = [
-    ...itemSiderbar.slice(5).map(({ name, href, icon, label, active }) => ({
+    ...filteredSidebarItems.slice(5).map(({ name, href, icon, label, active }) => ({
       name,
       href,
       icon,
@@ -154,7 +206,7 @@ export function SidebarKit() {
             <Logo sizeLogo={28} sizeText={20} />
 
             <div className="flex flex-col gap-y-2 mb-2 w-full">
-              {itemSiderbar.map((item, index) => (
+              {filteredSidebarItems.map((item, index) => (
                 <Button
                   asChild
                   key={index}

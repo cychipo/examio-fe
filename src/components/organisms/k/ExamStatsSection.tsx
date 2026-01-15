@@ -24,7 +24,7 @@ interface ExamStatsSectionProps {
 
 const ExamStatsSectionComponent = ({ stats }: ExamStatsSectionProps) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       <StatCard
         title="Tổng số đề"
         value={stats.totalExams}
@@ -48,14 +48,6 @@ const ExamStatsSectionComponent = ({ stats }: ExamStatsSectionProps) => {
         iconColor="text-purple-600"
         iconBgColor="bg-purple-100 dark:bg-purple-950"
         trend={stats.totalQuestionsTrend}
-      />
-      <StatCard
-        title="Tỷ lệ hoàn thành"
-        value={`${stats.completionRate}%`}
-        icon={TrendingUp}
-        iconColor="text-orange-600"
-        iconBgColor="bg-orange-100 dark:bg-orange-950"
-        trend={stats.completionRateTrend}
       />
     </div>
   );
