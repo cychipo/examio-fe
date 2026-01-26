@@ -67,14 +67,6 @@ function AIGeneratorContent() {
               </p>
             </div>
           </div>
-          {/* Model Selector */}
-          <ModelSelector
-            value={selectedModel}
-            onChange={setSelectedModel}
-            disabledModels={{
-              fayedark: "Model chưa khả dụng, đang phát triển!",
-            }}
-          />
         </div>
       </section>
 

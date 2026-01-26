@@ -86,7 +86,7 @@ export function TestGenerator() {
   const handleFileUpload = async (uploadedFile: File) => {
     // Validate PDF page count before accepting the file
     try {
-      const { valid, pageCount } = await validatePdfPageCount(uploadedFile, 50);
+      const { valid, pageCount } = await validatePdfPageCount(uploadedFile);
       if (!valid) {
         toast({
           title: "File PDF quá lớn",
@@ -137,7 +137,7 @@ export function TestGenerator() {
     if (file) {
       // Validate PDF page count
       try {
-        const { valid, pageCount } = await validatePdfPageCount(file, 50);
+        const { valid, pageCount } = await validatePdfPageCount(file);
         if (!valid) {
           toast.warning("File PDF quá lớn", {
             description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
@@ -183,7 +183,7 @@ export function TestGenerator() {
           {!hasFile ? (
             <FileUpload
               acceptedFileTypes={[".pdf", "application/pdf"]}
-              maxFileSize={10485760}
+              maxFileSize={104857600}
               className="w-full h-full"
               onUploadSuccess={handleFileUpload}
               onUploadError={handleFileError}

@@ -24,7 +24,7 @@ export async function getPdfPageCount(file: File): Promise<number> {
  */
 export async function validatePdfPageCount(
   file: File,
-  maxPages: number = 50
+  maxPages: number = 9999
 ): Promise<{ valid: boolean; pageCount: number }> {
   const pageCount = await getPdfPageCount(file);
   return {
