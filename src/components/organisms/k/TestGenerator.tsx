@@ -208,7 +208,7 @@ export function TestGenerator() {
               </SelectTrigger>
               <SelectContent>
                 {AI_MODELS.map((model) => (
-                  <SelectItem key={model.id} value={model.id}>
+                  <SelectItem key={model.id} value={model.id} disabled={false}>
                     <div className="flex items-center gap-2">
                       <span>{model.icon}</span>
                       <div className="flex flex-col items-start">

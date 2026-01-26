@@ -82,8 +82,7 @@ export function ModelSelector({
               <SelectContent>
                 {AI_MODELS.map((model) => {
                   const Icon = MODEL_ICONS[model.id] || Sparkles;
-                  const isModelDisabled =
-                    model.disabled || !!disabledModels[model.id];
+                  const isModelDisabled = false;
                   const disabledTooltip = disabledModels[model.id];
 
                   const itemContent = (

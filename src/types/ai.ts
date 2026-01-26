@@ -14,7 +14,7 @@ export interface AIModel {
   description: string;
   icon: string;
   badge?: string;
-  disabled?: boolean;
+  disabled: boolean;
 }
 
 /**
@@ -27,12 +27,14 @@ export const AI_MODELS: AIModel[] = [
     description: "Google Gemini - Nhanh và chính xác",
     icon: "✨",
     badge: "Recommended",
+    disabled: false,
   },
   {
     id: "fayedark",
     name: "FayeDark AI",
     description: "Ollama Local - Bảo mật cao",
     icon: "🌙",
+    disabled: false,
   },
 ];
 
