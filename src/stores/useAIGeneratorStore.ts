@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/toast";
 import { aiApi, RecentUpload } from "@/apis/aiApi";
 import { storeCache } from "@/lib/storeCache";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
 
 interface FileInfo {
   name: string;
@@ -280,10 +281,12 @@ interface TestGeneratorState {
   generatedTest: Quizz[] | null;
   generatedTestId: string | null; // ID của bản generate
   isGenerating: boolean;
+  selectedModel: AIModelType;
   setFile: (file: File | null) => void;
   setQuestionCount: (count: number) => void;
   setIsNarrow: (isNarrow: boolean) => void;
   setKeyword: (keyword: string) => void;
+  setSelectedModel: (model: AIModelType) => void;
   generateTest: () => Promise<void>;
   clearTest: () => void;
 }
@@ -299,11 +302,13 @@ interface FlashcardGeneratorState {
   generatedCardsId: string | null; // ID của bản generate
   currentCard: number;
   isGenerating: boolean;
+  selectedModel: AIModelType;
   setFile: (file: File | null) => void;
   setCardCount: (count: number) => void;
   setIsNarrow: (isNarrow: boolean) => void;
   setKeyword: (keyword: string) => void;
   setCurrentCard: (index: number) => void;
+  setSelectedModel: (model: AIModelType) => void;
   generateFlashcards: () => Promise<void>;
   clearFlashcards: () => void;
 }
@@ -319,6 +324,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
   generatedTest: null,
   generatedTestId: null,
   isGenerating: false,
+  selectedModel: DEFAULT_AI_MODEL,
 
   setFile: (file) => {
     set({ file, uploadId: null, fileInfo: null });
@@ -334,10 +340,22 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
   setQuestionCount: (questionCount) => set({ questionCount }),
   setIsNarrow: (isNarrow) => set({ isNarrow }),
   setKeyword: (keyword) => set({ keyword }),
+  setSelectedModel: (selectedModel) => {
+    set({ selectedModel });
+    // Sync with flashcard generator
+    useFlashcardGeneratorStore.setState({ selectedModel });
+  },
 
   generateTest: async () => {
-    const { file, uploadId, fileInfo, questionCount, isNarrow, keyword } =
-      get();
+    const {
+      file,
+      uploadId,
+      fileInfo,
+      questionCount,
+      isNarrow,
+      keyword,
+      selectedModel,
+    } = get();
 
     if (!file && !uploadId) {
       toast.error("Chưa có file", {
@@ -393,6 +411,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
           quantityQuizz: questionCount,
           isNarrowSearch: isNarrow,
           keyword: isNarrow ? keyword : undefined,
+          modelType: selectedModel,
         });
         if (jobResponse.newBalance !== undefined) {
           useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
@@ -406,6 +425,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
           typeResult: TypeResultGenerateExam.QUIZZ,
           isNarrowSearch: isNarrow,
           keyword: isNarrow ? keyword : undefined,
+          modelType: selectedModel,
         });
         if (jobResponse.newBalance !== undefined) {
           useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
@@ -469,6 +489,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
       questionCount: 10,
       isNarrow: false,
       keyword: "",
+      selectedModel: DEFAULT_AI_MODEL,
     }),
 }));
 
@@ -485,6 +506,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
     generatedCardsId: null,
     currentCard: 0,
     isGenerating: false,
+    selectedModel: DEFAULT_AI_MODEL,
 
     setFile: (file) => {
       set({ file, uploadId: null, fileInfo: null });
@@ -501,9 +523,22 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
     setIsNarrow: (isNarrow) => set({ isNarrow }),
     setKeyword: (keyword) => set({ keyword }),
     setCurrentCard: (currentCard) => set({ currentCard }),
+    setSelectedModel: (selectedModel) => {
+      set({ selectedModel });
+      // Sync with test generator
+      useTestGeneratorStore.setState({ selectedModel });
+    },
 
     generateFlashcards: async () => {
-      const { file, uploadId, fileInfo, cardCount, isNarrow, keyword } = get();
+      const {
+        file,
+        uploadId,
+        fileInfo,
+        cardCount,
+        isNarrow,
+        keyword,
+        selectedModel,
+      } = get();
 
       if (!file && !uploadId) {
         toast.error("Chưa có file", {
@@ -559,6 +594,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
             quantityFlashcard: cardCount,
             isNarrowSearch: isNarrow,
             keyword: isNarrow ? keyword : undefined,
+            modelType: selectedModel,
           });
           if (jobResponse.newBalance !== undefined) {
             useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
@@ -572,6 +608,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
             typeResult: TypeResultGenerateExam.FLASHCARD,
             isNarrowSearch: isNarrow,
             keyword: isNarrow ? keyword : undefined,
+            modelType: selectedModel,
           });
           if (jobResponse.newBalance !== undefined) {
             useAuthStore.getState().updateWalletBalance(jobResponse.newBalance);
@@ -639,6 +676,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
         cardCount: 15,
         isNarrow: false,
         keyword: "",
+        selectedModel: DEFAULT_AI_MODEL,
       }),
   })
 );

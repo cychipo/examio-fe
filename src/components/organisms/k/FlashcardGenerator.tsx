@@ -31,11 +31,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
 import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
 import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { AI_MODELS } from "@/types/ai";
 import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
@@ -54,11 +62,13 @@ export function FlashcardGenerator() {
     generatedCards,
     currentCard,
     isGenerating,
+    selectedModel,
     setFile,
     setCardCount,
     setIsNarrow,
     setKeyword,
     setCurrentCard,
+    setSelectedModel,
     generateFlashcards,
     clearFlashcards,
   } = useFlashcardGeneratorStore();
@@ -205,6 +215,38 @@ export function FlashcardGenerator() {
               onRemove={handleRemoveFile}
             />
           )}
+
+          {/* AI Model Selection */}
+          <div className="space-y-3">
+            <Label className="text-muted-foreground">AI Model</Label>
+            <Select
+              value={selectedModel}
+              onValueChange={(value) => setSelectedModel(value as any)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Chọn model AI" />
+              </SelectTrigger>
+              <SelectContent>
+                {AI_MODELS.map((model) => (
+                  <SelectItem key={model.id} value={model.id}>
+                    <div className="flex items-center gap-2">
+                      <span>{model.icon}</span>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">{model.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {model.description}
+                        </span>
+                      </div>
+                      {model.badge && (
+                        <span className="ml-auto text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full uppercase font-bold tracking-wider">
+                          {model.badge}
+                        </span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
