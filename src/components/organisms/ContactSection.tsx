@@ -11,7 +11,6 @@ import {
   AtSign,
   PhoneCall,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -45,7 +44,7 @@ export default function ContactSection() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -71,15 +70,18 @@ export default function ContactSection() {
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
-            className="mb-10 text-center">
+            className="mb-10 text-center"
+          >
             <motion.h1
               variants={fadeInUp}
-              className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
+              className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-3"
+            >
               Liên Hệ Với Chúng Tôi
             </motion.h1>
             <motion.p
               variants={fadeInUp}
-              className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-normal">
+              className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-normal"
+            >
               Chúng tôi luôn sẵn sàng lắng nghe ý kiến của bạn. Hãy điền vào
               biểu mẫu bên dưới hoặc liên hệ trực tiếp qua email.
             </motion.p>
@@ -90,7 +92,8 @@ export default function ContactSection() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md rounded-3xl overflow-hidden p-1 shadow-2xl border border-white/60 dark:border-white/10">
+            className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md rounded-3xl overflow-hidden p-1 shadow-2xl border border-white/60 dark:border-white/10"
+          >
             <div className="flex flex-col lg:flex-row">
               {/* Left Column: Contact Form */}
               <div className="flex-1 p-5 sm:p-8 lg:p-12">
@@ -105,7 +108,8 @@ export default function ContactSection() {
 
                 <form
                   onSubmit={handleSubmit}
-                  className="space-y-4 sm:space-y-6">
+                  className="space-y-4 sm:space-y-6"
+                >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                     <label className="flex flex-col">
                       <span className="text-slate-700 dark:text-slate-300 text-sm font-semibold mb-2 ml-1">
@@ -177,7 +181,8 @@ export default function ContactSection() {
 
                   <button
                     type="submit"
-                    className="group relative w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+                    className="group relative w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden"
+                  >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       Gửi Tin Nhắn
                       <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -198,7 +203,8 @@ export default function ContactSection() {
                     {/* Email Item */}
                     <a
                       href="mailto:fayeteam2004@gmail.com"
-                      className="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 transition-colors border border-white/40 dark:border-white/10 shadow-sm group">
+                      className="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 transition-colors border border-white/40 dark:border-white/10 shadow-sm group"
+                    >
                       <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <AtSign className="w-5 h-5" />
                       </div>
@@ -215,7 +221,8 @@ export default function ContactSection() {
                     {/* Phone Item */}
                     <a
                       href="tel:+84977836517"
-                      className="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 transition-colors border border-white/40 dark:border-white/10 shadow-sm group">
+                      className="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 transition-colors border border-white/40 dark:border-white/10 shadow-sm group"
+                    >
                       <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                         <PhoneCall className="w-5 h-5" />
                       </div>
@@ -262,7 +269,8 @@ export default function ContactSection() {
                     href="https://maps.google.com/?q=Hanoi,Vietnam"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="absolute bottom-3 right-3 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm text-slate-800 dark:text-white transition-colors backdrop-blur-sm">
+                    className="absolute bottom-3 right-3 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm text-slate-800 dark:text-white transition-colors backdrop-blur-sm"
+                  >
                     Xem bản đồ lớn
                   </a>
                 </div>

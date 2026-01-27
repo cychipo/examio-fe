@@ -33,7 +33,7 @@ import { Progress } from "@/components/ui/progress";
 
 export default function MyExamsPage() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user: _user } = useAuthStore();
   const { toast } = useToast();
   const [examAttempts, setExamAttempts] = useState<RecentExamAttempt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,10 +68,7 @@ export default function MyExamsPage() {
     router.push(`/k/exam/${sessionId}?attemptId=${attemptId}`);
   };
 
-  const handleViewDetails = (
-    attempt: RecentExamAttempt,
-    type: "exam"
-  ) => {
+  const handleViewDetails = (attempt: RecentExamAttempt, type: "exam") => {
     setDetailDialog({
       open: true,
       attempt,
@@ -145,7 +142,7 @@ export default function MyExamsPage() {
   }
 
   const allAttempts = [
-    ...examAttempts.map(a => ({ ...a, attemptType: "exam" as const })),
+    ...examAttempts.map((a) => ({ ...a, attemptType: "exam" as const })),
   ].sort((a, b) => {
     const dateA = new Date(a.startedAt).getTime();
     const dateB = new Date(b.startedAt).getTime();
@@ -223,7 +220,9 @@ export default function MyExamsPage() {
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground">Điểm số</p>
-                      <p className={`text-2xl font-bold ${score !== null ? getScoreColor(score) : ''}`}>
+                      <p
+                        className={`text-2xl font-bold ${score !== null ? getScoreColor(score) : ""}`}
+                      >
                         {score !== null ? score.toFixed(1) : "N/A"}
                       </p>
                     </div>
@@ -238,7 +237,8 @@ export default function MyExamsPage() {
                       <p className="text-2xl font-bold">
                         {totalQuestions > 0
                           ? Math.round((correctAnswers / totalQuestions) * 100)
-                          : 0}%
+                          : 0}
+                        %
                       </p>
                     </div>
                   </div>
@@ -256,7 +256,10 @@ export default function MyExamsPage() {
                     {status === 0 ? (
                       <Button
                         onClick={() =>
-                          handleContinueExam(attempt.id, examAttempt.examSessionId)
+                          handleContinueExam(
+                            attempt.id,
+                            examAttempt.examSessionId,
+                          )
                         }
                         className="flex-1"
                         size="sm"
@@ -267,10 +270,7 @@ export default function MyExamsPage() {
                     ) : (
                       <Button
                         onClick={() =>
-                          handleViewDetails(
-                            examAttempt,
-                            attempt.attemptType
-                          )
+                          handleViewDetails(examAttempt, attempt.attemptType)
                         }
                         variant="outline"
                         className="flex-1"
@@ -299,7 +299,9 @@ export default function MyExamsPage() {
           </DialogHeader>
           {detailDialog.attempt && (
             <div className="space-y-6">
-              <ExamAttemptDetails attempt={detailDialog.attempt as RecentExamAttempt} />
+              <ExamAttemptDetails
+                attempt={detailDialog.attempt as RecentExamAttempt}
+              />
             </div>
           )}
         </DialogContent>
@@ -315,7 +317,9 @@ function ExamAttemptDetails({ attempt }: { attempt: RecentExamAttempt }) {
     <div className="space-y-6">
       {/* Title */}
       <div>
-        <h3 className="text-xl font-bold">{attempt.examSession.examRoom.title}</h3>
+        <h3 className="text-xl font-bold">
+          {attempt.examSession.examRoom.title}
+        </h3>
         {attempt.examSession.examRoom.description && (
           <p className="text-sm text-muted-foreground mt-1">
             {attempt.examSession.examRoom.description}
@@ -329,7 +333,9 @@ function ExamAttemptDetails({ attempt }: { attempt: RecentExamAttempt }) {
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
               <Trophy className="h-8 w-8 mx-auto text-amber-500" />
-              <p className="text-3xl font-bold text-amber-600">{attempt.score.toFixed(1)}</p>
+              <p className="text-3xl font-bold text-amber-600">
+                {attempt.score.toFixed(1)}
+              </p>
               <p className="text-xs text-muted-foreground">Điểm số</p>
             </div>
           </CardContent>
@@ -339,7 +345,9 @@ function ExamAttemptDetails({ attempt }: { attempt: RecentExamAttempt }) {
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
               <TrendingUp className="h-8 w-8 mx-auto text-green-500" />
-              <p className="text-3xl font-bold text-green-600">{percentage.toFixed(0)}%</p>
+              <p className="text-3xl font-bold text-green-600">
+                {percentage.toFixed(0)}%
+              </p>
               <p className="text-xs text-muted-foreground">Tỷ lệ đúng</p>
             </div>
           </CardContent>
@@ -361,7 +369,9 @@ function ExamAttemptDetails({ attempt }: { attempt: RecentExamAttempt }) {
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
               <AlertCircle className="h-8 w-8 mx-auto text-red-500" />
-              <p className="text-3xl font-bold text-red-600">{attempt.violationCount}</p>
+              <p className="text-3xl font-bold text-red-600">
+                {attempt.violationCount}
+              </p>
               <p className="text-xs text-muted-foreground">Vi phạm</p>
             </div>
           </CardContent>

@@ -1,10 +1,5 @@
 import { memo } from "react";
-import {
-  FileText,
-  CheckCircle,
-  CircleQuestionMark,
-  TrendingUp,
-} from "lucide-react";
+import { FileText, CheckCircle, CircleQuestionMark } from "lucide-react";
 import { StatCard } from "@/components/molecules/StatCard";
 
 interface ExamStatsData {

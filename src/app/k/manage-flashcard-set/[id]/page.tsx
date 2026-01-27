@@ -9,16 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  BookOpen,
   Plus,
-  ArrowLeft,
-  Settings,
-  Share2,
   Trash2,
-  Edit2,
   Eye,
-  MoreVertical,
-  CheckCircle2,
   CreditCard,
   Edit,
   ChevronLeft,
@@ -62,7 +55,7 @@ export default function FlashcardSetDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const router = useRouter();
+  const _router = useRouter();
   const {
     currentFlashcardSet,
     loading,
@@ -81,7 +74,7 @@ export default function FlashcardSetDetailPage({
   // Pagination state - now fetched from backend
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedFlashcards, setPaginatedFlashcards] = useState<FlashCard[]>(
-    []
+    [],
   );
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [flashcardsLoading, setFlashcardsLoading] = useState(false);
@@ -90,9 +83,9 @@ export default function FlashcardSetDetailPage({
   // Label filtering state
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
   const [availableLabels, setAvailableLabels] = useState<FlashcardSetLabel[]>(
-    []
+    [],
   );
-  const [labelsLoading, setLabelsLoading] = useState(false);
+  const [_labelsLoading, setLabelsLoading] = useState(false);
 
   // Fetch flashcard set by ID (basic info only)
   useEffect(() => {
@@ -111,7 +104,7 @@ export default function FlashcardSetDetailPage({
         id,
         currentPage,
         itemsPerPage,
-        selectedLabelId
+        selectedLabelId,
       );
       setPaginatedFlashcards(response.flashCards);
       setPagination(response.pagination);
@@ -207,7 +200,7 @@ export default function FlashcardSetDetailPage({
       // Refetch flashcards to get updated list
       fetchFlashcards();
     },
-    [selectedCard, id, addFlashcard, updateFlashcard, fetchFlashcards]
+    [selectedCard, id, addFlashcard, updateFlashcard, fetchFlashcards],
   );
 
   // Loading state
@@ -253,8 +246,7 @@ export default function FlashcardSetDetailPage({
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-2">
-            </div>
+            <div className="flex items-center gap-2"></div>
           </div>
 
           {/* Tags */}
@@ -294,7 +286,9 @@ export default function FlashcardSetDetailPage({
                 <p className="text-sm font-medium text-muted-foreground">
                   Lượt xem
                 </p>
-                <p className="text-2xl font-bold">{currentFlashcardSet.viewCount}</p>
+                <p className="text-2xl font-bold">
+                  {currentFlashcardSet.viewCount}
+                </p>
               </div>
             </div>
           </Card>
@@ -310,7 +304,7 @@ export default function FlashcardSetDetailPage({
                 </p>
                 <p className="text-sm font-medium">
                   {new Date(currentFlashcardSet.createdAt).toLocaleDateString(
-                    "vi-VN"
+                    "vi-VN",
                   )}
                 </p>
               </div>
@@ -515,7 +509,7 @@ export default function FlashcardSetDetailPage({
                               {pageNum}
                             </Button>
                           );
-                        }
+                        },
                       )}
                     </div>
                     <Button

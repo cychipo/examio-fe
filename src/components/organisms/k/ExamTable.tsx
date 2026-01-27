@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Eye, PlayCircle } from "lucide-react";
+import { Eye } from "lucide-react";
 import { ManagementTable, ManagementTableData } from "./ManagementTable";
 import { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 

@@ -22,24 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Tag,
-  Plus,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Palette,
-  Check,
-  X,
-} from "lucide-react";
+import { Tag, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   FlashcardSetLabel,
@@ -54,15 +38,23 @@ import { useFlashcardSetStore } from "@/stores/useFlashcardSetStore";
 import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 
 const LABEL_COLORS = [
-  "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
-  "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16",
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#06B6D4",
+  "#84CC16",
 ];
 
 interface FlashcardLabelManagerProps {
   flashcardSetId: string;
 }
 
-export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerProps) {
+export function FlashcardLabelManager({
+  flashcardSetId,
+}: FlashcardLabelManagerProps) {
   const { invalidateCache } = useFlashcardSetStore();
   const [labels, setLabels] = useState<FlashcardSetLabel[]>([]);
   const [unlabeledCount, setUnlabeledCount] = useState(0);
@@ -75,7 +67,9 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
   const [newLabelColor, setNewLabelColor] = useState("#3B82F6");
 
   // Edit label dialog
-  const [editingLabel, setEditingLabel] = useState<FlashcardSetLabel | null>(null);
+  const [editingLabel, setEditingLabel] = useState<FlashcardSetLabel | null>(
+    null,
+  );
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editColor, setEditColor] = useState("");
@@ -103,19 +97,22 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
     loadLabels();
   }, [loadLabels]);
 
-  const loadLabelFlashcards = useCallback(async (labelId: string) => {
-    setLoadingFlashcards(true);
-    try {
-      const response = await getFlashcardsByLabelApi(flashcardSetId, labelId);
-      setLabelFlashcards(response.flashCards || []);
-    } catch (error) {
-      console.error("Failed to load flashcards:", error);
-      toast.error("Không thể tải thẻ ghi nhớ");
-      setLabelFlashcards([]);
-    } finally {
-      setLoadingFlashcards(false);
-    }
-  }, [flashcardSetId]);
+  const loadLabelFlashcards = useCallback(
+    async (labelId: string) => {
+      setLoadingFlashcards(true);
+      try {
+        const response = await getFlashcardsByLabelApi(flashcardSetId, labelId);
+        setLabelFlashcards(response.flashCards || []);
+      } catch (error) {
+        console.error("Failed to load flashcards:", error);
+        toast.error("Không thể tải thẻ ghi nhớ");
+        setLabelFlashcards([]);
+      } finally {
+        setLoadingFlashcards(false);
+      }
+    },
+    [flashcardSetId],
+  );
 
   // Load flashcards for selected label
   useEffect(() => {
@@ -137,7 +134,7 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
       });
 
       toast.success("Tạo nhãn thành công");
-      setLabels(prev => [...prev, response.label]);
+      setLabels((prev) => [...prev, response.label]);
       setShowCreateDialog(false);
       setNewLabelName("");
       setNewLabelDescription("");
@@ -155,14 +152,20 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
     if (!editingLabel || !editName.trim()) return;
 
     try {
-      const response = await updateFlashcardLabelApi(flashcardSetId, editingLabel.id, {
-        name: editName.trim(),
-        description: editDescription.trim() || undefined,
-        color: editColor || null,
-      });
+      const response = await updateFlashcardLabelApi(
+        flashcardSetId,
+        editingLabel.id,
+        {
+          name: editName.trim(),
+          description: editDescription.trim() || undefined,
+          color: editColor || null,
+        },
+      );
 
       toast.success("Cập nhật nhãn thành công");
-      setLabels(prev => prev.map(l => l.id === editingLabel.id ? response.label : l));
+      setLabels((prev) =>
+        prev.map((l) => (l.id === editingLabel.id ? response.label : l)),
+      );
       setEditingLabel(null);
 
       // Invalidate cache to refresh data across components
@@ -174,12 +177,17 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
   };
 
   const handleDeleteLabel = async (labelId: string) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa nhãn này? Các thẻ ghi nhớ sẽ không có nhãn.")) return;
+    if (
+      !confirm(
+        "Bạn có chắc chắn muốn xóa nhãn này? Các thẻ ghi nhớ sẽ không có nhãn.",
+      )
+    )
+      return;
 
     try {
       await deleteFlashcardLabelApi(flashcardSetId, labelId);
       toast.success("Xóa nhãn thành công");
-      setLabels(prev => prev.filter(l => l.id !== labelId));
+      setLabels((prev) => prev.filter((l) => l.id !== labelId));
       if (selectedLabelId === labelId) {
         setSelectedLabelId(null);
       }
@@ -267,7 +275,9 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
                         onClick={() => setNewLabelColor(color)}
                         className={cn(
                           "w-8 h-8 rounded-full border-2",
-                          newLabelColor === color ? "border-foreground" : "border-transparent"
+                          newLabelColor === color
+                            ? "border-foreground"
+                            : "border-transparent",
                         )}
                         style={{ backgroundColor: color }}
                       />
@@ -282,7 +292,10 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
                 >
                   Hủy
                 </Button>
-                <Button onClick={handleCreateLabel} disabled={!newLabelName.trim()}>
+                <Button
+                  onClick={handleCreateLabel}
+                  disabled={!newLabelName.trim()}
+                >
                   Tạo nhãn
                 </Button>
               </DialogFooter>
@@ -291,9 +304,12 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs value={selectedLabelId || "overview"} onValueChange={(value) => {
-          setSelectedLabelId(value === "overview" ? null : value);
-        }}>
+        <Tabs
+          value={selectedLabelId || "overview"}
+          onValueChange={(value) => {
+            setSelectedLabelId(value === "overview" ? null : value);
+          }}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="overview">Tổng quan</TabsTrigger>
             <TabsTrigger value="unlabeled" disabled={unlabeledCount === 0}>
@@ -313,8 +329,11 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {labels.map((label) => (
-                  <Card key={label.id} className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => setSelectedLabelId(label.id)}>
+                  <Card
+                    key={label.id}
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedLabelId(label.id)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
@@ -328,7 +347,11 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -375,7 +398,8 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
         {selectedLabelId && (
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-4">
-              Thẻ ghi nhớ trong nhãn: {labels.find(l => l.id === selectedLabelId)?.name}
+              Thẻ ghi nhớ trong nhãn:{" "}
+              {labels.find((l) => l.id === selectedLabelId)?.name}
             </h3>
             {loadingFlashcards ? (
               <div className="text-center py-4">Đang tải...</div>
@@ -386,7 +410,10 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
             ) : (
               <div className="space-y-2">
                 {labelFlashcards?.map((flashcard, index) => (
-                  <div key={flashcard?.id || index} className="p-3 border rounded-lg">
+                  <div
+                    key={flashcard?.id || index}
+                    className="p-3 border rounded-lg"
+                  >
                     <div className="flex items-center gap-2 mb-3">
                       <span className="text-sm font-medium text-muted-foreground">
                         {index + 1}.
@@ -398,7 +425,7 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
                           Câu hỏi:
                         </p>
                         <div className="font-medium text-sm">
-                          <RichTextViewer content={flashcard?.question || ''} />
+                          <RichTextViewer content={flashcard?.question || ""} />
                         </div>
                       </div>
                       <div>
@@ -406,7 +433,7 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
                           Trả lời:
                         </p>
                         <div className="text-sm text-muted-foreground">
-                          <RichTextViewer content={flashcard?.answer || ''} />
+                          <RichTextViewer content={flashcard?.answer || ""} />
                         </div>
                       </div>
                     </div>
@@ -420,7 +447,10 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
 
       {/* Edit Label Dialog */}
       {editingLabel && (
-        <Dialog open={!!editingLabel} onOpenChange={() => setEditingLabel(null)}>
+        <Dialog
+          open={!!editingLabel}
+          onOpenChange={() => setEditingLabel(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Chỉnh sửa nhãn</DialogTitle>
@@ -451,7 +481,9 @@ export function FlashcardLabelManager({ flashcardSetId }: FlashcardLabelManagerP
                       onClick={() => setEditColor(color)}
                       className={cn(
                         "w-8 h-8 rounded-full border-2",
-                        editColor === color ? "border-foreground" : "border-transparent"
+                        editColor === color
+                          ? "border-foreground"
+                          : "border-transparent",
                       )}
                       style={{ backgroundColor: color }}
                     />

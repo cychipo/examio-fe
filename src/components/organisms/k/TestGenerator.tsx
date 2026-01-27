@@ -202,7 +202,8 @@ export function TestGenerator() {
             <Label className="text-muted-foreground">AI Model</Label>
             <Select
               value={selectedModel}
-              onValueChange={(value) => setSelectedModel(value as any)}>
+              onValueChange={(value) => setSelectedModel(value as any)}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Chọn model AI" />
               </SelectTrigger>
@@ -238,8 +239,8 @@ export function TestGenerator() {
                   type="number"
                   value={questionCount}
                   onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    if (!isNaN(val)) setQuestionCount(val);
+                    const val = Number.parseInt(e.target.value);
+                    if (!Number.isNaN(val)) setQuestionCount(val);
                   }}
                   className="w-16 h-8 text-center px-1 text-xs font-bold bg-primary/10 border-none focus-visible:ring-1 focus-visible:ring-primary/30"
                   min={1}
@@ -267,7 +268,8 @@ export function TestGenerator() {
           <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
             <Label
               htmlFor="narrow-toggle-test"
-              className="flex items-center gap-2 cursor-pointer text-muted-foreground">
+              className="flex items-center gap-2 cursor-pointer text-muted-foreground"
+            >
               Định dạng hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -310,7 +312,8 @@ export function TestGenerator() {
             onClick={handleGenerate}
             disabled={!hasFile || isGenerating}
             className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
-            size="lg">
+            size="lg"
+          >
             {isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -382,11 +385,13 @@ export function TestGenerator() {
                 <DialogAddExam
                   title="Lưu vào đề thi"
                   description="Lưu đề kiểm tra vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
-                  type={DialogAddExamType.QUIZZ}>
+                  type={DialogAddExamType.QUIZZ}
+                >
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                    className="bg-black/5 dark:bg-white/5 border-border cursor-pointer"
+                  >
                     <SaveAll size={15} className="mr-2" />
                     Lưu
                   </Button>
@@ -398,7 +403,8 @@ export function TestGenerator() {
                   {generatedTest.map((q: Quizz, idx: number) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-border hover:border-border transition-colors">
+                      className="p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-border hover:border-border transition-colors"
+                    >
                       <div className="flex items-start gap-3">
                         <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center">
                           {idx + 1}
@@ -414,7 +420,7 @@ export function TestGenerator() {
                                 typeof q.answer === "number"
                                   ? q.answer
                                   : ["A", "B", "C", "D"].indexOf(
-                                      q.answer.toUpperCase()
+                                      q.answer.toUpperCase(),
                                     );
                               const isCorrect = answerIndex === optIdx;
                               return (
@@ -424,15 +430,17 @@ export function TestGenerator() {
                                     "flex items-start gap-2 p-2 rounded-lg transition-colors",
                                     isCorrect
                                       ? "bg-green-500/10 border border-green-500/20"
-                                      : "bg-black/5 dark:bg-white/5 border border-transparent"
-                                  )}>
+                                      : "bg-black/5 dark:bg-white/5 border border-transparent",
+                                  )}
+                                >
                                   <span
                                     className={cn(
                                       "flex-1 text-sm",
                                       isCorrect
                                         ? "text-green-400"
-                                        : "text-muted-foreground"
-                                    )}>
+                                        : "text-muted-foreground",
+                                    )}
+                                  >
                                     {opt}
                                   </span>
                                   {isCorrect && (

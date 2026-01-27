@@ -9,12 +9,6 @@ import {
   Eye,
   Target,
   TrendingUp,
-  Mail,
-  Phone,
-  MapPin,
-  Users,
-  Lightbulb,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -93,10 +87,12 @@ export default function AboutSection() {
                 initial="hidden"
                 animate="visible"
                 variants={staggerContainer}
-                className="flex flex-col gap-6 md:w-1/2 items-start">
+                className="flex flex-col gap-6 md:w-1/2 items-start"
+              >
                 <motion.div
                   variants={fadeInUp}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/40 dark:bg-white/10 border border-white/60 dark:border-white/20 text-xs font-semibold text-blue-600 dark:text-blue-400 backdrop-blur-sm shadow-sm">
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/40 dark:bg-white/10 border border-white/60 dark:border-white/20 text-xs font-semibold text-blue-600 dark:text-blue-400 backdrop-blur-sm shadow-sm"
+                >
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-600 dark:bg-blue-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600 dark:bg-blue-400" />
@@ -106,7 +102,8 @@ export default function AboutSection() {
 
                 <motion.h1
                   variants={fadeInUp}
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-slate-900 dark:text-white">
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-slate-900 dark:text-white"
+                >
                   Sáng tạo. <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">
                     Tận tâm.
@@ -117,7 +114,8 @@ export default function AboutSection() {
 
                 <motion.p
                   variants={fadeInUp}
-                  className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed max-w-lg">
+                  className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed max-w-lg"
+                >
                   Chúng tôi là đội ngũ đam mê công nghệ giáo dục, sử dụng AI để
                   biến tài liệu thành bài kiểm tra, flashcard và tóm tắt, giúp
                   việc học tập trở nên hiệu quả và thú vị hơn.
@@ -125,7 +123,8 @@ export default function AboutSection() {
 
                 <motion.div
                   variants={fadeInUp}
-                  className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 w-full sm:w-auto">
+                  className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 w-full sm:w-auto"
+                >
                   <button className="h-11 sm:h-12 px-6 sm:px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-1 text-sm sm:text-base">
                     Khám phá ngay
                   </button>
@@ -140,7 +139,8 @@ export default function AboutSection() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8 }}
-                className="w-full md:w-1/2 relative group">
+                className="w-full md:w-1/2 relative group"
+              >
                 <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-400 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
                 <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/20 dark:border-white/10">
                   <img
@@ -178,12 +178,14 @@ export default function AboutSection() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerContainer}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
               {stats.map((stat, index) => (
                 <motion.div
                   key={index}
                   variants={fadeInUp}
-                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-5 sm:p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col gap-2 border border-white/60 dark:border-white/10">
+                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-5 sm:p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col gap-2 border border-white/60 dark:border-white/10"
+                >
                   <div className="text-blue-600 dark:text-blue-400 mb-1 sm:mb-2">
                     <stat.icon className="w-8 h-8 sm:w-10 sm:h-10" />
                   </div>
@@ -208,10 +210,12 @@ export default function AboutSection() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerContainer}
-              className="flex flex-col gap-12">
+              className="flex flex-col gap-12"
+            >
               <motion.div
                 variants={fadeInUp}
-                className="text-center max-w-2xl mx-auto space-y-4">
+                className="text-center max-w-2xl mx-auto space-y-4"
+              >
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                   Tầm nhìn & Sứ mệnh
                 </h2>
@@ -225,7 +229,8 @@ export default function AboutSection() {
                 {/* Vision Card */}
                 <motion.div
                   variants={fadeInUp}
-                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group">
+                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group"
+                >
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Eye className="w-24 h-24" />
                   </div>
@@ -249,7 +254,8 @@ export default function AboutSection() {
                 {/* Mission Card */}
                 <motion.div
                   variants={fadeInUp}
-                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group">
+                  className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 md:p-10 rounded-3xl border border-white/70 dark:border-white/10 shadow-lg relative overflow-hidden group"
+                >
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                     <Target className="w-24 h-24" />
                   </div>
@@ -282,10 +288,12 @@ export default function AboutSection() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={staggerContainer}
-              className="flex flex-col gap-8">
+              className="flex flex-col gap-8"
+            >
               <motion.div
                 variants={fadeInUp}
-                className="flex justify-between items-end">
+                className="flex justify-between items-end"
+              >
                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                   Văn hóa FayEdu
                 </h2>
@@ -293,15 +301,17 @@ export default function AboutSection() {
 
               <motion.div
                 variants={staggerContainer}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+              >
                 {cultureImages.map((image, index) => (
                   <motion.div
                     key={index}
                     variants={fadeInUp}
                     className={cn(
                       "relative group overflow-hidden rounded-xl aspect-[4/3] shadow-md cursor-pointer",
-                      index === 2 && "sm:col-span-2 md:col-span-1"
-                    )}>
+                      index === 2 && "sm:col-span-2 md:col-span-1",
+                    )}
+                  >
                     <img
                       src={image.src}
                       alt={image.alt}
@@ -328,7 +338,8 @@ export default function AboutSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md rounded-3xl p-6 sm:p-10 md:p-16 text-center border border-white/50 dark:border-white/10 shadow-xl relative overflow-hidden">
+              className="bg-white/65 dark:bg-gray-900/60 backdrop-blur-md rounded-3xl p-6 sm:p-10 md:p-16 text-center border border-white/50 dark:border-white/10 shadow-xl relative overflow-hidden"
+            >
               {/* Decorative circles */}
               <div className="absolute top-0 left-0 w-32 h-32 bg-blue-600/20 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2" />
               <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-400/20 rounded-full blur-2xl translate-x-1/2 translate-y-1/2" />
@@ -344,12 +355,14 @@ export default function AboutSection() {
                 <div className="flex flex-col sm:flex-row gap-4 w-full justify-center pt-4">
                   <button
                     className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all cursor-pointer"
-                    onClick={() => router.push("/k")}>
+                    onClick={() => router.push("/k")}
+                  >
                     Bắt đầu miễn phí
                   </button>
                   <button
                     className="h-12 px-8 bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-700 dark:text-white font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-gray-700 transition-all cursor-pointer"
-                    onClick={() => router.push("/contact")}>
+                    onClick={() => router.push("/contact")}
+                  >
                     Liên hệ với chúng tôi
                   </button>
                 </div>

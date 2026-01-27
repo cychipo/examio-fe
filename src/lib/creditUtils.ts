@@ -31,7 +31,7 @@ export function calculateQuestionCost(questionCount: number): number {
  */
 export function calculateTotalCost(
   fileSizeBytes: number,
-  questionCount: number
+  questionCount: number,
 ): { ocrCost: number; questionCost: number; totalCost: number } {
   const ocrCost = calculateOcrCost(fileSizeBytes);
   const questionCost = calculateQuestionCost(questionCount);
@@ -59,7 +59,7 @@ export function calculateRegenerateCost(questionCount: number): number {
  */
 export function checkBalance(
   balance: number,
-  requiredCost: number
+  requiredCost: number,
 ): { isEnough: boolean; deficit: number } {
   const deficit = Math.max(0, requiredCost - balance);
   return {
@@ -71,12 +71,15 @@ export function checkBalance(
 /**
  * Format cost breakdown message for user display
  * @param costs - Cost breakdown object
+ * @param costs.ocrCost - OCR/embedding cost in tokens
+ * @param costs.questionCost - Question generation cost in tokens
+ * @param costs.totalCost - Total cost in tokens
  * @param balance - Current user balance
  * @returns Formatted message string
  */
 export function formatCostMessage(
   costs: { ocrCost: number; questionCost: number; totalCost: number },
-  balance: number
+  balance: number,
 ): string {
   const lines = [
     `📊 Chi phí dự kiến:`,

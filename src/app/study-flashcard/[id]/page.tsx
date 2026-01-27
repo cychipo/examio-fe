@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -21,7 +21,6 @@ import {
   ChevronRight,
   X,
   Eye,
-  User,
   Lock,
   Volume2,
   VolumeX,
@@ -32,7 +31,6 @@ import {
   checkFlashcardSetAccess,
   getFlashcardSetPublicInfo,
   getFlashcardSetForStudy,
-  verifyFlashcardSetAccessCode,
 } from "@/apis/flashcardSetApi";
 import type {
   FlashcardSetPublicInfo,
@@ -61,7 +59,7 @@ export default function FlashcardStudyPage({
   const [accessCheckResult, setAccessCheckResult] =
     useState<AccessCheckResult | null>(null);
   const [publicInfo, setPublicInfo] = useState<FlashcardSetPublicInfo | null>(
-    null
+    null,
   );
   const [accessCode, setAccessCode] = useState("");
   const [accessError, setAccessError] = useState("");
@@ -87,7 +85,7 @@ export default function FlashcardStudyPage({
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [studiedCards, setStudiedCards] = useState<Set<string>>(
-    () => new Set()
+    () => new Set(),
   );
   const [settings, setSettings] = useState({
     soundEffects: false,
@@ -131,7 +129,7 @@ export default function FlashcardStudyPage({
         });
       }
     },
-    [settings.soundEffects]
+    [settings.soundEffects],
   );
 
   // Load flashcards function
@@ -158,7 +156,7 @@ export default function FlashcardStudyPage({
         setIsLoadingFlashcards(false);
       }
     },
-    []
+    [],
   );
 
   // Check access on mount
@@ -395,7 +393,8 @@ export default function FlashcardStudyPage({
               variant="ghost"
               size="icon"
               onClick={() => router.push("/")}
-              className="shrink-0">
+              className="shrink-0"
+            >
               <Home className="h-5 w-5" />
             </Button>
             <div className="min-w-0">
@@ -441,8 +440,11 @@ export default function FlashcardStudyPage({
                 }))
               }
               className={cn(
-                settings.soundEffects ? "text-primary" : "text-muted-foreground"
-              )}>
+                settings.soundEffects
+                  ? "text-primary"
+                  : "text-muted-foreground",
+              )}
+            >
               {settings.soundEffects ? (
                 <Volume2 className="h-5 w-5" />
               ) : (
@@ -460,24 +462,26 @@ export default function FlashcardStudyPage({
           <div className="relative" style={{ perspective: "1000px" }}>
             <div
               className={cn(
-                "relative w-full transition-transform duration-500 cursor-pointer"
+                "relative w-full transition-transform duration-500 cursor-pointer",
               )}
               style={{
                 transformStyle: "preserve-3d",
                 transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                 minHeight: "400px",
               }}
-              onClick={handleFlip}>
+              onClick={handleFlip}
+            >
               {/* Front */}
               <Card
                 className={cn(
                   "absolute inset-0",
-                  "flex items-center justify-center p-8"
+                  "flex items-center justify-center p-8",
                 )}
                 style={{
                   backfaceVisibility: "hidden",
                   minHeight: "400px",
-                }}>
+                }}
+              >
                 <CardContent className="w-full text-center">
                   <div className="mb-4 text-sm text-muted-foreground">
                     Câu hỏi
@@ -498,13 +502,14 @@ export default function FlashcardStudyPage({
               <Card
                 className={cn(
                   "absolute inset-0",
-                  "flex items-center justify-center p-8 bg-primary/5"
+                  "flex items-center justify-center p-8 bg-primary/5",
                 )}
                 style={{
                   backfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
                   minHeight: "400px",
-                }}>
+                }}
+              >
                 <CardContent className="w-full text-center">
                   <div className="mb-4 text-sm text-muted-foreground">
                     Câu trả lời
@@ -532,7 +537,8 @@ export default function FlashcardStudyPage({
           <Button
             variant="outline"
             onClick={handlePrevious}
-            disabled={currentCardIndex === 0}>
+            disabled={currentCardIndex === 0}
+          >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Thẻ trước
           </Button>
@@ -541,7 +547,8 @@ export default function FlashcardStudyPage({
           <div className="flex items-center gap-3">
             <div
               ref={scrollContainerRef}
-              className="hidden sm:flex gap-1 max-w-xs overflow-x-auto no-scrollbar scroll-smooth [&::-webkit-scrollbar]:h-1">
+              className="hidden sm:flex gap-1 max-w-xs overflow-x-auto no-scrollbar scroll-smooth [&::-webkit-scrollbar]:h-1"
+            >
               {flashcards.map((card, index) => {
                 const isStudied = studiedCards.has(card.id);
                 const isCurrent = index === currentCardIndex;
@@ -556,8 +563,9 @@ export default function FlashcardStudyPage({
                       isStudied &&
                         !isCurrent &&
                         "bg-primary text-primary-foreground",
-                      !isStudied && !isCurrent && "bg-muted hover:bg-muted/80"
-                    )}>
+                      !isStudied && !isCurrent && "bg-muted hover:bg-muted/80",
+                    )}
+                  >
                     {index + 1}
                   </button>
                 );
@@ -575,7 +583,8 @@ export default function FlashcardStudyPage({
           <Button
             variant="outline"
             onClick={handleNext}
-            disabled={currentCardIndex === totalCards - 1}>
+            disabled={currentCardIndex === totalCards - 1}
+          >
             Thẻ sau
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>

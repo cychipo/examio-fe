@@ -9,15 +9,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  BookOpen,
   Plus,
-  ArrowLeft,
-  Settings,
-  Share2,
   Trash2,
-  Edit2,
-  Eye,
-  MoreVertical,
   FileText,
   Edit,
   ChevronLeft,
@@ -49,7 +42,7 @@ export default function QuizSetDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const router = useRouter();
+  const _router = useRouter();
   const {
     currentQuizSet,
     loading,
@@ -88,7 +81,7 @@ export default function QuizSetDetailPage({
       const response = await getQuizSetQuestionsApi(
         id,
         currentPage,
-        itemsPerPage
+        itemsPerPage,
       );
       setPaginatedQuestions(response.questions);
       setPagination(response.pagination);
@@ -161,7 +154,7 @@ export default function QuizSetDetailPage({
       // Refetch questions to get updated list
       fetchQuestions();
     },
-    [selectedQuestion, id, addQuestion, updateQuestion, fetchQuestions]
+    [selectedQuestion, id, addQuestion, updateQuestion, fetchQuestions],
   );
 
   // Derived values from pagination
@@ -206,8 +199,7 @@ export default function QuizSetDetailPage({
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
-            <div className="flex items-center gap-2">
-            </div>
+            <div className="flex items-center gap-2"></div>
           </div>
 
           {/* Tags */}
@@ -251,7 +243,7 @@ export default function QuizSetDetailPage({
                 </p>
                 <p className="text-sm font-medium">
                   {new Date(currentQuizSet.createdAt).toLocaleDateString(
-                    "vi-VN"
+                    "vi-VN",
                   )}
                 </p>
               </div>
@@ -302,7 +294,8 @@ export default function QuizSetDetailPage({
                 return (
                   <Card
                     key={question.id}
-                    className="p-4 hover:shadow-md transition-shadow">
+                    className="p-4 hover:shadow-md transition-shadow"
+                  >
                     <div className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
                         {actualIndex + 1}
@@ -311,16 +304,22 @@ export default function QuizSetDetailPage({
                         {/* Label badge */}
                         {question.label && (
                           <div className="mb-2">
-                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border"
-                                 style={{
-                                   backgroundColor: question.label.color ? `${question.label.color}15` : undefined,
-                                   borderColor: question.label.color || undefined,
-                                   color: question.label.color || undefined
-                                 }}>
+                            <div
+                              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium border"
+                              style={{
+                                backgroundColor: question.label.color
+                                  ? `${question.label.color}15`
+                                  : undefined,
+                                borderColor: question.label.color || undefined,
+                                color: question.label.color || undefined,
+                              }}
+                            >
                               {question.label.color && (
                                 <div
                                   className="w-2 h-2 rounded-full"
-                                  style={{ backgroundColor: question.label.color }}
+                                  style={{
+                                    backgroundColor: question.label.color,
+                                  }}
                                 />
                               )}
                               {question.label.name}
@@ -334,7 +333,7 @@ export default function QuizSetDetailPage({
                           {question.options.map((option, optIndex) => {
                             // Compare with letter (A, B, C, D) or index
                             const optionLetter = String.fromCharCode(
-                              65 + optIndex
+                              65 + optIndex,
                             );
                             const isCorrect =
                               question.answer === optionLetter ||
@@ -346,7 +345,8 @@ export default function QuizSetDetailPage({
                                   isCorrect
                                     ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
                                     : "bg-muted/50"
-                                }`}>
+                                }`}
+                              >
                                 <div className="flex-1">
                                   <RichTextViewer content={option} />
                                 </div>
@@ -365,14 +365,16 @@ export default function QuizSetDetailPage({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEditQuestion(question)}
-                          disabled={showQuestionForm}>
+                          disabled={showQuestionForm}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="errorGhost"
                           size="sm"
                           onClick={() => handleDeleteQuestion(question.id)}
-                          disabled={showQuestionForm}>
+                          disabled={showQuestionForm}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -394,7 +396,8 @@ export default function QuizSetDetailPage({
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}>
+                      disabled={currentPage === 1}
+                    >
                       <ChevronLeft className="h-4 w-4" />
                       Trước
                     </Button>
@@ -420,11 +423,12 @@ export default function QuizSetDetailPage({
                               }
                               size="sm"
                               className="w-8 h-8 p-0"
-                              onClick={() => setCurrentPage(pageNum)}>
+                              onClick={() => setCurrentPage(pageNum)}
+                            >
                               {pageNum}
                             </Button>
                           );
-                        }
+                        },
                       )}
                     </div>
                     <Button
@@ -433,7 +437,8 @@ export default function QuizSetDetailPage({
                       onClick={() =>
                         setCurrentPage((p) => Math.min(totalPages, p + 1))
                       }
-                      disabled={currentPage === totalPages}>
+                      disabled={currentPage === totalPages}
+                    >
                       Sau
                       <ChevronRight className="h-4 w-4" />
                     </Button>

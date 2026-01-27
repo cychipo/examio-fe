@@ -1,5 +1,5 @@
 import { RoomStatsCard } from "@/components/molecules/RoomStatsCard";
-import { Clock, DoorOpen, Users, CheckCircle2 } from "lucide-react";
+import { DoorOpen, Users } from "lucide-react";
 interface RoomStats {
   activeRooms: number;
   totalParticipants: number;

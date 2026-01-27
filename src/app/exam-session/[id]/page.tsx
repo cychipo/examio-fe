@@ -113,6 +113,7 @@ export default function ExamSessionPage({
       setAccessInfo({ hasAccess: true, accessType: "whitelist" });
       setShowCodeDialog(false);
       toast.success("Xác thực thành công!");
+      // eslint-disable-next-line unused-imports/no-unused-vars
     } catch (_error) {
       setCodeError("Mã truy cập không đúng");
     } finally {
@@ -177,7 +178,8 @@ export default function ExamSessionPage({
             className="sm:max-w-md"
             onPointerDownOutside={(e) => e.preventDefault()}
             onEscapeKeyDown={(e) => e.preventDefault()}
-            showCloseButton={false}>
+            showCloseButton={false}
+          >
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <KeyRound className="h-5 w-5" />
@@ -198,27 +200,28 @@ export default function ExamSessionPage({
                       setAccessCode(value);
                       setCodeError("");
                     }}
-                    disabled={verifying}>
+                    disabled={verifying}
+                  >
                     <InputOTPGroup>
                       <InputOTPSlot
                         index={0}
                         className={cn(
                           "h-12 w-12 text-lg",
-                          codeError && "border-red-500"
+                          codeError && "border-red-500",
                         )}
                       />
                       <InputOTPSlot
                         index={1}
                         className={cn(
                           "h-12 w-12 text-lg",
-                          codeError && "border-red-500"
+                          codeError && "border-red-500",
                         )}
                       />
                       <InputOTPSlot
                         index={2}
                         className={cn(
                           "h-12 w-12 text-lg",
-                          codeError && "border-red-500"
+                          codeError && "border-red-500",
                         )}
                       />
                     </InputOTPGroup>
@@ -228,21 +231,21 @@ export default function ExamSessionPage({
                         index={3}
                         className={cn(
                           "h-12 w-12 text-lg",
-                          codeError && "border-red-500"
+                          codeError && "border-red-500",
                         )}
                       />
                       <InputOTPSlot
                         index={4}
                         className={cn(
                           "h-12 w-12 text-lg",
-                          codeError && "border-red-500"
+                          codeError && "border-red-500",
                         )}
                       />
                       <InputOTPSlot
                         index={5}
                         className={cn(
                           "h-12 w-12 text-lg",
-                          codeError && "border-red-500"
+                          codeError && "border-red-500",
                         )}
                       />
                     </InputOTPGroup>
@@ -260,13 +263,15 @@ export default function ExamSessionPage({
                   variant="outline"
                   className="flex-1"
                   onClick={handleGoHome}
-                  disabled={verifying}>
+                  disabled={verifying}
+                >
                   Quay lại
                 </Button>
                 <Button
                   className="flex-1"
                   onClick={handleVerifyCode}
-                  disabled={verifying || accessCode.length !== 6}>
+                  disabled={verifying || accessCode.length !== 6}
+                >
                   {verifying ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />

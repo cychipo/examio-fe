@@ -221,7 +221,8 @@ export function FlashcardGenerator() {
             <Label className="text-muted-foreground">AI Model</Label>
             <Select
               value={selectedModel}
-              onValueChange={(value) => setSelectedModel(value as any)}>
+              onValueChange={(value) => setSelectedModel(value as any)}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Chọn model AI" />
               </SelectTrigger>
@@ -256,8 +257,8 @@ export function FlashcardGenerator() {
                   type="number"
                   value={cardCount}
                   onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    if (!isNaN(val)) setCardCount(val);
+                    const val = Number.parseInt(e.target.value);
+                    if (!Number.isNaN(val)) setCardCount(val);
                   }}
                   className="w-16 h-8 text-center px-1 text-xs font-bold bg-primary/10 border-none focus-visible:ring-1 focus-visible:ring-primary/30"
                   min={1}
@@ -284,7 +285,8 @@ export function FlashcardGenerator() {
           <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
             <Label
               htmlFor="narrow-toggle"
-              className="flex items-center gap-2 cursor-pointer text-muted-foreground">
+              className="flex items-center gap-2 cursor-pointer text-muted-foreground"
+            >
               Định dạng thẻ hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -325,7 +327,8 @@ export function FlashcardGenerator() {
             onClick={handleGenerate}
             disabled={!hasFile || isGenerating}
             className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
-            size="lg">
+            size="lg"
+          >
             {isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -399,11 +402,13 @@ export function FlashcardGenerator() {
                   <DialogAddExam
                     title="Lưu vào flashcard set"
                     description="Lưu flashcard vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
-                    type={DialogAddExamType.FLASH_CARD}>
+                    type={DialogAddExamType.FLASH_CARD}
+                  >
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                      className="bg-black/5 dark:bg-white/5 border-border cursor-pointer"
+                    >
                       <SaveAll size={15} className="mr-2" />
                       Lưu
                     </Button>
@@ -441,7 +446,8 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={prevCard}
                   disabled={currentCard === 0}
-                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer"
+                >
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Trước
                 </Button>
@@ -450,7 +456,8 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={nextCard}
                   disabled={currentCard === generatedCards.length - 1}
-                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer"
+                >
                   Sau
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>

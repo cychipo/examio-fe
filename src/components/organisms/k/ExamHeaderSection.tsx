@@ -1,4 +1,3 @@
-import { SecureBadge } from "@/components/atoms/k/SecureBadge";
 import { ExamMetricCard } from "@/components/molecules/ExamMetricCard";
 import { Clock, FileText, Award, RotateCcw } from "lucide-react";
 

@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckIcon, ArrowRightIcon } from "@radix-ui/react-icons";
+import { CheckIcon } from "@radix-ui/react-icons";
 import NumberFlow from "@number-flow/react";
 
 export type PlanLevel = "starter" | "pro" | "all" | string;
@@ -23,8 +22,7 @@ export interface PricingPlan {
   popular?: boolean;
 }
 
-export interface PricingTableProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+export interface PricingTableProps extends React.HTMLAttributes<HTMLDivElement> {
   features: PricingFeature[];
   plans: PricingPlan[];
   onPlanSelect?: (plan: PlanLevel) => void;
@@ -59,11 +57,13 @@ export function PricingTable({
       className={cn(
         "bg-background text-foreground",
         "px-4",
-        "fade-bottom overflow-hidden -mt-12"
-      )}>
+        "fade-bottom overflow-hidden -mt-12",
+      )}
+    >
       <div
         className={cn("w-full max-w-6xl mx-auto px-4", containerClassName)}
-        {...props}>
+        {...props}
+      >
         <div className="flex flex-col sm:flex-row justify-between mb-4 sm:mb-8 gap-4">
           <h2 className="text-2xl sm:text-3xl md:text-4xl">Bảng giá</h2>
           <div className="inline-flex items-center gap-2 text-xs sm:text-sm self-start sm:self-center">
@@ -72,8 +72,9 @@ export function PricingTable({
               onClick={() => setIsYearly(false)}
               className={cn(
                 "px-3 py-1 rounded-md transition-colors",
-                !isYearly ? "bg-zinc-100 dark:bg-zinc-800" : "text-zinc-500"
-              )}>
+                !isYearly ? "bg-zinc-100 dark:bg-zinc-800" : "text-zinc-500",
+              )}
+            >
               Theo tháng
             </button>
             <button
@@ -81,8 +82,9 @@ export function PricingTable({
               onClick={() => setIsYearly(true)}
               className={cn(
                 "px-3 py-1 rounded-md transition-colors",
-                isYearly ? "bg-zinc-100 dark:bg-zinc-800" : "text-zinc-500"
-              )}>
+                isYearly ? "bg-zinc-100 dark:bg-zinc-800" : "text-zinc-500",
+              )}
+            >
               Theo năm
             </button>
           </div>
@@ -98,8 +100,9 @@ export function PricingTable({
                 "flex-1 min-w-[140px] sm:min-w-0 p-3 sm:p-4 rounded-xl text-left transition-all",
                 "border border-border dark:border-border",
                 selectedPlan === plan.level &&
-                  "ring-2 ring-blue-500 dark:ring-blue-400"
-              )}>
+                  "ring-2 ring-blue-500 dark:ring-blue-400",
+              )}
+            >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">{plan.name}</span>
                 {plan.popular && (
@@ -135,7 +138,8 @@ export function PricingTable({
                   {plans.map((plan) => (
                     <div
                       key={plan.level}
-                      className="w-16 text-center font-medium">
+                      className="w-16 text-center font-medium"
+                    >
                       {plan.name}
                     </div>
                   ))}
@@ -147,8 +151,9 @@ export function PricingTable({
                   className={cn(
                     "flex items-center p-4 transition-colors",
                     feature.included === selectedPlan &&
-                      "bg-blue-50/50 dark:bg-blue-900/20"
-                  )}>
+                      "bg-blue-50/50 dark:bg-blue-900/20",
+                  )}
+                >
                   <div className="flex-1 text-sm">{feature.name}</div>
                   <div className="flex items-center gap-8 text-sm">
                     {plans.map((plan) => (
@@ -156,8 +161,9 @@ export function PricingTable({
                         key={plan.level}
                         className={cn(
                           "w-16 flex justify-center",
-                          plan.level === selectedPlan && "font-medium"
-                        )}>
+                          plan.level === selectedPlan && "font-medium",
+                        )}
+                      >
                         {shouldShowCheck(feature.included, plan.level) ? (
                           <CheckIcon className="w-5 h-5 text-blue-500" />
                         ) : (
@@ -180,7 +186,7 @@ export function PricingTable({
 
 function shouldShowCheck(
   included: PricingFeature["included"],
-  level: string
+  level: string,
 ): boolean {
   if (included === "all") return true;
   if (included === "pro" && (level === "pro" || level === "all")) return true;

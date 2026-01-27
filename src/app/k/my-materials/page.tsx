@@ -67,6 +67,7 @@ export default function MyMaterialsPage() {
 
   useEffect(() => {
     fetchMaterials();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleReview = (setId: string) => {
@@ -76,8 +77,9 @@ export default function MyMaterialsPage() {
   const handleShare = async (setId: string) => {
     try {
       const data = await generateShareLinkApi(setId);
-      const shareUrl = data.shareUrl || `${window.location.origin}/study-flashcard/${setId}`;
-      
+      const shareUrl =
+        data.shareUrl || `${window.location.origin}/study-flashcard/${setId}`;
+
       setShareDialog({
         open: true,
         setId,
@@ -210,7 +212,9 @@ export default function MyMaterialsPage() {
                 <div className="flex items-center gap-2 text-xs">
                   <User className="h-3 w-3 text-muted-foreground" />
                   <span className="text-muted-foreground">
-                    {material.creator?.name || material.creator?.username || "Ẩn danh"}
+                    {material.creator?.name ||
+                      material.creator?.username ||
+                      "Ẩn danh"}
                   </span>
                 </div>
 

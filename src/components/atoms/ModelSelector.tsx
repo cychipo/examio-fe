@@ -33,6 +33,8 @@ const MODEL_ICONS = {
   fayedark: Moon,
 };
 
+const EMPTY_DISABLED_MODELS: Partial<Record<AIModelType, string>> = {};
+
 /**
  * AI Model Selector Component
  *
@@ -46,7 +48,7 @@ export function ModelSelector({
   disabled = false,
   className,
   size = "default",
-  disabledModels = {},
+  disabledModels = EMPTY_DISABLED_MODELS,
 }: ModelSelectorProps) {
   const selectedModel = AI_MODELS.find((m) => m.id === value) || AI_MODELS[0];
   const IconComponent = MODEL_ICONS[value] || Sparkles;
@@ -59,20 +61,22 @@ export function ModelSelector({
             <Select
               value={value}
               onValueChange={(val) => onChange?.(val as AIModelType)}
-              disabled={disabled}>
+              disabled={disabled}
+            >
               <SelectTrigger
                 size={size}
                 className={cn(
                   "min-w-[160px] gap-2",
-                  size === "sm" && "min-w-[140px] text-xs"
-                )}>
+                  size === "sm" && "min-w-[140px] text-xs",
+                )}
+              >
                 <SelectValue>
                   <div className="flex items-center gap-2">
                     <IconComponent
                       className={cn(
                         "size-4",
                         value === "gemini" && "text-blue-500",
-                        value === "fayedark" && "text-purple-500"
+                        value === "fayedark" && "text-purple-500",
                       )}
                     />
                     <span>{selectedModel.name}</span>
@@ -92,7 +96,7 @@ export function ModelSelector({
                           "size-4",
                           model.id === "gemini" && "text-blue-500",
                           model.id === "fayedark" && "text-purple-500",
-                          isModelDisabled && "opacity-50"
+                          isModelDisabled && "opacity-50",
                         )}
                       />
                       <div className="flex flex-col gap-0.5">
@@ -100,21 +104,24 @@ export function ModelSelector({
                           <span
                             className={cn(
                               "font-medium",
-                              isModelDisabled && "opacity-50"
-                            )}>
+                              isModelDisabled && "opacity-50",
+                            )}
+                          >
                             {model.name}
                           </span>
                           {model.badge && !isModelDisabled && (
                             <Badge
                               variant="secondary"
-                              className="text-[10px] px-1.5 py-0">
+                              className="text-[10px] px-1.5 py-0"
+                            >
                               {model.badge}
                             </Badge>
                           )}
                           {isModelDisabled && (
                             <Badge
                               variant="outline"
-                              className="text-[10px] px-1.5 py-0 opacity-60">
+                              className="text-[10px] px-1.5 py-0 opacity-60"
+                            >
                               Coming soon
                             </Badge>
                           )}
@@ -122,8 +129,9 @@ export function ModelSelector({
                         <span
                           className={cn(
                             "text-xs text-muted-foreground",
-                            isModelDisabled && "opacity-50"
-                          )}>
+                            isModelDisabled && "opacity-50",
+                          )}
+                        >
                           {model.description}
                         </span>
                       </div>
@@ -138,7 +146,8 @@ export function ModelSelector({
                             <SelectItem
                               value={model.id}
                               disabled={true}
-                              className="cursor-not-allowed">
+                              className="cursor-not-allowed"
+                            >
                               {itemContent}
                             </SelectItem>
                           </div>
@@ -154,7 +163,8 @@ export function ModelSelector({
                     <SelectItem
                       key={model.id}
                       value={model.id}
-                      disabled={isModelDisabled}>
+                      disabled={isModelDisabled}
+                    >
                       {itemContent}
                     </SelectItem>
                   );

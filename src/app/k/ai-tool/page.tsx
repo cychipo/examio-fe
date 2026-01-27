@@ -6,16 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TestGenerator } from "@/components/organisms/k/TestGenerator";
 import { FlashcardGenerator } from "@/components/organisms/k/FlashcardGenerator";
 import { RecentFilesList } from "@/components/molecules/RecentFilesList";
-import {
-  FileText,
-  SquareSplitVertical,
-  Sparkles,
-  Cpu,
-} from "lucide-react";
+import { FileText, SquareSplitVertical, Sparkles, Cpu } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RecentUpload } from "@/apis/aiApi";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
-import { ModelSelector } from "@/components/atoms/ModelSelector";
+
 import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
 import { TeacherRoute } from "@/components/organisms/TeacherRoute";
 
@@ -24,7 +19,7 @@ function AIGeneratorContent() {
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab") || "test";
   const [activeTab, setActiveTab] = useState(tabFromUrl);
-  const [selectedModel, setSelectedModel] =
+  const [_selectedModel, _setSelectedModel] =
     useState<AIModelType>(DEFAULT_AI_MODEL);
   const { loadFromUpload } = useRecentUploadsStore();
 
@@ -79,17 +74,20 @@ function AIGeneratorContent() {
               id="ai-generator-tabs"
               value={activeTab}
               onValueChange={handleTabChange}
-              className="w-full">
+              className="w-full"
+            >
               <TabsList className="grid grid-cols-2 h-14 p-1.5 bg-white/[0.03] border border-border backdrop-blur-xl w-full md:w-fit rounded-xl">
                 <TabsTrigger
                   value="test"
-                  className="flex items-center gap-2.5 px-6 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300">
+                  className="flex items-center gap-2.5 px-6 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
+                >
                   <FileText className="w-4 h-4" />
                   <span className="font-medium">Đề kiểm tra</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="flashcard"
-                  className="flex items-center gap-2.5 px-6 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300">
+                  className="flex items-center gap-2.5 px-6 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
+                >
                   <SquareSplitVertical className="w-4 h-4" />
                   <span className="font-medium">Flashcard</span>
                 </TabsTrigger>

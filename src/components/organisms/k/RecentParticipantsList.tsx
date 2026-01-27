@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { ParticipantListItem } from "@/components/molecules/ParticipantListItem";
-import { Button } from "@/components/ui/button";
 
 export interface Participant {
   id: string;
@@ -17,7 +16,7 @@ interface RecentParticipantsListProps {
 
 export function RecentParticipantsList({
   participants,
-  onViewAll,
+  onViewAll: _onViewAll,
 }: RecentParticipantsListProps) {
   return (
     <Card className="p-6">
