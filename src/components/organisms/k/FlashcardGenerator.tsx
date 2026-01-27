@@ -251,18 +251,34 @@ export function FlashcardGenerator() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-muted-foreground">Số lượng thẻ</Label>
-              <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                {cardCount} thẻ
-              </span>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={cardCount}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (!isNaN(val)) setCardCount(val);
+                  }}
+                  className="w-16 h-8 text-center px-1 text-xs font-bold bg-primary/10 border-none focus-visible:ring-1 focus-visible:ring-primary/30"
+                  min={1}
+                  max={1000}
+                />
+                <span className="text-xs font-medium text-muted-foreground">
+                  thẻ
+                </span>
+              </div>
             </div>
             <Slider
-              value={[cardCount]}
+              value={[Math.min(cardCount, 500)]}
               onValueChange={(value) => setCardCount(value[0])}
               min={5}
-              max={50}
+              max={500}
               step={5}
               className="w-full"
             />
+            <p className="text-[10px] text-muted-foreground italic">
+              * Tối đa 500 thẻ bằng thanh trượt, nhập tay để lên tới 1000.
+            </p>
           </div>
 
           <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-border">

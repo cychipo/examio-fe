@@ -233,18 +233,34 @@ export function TestGenerator() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-muted-foreground">Số lượng câu hỏi</Label>
-              <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                {questionCount} câu
-              </span>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={questionCount}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (!isNaN(val)) setQuestionCount(val);
+                  }}
+                  className="w-16 h-8 text-center px-1 text-xs font-bold bg-primary/10 border-none focus-visible:ring-1 focus-visible:ring-primary/30"
+                  min={1}
+                  max={1000}
+                />
+                <span className="text-xs font-medium text-muted-foreground">
+                  câu
+                </span>
+              </div>
             </div>
             <Slider
-              value={[questionCount]}
+              value={[Math.min(questionCount, 500)]}
               onValueChange={(value) => setQuestionCount(value[0])}
               min={5}
-              max={50}
+              max={500}
               step={5}
               className="w-full"
             />
+            <p className="text-[10px] text-muted-foreground italic">
+              * Tối đa 500 câu bằng thanh trượt, nhập tay để lên tới 1000.
+            </p>
           </div>
 
           {/* Narrow Format Toggle */}
