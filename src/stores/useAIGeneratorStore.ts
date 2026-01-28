@@ -184,7 +184,7 @@ export const useJobStore = create<JobState>((set, get) => ({
         toast.error("Lỗi xử lý tác vụ", {
           description: error,
         });
-      }
+      },
     );
   },
   // Cancel pending job from previous session
@@ -217,13 +217,14 @@ export const useJobStore = create<JobState>((set, get) => ({
 }));
 
 // Helper function for polling job status
+// Extended timeout: 1800 attempts * 2s = 60 minutes (Ollama/local AI can be slow for large jobs)
 const pollJobStatus = async (
   jobId: string,
   onProgress: (progress: number) => void,
   onSuccess: (result: any) => void,
   onError: (error: string) => void,
   pollInterval: number = 2000,
-  maxAttempts: number = 150
+  maxAttempts: number = 1800,
 ) => {
   let attempts = 0;
 
@@ -465,7 +466,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
             description: error,
           });
           console.error("Error generating test:", error);
-        }
+        },
       );
     } catch (error) {
       set({ isGenerating: false });
@@ -651,7 +652,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
               description: error,
             });
             console.error("Error generating flashcards:", error);
-          }
+          },
         );
       } catch (error) {
         set({ isGenerating: false });
@@ -678,7 +679,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
         keyword: "",
         selectedModel: DEFAULT_AI_MODEL,
       }),
-  })
+  }),
 );
 
 interface RecentUploadsState {
@@ -689,7 +690,7 @@ interface RecentUploadsState {
   isDeleting: boolean;
   fetchRecentUploads: (
     forceRefresh?: boolean,
-    includeHistory?: boolean
+    includeHistory?: boolean,
   ) => Promise<void>;
   selectUpload: (upload: RecentUpload | null) => void;
   deleteUpload: (uploadId: string) => Promise<void>;

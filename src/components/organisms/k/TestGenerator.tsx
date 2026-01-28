@@ -244,7 +244,7 @@ export function TestGenerator() {
                   }}
                   className="w-16 h-8 text-center px-1 text-xs font-bold bg-primary/10 border-none focus-visible:ring-1 focus-visible:ring-primary/30"
                   min={1}
-                  max={1000}
+                  max={100}
                 />
                 <span className="text-xs font-medium text-muted-foreground">
                   câu
@@ -252,15 +252,15 @@ export function TestGenerator() {
               </div>
             </div>
             <Slider
-              value={[Math.min(questionCount, 500)]}
+              value={[Math.min(questionCount, 100)]}
               onValueChange={(value) => setQuestionCount(value[0])}
               min={5}
-              max={500}
+              max={100}
               step={5}
               className="w-full"
             />
             <p className="text-[10px] text-muted-foreground italic">
-              * Tối đa 500 câu bằng thanh trượt, nhập tay để lên tới 1000.
+              * Tối đa 100 câu hỏi.
             </p>
           </div>
 
