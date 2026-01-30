@@ -16,7 +16,7 @@ export function NeedHelpSection({
   return (
     <Card className="p-6">
       <div className="mb-4 flex items-center gap-2">
-        <HelpCircle className="h-5 w-5 text-blue-500" />
+        <HelpCircle className="h-5 w-5 text-primary" />
         <h3 className="font-semibold text-foreground">Cần hỗ trợ?</h3>
       </div>
       <div className="space-y-2">

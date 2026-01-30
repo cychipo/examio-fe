@@ -378,8 +378,8 @@ export default function ExamRoomDetailPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="flex items-center gap-4 py-6">
-            <div className="rounded-full p-3 bg-blue-500/10">
-              <Calendar className="h-6 w-6 text-blue-500" />
+            <div className="rounded-full p-3 bg-primary/10">
+              <Calendar className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.total}</p>
@@ -400,8 +400,8 @@ export default function ExamRoomDetailPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-4 py-6">
-            <div className="rounded-full p-3 bg-purple-500/10">
-              <Users className="h-6 w-6 text-purple-500" />
+            <div className="rounded-full p-3 bg-secondary/10">
+              <Users className="h-6 w-6 text-secondary" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.totalParticipants}</p>
@@ -479,7 +479,7 @@ export default function ExamRoomDetailPage() {
             <div className="flex items-center gap-2">
               <Badge
                 variant="outline"
-                className="text-blue-500 flex items-center">
+                className="text-primary flex items-center">
                 <div className="flex items-center">
                   <Timer className="h-3 w-3 mr-1" />
                   <p>{stats.upcoming} sắp tới</p>

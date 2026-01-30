@@ -24,7 +24,7 @@ const modeConfig = {
   auto: {
     label: "Auto",
     icon: Monitor,
-    bgClass: "bg-gradient-to-br from-background to-slate-200 dark:to-slate-800",
+    bgClass: "bg-gradient-to-br from-background to-slate-200",
     iconClass: "text-foreground",
   },
 };

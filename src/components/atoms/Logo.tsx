@@ -1,30 +1,40 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { motion } from "motion/react";
 
 interface LogoProps {
   className?: string;
   sizeLogo?: number;
   sizeText?: number;
+  showText?: boolean;
 }
 
-export default function Logo({ className, sizeLogo, sizeText }: LogoProps) {
+export default function Logo({
+  className,
+  sizeLogo = 40,
+  sizeText,
+  showText = true,
+}: LogoProps) {
   return (
-    <div className={cn("flex items-center space-x-2", className)}>
+    <div className={cn("flex items-center space-x-3", className)}>
       <Image
-        src="/favicon.svg"
-        alt="Logo"
-        width={sizeLogo ?? 32}
-        height={sizeLogo ?? 32}
+        src="/Logo_KMA.png"
+        alt="KMA Edu Logo"
+        width={sizeLogo}
+        height={sizeLogo}
+        className="object-contain"
       />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-medium whitespace-pre text-black dark:text-white">
-        <p className={cn(sizeText ? `text-[${sizeText}px]` : "text-2xl")}>
-          FayEdu
-        </p>
-      </motion.span>
+      {showText && (
+        <span className="font-bold whitespace-pre text-foreground">
+          <p
+            className={cn(
+              sizeText ? `text-[${sizeText}px]` : "text-xl",
+              "kma-gradient-text font-bold",
+            )}
+          >
+            KMA Edu
+          </p>
+        </span>
+      )}
     </div>
   );
 }
@@ -37,8 +47,14 @@ export function LogoOnly({
   sizeIcon: number;
 }) {
   return (
-    <div className={cn("flex items-center space-x-2", className)}>
-      <Image src="/favicon.svg" alt="Logo" width={sizeIcon} height={sizeIcon} />
+    <div className={cn("flex items-center", className)}>
+      <Image
+        src="/Logo_KMA.png"
+        alt="KMA Edu Logo"
+        width={sizeIcon}
+        height={sizeIcon}
+        className="object-contain"
+      />
     </div>
   );
 }

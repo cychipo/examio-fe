@@ -167,7 +167,7 @@ export default function MyMaterialsPage() {
               className="group hover:shadow-lg transition-all duration-300 overflow-hidden"
             >
               <CardHeader className="p-0">
-                <div className="relative h-40 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
+                <div className="relative h-40 bg-gradient-to-br from-primary to-purple-600 overflow-hidden">
                   {material.thumbnail ? (
                     <Image
                       src={material.thumbnail}

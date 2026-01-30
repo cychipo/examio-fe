@@ -43,7 +43,7 @@ const SeparatorPro = React.memo(
           {variant === "default" && (
             <div
               className={cn(
-                "bg-neutral-400 dark:bg-neutral-800",
+                "bg-neutral-400",
                 isHorizontal ? "h-px w-full" : "w-px h-full"
               )}
             />
@@ -59,7 +59,7 @@ const SeparatorPro = React.memo(
               <div
                 className={cn(
                   "absolute inset-0 bg-repeat",
-                  "text-neutral-400 dark:text-white/20"
+                  "text-neutral-400"
                 )}
                 style={{
                   backgroundImage:
@@ -82,7 +82,7 @@ const SeparatorPro = React.memo(
             >
               <svg
                 className={cn(
-                  "text-neutral-400 dark:text-white/20",
+                  "text-neutral-400",
                   isHorizontal ? "w-full h-6" : "h-full w-6"
                 )}
                 viewBox={isHorizontal ? "0 0 400 20" : "0 0 20 400"}

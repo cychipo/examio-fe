@@ -8,16 +8,16 @@ interface GradeBadgeProps {
 }
 
 const gradeStyles: Record<GradeType, { bg: string; text: string }> = {
-  "A": { bg: "bg-emerald-100 dark:bg-emerald-900/40", text: "text-emerald-700 dark:text-emerald-400" },
-  "A-": { bg: "bg-emerald-100 dark:bg-emerald-900/40", text: "text-emerald-700 dark:text-emerald-400" },
-  "B+": { bg: "bg-blue-100 dark:bg-blue-900/40", text: "text-blue-700 dark:text-blue-400" },
-  "B": { bg: "bg-amber-100 dark:bg-amber-900/40", text: "text-amber-700 dark:text-amber-400" },
-  "B-": { bg: "bg-amber-100 dark:bg-amber-900/40", text: "text-amber-700 dark:text-amber-400" },
-  "C+": { bg: "bg-orange-100 dark:bg-orange-900/40", text: "text-orange-700 dark:text-orange-400" },
-  "C": { bg: "bg-red-100 dark:bg-red-900/40", text: "text-red-700 dark:text-red-400" },
-  "C-": { bg: "bg-red-100 dark:bg-red-900/40", text: "text-red-700 dark:text-red-400" },
-  "D": { bg: "bg-red-100 dark:bg-red-900/40", text: "text-red-700 dark:text-red-400" },
-  "F": { bg: "bg-red-100 dark:bg-red-900/40", text: "text-red-700 dark:text-red-400" },
+  "A": { bg: "bg-emerald-100", text: "text-emerald-700" },
+  "A-": { bg: "bg-emerald-100", text: "text-emerald-700" },
+  "B+": { bg: "bg-red-100", text: "text-red-700" },
+  "B": { bg: "bg-yellow-100", text: "text-amber-700" },
+  "B-": { bg: "bg-yellow-100", text: "text-amber-700" },
+  "C+": { bg: "bg-orange-100", text: "text-orange-700" },
+  "C": { bg: "bg-red-100", text: "text-red-700" },
+  "C-": { bg: "bg-red-100", text: "text-red-700" },
+  "D": { bg: "bg-red-100", text: "text-red-700" },
+  "F": { bg: "bg-red-100", text: "text-red-700" },
 };
 
 export function GradeBadge({ grade, className }: GradeBadgeProps) {

@@ -43,20 +43,20 @@ export default function StackSection() {
   const iconsPerOrbit = Math.ceil(iconConfigs.length / orbitCount);
 
   return (
-    <section className="relative max-w-6xl mx-auto pl-10 flex items-center justify-between h-[30rem] border border-border dark:border-border bg-white dark:bg-black overflow-hidden rounded-3xl ">
+    <section className="relative max-w-6xl mx-auto pl-10 flex items-center justify-between h-[30rem] border border-border bg-white overflow-hidden rounded-3xl ">
       {/* Left side: Heading and Text */}
       <div className="w-1/2 z-10">
-        <h1 className="text-4xl sm:text-6xl font-bold mb-4 text-gray-900 dark:text-white">
+        <h1 className="text-4xl sm:text-6xl font-bold mb-4 text-gray-900">
           Học tập và ôn luyện với tại liệu có sẵn của bạn
         </h1>
-        <p className="text-gray-500 dark:text-gray-300 mb-6 max-w-lg">
+        <p className="text-gray-500 mb-6 max-w-lg">
           Kết nối tài liệu của bạn từ Google Drive, Dropbox, hoặc tải lên trực
           tiếp để bắt đầu hành trình học tập cá nhân hóa.
         </p>
         <div className="flex items-center gap-3">
           <Button
             variant="default"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-primary hover:bg-red-700 text-white"
           >
             <Link href="https://ruixen.com" target="_blank">
               {" "}
@@ -71,7 +71,7 @@ export default function StackSection() {
       <div className="relative w-1/2 h-full flex items-center justify-start overflow-hidden">
         <div className="relative w-[50rem] h-[50rem] translate-x-[30%] flex items-center justify-center">
           {/* Center Circle */}
-          <div className="w-24 h-24 rounded-full bg-gray-50 dark:bg-gray-800 shadow-lg flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full bg-gray-50 shadow-lg flex items-center justify-center">
             <FaFilePdf className="w-12 h-12 text-red-400" />
           </div>
 
@@ -83,7 +83,7 @@ export default function StackSection() {
             return (
               <div
                 key={orbitIdx}
-                className="absolute rounded-full border-2 border-dotted border-border dark:border-border"
+                className="absolute rounded-full border-2 border-dotted border-border"
                 style={{
                   width: size,
                   height: size,
@@ -105,7 +105,7 @@ export default function StackSection() {
                     return (
                       <div
                         key={`${orbitIdx}-${iconIdx}`}
-                        className="absolute bg-white dark:bg-gray-800 rounded-full p-1 shadow-md"
+                        className="absolute bg-white rounded-full p-1 shadow-md"
                         style={{
                           left: `${x}%`,
                           top: `${y}%`,

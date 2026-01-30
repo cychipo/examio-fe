@@ -18,23 +18,23 @@ interface RecentActivityItemProps {
 const activityConfig: Record<ActivityType, { icon: LucideIcon; bg: string; iconColor: string }> = {
   exam_score: {
     icon: Trophy,
-    bg: "bg-emerald-100 dark:bg-emerald-900/40",
-    iconColor: "text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-100",
+    iconColor: "text-emerald-600",
   },
   pdf_processed: {
     icon: FileText,
-    bg: "bg-blue-100 dark:bg-blue-900/40",
-    iconColor: "text-blue-600 dark:text-blue-400",
+    bg: "bg-red-100",
+    iconColor: "text-primary",
   },
   flashcard_created: {
     icon: BookOpen,
-    bg: "bg-purple-100 dark:bg-purple-900/40",
-    iconColor: "text-purple-600 dark:text-purple-400",
+    bg: "bg-yellow-100",
+    iconColor: "text-yellow-600",
   },
   study_streak: {
     icon: Flame,
-    bg: "bg-amber-100 dark:bg-amber-900/40",
-    iconColor: "text-amber-600 dark:text-amber-400",
+    bg: "bg-yellow-100",
+    iconColor: "text-yellow-600",
   },
 };
 

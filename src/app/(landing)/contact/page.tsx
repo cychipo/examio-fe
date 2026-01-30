@@ -1,9 +1,9 @@
 import ContactSection from "@/components/organisms/ContactSection";
 
 export const metadata = {
-  title: "Liên hệ - FayEdu",
+  title: "Liên hệ - KMA Edu",
   description:
-    "Liên hệ với FayEdu - Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn.",
+    "Liên hệ với KMA Edu - Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn.",
 };
 
 export default function ContactPage() {

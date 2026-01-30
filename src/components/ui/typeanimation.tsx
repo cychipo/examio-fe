@@ -25,7 +25,7 @@ const Typeanimation = ({
   typingSpeed = 50,
   deletingSpeed = 50,
   pauseDuration = 1000,
-  gradientFrom = "blue-500",
+  gradientFrom = "primary",
   gradientTo = "purple-600",
 }: TypeanimationProps) => {
   const sequence = words.flatMap((word) => [word, pauseDuration]);

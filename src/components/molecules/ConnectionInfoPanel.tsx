@@ -83,19 +83,19 @@ export function ConnectionInfoPanel({
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Đã gửi:</span>
-              <span className="font-semibold text-blue-600 dark:text-blue-400">
+              <span className="font-semibold text-primary">
                 {messageStats.sent}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Đã nhận:</span>
-              <span className="font-semibold text-green-600 dark:text-green-400">
+              <span className="font-semibold text-green-600">
                 {messageStats.received}
               </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Đang chờ:</span>
-              <span className="font-semibold text-orange-600 dark:text-orange-400">
+              <span className="font-semibold text-orange-600">
                 {messageStats.queued}
               </span>
             </div>

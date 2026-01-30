@@ -77,7 +77,7 @@ const UploadIllustration = () => (
         cx="50"
         cy="50"
         r="45"
-        className="stroke-gray-200 dark:stroke-gray-700"
+        className="stroke-gray-200 stroke-gray-200"
         strokeWidth="2"
         strokeDasharray="4 4">
         <animateTransform
@@ -92,7 +92,7 @@ const UploadIllustration = () => (
 
       <path
         d="M30 35H70C75 35 75 40 75 40V65C75 70 70 70 70 70H30C25 70 25 65 25 65V40C25 35 30 35 30 35Z"
-        className="fill-blue-100 dark:fill-blue-900/30 stroke-blue-500 dark:stroke-blue-400"
+        className="fill-red-100 fill-red-50 stroke-red-500 stroke-red-500"
         strokeWidth="2">
         <animate
           attributeName="d"
@@ -107,7 +107,7 @@ const UploadIllustration = () => (
 
       <path
         d="M30 35C30 35 35 35 40 35C45 35 45 30 50 30C55 30 55 35 60 35C65 35 70 35 70 35"
-        className="stroke-blue-500 dark:stroke-blue-400"
+        className="stroke-red-500 stroke-red-500"
         strokeWidth="2"
         fill="none"
       />
@@ -118,7 +118,7 @@ const UploadIllustration = () => (
           y1="45"
           x2="50"
           y2="60"
-          className="stroke-blue-500 dark:stroke-blue-400"
+          className="stroke-red-500 stroke-red-500"
           strokeWidth="2"
           strokeLinecap="round">
           <animate
@@ -130,7 +130,7 @@ const UploadIllustration = () => (
         </line>
         <polyline
           points="42,52 50,45 58,52"
-          className="stroke-blue-500 dark:stroke-blue-400"
+          className="stroke-red-500 stroke-red-500"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -427,13 +427,13 @@ export default function FileUpload({
       role="complementary"
       aria-label="File upload"
       style={{ zIndex: 10 }}>
-      <div className="group relative w-full rounded-xl bg-white dark:bg-black ring-1 ring-gray-200 dark:ring-white/10 p-0.5">
-        <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+      <div className="group relative w-full rounded-xl bg-white ring-1 ring-gray-200 p-0.5">
+        <div className="absolute inset-x-0 -top-px h-px w-full bg-gradient-to-r from-transparent via-red-500/20 to-transparent" />
 
-        <div className="relative w-full rounded-[10px] bg-gray-50/50 dark:bg-white/[0.02] p-1.5">
+        <div className="relative w-full rounded-[10px] bg-gray-50/50 bg-gray-50 p-1.5">
           <div
             className={cn(
-              "relative mx-auto w-full overflow-hidden rounded-lg border border-border dark:border-border[0.08] bg-white dark:bg-black/50",
+              "relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-white/50",
               error ? "border-red-500/50" : ""
             )}>
             <div
@@ -441,14 +441,14 @@ export default function FileUpload({
                 "absolute inset-0 transition-opacity duration-300",
                 status === "dragging" ? "opacity-100" : "opacity-0"
               )}>
-              <div className="absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-blue-500/10 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 h-[20%] bg-gradient-to-t from-blue-500/10 to-transparent" />
-              <div className="absolute inset-y-0 left-0 w-[20%] bg-gradient-to-r from-blue-500/10 to-transparent" />
-              <div className="absolute inset-y-0 right-0 w-[20%] bg-gradient-to-l from-blue-500/10 to-transparent" />
-              <div className="absolute inset-[20%] bg-blue-500/5 rounded-lg transition-all duration-300 animate-pulse" />
+              <div className="absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-red-500/10 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-[20%] bg-gradient-to-t from-red-500/10 to-transparent" />
+              <div className="absolute inset-y-0 left-0 w-[20%] bg-gradient-to-r from-red-500/10 to-transparent" />
+              <div className="absolute inset-y-0 right-0 w-[20%] bg-gradient-to-l from-red-500/10 to-transparent" />
+              <div className="absolute inset-[20%] bg-primary/5 rounded-lg transition-all duration-300 animate-pulse" />
             </div>
 
-            <div className="absolute -right-4 -top-4 h-8 w-8 bg-gradient-to-br from-blue-500/20 to-transparent blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute -right-4 -top-4 h-8 w-8 bg-gradient-to-br from-red-500/20 to-transparent blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             <div className="relative h-[240px]">
               <AnimatePresence mode="wait">
@@ -472,10 +472,10 @@ export default function FileUpload({
                     </div>
 
                     <div className="text-center space-y-1.5 mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">
+                      <h3 className="text-lg font-semibold text-gray-900 text-gray-900 tracking-tight">
                         Kéo thả file ở đây hoặc
                       </h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 text-gray-500">
                         {acceptedFileTypes?.length
                           ? `${acceptedFileTypes
                               .map((t) => t.split("/")[1])
@@ -489,7 +489,7 @@ export default function FileUpload({
                     <button
                       type="button"
                       onClick={triggerFileInput}
-                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:cursor-pointer group">
+                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 text-gray-900 transition-all duration-200 hover:bg-gray-200 group">
                       <span>Tải file lên</span>
                       <UploadCloud className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
                     </button>
@@ -514,14 +514,14 @@ export default function FileUpload({
                     </div>
 
                     <div className="text-center space-y-1.5 mb-4">
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-white break-words line-clamp-2 w-full">
+                      <h3 className="text-sm font-semibold text-gray-900 text-gray-900 break-words line-clamp-2 w-full">
                         {file?.name}
                       </h3>
                       <div className="flex items-center justify-center gap-2 text-xs">
-                        <span className="text-gray-500 dark:text-gray-400">
+                        <span className="text-gray-500 text-gray-500">
                           {formatBytes(file?.size || 0)}
                         </span>
-                        <span className="font-medium text-blue-500">
+                        <span className="font-medium text-primary">
                           {Math.round(progress)}%
                         </span>
                       </div>
@@ -530,7 +530,7 @@ export default function FileUpload({
                     <button
                       onClick={resetState}
                       type="button"
-                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 dark:bg-white/10 px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white transition-all duration-200 hover:bg-gray-200 dark:cursor-pointer">
+                      className="w-4/5 flex items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 text-gray-900 transition-all duration-200 hover:bg-gray-200">
                       Cancel
                     </button>
                   </motion.div>
@@ -545,7 +545,7 @@ export default function FileUpload({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   className="absolute bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <p className="text-sm text-red-500 dark:text-red-400">
+                  <p className="text-sm text-red-500">
                     {error.message}
                   </p>
                 </motion.div>

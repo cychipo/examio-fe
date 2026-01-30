@@ -95,21 +95,21 @@ export default function MyExamsPage() {
     switch (status) {
       case 0: // IN_PROGRESS
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
             <Clock className="h-3 w-3" />
             Đang làm
           </span>
         );
       case 1: // COMPLETED
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
             <CheckCircle className="h-3 w-3" />
             Hoàn thành
           </span>
         );
       case 2: // CANCELLED
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
             <XCircle className="h-3 w-3" />
             Đã hủy
           </span>
@@ -120,9 +120,9 @@ export default function MyExamsPage() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-600 dark:text-green-400";
-    if (score >= 50) return "text-amber-600 dark:text-amber-400";
-    return "text-red-600 dark:text-red-400";
+    if (score >= 80) return "text-green-600";
+    if (score >= 50) return "text-yellow-600";
+    return "text-red-600";
   };
 
   if (loading) {
@@ -208,7 +208,7 @@ export default function MyExamsPage() {
                     <div className="flex flex-col items-end gap-2">
                       {getStatusBadge(status)}
                       {violationCount > 0 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
                           <AlertCircle className="h-3 w-3" />
                           {violationCount} vi phạm
                         </span>
@@ -333,7 +333,7 @@ function ExamAttemptDetails({ attempt }: { attempt: RecentExamAttempt }) {
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
               <Trophy className="h-8 w-8 mx-auto text-amber-500" />
-              <p className="text-3xl font-bold text-amber-600">
+              <p className="text-3xl font-bold text-yellow-600">
                 {attempt.score.toFixed(1)}
               </p>
               <p className="text-xs text-muted-foreground">Điểm số</p>
@@ -356,8 +356,8 @@ function ExamAttemptDetails({ attempt }: { attempt: RecentExamAttempt }) {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
-              <CheckCircle className="h-8 w-8 mx-auto text-blue-500" />
-              <p className="text-3xl font-bold text-blue-600">
+              <CheckCircle className="h-8 w-8 mx-auto text-primary" />
+              <p className="text-3xl font-bold text-primary">
                 {attempt.correctAnswers}/{attempt.totalQuestions}
               </p>
               <p className="text-xs text-muted-foreground">Câu đúng</p>

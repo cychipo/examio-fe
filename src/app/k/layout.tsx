@@ -93,7 +93,7 @@ export default function RootLayout({
       <div className="w-full m-0 pb-20 md:ml-[288px] pt-12">
         {/* Verification Alert Banner */}
         {showVerificationBanner && (
-          <div className="w-full bg-amber-500/90 dark:bg-amber-600/90 text-white px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+          <div className="w-full bg-amber-500/90 text-white px-3 sm:px-4 py-2 sm:py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-3 flex-1">
               <AlertTriangle className="w-5 h-5 flex-shrink-0" />
               <p className="text-xs sm:text-sm font-medium">
@@ -111,7 +111,7 @@ export default function RootLayout({
               </button>
               <Link
                 href="/k/verify"
-                className="text-xs bg-white text-amber-600 hover:bg-white/90 px-3 py-1.5 rounded-lg font-medium transition-colors">
+                className="text-xs bg-white text-yellow-600 hover:bg-white/90 px-3 py-1.5 rounded-lg font-medium transition-colors">
                 Xác minh ngay
               </Link>
               <button

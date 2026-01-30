@@ -108,7 +108,7 @@ export function ChatHistoryCard({
 
   return (
     <>
-      <Card className="border-border bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
+      <Card className="border-border bg-white/[0.02] backdrop-blur-xl">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -150,7 +150,7 @@ export function ChatHistoryCard({
                     key={chat.id}
                     className={cn(
                       "group flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all",
-                      "cursor-pointer dark:cursor-pointer max-w-66",
+                      "cursor-pointer max-w-66",
                       selectedChatId === chat.id &&
                         "bg-primary/10 border border-primary/20"
                     )}
@@ -264,7 +264,7 @@ export function ChatHistoryCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+            <AlertDialogCancel className="bg-black/5 border-border cursor-pointer">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction

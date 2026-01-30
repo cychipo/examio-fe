@@ -582,7 +582,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                     </div>
 
                     <div
-                      className="prose dark:prose-invert max-w-none mb-6"
+                      className="prose max-w-none mb-6"
                       dangerouslySetInnerHTML={{
                         __html: reviewQuestion.question,
                       }}
@@ -601,10 +601,10 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                             className={cn(
                               "flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors",
                               isCorrectAnswer &&
-                                "border-green-500 bg-green-50 dark:bg-green-950/20",
+                                "border-green-500 bg-green-50",
                               isUserAnswer &&
                                 !isCorrectAnswer &&
-                                "border-destructive bg-red-50 dark:bg-red-950/20",
+                                "border-destructive bg-red-50",
                               !isUserAnswer &&
                                 !isCorrectAnswer &&
                                 "border-border",
@@ -640,8 +640,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                     </div>
 
                     {!userAnswer && (
-                      <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                        <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-yellow-800 text-sm">
                           Bạn không trả lời câu hỏi này
                         </p>
                       </div>
@@ -1071,8 +1071,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                   {remainingTime !== null &&
                     remainingTime <= 300 &&
                     remainingTime > 0 && (
-                      <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                        <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200 text-sm">
+                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-yellow-800 text-sm">
                           <AlertTriangle className="h-4 w-4" />
                           <span>Còn {Math.ceil(remainingTime / 60)} phút</span>
                         </div>

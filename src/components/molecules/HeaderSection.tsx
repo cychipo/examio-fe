@@ -107,7 +107,7 @@ export default function HeaderSection() {
               </ul>
             </div>
 
-            <div className="bg-background group-data-[state=active]:block lg:group-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
+            <div className="bg-background group-data-[state=active]:block lg:group-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none">
               <div className="lg:hidden">
                 <ul className="space-y-6 text-base">
                   {menuItems.map((item, index) => (
@@ -154,7 +154,7 @@ export default function HeaderSection() {
                     size="sm"
                     className={cn(
                       isScrolled && "lg:hidden",
-                      "bg-blue-600 hover:bg-blue-700 text-white",
+                      "bg-primary hover:bg-red-700 text-white",
                     )}
                   >
                     <Link href="/register">
@@ -166,7 +166,7 @@ export default function HeaderSection() {
                     size="sm"
                     className={cn(
                       isScrolled ? "lg:inline-flex" : "hidden",
-                      "bg-blue-600 hover:bg-blue-700 text-white",
+                      "bg-primary hover:bg-red-700 text-white",
                     )}
                   >
                     <Link href="/login">

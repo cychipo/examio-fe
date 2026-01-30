@@ -182,8 +182,8 @@ export default function DashboardTeacherPage() {
           title="Tổng số Đề thi"
           value={stats.summary.totalQuizSets}
           icon={BookOpen}
-          iconColor="text-blue-600"
-          iconBgColor="bg-blue-100 dark:bg-blue-950"
+          iconColor="text-primary"
+          iconBgColor="bg-red-100"
           description="Đã được tạo trong hệ thống"
         />
         <StatCard
@@ -191,15 +191,15 @@ export default function DashboardTeacherPage() {
           value={stats.summary.totalFlashcardSets}
           icon={Layers}
           iconColor="text-green-600"
-          iconBgColor="bg-green-100 dark:bg-green-950"
+          iconBgColor="bg-green-100"
           description="Các bộ thẻ ghi nhớ đang hoạt động"
         />
         <StatCard
           title="Phòng thi đang mở"
           value={stats.summary.totalExamRooms}
           icon={Users}
-          iconColor="text-purple-600"
-          iconBgColor="bg-purple-100 dark:bg-purple-950"
+          iconColor="text-yellow-600"
+          iconBgColor="bg-yellow-100"
           description="Số lượng phòng thi của bạn"
         />
       </div>
@@ -529,7 +529,7 @@ export default function DashboardTeacherPage() {
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-sm font-bold text-amber-600">
+                      <span className="text-sm font-bold text-yellow-600">
                         {room.avgScore}
                       </span>
                       <span className="text-[10px] text-muted-foreground">
@@ -571,7 +571,7 @@ export default function DashboardTeacherPage() {
                     <Eye className="h-12 w-12" />
                   </div>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-600 dark:text-yellow-400">
+                    <span className="text-xs font-bold px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-600">
                       #{index + 1}
                     </span>
                   </div>

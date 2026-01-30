@@ -39,7 +39,7 @@ export function ExamInstructionsSection({
   return (
     <Card className="p-6">
       <div className="mb-4 flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-sm font-bold text-white">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
           i
         </div>
         <h3 className="font-semibold text-foreground">Hướng dẫn làm bài</h3>

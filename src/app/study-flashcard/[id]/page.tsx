@@ -487,7 +487,7 @@ export default function FlashcardStudyPage({
                     Câu hỏi
                   </div>
                   <div
-                    className="prose dark:prose-invert max-w-none text-lg"
+                    className="prose max-w-none text-lg"
                     dangerouslySetInnerHTML={{
                       __html: currentCard?.question || "",
                     }}
@@ -515,7 +515,7 @@ export default function FlashcardStudyPage({
                     Câu trả lời
                   </div>
                   <div
-                    className="prose dark:prose-invert max-w-none text-lg"
+                    className="prose max-w-none text-lg"
                     dangerouslySetInnerHTML={{
                       __html: currentCard?.answer || "",
                     }}

@@ -343,7 +343,7 @@ export default function QuizSetDetailPage({
                                 key={optIndex}
                                 className={`text-sm p-2 rounded flex items-start gap-2 ${
                                   isCorrect
-                                    ? "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 font-medium"
+                                    ? "bg-green-50 text-green-700 font-medium"
                                     : "bg-muted/50"
                                 }`}
                               >

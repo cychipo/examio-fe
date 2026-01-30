@@ -201,13 +201,13 @@ export function QuizSetForm({
             {formData.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 text-sm">
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm">
                 {tag}
                 <button
                   type="button"
                   onClick={() => handleRemoveTag(tag)}
                   disabled={isLoading}
-                  className="ml-1 hover:text-blue-600 dark:hover:text-blue-200"
+                  className="ml-1 hover:text-primary"
                   aria-label={`Xóa tag ${tag}`}>
                   ×
                 </button>

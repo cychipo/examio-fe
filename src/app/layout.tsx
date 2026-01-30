@@ -13,7 +13,7 @@ const tikTokSans = TikTok_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "FayEdu - Ôn tập và thi cùng với AI",
+  title: "KMA Edu - Ôn tập và thi cùng với AI",
   description: "Nền tảng ôn tập và thi trực tuyến hỗ trợ bởi AI",
 };
 
@@ -29,9 +29,11 @@ export default function RootLayout({
         <ReCaptchaProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
+            defaultTheme="light"
+            forcedTheme="light"
             enableSystem={false}
-            disableTransitionOnChange>
+            disableTransitionOnChange
+          >
             <ToastProvider>
               <div className="min-h-screen [&::-webkit-scrollbar]:w-2">
                 {children}

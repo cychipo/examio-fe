@@ -197,11 +197,11 @@ const toastVariants = cva(
     variants: {
       variant: {
         default: "bg-background text-foreground border border-border",
-        success: "bg-green-100 text-green-900 border-green-200 dark:bg-green-950 dark:text-green-50 dark:border-green-800",
-        destructive: "bg-red-100 text-red-900 border-red-200 dark:bg-red-950 dark:text-red-50 dark:border-red-800",
-        warning: "bg-yellow-100 text-yellow-900 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-50 dark:border-yellow-800",
-        info: "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-950 dark:text-blue-50 dark:border-blue-800",
-        loading: "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-950 dark:text-blue-50 dark:border-blue-800",
+        success: "bg-green-100 text-green-900 border-green-200",
+        destructive: "bg-red-100 text-red-900 border-red-200",
+        warning: "bg-yellow-100 text-yellow-900 border-yellow-200",
+        info: "bg-red-100 text-red-900 border-red-200",
+        loading: "bg-red-100 text-red-900 border-red-200",
       },
       position: {
         "top-right": "top-4 right-4",
@@ -219,21 +219,21 @@ const toastVariants = cva(
 
 const ToastIcons = {
   success: (
-    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+    <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
   ),
   destructive: (
-    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
   ),
   warning: (
-    <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+    <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0" />
   ),
   info: (
-    <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+    <Info className="w-5 h-5 text-primary flex-shrink-0" />
   ),
   loading: (
     <div className="w-5 h-5 flex-shrink-0 relative">
       <motion.div
-        className="absolute inset-0 bg-blue-600 dark:bg-blue-400 shadow-[0_0_4px_rgba(59,130,246,0.6)] dark:shadow-[0_0_4px_rgba(96,165,250,0.6)]"
+        className="absolute inset-0 bg-primary shadow-[0_0_4px_rgba(59,130,246,0.6)]"
         animate={{ rotateX: [0, 180, 0], rotateY: [0, 180, 0] }}
         transition={{ repeat: Infinity, duration: 1.1, ease: "linear" }}
       />

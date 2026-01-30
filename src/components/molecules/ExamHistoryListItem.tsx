@@ -36,13 +36,13 @@ export function ExamHistoryListItem({
       <div className={cn(
         "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
         item.passed
-          ? "bg-emerald-100 dark:bg-emerald-900/40"
-          : "bg-red-100 dark:bg-red-900/40"
+          ? "bg-emerald-100"
+          : "bg-red-100"
       )}>
         {item.passed ? (
-          <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          <Check className="h-4 w-4 text-emerald-600" />
         ) : (
-          <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <X className="h-4 w-4 text-red-600" />
         )}
       </div>
 

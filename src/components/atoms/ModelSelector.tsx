@@ -75,8 +75,8 @@ export function ModelSelector({
                     <IconComponent
                       className={cn(
                         "size-4",
-                        value === "gemini" && "text-blue-500",
-                        value === "fayedark" && "text-purple-500",
+                        value === "gemini" && "text-primary",
+                        value === "fayedark" && "text-secondary",
                       )}
                     />
                     <span>{selectedModel.name}</span>
@@ -94,8 +94,8 @@ export function ModelSelector({
                       <Icon
                         className={cn(
                           "size-4",
-                          model.id === "gemini" && "text-blue-500",
-                          model.id === "fayedark" && "text-purple-500",
+                          model.id === "gemini" && "text-primary",
+                          model.id === "fayedark" && "text-secondary",
                           isModelDisabled && "opacity-50",
                         )}
                       />

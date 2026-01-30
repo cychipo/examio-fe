@@ -24,7 +24,7 @@ export function StandardMarkdownRenderer({
   return (
     <div
       className={cn(
-        "prose dark:prose-invert max-w-none break-words",
+        "prose max-w-none break-words",
         className
       )}
       style={{ fontSize: `${fontSize}px` }}>
@@ -124,7 +124,7 @@ export function StandardMarkdownRenderer({
             const isInline = !match && !className?.includes("language-");
             return isInline ? (
               <code
-                className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-destructive dark:text-red-400"
+                className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-destructive"
                 {...props}>
                 {children}
               </code>

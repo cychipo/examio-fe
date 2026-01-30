@@ -8,9 +8,9 @@ interface UsageBreakdownCardProps {
 }
 
 const USAGE_COLORS = {
-  examGeneration: "bg-blue-500",
+  examGeneration: "bg-primary",
   flashcardCreation: "bg-emerald-500",
-  pdfProcessing: "bg-purple-500",
+  pdfProcessing: "bg-secondary",
 };
 
 const USAGE_LABELS = {

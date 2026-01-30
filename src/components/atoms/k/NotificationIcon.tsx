@@ -17,31 +17,31 @@ interface NotificationIconProps {
 const iconMap: Record<string, { icon: LucideIcon; bgClass: string }> = {
   security: {
     icon: AlertTriangle,
-    bgClass: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+    bgClass: "bg-red-100 text-red-600",
   },
   message: {
     icon: MessageSquare,
-    bgClass: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+    bgClass: "bg-red-100 text-primary",
   },
   payment: {
     icon: CheckCircle,
     bgClass:
-      "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+      "bg-green-100 text-green-600",
   },
   system: {
     icon: Wrench,
     bgClass:
-      "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+      "bg-yellow-100 text-yellow-600",
   },
   team: {
     icon: UserPlus,
     bgClass:
-      "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+      "bg-orange-100 text-orange-600",
   },
   meeting: {
     icon: Calendar,
     bgClass:
-      "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400",
+      "bg-yellow-100 text-yellow-600",
   },
 };
 

@@ -33,8 +33,8 @@ const tierIcons = {
 };
 
 const tierColors = {
-  1: "from-blue-500/20 to-blue-600/20 border-blue-500/30",
-  2: "from-purple-500/20 to-purple-600/20 border-purple-500/30",
+  1: "from-primary/20 to-primary/20 border-primary/30",
+  2: "from-purple-500/20 to-purple-600/20 border-yellow-500/30",
   3: "from-amber-500/20 to-amber-600/20 border-amber-500/30",
 };
 

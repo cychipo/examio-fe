@@ -19,19 +19,19 @@ export function CreditStatisticsCard({
       label: "Số dư hiện tại",
       value: balance.toLocaleString(),
       icon: Wallet,
-      className: "bg-primary/10 text-primary dark:bg-primary/20",
+      className: "bg-primary/10 text-primary",
     },
     {
       label: "Tổng đã mua",
       value: totalPurchased.toLocaleString(),
       icon: TrendingUp,
-      className: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+      className: "bg-emerald-100 text-emerald-600",
     },
     {
       label: "Tổng đã dùng",
       value: totalUsed.toLocaleString(),
       icon: TrendingDown,
-      className: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+      className: "bg-red-100 text-red-600",
     },
   ];
 

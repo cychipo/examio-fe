@@ -174,7 +174,7 @@ export function ManagementTable({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            className="h-8 w-8 text-primary hover:text-red-700 hover:bg-red-50"
                             onClick={() => onPrimaryAction(item.id)}>
                             <PrimaryIcon className="h-4 w-4" />
                           </Button>
@@ -208,7 +208,7 @@ export function ManagementTable({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                            className="h-8 w-8 text-yellow-600 hover:text-yellow-700 hover:bg-purple-50"
                             onClick={() => onShare(item.id)}>
                             <ShareIcon className="h-4 w-4" />
                           </Button>

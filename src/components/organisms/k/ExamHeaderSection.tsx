@@ -31,15 +31,15 @@ export function ExamHeaderSection({ examInfo }: ExamHeaderSectionProps) {
           icon={Clock}
           label="Thời gian"
           value={`${examInfo.duration} phút`}
-          iconColor="text-blue-500"
-          iconBgColor="bg-blue-500/10"
+          iconColor="text-primary"
+          iconBgColor="bg-primary/10"
         />
         <ExamMetricCard
           icon={FileText}
           label="Tổng số câu hỏi"
           value={`${examInfo.totalQuestions} câu`}
-          iconColor="text-purple-500"
-          iconBgColor="bg-purple-500/10"
+          iconColor="text-secondary"
+          iconBgColor="bg-secondary/10"
         />
         <ExamMetricCard
           icon={Award}

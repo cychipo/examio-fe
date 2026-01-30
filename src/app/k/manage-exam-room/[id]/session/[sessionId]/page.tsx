@@ -315,7 +315,7 @@ export default function SessionAnalyticsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="flex items-center gap-4 py-4">
-            <Users className="h-8 w-8 text-blue-500" />
+            <Users className="h-8 w-8 text-primary" />
             <div>
               <p className="text-2xl font-bold">{sortedAttempts.length}</p>
               <p className="text-sm text-muted-foreground">
@@ -361,7 +361,7 @@ export default function SessionAnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-500" />
+              <BarChart3 className="h-5 w-5 text-primary" />
               Phân bố điểm số
             </CardTitle>
           </CardHeader>
@@ -504,7 +504,7 @@ export default function SessionAnalyticsPage() {
                               : rank === 2
                               ? "text-gray-400"
                               : rank === 3
-                              ? "text-amber-600"
+                              ? "text-yellow-600"
                               : ""
                           }`}>
                           #{rank}
@@ -638,7 +638,7 @@ export default function SessionAnalyticsPage() {
               {/* All Attempts History */}
               <div className="space-y-3">
                 <h4 className="font-semibold flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-blue-500" />
+                  <BarChart3 className="h-4 w-4 text-primary" />
                   Lịch sử làm bài ({selectedUserAttempts.length} lần)
                 </h4>
                 <div className="space-y-2">
@@ -745,7 +745,7 @@ export default function SessionAnalyticsPage() {
                     {selectedLogs.map((log) => (
                       <div
                         key={log.type}
-                        className="p-3 border border-red-200 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                        className="p-3 border border-red-200 bg-red-50 rounded-lg">
                         {" "}
                         <div className="flex justify-between items-start">
                           <div>

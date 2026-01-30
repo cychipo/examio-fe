@@ -29,7 +29,7 @@ export function CategoryItem({
       className={cn(
         "cursor-pointer border-l-4 p-3 transition-all hover:shadow-md",
         isActive
-          ? "border-l-primary bg-primary/5 dark:bg-primary/10"
+          ? "border-l-primary bg-primary/5"
           : "border-l-transparent hover:bg-muted"
       )}>
       <div className="flex items-center justify-between">

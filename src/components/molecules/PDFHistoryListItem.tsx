@@ -27,17 +27,17 @@ const statusConfig = {
   completed: {
     label: "Hoàn thành",
     icon: Check,
-    className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 hover:bg-emerald-100",
+    className: "bg-emerald-100 text-emerald-700 hover:bg-emerald-100",
   },
   processing: {
     label: "Đang xử lý",
     icon: Loader2,
-    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 hover:bg-amber-100",
+    className: "bg-yellow-100 text-amber-700 hover:bg-yellow-100",
   },
   failed: {
     label: "Thất bại",
     icon: FileText,
-    className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 hover:bg-red-100",
+    className: "bg-red-100 text-red-700 hover:bg-red-100",
   },
 };
 
@@ -52,8 +52,8 @@ export function PDFHistoryListItem({
   return (
     <div className="flex items-start gap-3 py-3 border-b border-border/50 last:border-b-0">
       {/* PDF Icon */}
-      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-        <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
+        <FileText className="h-5 w-5 text-yellow-600" />
       </div>
 
       {/* Content */}
@@ -97,7 +97,7 @@ export function PDFHistoryListItem({
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => onDelete?.(item.id)}
-            className="cursor-pointer text-red-600 dark:text-red-400"
+            className="cursor-pointer text-red-600"
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Xóa

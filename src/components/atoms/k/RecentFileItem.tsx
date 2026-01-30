@@ -49,7 +49,7 @@ export function RecentFileItem({
     <div
       className={cn(
         "group relative flex items-start gap-3 p-3 rounded-xl transition-all duration-200 cursor-pointer",
-        "bg-black/5 dark:bg-white/5 cursor-pointer border border-border hover:border-border",
+        "bg-black/5 cursor-pointer border border-border hover:border-border",
         isSelected && "bg-white/15 border-primary/50 ring-1 ring-primary/30",
         isDeleting && "opacity-50 pointer-events-none"
       )}
@@ -76,7 +76,7 @@ export function RecentFileItem({
           {hasQuiz && (
             <Badge
               variant="secondary"
-              className="text-[10px] px-1.5 py-0 h-5 bg-blue-500/10 text-blue-400 border-blue-500/20 hover:bg-blue-500/20 flex items-center">
+              className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-red-400 border-primary/20 hover:bg-primary/20 flex items-center">
               {upload.quizHistory?.quizzes?.length || 0} câu hỏi
             </Badge>
           )}

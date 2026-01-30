@@ -14,23 +14,23 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-lg shadow-destructive/25 hover:bg-destructive/90 hover:shadow-xl hover:shadow-destructive/30",
         outline:
-          "border border-border bg-black/5 dark:bg-white/5 backdrop-blur-lg shadow-md hover:bg-black/10 dark:hover:bg-white/10 hover:border-primary/40 dark:hover:border-border",
+          "border border-border bg-black/5 backdrop-blur-lg shadow-md hover:bg-black/10 hover:border-primary/40",
         secondary:
           "bg-secondary/80 backdrop-blur-sm text-secondary-foreground shadow-sm hover:bg-secondary/90",
         ghost:
-          "hover:bg-black/10 dark:hover:bg-white/5 hover:text-accent-foreground",
+          "hover:bg-black/10 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         success:
           "bg-green-600 text-white shadow-lg shadow-green-600/25 hover:bg-green-700 hover:shadow-xl",
         warning:
           "bg-yellow-500 text-black shadow-lg shadow-yellow-500/25 hover:bg-yellow-600",
-        info: "bg-blue-500 text-white shadow-lg shadow-blue-500/25 hover:bg-blue-600",
+        info: "bg-primary text-white shadow-lg shadow-red-500/25 hover:bg-primary",
         dark: "bg-gray-800/90 backdrop-blur-sm text-white hover:bg-gray-700",
         light: "bg-white/80 backdrop-blur-sm text-gray-800 hover:bg-white/90",
         gradient:
           "bg-gradient-to-r from-primary via-accent to-pink-500 text-white shadow-lg hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5",
         glass:
-          "bg-black/5 dark:bg-white/5 backdrop-blur-xl text-foreground border border-border hover:bg-black/10 dark:hover:bg-white/10 hover:border-primary/40 dark:hover:border-border shadow-lg",
+          "bg-black/5 backdrop-blur-xl text-foreground border border-border hover:bg-black/10 hover:border-primary/40 shadow-lg",
         error:
           "bg-red-600 text-white shadow-lg shadow-red-600/25 hover:bg-red-700",
         errorGhost: "hover:bg-red-600/10 text-red-600",

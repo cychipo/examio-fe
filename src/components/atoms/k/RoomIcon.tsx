@@ -8,7 +8,7 @@ interface RoomIconProps {
 }
 
 const variantStyles = {
-  primary: "bg-blue-500/10 text-blue-500",
+  primary: "bg-primary/10 text-primary",
   success: "bg-green-500/10 text-green-500",
   warning: "bg-yellow-500/10 text-yellow-500",
   danger: "bg-red-500/10 text-red-500",
