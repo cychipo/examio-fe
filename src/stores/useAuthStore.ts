@@ -25,7 +25,7 @@ interface AuthState {
   login: (credentials: CredentialsLogin) => Promise<void>;
   signup: (credentials: CredentialsSignup) => Promise<void>;
   sendCodeResetPassword: (
-    credentials: SendCodeResetPassWordCredentials
+    credentials: SendCodeResetPassWordCredentials,
   ) => Promise<void>;
   resetPassword: (credentials: ResetPasswordCredentials) => Promise<void>;
   logout: () => Promise<void>;
@@ -49,7 +49,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await loginApi(credentials);
       if (response.success) {
-        set({ user: response.user, isAuthenticated: true });
+        set({
+          user: response.user,
+          isAuthenticated: true,
+          initializing: false,
+        });
         toast.success("Đăng nhập thành công");
 
         // Set token to both localStorage and cookie
@@ -62,7 +66,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         toast.error(response.message || "Đăng nhập thất bại");
         console.error(response.message || "Đăng nhập thất bại");
         return Promise.reject(
-          new Error(response.message || "Đăng nhập thất bại")
+          new Error(response.message || "Đăng nhập thất bại"),
         );
       }
     } catch (error) {
@@ -80,7 +84,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       const response = await signupApi(credentials);
       if (response.success && response.token) {
         // Auto-login after successful registration
-        set({ user: response.user, isAuthenticated: true });
+        set({
+          user: response.user,
+          isAuthenticated: true,
+          initializing: false,
+        });
         toast.success(response.message || "Đăng ký thành công");
 
         // Set token to both localStorage and cookie
@@ -93,12 +101,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         toast.error(response.message || "Đăng ký tài khoản thất bại");
         console.error("Đăng ký tài khoản thất bại");
         return Promise.reject(
-          new Error(response.message || "Đăng ký tài khoản thất bại")
+          new Error(response.message || "Đăng ký tài khoản thất bại"),
         );
       }
     } catch (error) {
       toast.error(
-        (error as Error).message || "Có lỗi xảy ra, vui lòng thử lại!"
+        (error as Error).message || "Có lỗi xảy ra, vui lòng thử lại!",
       );
       console.error("Có lỗi xảy ra, vui lòng thử lại!:", error);
       throw error;
