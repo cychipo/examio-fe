@@ -71,7 +71,6 @@ export function TestGenerator() {
     generateTest,
     clearTest,
   } = useTestGeneratorStore();
-  const { user } = useAuthStore();
 
   // Guard against page reload during generation
   useGenerationGuard(isGenerating);
@@ -173,7 +172,7 @@ export function TestGenerator() {
           });
           return;
         }
-      } catch (error) {
+      } catch {
         // Ignored
       }
     }

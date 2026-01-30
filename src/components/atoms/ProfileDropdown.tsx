@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { PersonIcon, CardStackMinusIcon } from "@radix-ui/react-icons";
+import { PersonIcon } from "@radix-ui/react-icons";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

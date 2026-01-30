@@ -72,7 +72,6 @@ export function FlashcardGenerator() {
     generateFlashcards,
     clearFlashcards,
   } = useFlashcardGeneratorStore();
-  const { user } = useAuthStore();
 
   // Guard against page reload during generation
   useGenerationGuard(isGenerating);
@@ -182,7 +181,7 @@ export function FlashcardGenerator() {
           });
           return;
         }
-      } catch (error) {
+      } catch {
         // Ignored
       }
     }

@@ -3,19 +3,11 @@
 import { SidebarKit } from "@/components/organisms/k/SideBar";
 import { cn } from "@/lib/utils";
 import { useAuthSync } from "@/hooks/useAuthSync";
-import Image from "next/image";
-import Link from "next/link";
-import { SunIcon, MoonIcon, RocketIcon } from "@radix-ui/react-icons";
 import { AlertTriangle, Mail, X } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import Link from "next/link";
 import { useThemeContext } from "@/provider/ThemeProvider";
 import { useState, useEffect } from "react";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
-import {
-  Announcement,
-  AnnouncementTag,
-  AnnouncementTitle,
-} from "@/components/ui/announcement";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useJobStore } from "@/stores/useAIGeneratorStore";
 import { useRouter } from "next/navigation";
@@ -36,8 +28,7 @@ export default function RootLayout({
     closePendingJobDialog,
     checkForPendingJob,
   } = useJobStore();
-  const { isDarkMode, setTheme } = useThemeContext();
-  const isDesktop = useIsDesktop();
+  const { setTheme } = useThemeContext();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [showVerifyAlert, setShowVerifyAlert] = useState(true);
@@ -49,10 +40,6 @@ export default function RootLayout({
     // Check for pending jobs on mount
     checkForPendingJob();
   }, [checkForPendingJob]);
-
-  function handleThemeToggle(checked: boolean) {
-    setTheme(checked ? "dark" : "light");
-  }
 
   const handleResendVerification = async () => {
     setSendingEmail(true);
