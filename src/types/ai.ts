@@ -3,7 +3,7 @@
  *
  * Available AI models that can be selected when generating content:
  * - gemini: Google Gemini AI with automatic key/model rotation to avoid rate limits
- * - fayedark: FayeDark AI using Ollama local LLM for on-premise processing
+ * - fayedark: KMA AI using Ollama local LLM for on-premise processing
  */
 
 export type AIModelType = "gemini" | "fayedark";
@@ -31,7 +31,7 @@ export const AI_MODELS: AIModel[] = [
   },
   {
     id: "fayedark",
-    name: "FayeDark AI",
+    name: "KMA AI",
     description: "Ollama Local - Bảo mật cao",
     icon: "🌙",
     disabled: false,
