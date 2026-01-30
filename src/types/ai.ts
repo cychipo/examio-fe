@@ -22,18 +22,18 @@ export interface AIModel {
  */
 export const AI_MODELS: AIModel[] = [
   {
-    id: "gemini",
-    name: "Gemini AI",
-    description: "Google Gemini - Nhanh và chính xác",
-    icon: "✨",
-    badge: "Recommended",
-    disabled: false,
-  },
-  {
     id: "fayedark",
     name: "KMA AI",
     description: "Ollama Local - Bảo mật cao",
     icon: "🌙",
+    badge: "Recommended",
+    disabled: false,
+  },
+  {
+    id: "gemini",
+    name: "Gemini AI",
+    description: "Google Gemini - Nhanh và chính xác",
+    icon: "✨",
     disabled: false,
   },
 ];
@@ -41,4 +41,4 @@ export const AI_MODELS: AIModel[] = [
 /**
  * Default AI model
  */
-export const DEFAULT_AI_MODEL: AIModelType = "gemini";
+export const DEFAULT_AI_MODEL: AIModelType = "fayedark";
