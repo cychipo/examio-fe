@@ -1,4 +1,11 @@
 /**
+ * FREE_MODE: Khi bật, bypass tất cả kiểm tra balance
+ * Đặt thành true để bỏ qua việc kiểm tra tín dụng
+ * Đặt thành false để bật lại hệ thống thanh toán
+ */
+export const FREE_MODE = true;
+
+/**
  * Credit cost calculation utilities
  * Used to calculate and preview costs before API calls
  */
@@ -10,6 +17,8 @@
  * @returns Cost in tokens
  */
 export function calculateOcrCost(fileSizeBytes: number): number {
+  // FREE_MODE: Return 0 cost
+  if (FREE_MODE) return 0;
   return Math.max(2, Math.ceil(fileSizeBytes / (1024 * 1024)));
 }
 
@@ -20,6 +29,8 @@ export function calculateOcrCost(fileSizeBytes: number): number {
  * @returns Cost in tokens
  */
 export function calculateQuestionCost(questionCount: number): number {
+  // FREE_MODE: Return 0 cost
+  if (FREE_MODE) return 0;
   return Math.ceil(questionCount / 10);
 }
 
@@ -31,7 +42,7 @@ export function calculateQuestionCost(questionCount: number): number {
  */
 export function calculateTotalCost(
   fileSizeBytes: number,
-  questionCount: number
+  questionCount: number,
 ): { ocrCost: number; questionCost: number; totalCost: number } {
   const ocrCost = calculateOcrCost(fileSizeBytes);
   const questionCost = calculateQuestionCost(questionCount);
@@ -59,8 +70,12 @@ export function calculateRegenerateCost(questionCount: number): number {
  */
 export function checkBalance(
   balance: number,
-  requiredCost: number
+  requiredCost: number,
 ): { isEnough: boolean; deficit: number } {
+  // FREE_MODE: Always return enough balance
+  if (FREE_MODE) {
+    return { isEnough: true, deficit: 0 };
+  }
   const deficit = Math.max(0, requiredCost - balance);
   return {
     isEnough: balance >= requiredCost,
@@ -71,12 +86,15 @@ export function checkBalance(
 /**
  * Format cost breakdown message for user display
  * @param costs - Cost breakdown object
+ * @param costs.ocrCost - OCR/embedding cost in tokens
+ * @param costs.questionCost - Question generation cost in tokens
+ * @param costs.totalCost - Total cost in tokens
  * @param balance - Current user balance
  * @returns Formatted message string
  */
 export function formatCostMessage(
   costs: { ocrCost: number; questionCost: number; totalCost: number },
-  balance: number
+  balance: number,
 ): string {
   const lines = [
     `📊 Chi phí dự kiến:`,

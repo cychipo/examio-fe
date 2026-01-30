@@ -66,9 +66,9 @@ export function FloatingDock({
                     "w-14 h-14 rounded-xl mx-auto",
                     "transition-all duration-200",
                     "active:scale-95",
-                    item.active && "text-[#2D68FE]"
+                    item.active && "text-[#e31837]"
                   )}>
-                  <span className={cn(item.active && "text-[#2D68FE]")}>
+                  <span className={cn(item.active && "text-[#e31837]")}>
                     {item.icon}
                   </span>
                 </button>
@@ -80,9 +80,9 @@ export function FloatingDock({
                     "w-14 h-14 rounded-xl",
                     "transition-all duration-200",
                     "active:scale-95",
-                    item.active && "text-[#2D68FE]"
+                    item.active && "text-[#e31837]"
                   )}>
-                  <span className={cn(item.active && "text-[#2D68FE]")}>
+                  <span className={cn(item.active && "text-[#e31837]")}>
                     {item.icon}
                   </span>
                 </Link>
@@ -107,7 +107,7 @@ export function FloatingDock({
                   "active:scale-95",
                   (showSecondary ||
                     secondaryItems.some((item) => item.active)) &&
-                    "text-[#2D68FE]"
+                    "text-[#e31837]"
                 )}>
                 <svg
                   width="25"
@@ -143,8 +143,8 @@ export function FloatingDock({
                   className={cn(
                     "flex items-center gap-3 p-2 rounded-xl transition-colors",
                     item.active
-                      ? "bg-[#EFF6FF] text-[#2D68FE]"
-                      : "hover:bg-[#EFF6FF] hover:text-[#2D68FE]"
+                      ? "bg-[#fef2f2] text-[#e31837]"
+                      : "hover:bg-[#fef2f2] hover:text-[#e31837]"
                   )}>
                   <span className="text-xl">{item.icon}</span>
                   <span className="font-medium">{item.label}</span>

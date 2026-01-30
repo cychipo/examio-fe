@@ -154,12 +154,12 @@ export function FullscreenConfirmDialog({
                 </ul>
               </div>
 
-              <div className="flex items-center gap-2 p-3 text-sm text-green-600 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-center gap-2 p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg">
                 <ShieldCheck className="w-5 h-5 flex-shrink-0" />
                 <span>Được bảo vệ bởi Google reCAPTCHA v3</span>
               </div>
 
-              <p className="text-amber-600 dark:text-amber-500 font-medium text-center">
+              <p className="text-yellow-600 font-medium text-center">
                 ⚠️ Nếu thoát fullscreen hoặc chuyển tab, hành vi sẽ bị ghi nhận.
               </p>
             </div>

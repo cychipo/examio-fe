@@ -7,10 +7,7 @@ import {
   CardStackIcon,
   RocketIcon,
   ClockIcon,
-  BellIcon,
-  GearIcon,
   DashboardIcon,
-  FileTextIcon,
 } from "@radix-ui/react-icons";
 import { Bot, BookOpen, GraduationCap } from "lucide-react";
 import Link from "next/link";
@@ -174,13 +171,15 @@ export function SidebarKit() {
     }));
 
   const secondaryDockItems = [
-    ...filteredSidebarItems.slice(5).map(({ name, href, icon, label, active }) => ({
-      name,
-      href,
-      icon,
-      label,
-      active,
-    })),
+    ...filteredSidebarItems
+      .slice(5)
+      .map(({ name, href, icon, label, active }) => ({
+        name,
+        href,
+        icon,
+        label,
+        active,
+      })),
   ];
 
   // Don't render anything until mounted to avoid hydration mismatch
@@ -211,12 +210,13 @@ export function SidebarKit() {
                   asChild
                   key={index}
                   variant="ghost"
-                  className={`w-full justify-start p-2 hover:bg-[#EFF6FF] hover:text-[#2D68FE] dark:hover:bg-[#1A1B1C] dark:hover:text-[#608CFC]
+                  className={`w-full justify-start p-2 hover:bg-[#fef2f2] hover:text-[#e31837]
                      rounded-sm ${
                        item.active
-                         ? "bg-[#EFF6FF] text-[#2D68FE] dark:bg-[#1A1B1C] dark:text-[#608CFC]"
+                         ? "bg-[#fef2f2] text-[#e31837]"
                          : ""
-                     }`}>
+                     }`}
+                >
                   <Link href={item.href} className="flex items-center gap-x-3">
                     {item.icon}
                     {item.label}

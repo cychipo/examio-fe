@@ -16,7 +16,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const colors = useMemo(
-  () => ["bg-gray-500", "bg-teal-500", "bg-blue-500", "bg-gray-600", "bg-pink-500"],
+  () => ["bg-gray-500", "bg-teal-500", "bg-primary", "bg-gray-600", "bg-pink-500"],
   []
 );
   const BUFFER = 20;
@@ -180,7 +180,7 @@ const ModernLoader: React.FC<ModernLoaderProps> = ({
                 <motion.div
                   animate={{ opacity: cursorVisible ? 1 : 0 }}
                   transition={{ duration: 0.1 }}
-                  className="w-0.5 h-3.5 bg-blue-500"
+                  className="w-0.5 h-3.5 bg-primary"
                 />
               </motion.div>
             )}

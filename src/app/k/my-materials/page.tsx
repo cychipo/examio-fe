@@ -67,6 +67,7 @@ export default function MyMaterialsPage() {
 
   useEffect(() => {
     fetchMaterials();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleReview = (setId: string) => {
@@ -76,8 +77,9 @@ export default function MyMaterialsPage() {
   const handleShare = async (setId: string) => {
     try {
       const data = await generateShareLinkApi(setId);
-      const shareUrl = data.shareUrl || `${window.location.origin}/study-flashcard/${setId}`;
-      
+      const shareUrl =
+        data.shareUrl || `${window.location.origin}/study-flashcard/${setId}`;
+
       setShareDialog({
         open: true,
         setId,
@@ -165,7 +167,7 @@ export default function MyMaterialsPage() {
               className="group hover:shadow-lg transition-all duration-300 overflow-hidden"
             >
               <CardHeader className="p-0">
-                <div className="relative h-40 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
+                <div className="relative h-40 bg-gradient-to-br from-primary to-purple-600 overflow-hidden">
                   {material.thumbnail ? (
                     <Image
                       src={material.thumbnail}
@@ -210,7 +212,9 @@ export default function MyMaterialsPage() {
                 <div className="flex items-center gap-2 text-xs">
                   <User className="h-3 w-3 text-muted-foreground" />
                   <span className="text-muted-foreground">
-                    {material.creator?.name || material.creator?.username || "Ẩn danh"}
+                    {material.creator?.name ||
+                      material.creator?.username ||
+                      "Ẩn danh"}
                   </span>
                 </div>
 

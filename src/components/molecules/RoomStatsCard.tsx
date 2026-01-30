@@ -14,8 +14,8 @@ export function RoomStatsCard({
   icon: Icon,
   label,
   value,
-  iconColor = "text-blue-500",
-  iconBgColor = "bg-blue-500/10",
+  iconColor = "text-primary",
+  iconBgColor = "bg-primary/10",
 }: RoomStatsCardProps) {
   return (
     <Card className="p-6">

@@ -91,7 +91,7 @@ export function RecentFilesModal({
         </div>
       ) : recentUploads.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-4 border border-border">
+          <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center mb-4 border border-border">
             <FolderOpen className="w-8 h-8 text-muted-foreground" />
           </div>
           <p className="text-muted-foreground">Chưa có file nào được tải lên</p>
@@ -108,7 +108,7 @@ export function RecentFilesModal({
                   key={file.id}
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
-                    "cursor-pointer dark:cursor-pointer",
+                    "cursor-pointer",
                     "border",
                     selectedId === file.id
                       ? "bg-primary/10 border-primary/30"
@@ -138,7 +138,7 @@ export function RecentFilesModal({
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+              className="bg-black/5 border-border cursor-pointer">
               Hủy
             </Button>
             <Button onClick={handleConfirm} disabled={!selectedId}>

@@ -76,7 +76,7 @@ export default function NotFound({
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`relative h-[24rem] md:h-screen w-full flex items-center justify-center overflow-hidden bg-white dark:bg-black ${className}`}
+      className={`relative h-[24rem] md:h-screen w-full flex items-center justify-center overflow-hidden bg-white ${className}`}
       style={{ perspective: "1000px" }}
     >
       <Particles
@@ -95,14 +95,14 @@ export default function NotFound({
           src={imageLight}
           alt="404 Light"
           fill
-          className="object-contain dark:hidden"
+          className="object-contain"
           priority
         />
         <Image
           src={imageDark}
           alt="404 Dark"
           fill
-          className="object-contain hidden dark:block"
+          className="object-contain hidden"
           priority
         />
       </div>

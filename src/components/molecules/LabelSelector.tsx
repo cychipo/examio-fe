@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,11 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Loader2, Plus, Tag, Palette } from "lucide-react";
-import {
-  getQuizSetLabelsApi,
-  QuizSetLabel,
-} from "@/apis/quizsetApi";
+import { Loader2, Tag, Palette } from "lucide-react";
+import { getQuizSetLabelsApi, QuizSetLabel } from "@/apis/quizsetApi";
 import {
   getFlashcardSetLabelsApi,
   FlashcardSetLabel,
@@ -60,7 +56,9 @@ export function LabelSelector({
   mode,
   onModeChange,
 }: LabelSelectorProps) {
-  const [labels, setLabels] = useState<(QuizSetLabel | FlashcardSetLabel)[]>([]);
+  const [labels, setLabels] = useState<(QuizSetLabel | FlashcardSetLabel)[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const isFlashcardMode = !!flashcardSetId;
 
@@ -69,7 +67,7 @@ export function LabelSelector({
     const setId = quizSetId || flashcardSetId;
     if (setId) {
       setLoading(true);
-      const fetchLabels = quizSetId 
+      const fetchLabels = quizSetId
         ? getQuizSetLabelsApi(setId)
         : getFlashcardSetLabelsApi(setId);
 
@@ -128,7 +126,10 @@ export function LabelSelector({
         {labels.length > 0 && (
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="existing" id="label-existing" />
-            <Label htmlFor="label-existing" className="cursor-pointer font-normal">
+            <Label
+              htmlFor="label-existing"
+              className="cursor-pointer font-normal"
+            >
               Chọn nhãn có sẵn
             </Label>
           </div>
@@ -145,10 +146,7 @@ export function LabelSelector({
 
       {/* Existing label selector */}
       {mode === "existing" && labels.length > 0 && (
-          <Select
-            value={selectedLabelId || ""}
-            onValueChange={onLabelIdChange}
-          >
+        <Select value={selectedLabelId || ""} onValueChange={onLabelIdChange}>
           <SelectTrigger>
             <SelectValue placeholder="Chọn nhãn..." />
           </SelectTrigger>
@@ -164,7 +162,11 @@ export function LabelSelector({
                   )}
                   <span>{label.name}</span>
                   <span className="text-muted-foreground text-xs">
-                    ({(isFlashcardMode ? (label as FlashcardSetLabel).flashcardCount : (label as QuizSetLabel).questionCount) || 0} {isFlashcardMode ? "thẻ" : "câu"})
+                    (
+                    {(isFlashcardMode
+                      ? (label as FlashcardSetLabel).flashcardCount
+                      : (label as QuizSetLabel).questionCount) || 0}{" "}
+                    {isFlashcardMode ? "thẻ" : "câu"})
                   </span>
                 </div>
               </SelectItem>
@@ -204,7 +206,7 @@ export function LabelSelector({
                     "w-7 h-7 rounded-full border-2 transition-all",
                     newLabelColor === color
                       ? "border-foreground scale-110"
-                      : "border-transparent hover:scale-105"
+                      : "border-transparent hover:scale-105",
                   )}
                   style={{ backgroundColor: color }}
                 />

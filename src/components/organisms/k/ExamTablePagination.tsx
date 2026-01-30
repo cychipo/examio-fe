@@ -63,7 +63,7 @@ const ExamTablePaginationComponent = ({
             onClick={() => onPageChange(page)}
             className={`h-8 w-8 p-0 ${
               currentPage === page
-                ? "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-primary text-white hover:bg-red-700"
                 : ""
             }`}>
             {page}

@@ -83,7 +83,7 @@ export function RecentFilesList({
           "flex flex-col items-center justify-center py-12 text-center",
           className
         )}>
-        <div className="w-16 h-16 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-4 border border-border">
+        <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center mb-4 border border-border">
           <FolderOpen className="w-8 h-8 text-muted-foreground" />
         </div>
         <p className="text-muted-foreground text-sm">Chưa có file nào</p>
@@ -128,7 +128,7 @@ export function RecentFilesList({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+            <AlertDialogCancel className="bg-black/5 border-border cursor-pointer">
               Hủy
             </AlertDialogCancel>
             <AlertDialogAction

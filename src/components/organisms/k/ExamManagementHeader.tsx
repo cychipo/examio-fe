@@ -20,7 +20,7 @@ const ExamManagementHeaderComponent = ({
       <div className="flex gap-2">
         <Button
           onClick={onCreateExam}
-          className="bg-blue-600 hover:bg-blue-700">
+          className="bg-primary hover:bg-red-700">
           <Plus className="h-4 w-4 mr-2" />
           Tạo đề thi
         </Button>

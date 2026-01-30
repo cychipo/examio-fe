@@ -56,16 +56,16 @@ export function QuestionConfigSection({
   disabled = false,
 }: QuestionConfigSectionProps) {
   const [selectionMode, setSelectionMode] = useState<QUESTION_SELECTION_MODE>(
-    initialData?.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL
+    initialData?.questionSelectionMode ?? QUESTION_SELECTION_MODE.ALL,
   );
   const [questionCount, setQuestionCount] = useState<number | null>(
-    initialData?.questionCount ?? null
+    initialData?.questionCount ?? null,
   );
   const [labelConfig, setLabelConfig] = useState<LabelQuestionConfig[]>(
-    initialData?.labelQuestionConfig ?? []
+    initialData?.labelQuestionConfig ?? [],
   );
   const [shuffleQuestions, setShuffleQuestions] = useState<boolean>(
-    initialData?.shuffleQuestions ?? false
+    initialData?.shuffleQuestions ?? false,
   );
 
   const [availableLabels, setAvailableLabels] =
@@ -128,10 +128,16 @@ export function QuestionConfigSection({
       shuffleQuestions,
     };
     onConfigChange(config);
-  }, [selectionMode, questionCount, labelConfig, shuffleQuestions, onConfigChange]);
+  }, [
+    selectionMode,
+    questionCount,
+    labelConfig,
+    shuffleQuestions,
+    onConfigChange,
+  ]);
 
   // Validate configuration
-  const validateConfig = useCallback(() => {
+  const _validateConfig = useCallback(() => {
     setValidationError("");
 
     if (selectionMode === QUESTION_SELECTION_MODE.RANDOM_TOTAL) {
@@ -141,7 +147,7 @@ export function QuestionConfigSection({
       }
       if (availableLabels && questionCount > availableLabels.totalQuestions) {
         setValidationError(
-          `Số câu hỏi không được vượt quá ${availableLabels.totalQuestions} câu`
+          `Số câu hỏi không được vượt quá ${availableLabels.totalQuestions} câu`,
         );
         return false;
       }
@@ -150,7 +156,7 @@ export function QuestionConfigSection({
     if (selectionMode === QUESTION_SELECTION_MODE.RANDOM_BY_LABEL) {
       const totalConfigured = labelConfig.reduce(
         (sum, config) => sum + config.count,
-        0
+        0,
       );
       if (totalConfigured === 0) {
         setValidationError("Vui lòng cấu hình ít nhất 1 câu hỏi cho các nhãn");
@@ -158,7 +164,7 @@ export function QuestionConfigSection({
       }
       if (questionCount && totalConfigured !== questionCount) {
         setValidationError(
-          `Tổng số câu cấu hình (${totalConfigured}) phải bằng số câu tổng (${questionCount})`
+          `Tổng số câu cấu hình (${totalConfigured}) phải bằng số câu tổng (${questionCount})`,
         );
         return false;
       }
@@ -182,14 +188,14 @@ export function QuestionConfigSection({
 
     setLabelConfig((prev) =>
       prev.map((config) =>
-        config.labelId === labelId ? { ...config, count } : config
-      )
+        config.labelId === labelId ? { ...config, count } : config,
+      ),
     );
   };
 
   const totalConfiguredCount = labelConfig.reduce(
     (sum, config) => sum + config.count,
-    0
+    0,
   );
 
   return (
@@ -208,7 +214,7 @@ export function QuestionConfigSection({
             value={selectionMode.toString()}
             onValueChange={(value) =>
               setSelectionMode(
-                Number.parseInt(value) as QUESTION_SELECTION_MODE
+                Number.parseInt(value) as QUESTION_SELECTION_MODE,
               )
             }
             disabled={disabled}
@@ -289,7 +295,7 @@ export function QuestionConfigSection({
                 <div className="grid gap-2">
                   {labelConfig.map((config) => {
                     const label = availableLabels?.labels.find(
-                      (l) => l.id === config.labelId
+                      (l) => l.id === config.labelId,
                     );
                     const isUnlabeled = config.labelId === "unlabeled";
                     const availableCount = isUnlabeled
@@ -336,7 +342,7 @@ export function QuestionConfigSection({
                             onChange={(e) =>
                               updateLabelCount(
                                 config.labelId,
-                                Number.parseInt(e.target.value) || 0
+                                Number.parseInt(e.target.value) || 0,
                               )
                             }
                             className="w-16 text-center"
@@ -417,7 +423,7 @@ export function QuestionConfigSection({
               <div className="grid gap-3">
                 {availableLabels.labels.map((label) => {
                   const config = labelConfig.find(
-                    (c) => c.labelId === label.id
+                    (c) => c.labelId === label.id,
                   );
                   return (
                     <Card key={label.id}>
@@ -447,7 +453,7 @@ export function QuestionConfigSection({
                               onChange={(e) =>
                                 updateLabelCount(
                                   label.id,
-                                  Number.parseInt(e.target.value) || 0
+                                  Number.parseInt(e.target.value) || 0,
                                 )
                               }
                               className="w-20"
@@ -482,7 +488,7 @@ export function QuestionConfigSection({
                             onChange={(e) =>
                               updateLabelCount(
                                 "unlabeled",
-                                Number.parseInt(e.target.value) || 0
+                                Number.parseInt(e.target.value) || 0,
                               )
                             }
                             className="w-20"

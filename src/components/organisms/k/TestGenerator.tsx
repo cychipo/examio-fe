@@ -32,10 +32,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import ModernLoader from "@/components/ui/modern-loader";
 import { Quizz } from "@/types/exam";
 import { useTestGeneratorStore } from "@/stores/useAIGeneratorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { AI_MODELS } from "@/types/ai";
 import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
@@ -54,10 +62,12 @@ export function TestGenerator() {
     keyword,
     generatedTest,
     isGenerating,
+    selectedModel,
     setFile,
     setQuestionCount,
     setIsNarrow,
     setKeyword,
+    setSelectedModel,
     generateTest,
     clearTest,
   } = useTestGeneratorStore();
@@ -76,7 +86,7 @@ export function TestGenerator() {
   const handleFileUpload = async (uploadedFile: File) => {
     // Validate PDF page count before accepting the file
     try {
-      const { valid, pageCount } = await validatePdfPageCount(uploadedFile, 50);
+      const { valid, pageCount } = await validatePdfPageCount(uploadedFile);
       if (!valid) {
         toast({
           title: "File PDF quá lớn",
@@ -124,10 +134,11 @@ export function TestGenerator() {
 
   const handleGenerate = async () => {
     // Check credits
+    /* FREE_MODE: Bỏ kiểm tra tín dụng ở frontend
     if (file) {
       // Validate PDF page count
       try {
-        const { valid, pageCount } = await validatePdfPageCount(file, 50);
+        const { valid, pageCount } = await validatePdfPageCount(file);
         if (!valid) {
           toast.warning("File PDF quá lớn", {
             description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
@@ -148,6 +159,22 @@ export function TestGenerator() {
           description: `Bạn cần ${cost} credits để tạo đề từ file này.`,
         });
         return;
+      }
+    }
+    */
+
+    // Thêm check đơn giản cho page count mà không check cost
+    if (file) {
+      try {
+        const { valid, pageCount } = await validatePdfPageCount(file);
+        if (!valid) {
+          toast.warning("File PDF quá lớn", {
+            description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+          });
+          return;
+        }
+      } catch (error) {
+        // Ignored
       }
     }
 
@@ -173,7 +200,7 @@ export function TestGenerator() {
           {!hasFile ? (
             <FileUpload
               acceptedFileTypes={[".pdf", "application/pdf"]}
-              maxFileSize={10485760}
+              maxFileSize={104857600}
               className="w-full h-full"
               onUploadSuccess={handleFileUpload}
               onUploadError={handleFileError}
@@ -187,29 +214,79 @@ export function TestGenerator() {
             />
           )}
 
+          {/* AI Model Selection */}
+          <div className="space-y-3">
+            <Label className="text-muted-foreground">AI Model</Label>
+            <Select
+              value={selectedModel}
+              onValueChange={(value) => setSelectedModel(value as any)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Chọn model AI" />
+              </SelectTrigger>
+              <SelectContent>
+                {AI_MODELS.map((model) => (
+                  <SelectItem key={model.id} value={model.id} disabled={false}>
+                    <div className="flex items-center gap-2">
+                      <span>{model.icon}</span>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">{model.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {model.description}
+                        </span>
+                      </div>
+                      {model.badge && (
+                        <span className="ml-auto text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full uppercase font-bold tracking-wider">
+                          {model.badge}
+                        </span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Question Count */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-muted-foreground">Số lượng câu hỏi</Label>
-              <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                {questionCount} câu
-              </span>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={questionCount}
+                  onChange={(e) => {
+                    const val = Number.parseInt(e.target.value);
+                    if (!Number.isNaN(val)) setQuestionCount(val);
+                  }}
+                  className="w-16 h-8 text-center px-1 text-xs font-bold bg-primary/10 border-none focus-visible:ring-1 focus-visible:ring-primary/30"
+                  min={1}
+                  max={100}
+                />
+                <span className="text-xs font-medium text-muted-foreground">
+                  câu
+                </span>
+              </div>
             </div>
             <Slider
-              value={[questionCount]}
+              value={[Math.min(questionCount, 100)]}
               onValueChange={(value) => setQuestionCount(value[0])}
               min={5}
-              max={50}
+              max={100}
               step={5}
               className="w-full"
             />
+            <p className="text-[10px] text-muted-foreground italic">
+              * Tối đa 100 câu hỏi.
+            </p>
           </div>
 
           {/* Narrow Format Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 border border-border">
             <Label
               htmlFor="narrow-toggle-test"
-              className="flex items-center gap-2 cursor-pointer text-muted-foreground">
+              className="flex items-center gap-2 cursor-pointer text-muted-foreground"
+            >
               Định dạng hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -240,7 +317,7 @@ export function TestGenerator() {
                     placeholder="Nhập từ khóa..."
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="bg-black/5 dark:bg-white/5 border-border"
+                    className="bg-black/5 border-border"
                   />
                 </FieldContent>
               </Field>
@@ -252,7 +329,8 @@ export function TestGenerator() {
             onClick={handleGenerate}
             disabled={!hasFile || isGenerating}
             className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
-            size="lg">
+            size="lg"
+          >
             {isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -272,8 +350,8 @@ export function TestGenerator() {
       <Card className="border-border bg-white/[0.02] backdrop-blur-xl w-full">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center border border-blue-500/20">
-              <FileText className="w-4 h-4 text-blue-400" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+              <FileText className="w-4 h-4 text-red-400" />
             </div>
             Xem trước
           </CardTitle>
@@ -301,7 +379,7 @@ export function TestGenerator() {
             </div>
           ) : !generatedTest ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-black/5 dark:bg-white/5 border border-border flex items-center justify-center mb-4">
+              <div className="w-20 h-20 rounded-2xl bg-black/5 border border-border flex items-center justify-center mb-4">
                 <FileText className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground">
@@ -324,11 +402,13 @@ export function TestGenerator() {
                 <DialogAddExam
                   title="Lưu vào đề thi"
                   description="Lưu đề kiểm tra vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
-                  type={DialogAddExamType.QUIZZ}>
+                  type={DialogAddExamType.QUIZZ}
+                >
                   <Button
                     variant="outline"
                     size="sm"
-                    className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                    className="bg-black/5 border-border cursor-pointer"
+                  >
                     <SaveAll size={15} className="mr-2" />
                     Lưu
                   </Button>
@@ -340,7 +420,8 @@ export function TestGenerator() {
                   {generatedTest.map((q: Quizz, idx: number) => (
                     <div
                       key={idx}
-                      className="p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-border hover:border-border transition-colors">
+                      className="p-4 rounded-xl bg-black/5 border border-border hover:border-border transition-colors"
+                    >
                       <div className="flex items-start gap-3">
                         <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 text-primary text-sm font-semibold flex items-center justify-center">
                           {idx + 1}
@@ -356,7 +437,7 @@ export function TestGenerator() {
                                 typeof q.answer === "number"
                                   ? q.answer
                                   : ["A", "B", "C", "D"].indexOf(
-                                      q.answer.toUpperCase()
+                                      q.answer.toUpperCase(),
                                     );
                               const isCorrect = answerIndex === optIdx;
                               return (
@@ -366,15 +447,17 @@ export function TestGenerator() {
                                     "flex items-start gap-2 p-2 rounded-lg transition-colors",
                                     isCorrect
                                       ? "bg-green-500/10 border border-green-500/20"
-                                      : "bg-black/5 dark:bg-white/5 border border-transparent"
-                                  )}>
+                                      : "bg-black/5 border border-transparent",
+                                  )}
+                                >
                                   <span
                                     className={cn(
                                       "flex-1 text-sm",
                                       isCorrect
                                         ? "text-green-400"
-                                        : "text-muted-foreground"
-                                    )}>
+                                        : "text-muted-foreground",
+                                    )}
+                                  >
                                     {opt}
                                   </span>
                                   {isCorrect && (

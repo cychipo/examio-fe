@@ -25,7 +25,7 @@ const LustreText: React.FC<LustreTextProps> = ({
       className={`
     lustre-text
     ${!disabled ? "animate-shine" : ""}
-    dark:lustre-dark lustre-light
+    lustre-light
     ${className}
   `}
       style={!disabled ? animationStyle : undefined}

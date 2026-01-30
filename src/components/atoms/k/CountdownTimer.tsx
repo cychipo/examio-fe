@@ -28,7 +28,7 @@ export function CountdownTimer({
         "flex flex-col items-center justify-center gap-3",
         className
       )}>
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-purple-500">
         <Clock className="h-8 w-8 text-white" />
       </div>
       <div className="text-center">

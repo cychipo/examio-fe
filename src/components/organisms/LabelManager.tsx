@@ -22,24 +22,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Tag,
-  Plus,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Palette,
-  Check,
-  X,
-} from "lucide-react";
+import { Tag, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   QuizSetLabel,
@@ -53,8 +37,14 @@ import { toast } from "@/components/ui/toast";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
 
 const LABEL_COLORS = [
-  "#3B82F6", "#10B981", "#F59E0B", "#EF4444",
-  "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16",
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#06B6D4",
+  "#84CC16",
 ];
 
 interface LabelManagerProps {
@@ -102,18 +92,21 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
     loadLabels();
   }, [loadLabels]);
 
-  const loadLabelQuestions = useCallback(async (labelId: string) => {
-    setLoadingQuestions(true);
-    try {
-      const response = await getQuestionsByLabelApi(quizSetId, labelId);
-      setLabelQuestions(response.questions);
-    } catch (error) {
-      console.error("Failed to load questions:", error);
-      toast.error("Không thể tải câu hỏi");
-    } finally {
-      setLoadingQuestions(false);
-    }
-  }, [quizSetId]);
+  const loadLabelQuestions = useCallback(
+    async (labelId: string) => {
+      setLoadingQuestions(true);
+      try {
+        const response = await getQuestionsByLabelApi(quizSetId, labelId);
+        setLabelQuestions(response.questions);
+      } catch (error) {
+        console.error("Failed to load questions:", error);
+        toast.error("Không thể tải câu hỏi");
+      } finally {
+        setLoadingQuestions(false);
+      }
+    },
+    [quizSetId],
+  );
 
   // Load questions for selected label
   useEffect(() => {
@@ -133,7 +126,7 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
       });
 
       toast.success("Tạo nhãn thành công");
-      setLabels(prev => [...prev, response.label]);
+      setLabels((prev) => [...prev, response.label]);
       setShowCreateDialog(false);
       setNewLabelName("");
       setNewLabelDescription("");
@@ -158,7 +151,9 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
       });
 
       toast.success("Cập nhật nhãn thành công");
-      setLabels(prev => prev.map(l => l.id === editingLabel.id ? response.label : l));
+      setLabels((prev) =>
+        prev.map((l) => (l.id === editingLabel.id ? response.label : l)),
+      );
       setEditingLabel(null);
 
       // Invalidate cache to refresh data across components
@@ -170,12 +165,17 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
   };
 
   const handleDeleteLabel = async (labelId: string) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa nhãn này? Các câu hỏi sẽ không có nhãn.")) return;
+    if (
+      !confirm(
+        "Bạn có chắc chắn muốn xóa nhãn này? Các câu hỏi sẽ không có nhãn.",
+      )
+    )
+      return;
 
     try {
       await deleteLabelApi(quizSetId, labelId);
       toast.success("Xóa nhãn thành công");
-      setLabels(prev => prev.filter(l => l.id !== labelId));
+      setLabels((prev) => prev.filter((l) => l.id !== labelId));
       if (selectedLabelId === labelId) {
         setSelectedLabelId(null);
       }
@@ -263,7 +263,9 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
                         onClick={() => setNewLabelColor(color)}
                         className={cn(
                           "w-8 h-8 rounded-full border-2",
-                          newLabelColor === color ? "border-foreground" : "border-transparent"
+                          newLabelColor === color
+                            ? "border-foreground"
+                            : "border-transparent",
                         )}
                         style={{ backgroundColor: color }}
                       />
@@ -278,7 +280,10 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
                 >
                   Hủy
                 </Button>
-                <Button onClick={handleCreateLabel} disabled={!newLabelName.trim()}>
+                <Button
+                  onClick={handleCreateLabel}
+                  disabled={!newLabelName.trim()}
+                >
                   Tạo nhãn
                 </Button>
               </DialogFooter>
@@ -287,9 +292,12 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs value={selectedLabelId || "overview"} onValueChange={(value) => {
-          setSelectedLabelId(value === "overview" ? null : value);
-        }}>
+        <Tabs
+          value={selectedLabelId || "overview"}
+          onValueChange={(value) => {
+            setSelectedLabelId(value === "overview" ? null : value);
+          }}
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="overview">Tổng quan</TabsTrigger>
             <TabsTrigger value="unlabeled" disabled={unlabeledCount === 0}>
@@ -309,8 +317,11 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {labels.map((label) => (
-                  <Card key={label.id} className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => setSelectedLabelId(label.id)}>
+                  <Card
+                    key={label.id}
+                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => setSelectedLabelId(label.id)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
@@ -324,7 +335,11 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -371,7 +386,8 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
         {selectedLabelId && (
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-4">
-              Câu hỏi trong nhãn: {labels.find(l => l.id === selectedLabelId)?.name}
+              Câu hỏi trong nhãn:{" "}
+              {labels.find((l) => l.id === selectedLabelId)?.name}
             </h3>
             {loadingQuestions ? (
               <div className="text-center py-4">Đang tải...</div>
@@ -387,7 +403,10 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
                       <span className="text-sm font-medium text-muted-foreground">
                         {index + 1}.
                       </span>
-                      <span className="text-sm" dangerouslySetInnerHTML={{ __html: question.question }} />
+                      <span
+                        className="text-sm"
+                        dangerouslySetInnerHTML={{ __html: question.question }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -399,7 +418,10 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
 
       {/* Edit Label Dialog */}
       {editingLabel && (
-        <Dialog open={!!editingLabel} onOpenChange={() => setEditingLabel(null)}>
+        <Dialog
+          open={!!editingLabel}
+          onOpenChange={() => setEditingLabel(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Chỉnh sửa nhãn</DialogTitle>
@@ -430,7 +452,9 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
                       onClick={() => setEditColor(color)}
                       className={cn(
                         "w-8 h-8 rounded-full border-2",
-                        editColor === color ? "border-foreground" : "border-transparent"
+                        editColor === color
+                          ? "border-foreground"
+                          : "border-transparent",
                       )}
                       style={{ backgroundColor: color }}
                     />

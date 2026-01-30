@@ -135,7 +135,7 @@ const AlertDialogAction = React.forwardRef<
     <motion.button
       className={cn(
         buttonVariants(),
-        "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white",
+        "bg-gradient-to-r from-primary via-purple-500 to-pink-500 text-white",
         className
       )}
       style={{ perspective: 1000 }}

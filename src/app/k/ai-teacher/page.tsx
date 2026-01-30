@@ -488,7 +488,7 @@ export default function AITeacherPage() {
 
         {/* Subject Selector */}
         <section className="relative container mx-auto px-4 pb-8">
-          <Card className="border-border bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
+          <Card className="border-border bg-white/[0.02] backdrop-blur-xl">
             <CardContent className="p-6">
               <SubjectSelector
                 onSelectSubject={handleSelectSubject}
@@ -603,7 +603,7 @@ export default function AITeacherPage() {
 
           {/* Chat Area */}
           <div className="flex-1 min-w-0">
-            <Card className="border-border bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-xl">
+            <Card className="border-border bg-white/[0.02] backdrop-blur-xl">
               <CardContent className="p-0">
                 {/* Messages Area */}
                 <ScrollArea
@@ -662,7 +662,7 @@ export default function AITeacherPage() {
                               <Bot className="w-4 h-4 text-primary" />
                             )}
                           </div>
-                          <div className="flex-1 bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-2xl rounded-tl-sm px-4 py-3">
+                          <div className="flex-1 bg-black/5 border border-border rounded-2xl rounded-tl-sm px-4 py-3">
                             <p className="text-sm whitespace-pre-wrap">
                               {streamingContent}
                             </p>
@@ -738,18 +738,18 @@ export default function AITeacherPage() {
                       {selectedUploads.map((file) => (
                         <div
                           key={file.id}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit animate-in fade-in zoom-in duration-200">
-                          <FileText className="w-4 h-4 text-blue-400" />
-                          <span className="text-sm text-blue-300/90 max-w-[200px] truncate">
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 w-fit animate-in fade-in zoom-in duration-200">
+                          <FileText className="w-4 h-4 text-red-400" />
+                          <span className="text-sm text-red-300/90 max-w-[200px] truncate">
                             {file.filename}
                           </span>
                           {file.id.startsWith("processing-") ? (
-                            <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                            <Loader2 className="w-4 h-4 text-red-400 animate-spin" />
                           ) : (
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-5 w-5 p-0 hover:bg-blue-500/20 text-blue-400"
+                              className="h-5 w-5 p-0 hover:bg-primary/20 text-red-400"
                               onClick={() => removeSelectedUpload(file.id)}>
                               ×
                             </Button>
@@ -899,8 +899,8 @@ function MessageBubble({
             alt="User"
             className="w-8 h-8 rounded-full"
           />
-        ) : renderIcon(subjectIcon, "w-4 h-4 text-purple-400") || (
-          <Bot className="w-4 h-4 text-purple-400" />
+        ) : renderIcon(subjectIcon, "w-4 h-4 text-yellow-400") || (
+          <Bot className="w-4 h-4 text-yellow-400" />
         )}
       </div>
       <div
@@ -922,9 +922,9 @@ function MessageBubble({
         {/* Document Card */}
         {message.documentName && (
           <div className="mb-2">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit">
-              <FileText className="w-4 h-4 text-blue-400" />
-              <span className="text-sm text-blue-300/80">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 w-fit">
+              <FileText className="w-4 h-4 text-red-400" />
+              <span className="text-sm text-red-300/80">
                 {message.documentName}
               </span>
             </div>
@@ -937,9 +937,9 @@ function MessageBubble({
             "rounded-2xl px-4 py-2",
             isUser
               ? "bg-primary text-primary-foreground rounded-tr-sm"
-              : "bg-black/5 dark:bg-white/5 dark:bg-white/[0.03] border border-border rounded-tl-sm"
+              : "bg-black/5 border border-border rounded-tl-sm"
           )}>
-          <div className="text-sm prose dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
+          <div className="text-sm prose max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0">
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex]}>

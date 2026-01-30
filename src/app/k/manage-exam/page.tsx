@@ -26,7 +26,7 @@ export default function ManageExamPage() {
     updateQuizSet,
   } = useQuizSetStore();
   const { quizStats, fetchQuizStats, invalidateQuizStats } = useStatsStore();
-  const { exportQuizSetsToPDF } = useExportPDF();
+  const { exportQuizSetsToPDF: _exportQuizSetsToPDF } = useExportPDF();
 
   // State cho UI
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,10 +40,10 @@ export default function ManageExamPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedQuizSetId, setSelectedQuizSetId] = useState<string | null>(
-    null
+    null,
   );
   const [editFormData, setEditFormData] = useState<QuizSetFormData | undefined>(
-    undefined
+    undefined,
   );
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
@@ -60,8 +60,8 @@ export default function ManageExamPage() {
         statusFilter === "public"
           ? true
           : statusFilter === "private"
-          ? false
-          : undefined;
+            ? false
+            : undefined;
 
       const response = await fetchQuizSets({
         page: currentPage,
@@ -96,7 +96,7 @@ export default function ManageExamPage() {
           : null,
         tags: quizSet.tags || [],
       })),
-    [quizSetsK]
+    [quizSetsK],
   );
 
   const totalPages = Math.ceil(totalResults / limit);
@@ -113,7 +113,7 @@ export default function ManageExamPage() {
       completionRate: quizStats?.completionRate || 0,
       completionRateTrend: 0,
     }),
-    [quizStats]
+    [quizStats],
   );
 
   const statusOptions = useMemo(
@@ -122,7 +122,7 @@ export default function ManageExamPage() {
       { value: "public", label: "Công khai" },
       { value: "private", label: "Riêng tư" },
     ],
-    []
+    [],
   );
 
   // useCallback để tránh tạo lại function mỗi lần render
@@ -134,7 +134,7 @@ export default function ManageExamPage() {
     (id: string) => {
       router.push(`/k/manage-quiz-set/${id}`);
     },
-    [router]
+    [router],
   );
 
   const handleEditExam = useCallback(
@@ -153,7 +153,7 @@ export default function ManageExamPage() {
         setIsEditModalOpen(true);
       }
     },
-    [quizSetsK]
+    [quizSetsK],
   );
 
   const handleDeleteExam = useCallback((id: string) => {
@@ -174,7 +174,7 @@ export default function ManageExamPage() {
         await fetchQuizStats();
       }
     }
-  }, [selectedQuizSetId, deleteQuizSet, invalidateQuizStats]);
+  }, [selectedQuizSetId, deleteQuizSet, invalidateQuizStats, fetchQuizStats]);
 
   const handleCreateSubmit = useCallback(
     async (data: QuizSetFormData) => {
@@ -195,7 +195,7 @@ export default function ManageExamPage() {
             questionCount: 0,
             questions: [],
           },
-          thumbnailFile
+          thumbnailFile,
         );
         invalidateQuizStats(); // Invalidate stats cache
         setIsCreateModalOpen(false);
@@ -205,7 +205,7 @@ export default function ManageExamPage() {
         await fetchQuizStats();
       }
     },
-    [createQuizSet, invalidateQuizStats, fetchQuizStats]
+    [createQuizSet, invalidateQuizStats, fetchQuizStats],
   );
 
   const handleEditSubmit = useCallback(
@@ -229,7 +229,7 @@ export default function ManageExamPage() {
               questionCount: 0,
               questions: [],
             },
-            thumbnailFile
+            thumbnailFile,
           );
           invalidateQuizStats(); // Invalidate stats cache
           setIsEditModalOpen(false);
@@ -242,7 +242,7 @@ export default function ManageExamPage() {
         }
       }
     },
-    [selectedQuizSetId, updateQuizSet, invalidateQuizStats]
+    [selectedQuizSetId, updateQuizSet, invalidateQuizStats, fetchQuizStats],
   );
 
   if (loading && quizSetsK.length === 0) {

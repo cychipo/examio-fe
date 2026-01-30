@@ -250,7 +250,7 @@ export function ProfileForm({
                   Đã xác thực
                 </span>
               ) : (
-                <span className="text-sm font-medium text-amber-600">
+                <span className="text-sm font-medium text-yellow-600">
                   Chưa xác thực
                 </span>
               )}

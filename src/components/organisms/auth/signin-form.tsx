@@ -11,8 +11,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 function BottomGradient() {
   return (
     <>
-      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
+      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-[#e31837] to-transparent" />
+      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-[#ffc107] to-transparent" />
     </>
   );
 }
@@ -30,12 +30,10 @@ export function SigninForm() {
     const formData = new FormData(form);
     const credential = formData.get("credential") as string;
     const password = formData.get("password") as string;
-    // searchParams.get already returns the decoded value
     const from = searchParams.get("from");
 
     try {
       await login({ credential, password });
-      // Use replace to avoid login page in browser history
       router.replace(from || "/k");
     } catch (error) {
       console.error("Login failed:", error);
@@ -43,40 +41,53 @@ export function SigninForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md rounded-2xl shadow-xl overflow-hidden border relative">
-        <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-blue-100 via-blue-50 to-transparent opacity-40 blur-3xl -mt-20"></div>
-        <div className="p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-red-50/30 to-yellow-50/30">
+      <div className="w-full max-w-md rounded-2xl shadow-xl overflow-hidden border bg-white relative">
+        {/* KMA gradient decoration */}
+        <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-red-100 via-yellow-50 to-transparent opacity-60 blur-3xl -mt-20"></div>
+
+        <div className="p-8 relative">
           <div className="flex flex-col items-center mb-8">
             <div>
-              <Image src="/examio.svg" alt="Logo" width={80} height={80} />
+              <Image
+                src="/Logo_KMA.png"
+                alt="KMA Edu Logo"
+                width={80}
+                height={80}
+              />
             </div>
-            <div className="p-0">
-              <h2 className="text-2xl font-bold text-center">
+            <div className="p-0 mt-2">
+              <h2 className="text-2xl font-bold text-center text-gray-800">
                 Chào Mừng Trở Lại
               </h2>
+              <p className="text-sm text-muted-foreground text-center mt-1">
+                Đăng nhập vào KMA Edu
+              </p>
             </div>
           </div>
 
           <div className="space-y-6 p-0">
             <form onSubmit={handleSubmit} className="space-y-6 p-0">
               <div className="space-y-1">
-                <label className="text-sm font-medium">
+                <label className="text-sm font-medium text-gray-700">
                   Tên Đăng Nhập hoặc Email
                 </label>
                 <input
                   name="credential"
-                  className="bg-gray-50 border-border text-gray-900 placeholder:text-gray-400 h-12 rounded-lg focus-visible:ring-2 w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  className="bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 h-12 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary w-full px-3 py-2 text-sm outline-none transition-all"
                   placeholder="Tên Đăng Nhập hoặc Email"
                 />
               </div>
 
               <div className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <label className="text-sm font-medium">Mật Khẩu</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Mật Khẩu
+                  </label>
                   <Link
                     href="/forgot-password"
-                    className="text-xs hover:underline">
+                    className="text-xs text-primary hover:underline"
+                  >
                     Quên mật khẩu?
                   </Link>
                 </div>
@@ -84,21 +95,23 @@ export function SigninForm() {
                   <input
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    className="bg-gray-50 border-border text-gray-900 pr-12 h-12 rounded-lg focus-visible:ring-2   w-full px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="bg-gray-50 border border-gray-200 text-gray-900 pr-12 h-12 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary w-full px-3 py-2 text-sm outline-none transition-all"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:bg-gray-100 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 h-9 px-3 cursor-pointer"
-                    onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? <EyeOff /> : <Eye />}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:bg-gray-100 inline-flex items-center justify-center rounded-md h-9 px-3 cursor-pointer transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset] cursor-pointer">
+                className="bg-primary hover:bg-[#b71c1c] relative group/btn w-full text-white rounded-lg h-11 font-semibold shadow-lg shadow-primary/30 cursor-pointer transition-all"
+              >
                 Đăng Nhập
               </button>
             </form>
@@ -113,34 +126,32 @@ export function SigninForm() {
 
             <div className="grid gap-2 mb-[10px] grid-cols-1 md:grid-cols-3">
               <button
-                className=" relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
-                type="submit"
-                onClick={loginWithGithub}>
-                <IconBrandGithub className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                  GitHub
-                </span>
+                className="relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-gray-700 rounded-lg h-10 font-medium bg-gray-50 border border-gray-200 hover:bg-gray-100 cursor-pointer transition-all"
+                type="button"
+                onClick={loginWithGithub}
+              >
+                <IconBrandGithub className="h-4 w-4" />
+                <span className="text-sm">GitHub</span>
                 <BottomGradient />
               </button>
 
               <button
-                className=" relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
-                type="submit"
-                onClick={loginWithGoogle}>
-                <IconBrandGoogle className="h-4 w-4 text-neutral-800 dark:text-neutral-300" />
-                <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                  Google
-                </span>
+                className="relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-gray-700 rounded-lg h-10 font-medium bg-gray-50 border border-gray-200 hover:bg-gray-100 cursor-pointer transition-all"
+                type="button"
+                onClick={loginWithGoogle}
+              >
+                <IconBrandGoogle className="h-4 w-4" />
+                <span className="text-sm">Google</span>
                 <BottomGradient />
               </button>
+
               <button
-                className=" relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)] cursor-pointer"
-                type="submit"
-                onClick={loginWithFacebook}>
-                <FacebookIcon className="h-3 w-3 text-neutral-800 dark:text-neutral-300 scale-[1.5]" />
-                <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                  Facebook
-                </span>
+                className="relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-gray-700 rounded-lg h-10 font-medium bg-gray-50 border border-gray-200 hover:bg-gray-100 cursor-pointer transition-all"
+                type="button"
+                onClick={loginWithFacebook}
+              >
+                <FacebookIcon className="h-4 w-4" />
+                <span className="text-sm">Facebook</span>
                 <BottomGradient />
               </button>
             </div>
@@ -150,7 +161,8 @@ export function SigninForm() {
             <p>Bạn chưa có tài khoản? </p>
             <Link
               href="/register"
-              className="text-primary font-medium hover:underline">
+              className="text-primary font-medium hover:underline"
+            >
               Đăng ký ngay
             </Link>
           </div>

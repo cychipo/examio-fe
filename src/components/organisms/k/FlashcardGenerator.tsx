@@ -31,11 +31,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
 import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
 import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { AI_MODELS } from "@/types/ai";
 import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
@@ -54,11 +62,13 @@ export function FlashcardGenerator() {
     generatedCards,
     currentCard,
     isGenerating,
+    selectedModel,
     setFile,
     setCardCount,
     setIsNarrow,
     setKeyword,
     setCurrentCard,
+    setSelectedModel,
     generateFlashcards,
     clearFlashcards,
   } = useFlashcardGeneratorStore();
@@ -77,7 +87,7 @@ export function FlashcardGenerator() {
   const handleFileUpload = async (uploadedFile: File) => {
     // Validate PDF page count before accepting the file
     try {
-      const { valid, pageCount } = await validatePdfPageCount(uploadedFile, 50);
+      const { valid, pageCount } = await validatePdfPageCount(uploadedFile);
       if (!valid) {
         toast({
           title: "File PDF quá lớn",
@@ -125,10 +135,11 @@ export function FlashcardGenerator() {
 
   const handleGenerate = async () => {
     // Check credits
+    /* FREE_MODE: Bỏ kiểm tra tín dụng ở frontend
     if (file) {
       // Validate PDF page count
       try {
-        const { valid, pageCount } = await validatePdfPageCount(file, 50);
+        const { valid, pageCount } = await validatePdfPageCount(file);
         if (!valid) {
           toast({
             title: "File PDF quá lớn",
@@ -155,6 +166,24 @@ export function FlashcardGenerator() {
           variant: "warning",
         });
         return;
+      }
+    }
+    */
+
+    // Thêm check đơn giản cho page count mà không check cost
+    if (file) {
+      try {
+        const { valid, pageCount } = await validatePdfPageCount(file);
+        if (!valid) {
+          toast({
+            title: "File PDF quá lớn",
+            description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+            variant: "warning",
+          });
+          return;
+        }
+      } catch (error) {
+        // Ignored
       }
     }
 
@@ -192,7 +221,7 @@ export function FlashcardGenerator() {
           {!hasFile ? (
             <FileUpload
               acceptedFileTypes={[".pdf", "application/pdf"]}
-              maxFileSize={10485760}
+              maxFileSize={104857600}
               className="w-full h-full"
               onUploadSuccess={handleFileUpload}
               onUploadError={handleFileError}
@@ -206,27 +235,77 @@ export function FlashcardGenerator() {
             />
           )}
 
+          {/* AI Model Selection */}
+          <div className="space-y-3">
+            <Label className="text-muted-foreground">AI Model</Label>
+            <Select
+              value={selectedModel}
+              onValueChange={(value) => setSelectedModel(value as any)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Chọn model AI" />
+              </SelectTrigger>
+              <SelectContent>
+                {AI_MODELS.map((model) => (
+                  <SelectItem key={model.id} value={model.id} disabled={false}>
+                    <div className="flex items-center gap-2">
+                      <span>{model.icon}</span>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">{model.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {model.description}
+                        </span>
+                      </div>
+                      {model.badge && (
+                        <span className="ml-auto text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full uppercase font-bold tracking-wider">
+                          {model.badge}
+                        </span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-muted-foreground">Số lượng thẻ</Label>
-              <span className="text-sm font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                {cardCount} thẻ
-              </span>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={cardCount}
+                  onChange={(e) => {
+                    const val = Number.parseInt(e.target.value);
+                    if (!Number.isNaN(val)) setCardCount(val);
+                  }}
+                  className="w-16 h-8 text-center px-1 text-xs font-bold bg-primary/10 border-none focus-visible:ring-1 focus-visible:ring-primary/30"
+                  min={1}
+                  max={100}
+                />
+                <span className="text-xs font-medium text-muted-foreground">
+                  thẻ
+                </span>
+              </div>
             </div>
             <Slider
-              value={[cardCount]}
+              value={[Math.min(cardCount, 100)]}
               onValueChange={(value) => setCardCount(value[0])}
               min={5}
-              max={50}
+              max={100}
               step={5}
               className="w-full"
             />
+            <p className="text-[10px] text-muted-foreground italic">
+              * Tối đa 100 thẻ flashcard.
+            </p>
           </div>
 
-          <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 dark:bg-white/5 border border-border">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-black/5 border border-border">
             <Label
               htmlFor="narrow-toggle"
-              className="flex items-center gap-2 cursor-pointer text-muted-foreground">
+              className="flex items-center gap-2 cursor-pointer text-muted-foreground"
+            >
               Định dạng thẻ hẹp
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -256,7 +335,7 @@ export function FlashcardGenerator() {
                     placeholder="Nhập từ khóa..."
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    className="bg-black/5 dark:bg-white/5 border-border"
+                    className="bg-black/5 border-border"
                   />
                 </FieldContent>
               </Field>
@@ -267,7 +346,8 @@ export function FlashcardGenerator() {
             onClick={handleGenerate}
             disabled={!hasFile || isGenerating}
             className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg shadow-primary/20"
-            size="lg">
+            size="lg"
+          >
             {isGenerating ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
@@ -318,7 +398,7 @@ export function FlashcardGenerator() {
             </div>
           ) : !generatedCards || generatedCards.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-20 h-20 rounded-2xl bg-black/5 dark:bg-white/5 border border-border flex items-center justify-center mb-4">
+              <div className="w-20 h-20 rounded-2xl bg-black/5 border border-border flex items-center justify-center mb-4">
                 <SquareSplitVertical className="w-10 h-10 text-muted-foreground/50" />
               </div>
               <p className="text-muted-foreground">
@@ -341,11 +421,13 @@ export function FlashcardGenerator() {
                   <DialogAddExam
                     title="Lưu vào flashcard set"
                     description="Lưu flashcard vào hệ thống để tránh mất dữ liệu và lãng phí thời gian"
-                    type={DialogAddExamType.FLASH_CARD}>
+                    type={DialogAddExamType.FLASH_CARD}
+                  >
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                      className="bg-black/5 border-border cursor-pointer"
+                    >
                       <SaveAll size={15} className="mr-2" />
                       Lưu
                     </Button>
@@ -383,7 +465,8 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={prevCard}
                   disabled={currentCard === 0}
-                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                  className="flex-1 bg-black/5 border-border cursor-pointer"
+                >
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Trước
                 </Button>
@@ -392,7 +475,8 @@ export function FlashcardGenerator() {
                   size="lg"
                   onClick={nextCard}
                   disabled={currentCard === generatedCards.length - 1}
-                  className="flex-1 bg-black/5 dark:bg-white/5 border-border cursor-pointer">
+                  className="flex-1 bg-black/5 border-border cursor-pointer"
+                >
                   Sau
                   <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>

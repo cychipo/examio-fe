@@ -61,8 +61,8 @@ export default function FlashcardsPage() {
         statusFilter === "public"
           ? true
           : statusFilter === "private"
-          ? false
-          : undefined;
+            ? false
+            : undefined;
 
       const response = await fetchFlashcardSets({
         page: currentPage,
@@ -97,7 +97,7 @@ export default function FlashcardsPage() {
         lastStudied: null, // Backend chưa có thông tin này
         tags: set.tags || [],
       })),
-    [flashcardSetsK]
+    [flashcardSetsK],
   );
 
   const totalPages = Math.ceil(totalResults / limit);
@@ -112,7 +112,7 @@ export default function FlashcardsPage() {
       totalViews: flashcardStats?.totalViews || 0,
       totalViewsTrend: flashcardStats?.totalViewsTrend || 0,
     }),
-    [flashcardStats]
+    [flashcardStats],
   );
 
   const sortOptions = useMemo(
@@ -122,7 +122,7 @@ export default function FlashcardsPage() {
       { value: "cards", label: "Số thẻ" },
       { value: "views", label: "Lượt xem" },
     ],
-    []
+    [],
   );
 
   const statusOptions = useMemo(
@@ -131,7 +131,7 @@ export default function FlashcardsPage() {
       { value: "public", label: "Public" },
       { value: "private", label: "Private" },
     ],
-    []
+    [],
   );
 
   const handleCreateFlashcard = useCallback(() => {
@@ -158,7 +158,7 @@ export default function FlashcardsPage() {
         setIsEditModalOpen(true);
       }
     },
-    [flashcardSetsK]
+    [flashcardSetsK],
   );
 
   const handleDeleteFlashcard = useCallback((id: string) => {
@@ -175,7 +175,7 @@ export default function FlashcardsPage() {
         setIsShareModalOpen(true);
       }
     },
-    [flashcardSetsK]
+    [flashcardSetsK],
   );
 
   const handleConfirmDelete = useCallback(async () => {
@@ -191,7 +191,12 @@ export default function FlashcardsPage() {
         await fetchFlashcardStats();
       }
     }
-  }, [selectedFlashcardSetId, deleteFlashcardSet, invalidateFlashcardStats]);
+  }, [
+    selectedFlashcardSetId,
+    deleteFlashcardSet,
+    invalidateFlashcardStats,
+    fetchFlashcardStats,
+  ]);
 
   const handleCreateSubmit = useCallback(
     async (data: FlashcardSetFormData) => {
@@ -210,7 +215,7 @@ export default function FlashcardsPage() {
             tags: data.tags,
             thumbnail: thumbnailUrl,
           },
-          thumbnailFile
+          thumbnailFile,
         );
         invalidateFlashcardStats(); // Invalidate stats cache
         setIsCreateModalOpen(false);
@@ -220,7 +225,7 @@ export default function FlashcardsPage() {
         await fetchFlashcardStats();
       }
     },
-    [createFlashcardSet, invalidateFlashcardStats]
+    [createFlashcardSet, invalidateFlashcardStats, fetchFlashcardStats],
   );
 
   const handleEditSubmit = useCallback(
@@ -242,7 +247,7 @@ export default function FlashcardsPage() {
               tags: data.tags,
               thumbnail: thumbnailUrl,
             },
-            thumbnailFile
+            thumbnailFile,
           );
           setIsEditModalOpen(false);
           setSelectedFlashcardSetId(null);
@@ -254,7 +259,7 @@ export default function FlashcardsPage() {
         }
       }
     },
-    [selectedFlashcardSetId, updateFlashcardSet]
+    [selectedFlashcardSetId, updateFlashcardSet, fetchFlashcardStats],
   );
 
   if (loading && flashcardSetsK.length === 0) {

@@ -19,25 +19,25 @@ export function HistoryStatsGrid({ stats }: HistoryStatsGridProps) {
         title="Tổng PDF đã xử lý"
         value={stats.totalPDFs}
         icon={FileText}
-        iconClassName="bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+        iconClassName="bg-red-100 text-primary"
       />
       <HistoryStatCard
         title="Đề thi đã tạo"
         value={stats.examsCreated}
         icon={ClipboardList}
-        iconClassName="bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+        iconClassName="bg-yellow-100 text-yellow-600"
       />
       <HistoryStatCard
         title="Bộ Flashcard"
         value={stats.flashcardSets}
         icon={BookOpen}
-        iconClassName="bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+        iconClassName="bg-yellow-100 text-yellow-600"
       />
       <HistoryStatCard
         title="Giờ học tổng cộng"
         value={stats.totalStudyHours}
         icon={Clock}
-        iconClassName="bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400"
+        iconClassName="bg-orange-100 text-orange-600"
       />
     </div>
   );

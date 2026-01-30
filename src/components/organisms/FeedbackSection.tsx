@@ -15,7 +15,7 @@ const testimonials: Testimonial[] = [
   {
     id: 1,
     quote:
-      "FayEdu giúp tôi nhanh chóng tạo đề kiểm tra từ tài liệu, tiết kiệm rất nhiều thời gian.",
+      "KMA Edu giúp tôi nhanh chóng tạo đề kiểm tra từ tài liệu, tiết kiệm rất nhiều thời gian.",
     name: "Nguyễn Minh",
     username: "@nguyenminh",
     avatar:
@@ -42,7 +42,7 @@ const testimonials: Testimonial[] = [
   {
     id: 4,
     quote:
-      "Cộng đồng FayEdu rất năng động, tôi dễ dàng tìm thấy cách học hiệu quả từ chia sẻ của mọi người.",
+      "Cộng đồng KMA Edu rất năng động, tôi dễ dàng tìm thấy cách học hiệu quả từ chia sẻ của mọi người.",
     name: "Phạm Huy",
     username: "@phamhuy",
     avatar:
@@ -51,7 +51,7 @@ const testimonials: Testimonial[] = [
   {
     id: 5,
     quote:
-      "AI của FayEdu mang đến cách tiếp cận hoàn toàn mới, giúp tôi học nhanh hơn và nhớ lâu hơn.",
+      "AI của KMA Edu mang đến cách tiếp cận hoàn toàn mới, giúp tôi học nhanh hơn và nhớ lâu hơn.",
     name: "Đỗ Lan",
     username: "@dolan",
     avatar:
@@ -159,7 +159,7 @@ export default function FeedbackSection() {
 
   const handleDragEnd = (
     _: unknown,
-    info: { offset: { x: number; y: number } }
+    info: { offset: { x: number; y: number } },
   ) => {
     const { offset } = info;
     const swipeThreshold = 30;
@@ -177,20 +177,21 @@ export default function FeedbackSection() {
   };
 
   return (
-    <div className="px-4 py-8 sm:py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+    <div className="px-4 py-8 sm:py-16 bg-gradient-to-b from-gray-50 to-white overflow-hidden">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-8 sm:mb-12 md:mb-16">
-          <span className="inline-block py-1 px-3 rounded-full bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light font-medium text-xs sm:text-sm uppercase tracking-wider">
+          className="text-center mb-8 sm:mb-12 md:mb-16"
+        >
+          <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary font-medium text-xs sm:text-sm uppercase tracking-wider">
             Người dùng nói gì
           </span>
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 dark:from-primary-light dark:to-primary bg-clip-text text-transparent mt-3 sm:mt-4 px-4">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mt-3 sm:mt-4 px-4">
             Đánh giá nền tảng từ người dùng
           </h3>
-          <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-primary to-primary/70 dark:from-primary-light dark:to-primary mx-auto mt-4 sm:mt-6"></div>
+          <div className="w-16 sm:w-24 h-1 bg-gradient-to-r from-primary to-primary/70 mx-auto mt-4 sm:mt-6"></div>
         </motion.div>
 
         <div className="relative" ref={containerRef}>
@@ -202,10 +203,11 @@ export default function FeedbackSection() {
               disabled={!canGoPrev}
               className={`p-2 rounded-full ${
                 canGoPrev
-                  ? "bg-white dark:bg-gray-700 shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 text-primary dark:text-primary-light"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+                  ? "bg-white shadow-md hover:bg-gray-50 text-primary"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
               } transition-all duration-300`}
-              aria-label="Previous testimonial">
+              aria-label="Previous testimonial"
+            >
               <ChevronLeft size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
             <motion.button
@@ -215,10 +217,11 @@ export default function FeedbackSection() {
               disabled={!canGoNext}
               className={`p-2 rounded-full ${
                 canGoNext
-                  ? "bg-white dark:bg-gray-700 shadow-md hover:bg-gray-50 dark:hover:bg-gray-600 text-primary dark:text-primary-light"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed"
+                  ? "bg-white shadow-md hover:bg-gray-50 text-primary"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
               } transition-all duration-300`}
-              aria-label="Next testimonial">
+              aria-label="Next testimonial"
+            >
               <ChevronRight size={20} className="w-4 h-4 sm:w-5 sm:h-5" />
             </motion.button>
           </div>
@@ -231,7 +234,8 @@ export default function FeedbackSection() {
                 type: "spring",
                 stiffness: 70,
                 damping: 20,
-              }}>
+              }}
+            >
               {testimonials.map((testimonial) => (
                 <motion.div
                   key={testimonial.id}
@@ -239,8 +243,8 @@ export default function FeedbackSection() {
                     visibleCount === 3
                       ? "md:w-1/3"
                       : visibleCount === 2
-                      ? "md:w-1/2"
-                      : "w-full"
+                        ? "md:w-1/2"
+                        : "w-full"
                   } p-2`}
                   initial={{ opacity: 0.5, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -251,28 +255,30 @@ export default function FeedbackSection() {
                   onDragEnd={handleDragEnd}
                   whileHover={{ y: -5 }}
                   whileTap={{ scale: 0.98, cursor: "grabbing" }}
-                  style={{ cursor: "grab" }}>
+                  style={{ cursor: "grab" }}
+                >
                   <motion.div
-                    className="relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full bg-white dark:bg-gray-800 border border-border dark:border-border shadow-lg shadow-primary/5 dark:shadow-primary-light/5"
+                    className="relative overflow-hidden rounded-xl sm:rounded-2xl p-4 sm:p-6 h-full bg-white border border-border shadow-lg shadow-primary/5"
                     whileHover={{
                       boxShadow:
                         "0 10px 15px -3px rgba(79, 70, 229, 0.1), 0 4px 6px -2px rgba(79, 70, 229, 0.05)",
-                    }}>
-                    <div className="absolute -top-4 -left-4 opacity-10 dark:opacity-20">
+                    }}
+                  >
+                    <div className="absolute -top-4 -left-4 opacity-10">
                       <Quote
                         size={windowWidth < 640 ? 40 : 60}
-                        className="text-primary dark:text-primary-light"
+                        className="text-primary"
                       />
                     </div>
 
                     <div className="relative z-10 h-full flex flex-col">
-                      <p className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-medium mb-4 sm:mb-6 leading-relaxed">
+                      <p className="text-sm sm:text-base text-gray-700 font-medium mb-4 sm:mb-6 leading-relaxed">
                         &ldquo;
                         {testimonial.quote}
                         &rdquo;
                       </p>
 
-                      <div className="mt-auto pt-3 sm:pt-4 border-t border-border dark:border-border">
+                      <div className="mt-auto pt-3 sm:pt-4 border-t border-border">
                         <div className="flex items-center">
                           <div className="relative flex-shrink-0">
                             <img
@@ -280,14 +286,14 @@ export default function FeedbackSection() {
                               height={48}
                               src={testimonial.avatar}
                               alt={testimonial.name}
-                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-border dark:border-border shadow-sm"
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border-2 border-border shadow-sm"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src =
                                   "/api/placeholder/48/48";
                               }}
                             />
                             <motion.div
-                              className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary-light/20"
+                              className="absolute inset-0 rounded-full bg-primary/20"
                               animate={{
                                 scale: [1, 1.2, 1],
                                 opacity: [0, 0.3, 0],
@@ -300,10 +306,10 @@ export default function FeedbackSection() {
                             />
                           </div>
                           <div className="ml-3">
-                            <h4 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white">
+                            <h4 className="font-bold text-sm sm:text-base text-gray-900">
                               {testimonial.name}
                             </h4>
-                            <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                            <p className="text-gray-600 text-xs sm:text-sm">
                               {testimonial.username}
                             </p>
                           </div>
@@ -327,12 +333,13 @@ export default function FeedbackSection() {
                     className="relative mx-1 focus:outline-none"
                     whileHover={{ scale: 1.2 }}
                     whileTap={{ scale: 0.9 }}
-                    aria-label={`Go to testimonial ${index + 1}`}>
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  >
                     <motion.div
                       className={`w-2 h-2 rounded-full ${
                         index === currentIndex
-                          ? "bg-primary dark:bg-primary-light"
-                          : "bg-gray-300 dark:bg-gray-600"
+                          ? "bg-primary"
+                          : "bg-gray-300"
                       }`}
                       animate={{
                         scale: index === currentIndex ? [1, 1.2, 1] : 1,
@@ -345,7 +352,7 @@ export default function FeedbackSection() {
                     />
                     {index === currentIndex && (
                       <motion.div
-                        className="absolute inset-0 rounded-full bg-primary/30 dark:bg-primary-light/30"
+                        className="absolute inset-0 rounded-full bg-primary/30"
                         animate={{
                           scale: [1, 1.8],
                           opacity: [1, 0],
@@ -357,7 +364,7 @@ export default function FeedbackSection() {
                       />
                     )}
                   </motion.button>
-                )
+                ),
               )}
           </div>
         </div>

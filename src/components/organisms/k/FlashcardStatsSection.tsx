@@ -21,16 +21,16 @@ export function FlashcardStatsSection({ stats }: FlashcardStatsSectionProps) {
         title="Tổng số nhóm"
         value={stats.totalGroups}
         icon={Layers}
-        iconColor="text-blue-600"
-        iconBgColor="bg-blue-100 dark:bg-blue-950"
+        iconColor="text-primary"
+        iconBgColor="bg-red-100"
         trend={stats.totalGroupsTrend}
       />
       <StatCard
         title="Tổng số thẻ"
         value={stats.totalCards}
         icon={Target}
-        iconColor="text-purple-600"
-        iconBgColor="bg-purple-100 dark:bg-purple-950"
+        iconColor="text-yellow-600"
+        iconBgColor="bg-yellow-100"
         trend={stats.totalCardsTrend}
       />
       <StatCard
@@ -38,7 +38,7 @@ export function FlashcardStatsSection({ stats }: FlashcardStatsSectionProps) {
         value={stats.totalViews}
         icon={Eye}
         iconColor="text-green-600"
-        iconBgColor="bg-green-100 dark:bg-green-950"
+        iconBgColor="bg-green-100"
         trend={stats.totalViewsTrend}
       />
     </div>

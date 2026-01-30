@@ -1,5 +1,5 @@
 import { RoomStatsCard } from "@/components/molecules/RoomStatsCard";
-import { Clock, DoorOpen, Users, CheckCircle2 } from "lucide-react";
+import { DoorOpen, Users } from "lucide-react";
 interface RoomStats {
   activeRooms: number;
   totalParticipants: number;
@@ -25,8 +25,8 @@ export function RoomStatsSection({ stats }: RoomStatsSectionProps) {
         icon={Users}
         label="Tổng số thí sinh"
         value={stats.totalParticipants}
-        iconColor="text-blue-500"
-        iconBgColor="bg-blue-500/10"
+        iconColor="text-primary"
+        iconBgColor="bg-primary/10"
       />
     </div>
   );

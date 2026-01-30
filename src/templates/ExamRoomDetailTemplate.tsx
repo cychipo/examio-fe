@@ -86,14 +86,14 @@ export function ExamRoomDetailTemplate({
             <Card className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="h-2 w-2 rounded-full bg-blue-500" />
+                  <div className="h-2 w-2 rounded-full bg-primary" />
                   <span>Bài thi bắt đầu: {examStartTime}</span>
                 </div>
                 <Button
                   size="lg"
                   disabled={!agreedToTerms}
                   onClick={onStartExam}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90">
+                  className="bg-gradient-to-r from-primary to-purple-500 hover:opacity-90">
                   Bắt đầu làm bài
                 </Button>
               </div>

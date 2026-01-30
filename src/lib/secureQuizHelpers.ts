@@ -4,7 +4,6 @@
  */
 
 import {
-  SecureQuizResponse,
   SecureQuestion,
   SecureAnswer,
   getSecureQuizApi,
@@ -35,7 +34,7 @@ export type QuestionTokenMap = Map<number, string>;
  * Decrypt a secure question
  */
 export function decryptSecureQuestion(
-  secureQuestion: SecureQuestion
+  secureQuestion: SecureQuestion,
 ): DecryptedQuestion {
   return {
     id: `q_${secureQuestion.index}`, // Use index as ID since we don't expose real ID
@@ -50,7 +49,7 @@ export function decryptSecureQuestion(
  * Decrypt all questions from secure quiz response
  */
 export function decryptAllQuestions(
-  secureQuestions: SecureQuestion[]
+  secureQuestions: SecureQuestion[],
 ): DecryptedQuestion[] {
   return secureQuestions.map(decryptSecureQuestion);
 }
@@ -60,7 +59,7 @@ export function decryptAllQuestions(
  * Maps question index to its JWT token
  */
 export function buildQuestionTokenMap(
-  questions: DecryptedQuestion[]
+  questions: DecryptedQuestion[],
 ): QuestionTokenMap {
   const map = new Map<number, string>();
   questions.forEach((q) => {
@@ -76,7 +75,7 @@ export function buildQuestionTokenMap(
  */
 export function convertAnswersToSecureFormat(
   answers: Record<string, string>,
-  tokenMap: QuestionTokenMap
+  tokenMap: QuestionTokenMap,
 ): SecureAnswer[] {
   const secureAnswers: SecureAnswer[] = [];
 
@@ -119,7 +118,7 @@ export interface SecureQuizState {
  * Fetch secure quiz and decrypt all questions
  */
 export async function fetchAndDecryptSecureQuiz(
-  attemptId: string
+  attemptId: string,
 ): Promise<SecureQuizState> {
   const response = await getSecureQuizApi(attemptId);
 
@@ -146,7 +145,7 @@ export async function fetchAndDecryptSecureQuiz(
 export async function submitSecureQuiz(
   attemptId: string,
   answers: Record<string, string>,
-  tokenMap: QuestionTokenMap
+  tokenMap: QuestionTokenMap,
 ): Promise<SecureSubmitResponse> {
   const secureAnswers = convertAnswersToSecureFormat(answers, tokenMap);
   return submitSecureQuizApi(attemptId, secureAnswers);

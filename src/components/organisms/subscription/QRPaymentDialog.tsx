@@ -57,7 +57,7 @@ export function QRPaymentDialog({
   pollInterval = 5000,
 }: QRPaymentDialogProps) {
   const [status, setStatus] = useState<"pending" | "paid" | "failed">(
-    "pending"
+    "pending",
   );
   const [copied, setCopied] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -137,7 +137,7 @@ export function QRPaymentDialog({
 
   if (!paymentData) return null;
 
-  const transferContent = `FAYEDU${paymentData.paymentId.toUpperCase()}`;
+  const transferContent = `KMAEDU${paymentData.paymentId.toUpperCase()}`;
 
   return (
     <>
@@ -223,7 +223,8 @@ export function QRPaymentDialog({
                         className="h-6 w-6"
                         onClick={() =>
                           handleCopy(transferContent.toUpperCase())
-                        }>
+                        }
+                      >
                         {copied ? (
                           <Check className="h-3 w-3 text-green-500" />
                         ) : (
@@ -245,7 +246,8 @@ export function QRPaymentDialog({
             <Button
               className="w-full"
               variant={status === "paid" ? "default" : "outline"}
-              onClick={handleCloseClick}>
+              onClick={handleCloseClick}
+            >
               {status === "paid" ? "Hoàn tất" : "Đóng"}
             </Button>
           </div>
@@ -264,14 +266,16 @@ export function QRPaymentDialog({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
-              className="bg-black/5 dark:bg-white/5 border-border cursor-pointer"
-              disabled={isCancelling}>
+              className="bg-black/5 border-border cursor-pointer"
+              disabled={isCancelling}
+            >
               Tiếp tục thanh toán
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmCancel}
               disabled={isCancelling}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer">
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 cursor-pointer"
+            >
               {isCancelling ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

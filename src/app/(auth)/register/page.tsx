@@ -1,8 +1,8 @@
 import { SignupForm } from "@/components/organisms/auth/signup-form";
 
 export const metadata = {
-  title: "Đăng ký - FayEdu",
-  description: "Tạo tài khoản FayEdu của bạn",
+  title: "Đăng ký - KMA Edu",
+  description: "Tạo tài khoản KMA Edu của bạn",
 };
 
 export default function RegisterPage() {

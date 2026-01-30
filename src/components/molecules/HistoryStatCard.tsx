@@ -28,7 +28,7 @@ export function HistoryStatCard({
           <div
             className={cn(
               "flex h-12 w-12 items-center justify-center rounded-xl",
-              iconClassName || "bg-primary/10 text-primary dark:bg-primary/20"
+              iconClassName || "bg-primary/10 text-primary"
             )}
           >
             <Icon className="h-6 w-6" />

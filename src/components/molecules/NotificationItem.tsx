@@ -39,7 +39,7 @@ export function NotificationItem({
         "relative cursor-pointer border-l-4 transition-all hover:shadow-md",
         notification.isRead
           ? "border-l-transparent bg-background"
-          : "border-l-primary bg-primary/5 dark:bg-primary/10"
+          : "border-l-primary bg-primary/5"
       )}
       onClick={handleClick}>
       <div className="flex gap-4 p-4">

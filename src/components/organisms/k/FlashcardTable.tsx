@@ -1,4 +1,4 @@
-import { Eye, PlayCircle, Share2 } from "lucide-react";
+import { Eye, Share2 } from "lucide-react";
 import { ManagementTable, ManagementTableData } from "./ManagementTable";
 import { ExamStatus } from "@/components/atoms/k/ExamStatusBadge";
 

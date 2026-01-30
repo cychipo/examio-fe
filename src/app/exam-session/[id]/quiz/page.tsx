@@ -55,7 +55,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   // Attempt state
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [questions, setQuestions] = useState<DecryptedQuestion[]>([]);
-  const [tokenMap, setTokenMap] = useState<QuestionTokenMap>(new Map());
+  const [tokenMap, setTokenMap] = useState<QuestionTokenMap>(() => new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +63,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [markedForReview, setMarkedForReview] = useState<Set<string>>(
-    () => new Set()
+    () => new Set<string>(),
   );
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
@@ -115,7 +115,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         console.error("Failed to save progress:", err);
       }
     },
-    [attemptId, answers, currentQuestionIndex, markedForReview, isSubmitted]
+    [attemptId, answers, currentQuestionIndex, markedForReview, isSubmitted],
   );
 
   // Auto submit when time is up
@@ -165,13 +165,13 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         // Access token from state if needed, though here we rely on the flow
         const startResult = await startExamAttemptApi(
           examSessionId,
-          captchaToken || undefined
+          captchaToken || undefined,
         );
         setAttemptId(startResult.examAttempt.id);
 
         // Get secure quiz data with encrypted questions
         const secureQuizData = await fetchAndDecryptSecureQuiz(
-          startResult.examAttempt.id
+          startResult.examAttempt.id,
         );
 
         // Store decrypted questions and token map
@@ -190,7 +190,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
           const startedAtDate = new Date(secureQuizData.startedAt);
           const now = new Date();
           const elapsedSeconds = Math.floor(
-            (now.getTime() - startedAtDate.getTime()) / 1000
+            (now.getTime() - startedAtDate.getTime()) / 1000,
           );
           setTimeSpentSeconds(Math.max(0, elapsedSeconds));
         }
@@ -257,7 +257,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
         document.removeEventListener("keydown", cleanupFns.preventDevTools);
         document.removeEventListener(
           "contextmenu",
-          cleanupFns.preventRightClick
+          cleanupFns.preventRightClick,
         );
       }
       if (document.fullscreenElement) {
@@ -327,7 +327,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
             answers,
             currentIndex: currentQuestionIndex,
             markedQuestions: Array.from(markedForReview),
-          })
+          }),
         );
       }
     };
@@ -542,7 +542,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
               <Button
                 variant="ghost"
                 onClick={handleBackToSummary}
-                className="mb-4">
+                className="mb-4"
+              >
                 <ChevronLeft className="h-4 w-4 mr-2" />
                 Quay lại tổng quan
               </Button>
@@ -557,8 +558,9 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                 <Card
                   className={cn(
                     "border-2",
-                    isCorrect ? "border-green-500" : "border-destructive"
-                  )}>
+                    isCorrect ? "border-green-500" : "border-destructive",
+                  )}
+                >
                   <CardContent className="pt-6">
                     <div className="mb-4 flex justify-between items-start">
                       <div className="flex items-center gap-2">
@@ -580,7 +582,7 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                     </div>
 
                     <div
-                      className="prose dark:prose-invert max-w-none mb-6"
+                      className="prose max-w-none mb-6"
                       dangerouslySetInnerHTML={{
                         __html: reviewQuestion.question,
                       }}
@@ -599,14 +601,15 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                             className={cn(
                               "flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors",
                               isCorrectAnswer &&
-                                "border-green-500 bg-green-50 dark:bg-green-950/20",
+                                "border-green-500 bg-green-50",
                               isUserAnswer &&
                                 !isCorrectAnswer &&
-                                "border-destructive bg-red-50 dark:bg-red-950/20",
+                                "border-destructive bg-red-50",
                               !isUserAnswer &&
                                 !isCorrectAnswer &&
-                                "border-border"
-                            )}>
+                                "border-border",
+                            )}
+                          >
                             <div className="flex-shrink-0 mt-0.5">
                               {isCorrectAnswer ? (
                                 <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -637,8 +640,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                     </div>
 
                     {!userAnswer && (
-                      <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                        <p className="text-yellow-800 dark:text-yellow-200 text-sm">
+                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-yellow-800 text-sm">
                           Bạn không trả lời câu hỏi này
                         </p>
                       </div>
@@ -650,7 +653,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                   <Button
                     variant="outline"
                     onClick={handleReviewPrevious}
-                    disabled={reviewQuestionIndex === 0}>
+                    disabled={reviewQuestionIndex === 0}
+                  >
                     <ChevronLeft className="h-4 w-4 mr-2" />
                     Câu trước
                   </Button>
@@ -658,7 +662,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                   <Button
                     variant="outline"
                     onClick={handleReviewNext}
-                    disabled={reviewQuestionIndex === totalQuestions - 1}>
+                    disabled={reviewQuestionIndex === totalQuestions - 1}
+                  >
                     Câu sau
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
@@ -691,8 +696,9 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                               !qIsCorrect &&
                                 qUserAnswer &&
                                 "bg-destructive text-white",
-                              !qUserAnswer && "bg-yellow-500 text-white"
-                            )}>
+                              !qUserAnswer && "bg-yellow-500 text-white",
+                            )}
+                          >
                             {index + 1}
                           </button>
                         );
@@ -708,9 +714,11 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                         <div className="w-4 h-4 bg-destructive rounded" />
                         <span>
                           Sai (
-                          {resultData.questions.filter(
-                            (q) => q.userAnswer && q.userAnswer !== q.answer
-                          ).length}
+                          {
+                            resultData.questions.filter(
+                              (q) => q.userAnswer && q.userAnswer !== q.answer,
+                            ).length
+                          }
                           )
                         </span>
                       </div>
@@ -718,7 +726,10 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                         <div className="w-4 h-4 bg-yellow-500 rounded" />
                         <span>
                           Chưa trả lời (
-                          {resultData.questions.filter((q) => !q.userAnswer).length}
+                          {
+                            resultData.questions.filter((q) => !q.userAnswer)
+                              .length
+                          }
                           )
                         </span>
                       </div>
@@ -728,14 +739,16 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                       <Button
                         className="w-full"
                         variant="outline"
-                        onClick={handleBackToSummary}>
+                        onClick={handleBackToSummary}
+                      >
                         Xem tổng quan
                       </Button>
                       {true && (
                         <Button
                           className="w-full"
                           variant="outline"
-                          onClick={handleRetry}>
+                          onClick={handleRetry}
+                        >
                           Làm lại
                         </Button>
                       )}
@@ -805,7 +818,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                       cheatingDetection.totalViolations > 0
                         ? "text-orange-500"
                         : "text-green-600"
-                    }`}>
+                    }`}
+                  >
                     {cheatingDetection.totalViolations}
                   </div>
                   <div className="text-sm text-muted-foreground">Vi phạm</div>
@@ -877,8 +891,9 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                   "flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-lg",
                   remainingTime !== null && remainingTime <= 60
                     ? "bg-destructive/10 text-destructive animate-pulse"
-                    : "bg-muted"
-                )}>
+                    : "bg-muted",
+                )}
+              >
                 <Clock className="h-5 w-5" />
                 {remainingTime !== null ? (
                   <span>
@@ -920,7 +935,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                             : "outline"
                         }
                         size="sm"
-                        onClick={handleMarkForReview}>
+                        onClick={handleMarkForReview}
+                      >
                         <Flag className="h-4 w-4 mr-2" />
                         {markedForReview.has(currentQuestion.id)
                           ? "Đã đánh dấu"
@@ -937,7 +953,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                     <RadioGroup
                       value={answers[currentQuestion.id] || ""}
                       onValueChange={handleAnswerSelect}
-                      className="space-y-3">
+                      className="space-y-3"
+                    >
                       {currentQuestion.options.map((option, index) => {
                         const optionLetter = String.fromCharCode(65 + index);
                         const isSelected =
@@ -950,16 +967,18 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                               "flex items-start space-x-3 p-4 rounded-lg border-2 transition-colors cursor-pointer",
                               isSelected
                                 ? "border-primary bg-primary/5"
-                                : "border-border hover:border-primary/50"
+                                : "border-border hover:border-primary/50",
                             )}
-                            onClick={() => handleAnswerSelect(optionLetter)}>
+                            onClick={() => handleAnswerSelect(optionLetter)}
+                          >
                             <RadioGroupItem
                               value={optionLetter}
                               id={`option-${index}`}
                             />
                             <Label
                               htmlFor={`option-${index}`}
-                              className="flex-1 cursor-pointer">
+                              className="flex-1 cursor-pointer"
+                            >
                               <StandardMarkdownRenderer
                                 content={option}
                                 fontSize={15}
@@ -977,7 +996,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                 <Button
                   variant="outline"
                   onClick={handlePrevious}
-                  disabled={currentQuestionIndex === 0}>
+                  disabled={currentQuestionIndex === 0}
+                >
                   <ChevronLeft className="h-4 w-4 mr-2" />
                   Câu trước
                 </Button>
@@ -1019,8 +1039,9 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                               "bg-primary text-primary-foreground",
                             !isAnswered &&
                               !isCurrent &&
-                              "bg-muted hover:bg-muted/80"
-                          )}>
+                              "bg-muted hover:bg-muted/80",
+                          )}
+                        >
                           {index + 1}
                           {isMarked && (
                             <Flag className="h-3 w-3 absolute top-0 right-0 text-orange-500" />
@@ -1050,8 +1071,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                   {remainingTime !== null &&
                     remainingTime <= 300 &&
                     remainingTime > 0 && (
-                      <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                        <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200 text-sm">
+                      <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="flex items-center gap-2 text-yellow-800 text-sm">
                           <AlertTriangle className="h-4 w-4" />
                           <span>Còn {Math.ceil(remainingTime / 60)} phút</span>
                         </div>
@@ -1061,7 +1082,8 @@ export default function ExamQuizPage({ params }: ExamQuizPageProps) {
                   <Button
                     className="w-full mt-6"
                     onClick={handleSubmitClick}
-                    variant="default">
+                    variant="default"
+                  >
                     Nộp bài
                   </Button>
                 </CardContent>

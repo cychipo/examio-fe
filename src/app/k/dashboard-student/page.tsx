@@ -152,24 +152,24 @@ export default function DashboardStudentPage() {
           title="Tổng lượt thi"
           value={stats.summary.totalExamAttempts}
           icon={BookOpen}
-          iconColor="text-blue-600"
-          iconBgColor="bg-blue-100 dark:bg-blue-950"
+          iconColor="text-primary"
+          iconBgColor="bg-red-100"
           description="Thi chính thức trong phòng thi"
         />
         <StatCard
           title="Lượt học Flashcard"
           value={stats.summary.totalFlashcardViews}
           icon={Layers}
-          iconColor="text-purple-600"
-          iconBgColor="bg-purple-100 dark:bg-purple-950"
+          iconColor="text-yellow-600"
+          iconBgColor="bg-yellow-100"
           description="Số lượt xem và học flashcard"
         />
         <StatCard
           title="Điểm trung bình"
           value={stats.summary.averageScore.toFixed(1)}
           icon={Award}
-          iconColor="text-amber-600"
-          iconBgColor="bg-amber-100 dark:bg-amber-950"
+          iconColor="text-yellow-600"
+          iconBgColor="bg-yellow-100"
           description="Điểm TB các bài thi"
         />
         <StatCard
@@ -177,7 +177,7 @@ export default function DashboardStudentPage() {
           value={stats.summary.totalExamAttempts + stats.summary.totalFlashcardViews}
           icon={TrendingUp}
           iconColor="text-green-600"
-          iconBgColor="bg-green-100 dark:bg-green-950"
+          iconBgColor="bg-green-100"
           description="Tổng số hoạt động học tập"
         />
       </div>
@@ -332,7 +332,7 @@ export default function DashboardStudentPage() {
                     <div className="flex items-center gap-3">
                       <div className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
                         score.score >= 80 ? 'bg-green-500/10 text-green-600' :
-                        score.score >= 50 ? 'bg-amber-500/10 text-amber-600' :
+                        score.score >= 50 ? 'bg-amber-500/10 text-yellow-600' :
                         'bg-red-500/10 text-red-600'
                       }`}>
                         {score.score.toFixed(0)}
@@ -342,7 +342,7 @@ export default function DashboardStudentPage() {
                     <div className="flex items-center gap-1">
                       <span className={`text-sm font-bold ${
                         score.score >= 80 ? 'text-green-600' :
-                        score.score >= 50 ? 'text-amber-600' :
+                        score.score >= 50 ? 'text-yellow-600' :
                         'text-red-600'
                       }`}>{score.score.toFixed(1)}</span>
                       <span className="text-[10px] text-muted-foreground">/100</span>

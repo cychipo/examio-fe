@@ -13,7 +13,7 @@ interface UpcomingExamItemProps {
 const colorConfig = {
   red: "bg-red-500",
   orange: "bg-orange-500",
-  blue: "bg-blue-500",
+  blue: "bg-primary",
 };
 
 export function UpcomingExamItem({

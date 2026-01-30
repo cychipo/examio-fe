@@ -27,8 +27,8 @@ export function ExamRoomCardItem({
       {/* Header */}
       <div className="mb-2 flex items-center gap-2 min-w-0">
         {isPrivate && (
-          <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-blue-500/10">
-            <Lock className="h-3.5 w-3.5 text-blue-500" />
+          <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md bg-primary/10">
+            <Lock className="h-3.5 w-3.5 text-primary" />
           </div>
         )}
         <div className="min-w-0 flex-1">
@@ -44,13 +44,13 @@ export function ExamRoomCardItem({
           icon={FileText}
           label="Bộ đề"
           value={roomType}
-          iconColor="text-blue-500"
+          iconColor="text-primary"
         />
         <RoomInfoRow
           icon={HelpCircle}
           label="Câu hỏi"
           value={`${questionCount} câu`}
-          iconColor="text-purple-500"
+          iconColor="text-secondary"
         />
       </div>
 

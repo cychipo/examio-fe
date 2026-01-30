@@ -14,10 +14,10 @@ export function ContributorBadge({ rank, className }: ContributorBadgeProps) {
     <Badge
       variant="secondary"
       className={cn(
-        "h-5 w-5 rounded-full border-0 bg-yellow-100 p-0 dark:bg-yellow-900/30",
+        "h-5 w-5 rounded-full border-0 bg-yellow-100 p-0",
         className
       )}>
-      <Crown className="h-3 w-3 text-yellow-600 dark:text-yellow-400" />
+      <Crown className="h-3 w-3 text-yellow-600" />
     </Badge>
   );
 }

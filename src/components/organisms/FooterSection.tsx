@@ -3,8 +3,6 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
@@ -15,47 +13,34 @@ import {
   Facebook,
   Instagram,
   Linkedin,
-  Moon,
   Send,
-  Sun,
   Twitter,
   Copyright,
 } from "lucide-react";
-import { useThemeContext } from "@/provider/ThemeProvider";
 import Logo from "../atoms/Logo";
 
 export default function FooterSection() {
-  const { setTheme, isDarkMode } = useThemeContext();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const handleThemeChange = React.useCallback(() => {
-    setTheme(isDarkMode ? "light" : "dark");
-  }, [isDarkMode, setTheme]);
-
   return (
-    <footer className="relative border-t mt-16 bg-background text-foreground transition-colors duration-300">
+    <footer className="relative border-t mt-16 bg-white text-foreground">
       <div className="container mx-auto px-4 py-8 sm:py-12 md:px-6 lg:px-8">
         <div className="grid gap-8 sm:gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <div className="relative sm:col-span-2 lg:col-span-1">
             <Logo />
-            <p className="mb-6 text-muted-foreground">
-              Đăng ký để nhận bản tin của chúng tôi và cập nhật những thông tin
-              mới nhất.
+            <p className="mb-6 text-muted-foreground mt-4">
+              Nền tảng học tập trực tuyến hỗ trợ bởi AI - Học viện Kỹ thuật Mật
+              mã
             </p>
             <form className="relative">
               <Input
                 type="email"
                 placeholder="Email của bạn"
-                className="pr-12 backdrop-blur-sm"
+                className="pr-12"
               />
               <Button
                 type="submit"
                 size="icon"
-                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-primary-foreground transition-transform hover:scale-105">
+                className="absolute right-1 top-1 h-8 w-8 rounded-full bg-primary text-white transition-transform hover:scale-105"
+              >
                 <Send className="h-4 w-4" />
                 <span className="sr-only">Đăng ký</span>
               </Button>
@@ -67,27 +52,30 @@ export default function FooterSection() {
             <nav className="space-y-2 text-sm">
               <a
                 href="/"
-                className="block transition-colors hover:text-primary">
-                Home
+                className="block transition-colors hover:text-primary"
+              >
+                Trang chủ
               </a>
               <a
                 href="/about"
-                className="block transition-colors hover:text-primary">
-                About Us
+                className="block transition-colors hover:text-primary"
+              >
+                Giới thiệu
               </a>
               <a
                 href="/contact"
-                className="block transition-colors hover:text-primary">
-                Contact
+                className="block transition-colors hover:text-primary"
+              >
+                Liên hệ
               </a>
             </nav>
           </div>
           <div>
             <h3 className="mb-4 text-lg font-semibold">Liên hệ</h3>
             <address className="space-y-2 text-sm not-italic">
-              <p>Hà Nội, Việt Nam</p>
-              <p>Phone: +84 977 836 517</p>
-              <p>Email: fayeteam2004@gmail.com</p>
+              <p>141 Đường Chiến Thắng, Tân Triều</p>
+              <p>Thanh Trì, Hà Nội</p>
+              <p>Email: contact@kma.edu.vn</p>
             </address>
           </div>
           <div className="relative sm:col-span-2 lg:col-span-1 flex flex-col items-center sm:items-start">
@@ -99,13 +87,14 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full"
+                      className="rounded-full hover:bg-primary hover:text-white hover:border-primary"
                       onClick={() => {
                         window.open(
-                          "https://www.facebook.com/fayedu.org",
-                          "_blank"
+                          "https://www.facebook.com/HocVienKyThuatMatMa",
+                          "_blank",
                         );
-                      }}>
+                      }}
+                    >
                       <Facebook className="h-4 w-4" />
                       <span className="sr-only">Facebook</span>
                     </Button>
@@ -121,7 +110,8 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full hover:bg-primary hover:text-white hover:border-primary"
+                    >
                       <Twitter className="h-4 w-4" />
                       <span className="sr-only">Twitter</span>
                     </Button>
@@ -137,7 +127,8 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full hover:bg-primary hover:text-white hover:border-primary"
+                    >
                       <Instagram className="h-4 w-4" />
                       <span className="sr-only">Instagram</span>
                     </Button>
@@ -153,7 +144,8 @@ export default function FooterSection() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className="rounded-full">
+                      className="rounded-full hover:bg-primary hover:text-white hover:border-primary"
+                    >
                       <Linkedin className="h-4 w-4" />
                       <span className="sr-only">LinkedIn</span>
                     </Button>
@@ -164,29 +156,12 @@ export default function FooterSection() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <div className="flex items-center justify-center sm:justify-start space-x-2">
-              <Sun className="h-4 w-4" />
-              {mounted ? (
-                <Switch
-                  id="dark-mode"
-                  checked={isDarkMode}
-                  onCheckedChange={handleThemeChange}
-                />
-              ) : (
-                // Placeholder during SSR to prevent layout shift
-                <div className="h-6 w-11 rounded-full bg-input" />
-              )}
-              <Moon className="h-4 w-4" />
-              <Label htmlFor="dark-mode" className="sr-only">
-                Toggle dark mode
-              </Label>
-            </div>
           </div>
         </div>
         <div className="mt-8 sm:mt-12 flex flex-col items-center justify-between gap-4 border-t pt-6 sm:pt-8 text-center md:flex-row">
           <p className="text-sm text-muted-foreground flex items-center gap-x-1">
             <Copyright size={15} className="-mt-1" /> {new Date().getFullYear()}{" "}
-            FayEdu. All rights reserved.
+            KMA Edu. All rights reserved.
           </p>
           <nav className="flex gap-4 text-sm">
             <a href="#" className="transition-colors hover:text-primary">
