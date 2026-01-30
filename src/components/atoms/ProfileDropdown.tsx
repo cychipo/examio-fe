@@ -63,12 +63,13 @@ export default function ProfileDropdown({
       href: "/k/profile",
       icon: <PersonIcon className="w-4 h-4" />,
     },
-    {
-      label: "Subscription",
-      value: data.subscription || "Free",
-      href: "/k/subscription",
-      icon: <CardStackMinusIcon className="w-4 h-4" />,
-    },
+    // FREE_MODE: Ẩn menu Subscription - uncomment để bật lại
+    // {
+    //   label: "Subscription",
+    //   value: data.subscription || "Free",
+    //   href: "/k/subscription",
+    //   icon: <CardStackMinusIcon className="w-4 h-4" />,
+    // },
   ];
 
   return (
@@ -78,7 +79,8 @@ export default function ProfileDropdown({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="flex items-center gap-16 focus:outline-none cursor-pointer justify-between">
+              className="flex items-center gap-16 focus:outline-none cursor-pointer justify-between"
+            >
               <div className="text-left flex-1">
                 <div className="text-sm font-medium text-zinc-900 tracking-tight leading-tight">
                   {data.name}
@@ -107,8 +109,9 @@ export default function ProfileDropdown({
           <div
             className={cn(
               "absolute -right-3 top-1/2 -translate-y-1/2 transition-all duration-200",
-              isOpen ? "opacity-100" : "opacity-60 group-hover:opacity-100"
-            )}>
+              isOpen ? "opacity-100" : "opacity-60 group-hover:opacity-100",
+            )}
+          >
             <svg
               width="12"
               height="24"
@@ -118,9 +121,10 @@ export default function ProfileDropdown({
                 "transition-all duration-200",
                 isOpen
                   ? "text-primary scale-110"
-                  : "text-zinc-400 group-hover:text-zinc-600"
+                  : "text-zinc-400 group-hover:text-zinc-600",
               )}
-              aria-hidden="true">
+              aria-hidden="true"
+            >
               <path
                 d="M2 4C6 8 6 16 2 20"
                 stroke="currentColor"
@@ -136,16 +140,19 @@ export default function ProfileDropdown({
             align="end"
             sideOffset={4}
             className="w-fit p-2 bg-white/95 backdrop-blur-sm border border-border/60 rounded-2xl shadow-xl shadow-zinc-900/5
-                    data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-top-right z-[1000]">
+                    data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-top-right z-[1000]"
+          >
             <div className="space-y-1">
               {menuItems.map((item) => (
                 <DropdownMenuItem
                   key={item.label}
                   asChild
-                  className="hover:bg-[#fef2f2] hover:text-[#e31837] rounded-sm focus:bg-[#fef2f2] focus-visible:bg-[#fef2f2]">
+                  className="hover:bg-[#fef2f2] hover:text-[#e31837] rounded-sm focus:bg-[#fef2f2] focus-visible:bg-[#fef2f2]"
+                >
                   <Link
                     href={item.href}
-                    className="flex items-center p-3 transition-all duration-200 cursor-pointer group hover:bg-[#fef2f2] hover:text-[#e31837] rounded-sm focus:outline-none focus-visible:outline-none">
+                    className="flex items-center p-3 transition-all duration-200 cursor-pointer group hover:bg-[#fef2f2] hover:text-[#e31837] rounded-sm focus:outline-none focus-visible:outline-none"
+                  >
                     <div className="flex items-center gap-2 flex-1">
                       {item.icon}
                       <span className="text-sm font-medium text-zinc-900 tracking-tight leading-tight whitespace-nowrap transition-colors">
@@ -159,8 +166,9 @@ export default function ProfileDropdown({
                             "text-xs font-medium rounded-md py-1 px-2 tracking-tight",
                             item.label === "Model"
                               ? "text-primary bg-red-50 border border-primary/10"
-                              : "text-yellow-600 bg-purple-50 border border-yellow-500/10"
-                          )}>
+                              : "text-yellow-600 bg-purple-50 border border-yellow-500/10",
+                          )}
+                        >
                           {item.value}
                         </span>
                       )}
@@ -174,11 +182,13 @@ export default function ProfileDropdown({
 
             <DropdownMenuItem
               asChild
-              className="focus:bg-red-500/20 focus-visible:bg-red-500/20 ">
+              className="focus:bg-red-500/20 focus-visible:bg-red-500/20 "
+            >
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 p-3 duration-200 bg-red-500/10 rounded-sm hover:bg-red-500/20 cursor-pointer transition-all group focus:outline-none focus-visible:outline-none">
+                className="w-full flex items-center gap-3 p-3 duration-200 bg-red-500/10 rounded-sm hover:bg-red-500/20 cursor-pointer transition-all group focus:outline-none focus-visible:outline-none"
+              >
                 <ArrowLeftStartOnRectangleIcon className="w-4 h-4 text-red-500 group-hover:text-red-600" />
                 <span className="text-sm font-medium text-red-500 group-hover:text-red-600">
                   Sign Out

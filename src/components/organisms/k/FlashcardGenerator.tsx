@@ -135,6 +135,7 @@ export function FlashcardGenerator() {
 
   const handleGenerate = async () => {
     // Check credits
+    /* FREE_MODE: Bỏ kiểm tra tín dụng ở frontend
     if (file) {
       // Validate PDF page count
       try {
@@ -165,6 +166,24 @@ export function FlashcardGenerator() {
           variant: "warning",
         });
         return;
+      }
+    }
+    */
+
+    // Thêm check đơn giản cho page count mà không check cost
+    if (file) {
+      try {
+        const { valid, pageCount } = await validatePdfPageCount(file);
+        if (!valid) {
+          toast({
+            title: "File PDF quá lớn",
+            description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+            variant: "warning",
+          });
+          return;
+        }
+      } catch (error) {
+        // Ignored
       }
     }
 

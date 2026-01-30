@@ -134,6 +134,7 @@ export function TestGenerator() {
 
   const handleGenerate = async () => {
     // Check credits
+    /* FREE_MODE: Bỏ kiểm tra tín dụng ở frontend
     if (file) {
       // Validate PDF page count
       try {
@@ -158,6 +159,22 @@ export function TestGenerator() {
           description: `Bạn cần ${cost} credits để tạo đề từ file này.`,
         });
         return;
+      }
+    }
+    */
+
+    // Thêm check đơn giản cho page count mà không check cost
+    if (file) {
+      try {
+        const { valid, pageCount } = await validatePdfPageCount(file);
+        if (!valid) {
+          toast.warning("File PDF quá lớn", {
+            description: `File có ${pageCount} trang. Giới hạn tối đa là 50 trang.`,
+          });
+          return;
+        }
+      } catch (error) {
+        // Ignored
       }
     }
 

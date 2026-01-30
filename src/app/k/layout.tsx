@@ -86,8 +86,9 @@ export default function RootLayout({
   return (
     <div
       className={cn(
-        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col relative"
-      )}>
+        "mx-auto flex w-full min-h-screen flex-1 overflow-x-hidden overflow-y-auto rounded-md md:flex-row flex-col relative",
+      )}
+    >
       <SidebarKit />
 
       <div className="w-full m-0 pb-20 md:ml-[288px] pt-12">
@@ -105,18 +106,21 @@ export default function RootLayout({
               <button
                 onClick={handleResendVerification}
                 disabled={sendingEmail || loading}
-                className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-1.5">
+                className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              >
                 <Mail className="w-3.5 h-3.5" />
                 {sendingEmail ? "Đang gửi..." : "Gửi lại email"}
               </button>
               <Link
                 href="/k/verify"
-                className="text-xs bg-white text-yellow-600 hover:bg-white/90 px-3 py-1.5 rounded-lg font-medium transition-colors">
+                className="text-xs bg-white text-yellow-600 hover:bg-white/90 px-3 py-1.5 rounded-lg font-medium transition-colors"
+              >
                 Xác minh ngay
               </Link>
               <button
                 onClick={() => setShowVerifyAlert(false)}
-                className="p-1 hover:bg-white/20 transition-colors">
+                className="p-1 hover:bg-white/20 transition-colors"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -130,14 +134,16 @@ export default function RootLayout({
               <div className="flex items-center gap-3"></div>
 
               <div className="flex items-center gap-x-3 justify-between">
+                {/* FREE_MODE: Ẩn credits display - uncomment để bật lại
                 <div className="flex items-center gap-x-2 p-1.5 sm:p-2 rounded-xl cursor-pointer">
                   <div className="text-[11px] sm:text-[12px] text-nowrap font-semibold">
                     {user?.wallet?.balance || 0} Credits
                   </div>
                   <Image src="/coin.png" alt="" width={15} height={15} />
                 </div>
+                */}
 
-                {/* Conditionally render based on screen size - no DOM bloat */}
+                {/* FREE_MODE: Ẩn upgrade button - uncomment để bật lại
                 {mounted && isDesktop && (
                   <Announcement
                     movingBorder
@@ -168,6 +174,7 @@ export default function RootLayout({
                     <MoonIcon className="w-4 h-4 cursor-pointer" />
                   </div>
                 )}
+                */}
               </div>
             </div>
           </div>

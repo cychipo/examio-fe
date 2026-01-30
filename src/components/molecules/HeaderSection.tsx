@@ -2,7 +2,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, LogOut, Menu, User, X } from "lucide-react";
+import { LogOut, Menu, User, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 import Logo from "../atoms/Logo";
@@ -21,7 +21,8 @@ import {
 
 const menuItems = [
   { name: "Tính năng", href: "/#features" },
-  { name: "Bảng giá", href: "/#pricing" },
+  // FREE_MODE: Ẩn menu Bảng giá - uncomment để bật lại
+  // { name: "Bảng giá", href: "/#pricing" },
   { name: "Giới thiệu", href: "/about" },
   { name: "Liên hệ", href: "/contact" },
 ];
@@ -195,12 +196,14 @@ export default function HeaderSection() {
                         <User className="h-4 w-4" />
                         Hồ sơ
                       </DropdownMenuItem>
+                      {/* FREE_MODE: Ẩn menu Thanh toán - uncomment để bật lại
                       <DropdownMenuItem
                         onClick={() => router.push("/k/subscription")}
                       >
                         <CreditCard className="h-4 w-4" />
                         Thanh toán
                       </DropdownMenuItem>
+                      */}
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
