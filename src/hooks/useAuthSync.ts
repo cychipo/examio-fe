@@ -11,14 +11,24 @@ const AUTH_STORAGE_KEY = "auth_token";
 function setCookie(name: string, value: string, days: number = 7) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+
+  const isProduction = window.location.hostname === "kma.fayedark.com";
+  const domain = isProduction ? ";domain=.fayedark.com" : "";
+  const secure = isProduction ? ";Secure" : "";
+  const sameSite = isProduction ? ";SameSite=None" : ";SameSite=Lax";
+
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/${domain}${sameSite}${secure}`;
 }
 
 /**
  * Helper to delete a cookie
  */
 function deleteCookie(name: string) {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+  const isProduction =
+    typeof window !== "undefined" &&
+    window.location.hostname === "kma.fayedark.com";
+  const domain = isProduction ? ";domain=.fayedark.com" : "";
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/${domain}`;
 }
 
 /**

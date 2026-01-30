@@ -13,6 +13,8 @@ import {
   sendVerificationEmailApi,
   verifyAccountApi,
   logoutApi,
+  LoginResponse,
+  SignupResponse,
 } from "@/apis/authApi";
 import { toast } from "@/components/ui/toast";
 import { setAuthToken, clearAuthToken } from "@/hooks/useAuthSync";
@@ -22,8 +24,8 @@ interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   initializing: boolean; // Track initial user check to prevent flash
-  login: (credentials: CredentialsLogin) => Promise<void>;
-  signup: (credentials: CredentialsSignup) => Promise<void>;
+  login: (credentials: CredentialsLogin) => Promise<LoginResponse>;
+  signup: (credentials: CredentialsSignup) => Promise<SignupResponse>;
   sendCodeResetPassword: (
     credentials: SendCodeResetPassWordCredentials,
   ) => Promise<void>;
@@ -61,7 +63,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           setAuthToken(response.token);
         }
 
-        return Promise.resolve(); // Resolve successfully
+        return response; // Return response for UI to use role/token
       } else {
         toast.error(response.message || "Đăng nhập thất bại");
         console.error(response.message || "Đăng nhập thất bại");
@@ -96,7 +98,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           setAuthToken(response.token);
         }
 
-        return Promise.resolve(); // Resolve successfully for redirect
+        return response; // Return response for UI to use role/token
       } else {
         toast.error(response.message || "Đăng ký tài khoản thất bại");
         console.error("Đăng ký tài khoản thất bại");

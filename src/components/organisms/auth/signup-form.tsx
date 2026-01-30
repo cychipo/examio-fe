@@ -64,8 +64,20 @@ export function SignupForm() {
     }
 
     try {
-      await signup({ username, email, password, role: selectedRole });
-      router.replace("/k");
+      const response = await signup({
+        username,
+        email,
+        password,
+        role: selectedRole,
+      });
+      if (response && response.user) {
+        const role = response.user.role;
+        const targetPath =
+          role === "teacher" ? "/k/dashboard-teacher" : "/k/dashboard-student";
+        window.location.href = targetPath;
+      } else {
+        window.location.href = "/k";
+      }
     } catch (error) {
       console.error("Signup failed:", error);
     }
