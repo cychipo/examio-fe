@@ -164,7 +164,9 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   getUser: async () => {
-    set({ initializing: true });
+    set((state) => ({
+      initializing: state.isAuthenticated ? false : true,
+    }));
     try {
       const user = await getUserApi(true);
       if (user) {
