@@ -25,8 +25,8 @@ function transformPDFHistory(
   items: PDFHistoryItem[]
 ): PDFHistoryListItemData[] {
   return items.map((item) => {
-    const quizCount = item.quizHistory?.quizzes?.length || 0;
-    const flashcardCount = item.flashcardHistory?.flashcards?.length || 0;
+    const quizCount = item.quizHistory?.quizCount ?? 0;
+    const flashcardCount = item.flashcardHistory?.flashcardCount ?? 0;
 
     let description = "";
     if (quizCount > 0 && flashcardCount > 0) {

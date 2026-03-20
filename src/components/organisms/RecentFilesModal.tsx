@@ -26,7 +26,7 @@ interface RecentFilesModalProps {
   onOpenChange: (open: boolean) => void;
   onSelectFile: (file: RecentUpload) => void;
   selectedFileId?: string;
-  /** If false, excludes quiz/flashcard history from response (lighter payload) */
+  /** Deprecated: recent uploads now always return summary counts only */
   includeHistory?: boolean;
 }
 

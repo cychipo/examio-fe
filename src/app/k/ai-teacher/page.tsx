@@ -846,7 +846,7 @@ export default function AITeacherPage() {
         variant={selectedUploads.length > 0 ? "destructive" : "default"}
       />
 
-      {/* Recent Files Modal - excludes quiz/flashcard history for AI Teacher */}
+      {/* Recent Files Modal - recent uploads now return summary counts only */}
       <RecentFilesModal
         open={recentFilesModalOpen}
         onOpenChange={setRecentFilesModalOpen}

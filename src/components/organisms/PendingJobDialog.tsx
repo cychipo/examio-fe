@@ -23,7 +23,7 @@ interface PendingJobDialogProps {
 /**
  * Dialog để hỏi user khi có job đang pending từ session trước
  * - Continue: Resume polling job hiện tại
- * - Cancel: Hủy job và rollback
+ * - Cancel: Dừng tác vụ cũ và giữ lại file đã upload
  */
 export function PendingJobDialog({
   open,
@@ -39,7 +39,8 @@ export function PendingJobDialog({
           <AlertDialogTitle>Phát hiện tác vụ đang chạy</AlertDialogTitle>
           <AlertDialogDescription>
             Có một tác vụ tạo đề/flashcard đang được xử lý từ trước đó. Bạn muốn
-            tiếp tục theo dõi hay hủy tác vụ này?
+            tiếp tục theo dõi hay dừng tác vụ này? File đã tải lên sẽ vẫn được
+            giữ lại.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -48,7 +49,7 @@ export function PendingJobDialog({
             onClick={onCancel}
             className="bg-red-600 hover:bg-red-700 text-white border-0">
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Hủy tác vụ
+            Dừng tác vụ
           </AlertDialogCancel>
           <AlertDialogAction onClick={onContinue} disabled={isLoading}>
             Tiếp tục theo dõi

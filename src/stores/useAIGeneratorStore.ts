@@ -108,9 +108,9 @@ export const useJobStore = create<JobState>((set, get) => ({
     if (currentJobId) {
       try {
         await aiApi.cancelJob(currentJobId);
-        console.log(`🚫 Job ${currentJobId} canceled and rolled back`);
-        toast.info("Đã hủy tạo đề", {
-          description: "Dữ liệu đã được khôi phục",
+        console.log(`🚫 Job ${currentJobId} canceled and OCR data cleared`);
+        toast.info("Đã dừng tác vụ", {
+          description: "OCR và embeddings đã được xóa, file vẫn được giữ lại.",
         });
       } catch (error) {
         console.error("Error canceling job:", error);
@@ -251,8 +251,8 @@ export const useJobStore = create<JobState>((set, get) => ({
 
     try {
       await aiApi.cancelJob(jobId);
-      toast.info("Đã hủy tác vụ trước đó", {
-        description: "Dữ liệu đã được khôi phục.",
+      toast.info("Đã dừng tác vụ trước đó", {
+        description: "OCR và embeddings đã được xóa, file vẫn được giữ lại.",
       });
     } catch (error) {
       console.error("Error canceling pending job:", error);
@@ -801,7 +801,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
   isRegenerating: false,
   isDeleting: false,
 
-  fetchRecentUploads: async (forceRefresh = false, includeHistory = true) => {
+  fetchRecentUploads: async (forceRefresh = false, _includeHistory = true) => {
     // Check cache first unless force refresh
     if (!forceRefresh) {
       const cached = storeCache.get<RecentUpload[]>(CACHE_KEY);
@@ -813,11 +813,8 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const uploads = await aiApi.getRecentUploads(10, includeHistory);
-      // Only cache if includeHistory is true (full data)
-      if (includeHistory) {
-        storeCache.set(CACHE_KEY, uploads);
-      }
+      const uploads = await aiApi.getRecentUploads(10);
+      storeCache.set(CACHE_KEY, uploads);
       set({ recentUploads: uploads, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -827,26 +824,6 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
 
   selectUpload: (upload) => {
     set({ selectedUpload: upload });
-
-    // Khi chọn file từ recent, set file info vào generator stores
-    if (upload) {
-      // Set data vào TestGenerator store nếu có quiz history
-      if (upload.quizHistory) {
-        useTestGeneratorStore.setState({
-          generatedTest: upload.quizHistory.quizzes as Quizz[],
-          generatedTestId: upload.quizHistory.id, // Use history ID, not upload ID
-        });
-      }
-
-      // Set data vào FlashcardGenerator store nếu có flashcard history
-      if (upload.flashcardHistory) {
-        useFlashcardGeneratorStore.setState({
-          generatedCards: upload.flashcardHistory.flashcards as Flashcard[],
-          generatedCardsId: upload.flashcardHistory.id, // Use history ID, not upload ID
-          currentCard: 0,
-        });
-      }
-    }
   },
 
   deleteUpload: async (uploadId) => {
