@@ -236,8 +236,8 @@ export const useJobStore = create<JobState>((set, get) => ({
           description: error,
         });
       },
-      2000,
-      1800,
+      JOB_POLL_INTERVAL_MS,
+      JOB_POLL_MAX_ATTEMPTS,
       pendingJobInfo.expectedResultType,
     );
   },
@@ -284,15 +284,18 @@ const getGenerationResultType = (result: any): GenerationResultType | null => {
   return null;
 };
 
+const JOB_POLL_INTERVAL_MS = 10_000;
+const JOB_POLL_MAX_ATTEMPTS = 360;
+
 // Helper function for polling job status
-// Extended timeout: 1800 attempts * 2s = 60 minutes (Ollama/local AI can be slow for large jobs)
+// Extended timeout: 360 attempts * 10s = 60 minutes (Ollama/local AI can be slow for large jobs)
 const pollJobStatus = async (
   jobId: string,
   onProgress: (progress: number) => void,
   onSuccess: (result: any) => void,
   onError: (error: string) => void,
-  pollInterval: number = 2000,
-  maxAttempts: number = 1800,
+  pollInterval: number = JOB_POLL_INTERVAL_MS,
+  maxAttempts: number = JOB_POLL_MAX_ATTEMPTS,
   expectedResultType?: GenerationResultType,
 ) => {
   let attempts = 0;
@@ -552,8 +555,8 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
           });
           console.error("Error generating test:", error);
         },
-        2000,
-        1800,
+        JOB_POLL_INTERVAL_MS,
+        JOB_POLL_MAX_ATTEMPTS,
         "quiz",
       );
     } catch (error) {
@@ -741,8 +744,8 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
             });
             console.error("Error generating flashcards:", error);
           },
-          2000,
-          1800,
+          JOB_POLL_INTERVAL_MS,
+          JOB_POLL_MAX_ATTEMPTS,
           "flashcard",
         );
       } catch (error) {

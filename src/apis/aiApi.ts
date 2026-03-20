@@ -40,7 +40,7 @@ export interface UploadDetail {
 }
 
 export interface RegenerateParams {
-  typeResult: number; // 0 = flashcard, 1 = quiz
+  typeResult: number; // 1 = quiz, 2 = flashcard
   quantityFlashcard?: number;
   quantityQuizz?: number;
   isNarrowSearch?: boolean;
