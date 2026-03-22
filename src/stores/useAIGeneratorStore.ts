@@ -17,11 +17,56 @@ interface FileInfo {
 
 const PENDING_JOB_STORAGE_KEY = "pending_generation_job";
 
-// Helper to persist job ID to localStorage
-const persistJobId = (jobId: string | null) => {
+type GenerationResultType = "quiz" | "flashcard";
+
+interface PersistedPendingJob {
+  jobId: string;
+  expectedResultType?: GenerationResultType;
+}
+
+const getPersistedPendingJob = (): PersistedPendingJob | null => {
+  if (typeof window === "undefined") return null;
+
+  const raw = localStorage.getItem(PENDING_JOB_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      typeof parsed.jobId === "string"
+    ) {
+      return {
+        jobId: parsed.jobId,
+        expectedResultType:
+          parsed.expectedResultType === "quiz" ||
+          parsed.expectedResultType === "flashcard"
+            ? parsed.expectedResultType
+            : undefined,
+      };
+    }
+  } catch {
+    // Backward compatibility: old format stored raw jobId string
+  }
+
+  return { jobId: raw };
+};
+
+// Helper to persist job metadata to localStorage
+const persistPendingJob = (
+  jobId: string | null,
+  expectedResultType?: GenerationResultType | null,
+) => {
   if (typeof window === "undefined") return;
   if (jobId) {
-    localStorage.setItem(PENDING_JOB_STORAGE_KEY, jobId);
+    localStorage.setItem(
+      PENDING_JOB_STORAGE_KEY,
+      JSON.stringify({
+        jobId,
+        ...(expectedResultType ? { expectedResultType } : {}),
+      }),
+    );
   } else {
     localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
   }
@@ -31,6 +76,7 @@ const persistJobId = (jobId: string | null) => {
 interface PendingJobInfo {
   jobId: string;
   status: "pending" | "processing" | "completed" | "failed";
+  expectedResultType?: GenerationResultType;
 }
 
 // Shared job state for both stores
@@ -38,7 +84,10 @@ interface JobState {
   currentJobId: string | null;
   pendingJobInfo: PendingJobInfo | null;
   showPendingJobDialog: boolean;
-  setCurrentJobId: (jobId: string | null) => void;
+  setCurrentJobId: (
+    jobId: string | null,
+    expectedResultType?: GenerationResultType | null,
+  ) => void;
   cancelCurrentJob: () => Promise<void>;
   checkForPendingJob: () => Promise<PendingJobInfo | null>;
   resumePendingJob: () => void;
@@ -50,32 +99,32 @@ export const useJobStore = create<JobState>((set, get) => ({
   currentJobId: null,
   pendingJobInfo: null,
   showPendingJobDialog: false,
-  setCurrentJobId: (jobId) => {
+  setCurrentJobId: (jobId, expectedResultType) => {
     set({ currentJobId: jobId });
-    persistJobId(jobId);
+    persistPendingJob(jobId, expectedResultType);
   },
   cancelCurrentJob: async () => {
     const { currentJobId } = get();
     if (currentJobId) {
       try {
         await aiApi.cancelJob(currentJobId);
-        console.log(`🚫 Job ${currentJobId} canceled and rolled back`);
-        toast.info("Đã hủy tạo đề", {
-          description: "Dữ liệu đã được khôi phục",
+        console.log(`🚫 Job ${currentJobId} canceled and OCR data cleared`);
+        toast.info("Đã dừng tác vụ", {
+          description: "OCR và embeddings đã được xóa, file vẫn được giữ lại.",
         });
       } catch (error) {
         console.error("Error canceling job:", error);
       }
       set({ currentJobId: null });
-      persistJobId(null);
+      persistPendingJob(null);
     }
   },
   // Check for pending job from previous session (does NOT auto-cancel)
   checkForPendingJob: async () => {
-    if (typeof window === "undefined") return null;
+    const persistedPendingJob = getPersistedPendingJob();
+    if (!persistedPendingJob) return null;
 
-    const pendingJobId = localStorage.getItem(PENDING_JOB_STORAGE_KEY);
-    if (!pendingJobId) return null;
+    const { jobId: pendingJobId, expectedResultType } = persistedPendingJob;
 
     console.log(`🔍 Found pending job from previous session: ${pendingJobId}`);
 
@@ -88,6 +137,7 @@ export const useJobStore = create<JobState>((set, get) => ({
         const pendingInfo: PendingJobInfo = {
           jobId: pendingJobId,
           status: jobStatus.status,
+          expectedResultType,
         };
         set({
           pendingJobInfo: pendingInfo,
@@ -97,18 +147,18 @@ export const useJobStore = create<JobState>((set, get) => ({
       } else if (jobStatus.status === "completed") {
         // Job completed, just clean up
         console.log(`✅ Pending job ${pendingJobId} had completed`);
-        localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+        persistPendingJob(null);
         return null;
       } else if (jobStatus.status === "failed") {
         // Job failed, clean up
         console.log(`❌ Pending job ${pendingJobId} had failed`);
-        localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+        persistPendingJob(null);
         return null;
       }
     } catch (error) {
       // Job not found or already cleaned up
       console.log(`Job ${pendingJobId} not found, already cleaned up`);
-      localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+      persistPendingJob(null);
     }
 
     return null;
@@ -121,7 +171,8 @@ export const useJobStore = create<JobState>((set, get) => ({
     const { jobId } = pendingJobInfo;
     console.log(`🔄 Resuming polling for job ${jobId}...`);
 
-    // Set current job ID and mark as generating in both stores
+    // Set current job ID and keep expected type metadata for resume flow
+    persistPendingJob(jobId, pendingJobInfo.expectedResultType);
     set({
       currentJobId: jobId,
       showPendingJobDialog: false,
@@ -185,6 +236,9 @@ export const useJobStore = create<JobState>((set, get) => ({
           description: error,
         });
       },
+      JOB_POLL_INTERVAL_MS,
+      JOB_POLL_MAX_ATTEMPTS,
+      pendingJobInfo.expectedResultType,
     );
   },
   // Cancel pending job from previous session
@@ -197,14 +251,14 @@ export const useJobStore = create<JobState>((set, get) => ({
 
     try {
       await aiApi.cancelJob(jobId);
-      toast.info("Đã hủy tác vụ trước đó", {
-        description: "Dữ liệu đã được khôi phục.",
+      toast.info("Đã dừng tác vụ trước đó", {
+        description: "OCR và embeddings đã được xóa, file vẫn được giữ lại.",
       });
     } catch (error) {
       console.error("Error canceling pending job:", error);
     }
 
-    localStorage.removeItem(PENDING_JOB_STORAGE_KEY);
+    persistPendingJob(null);
     set({
       currentJobId: null,
       pendingJobInfo: null,
@@ -216,15 +270,33 @@ export const useJobStore = create<JobState>((set, get) => ({
   },
 }));
 
+const getGenerationResultType = (result: any): GenerationResultType | null => {
+  if (!result) return null;
+  if (result.type === "quiz" || result.type === "flashcard") {
+    return result.type;
+  }
+  if (Array.isArray(result.quizzes)) {
+    return "quiz";
+  }
+  if (Array.isArray(result.flashcards)) {
+    return "flashcard";
+  }
+  return null;
+};
+
+const JOB_POLL_INTERVAL_MS = 10_000;
+const JOB_POLL_MAX_ATTEMPTS = 360;
+
 // Helper function for polling job status
-// Extended timeout: 1800 attempts * 2s = 60 minutes (Ollama/local AI can be slow for large jobs)
+// Extended timeout: 360 attempts * 10s = 60 minutes (Ollama/local AI can be slow for large jobs)
 const pollJobStatus = async (
   jobId: string,
   onProgress: (progress: number) => void,
   onSuccess: (result: any) => void,
   onError: (error: string) => void,
-  pollInterval: number = 2000,
-  maxAttempts: number = 1800,
+  pollInterval: number = JOB_POLL_INTERVAL_MS,
+  maxAttempts: number = JOB_POLL_MAX_ATTEMPTS,
+  expectedResultType?: GenerationResultType,
 ) => {
   let attempts = 0;
 
@@ -243,6 +315,22 @@ const pollJobStatus = async (
       }
 
       if (jobStatus.status === "completed" && jobStatus.result) {
+        const actualResultType = getGenerationResultType(jobStatus.result);
+
+        if (
+          expectedResultType &&
+          (!actualResultType || actualResultType !== expectedResultType)
+        ) {
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(poll, pollInterval);
+          } else {
+            useJobStore.getState().setCurrentJobId(null);
+            onError("Timeout: Job took too long to complete");
+          }
+          return;
+        }
+
         useJobStore.getState().setCurrentJobId(null);
         onSuccess(jobStatus.result);
         return;
@@ -435,7 +523,7 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
       }
 
       // Track job in shared store
-      useJobStore.getState().setCurrentJobId(jobId);
+      useJobStore.getState().setCurrentJobId(jobId, "quiz");
 
       // Start polling for job status using helper
       pollJobStatus(
@@ -467,6 +555,9 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
           });
           console.error("Error generating test:", error);
         },
+        JOB_POLL_INTERVAL_MS,
+        JOB_POLL_MAX_ATTEMPTS,
+        "quiz",
       );
     } catch (error) {
       set({ isGenerating: false });
@@ -618,7 +709,7 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
         }
 
         // Track job in shared store
-        useJobStore.getState().setCurrentJobId(jobId);
+        useJobStore.getState().setCurrentJobId(jobId, "flashcard");
 
         // Start polling for job status using helper
         pollJobStatus(
@@ -653,6 +744,9 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
             });
             console.error("Error generating flashcards:", error);
           },
+          JOB_POLL_INTERVAL_MS,
+          JOB_POLL_MAX_ATTEMPTS,
+          "flashcard",
         );
       } catch (error) {
         set({ isGenerating: false });
@@ -707,7 +801,7 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
   isRegenerating: false,
   isDeleting: false,
 
-  fetchRecentUploads: async (forceRefresh = false, includeHistory = true) => {
+  fetchRecentUploads: async (forceRefresh = false, _includeHistory = true) => {
     // Check cache first unless force refresh
     if (!forceRefresh) {
       const cached = storeCache.get<RecentUpload[]>(CACHE_KEY);
@@ -719,11 +813,8 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const uploads = await aiApi.getRecentUploads(10, includeHistory);
-      // Only cache if includeHistory is true (full data)
-      if (includeHistory) {
-        storeCache.set(CACHE_KEY, uploads);
-      }
+      const uploads = await aiApi.getRecentUploads(10);
+      storeCache.set(CACHE_KEY, uploads);
       set({ recentUploads: uploads, isLoading: false });
     } catch (error) {
       set({ isLoading: false });
@@ -733,26 +824,6 @@ export const useRecentUploadsStore = create<RecentUploadsState>((set, get) => ({
 
   selectUpload: (upload) => {
     set({ selectedUpload: upload });
-
-    // Khi chọn file từ recent, set file info vào generator stores
-    if (upload) {
-      // Set data vào TestGenerator store nếu có quiz history
-      if (upload.quizHistory) {
-        useTestGeneratorStore.setState({
-          generatedTest: upload.quizHistory.quizzes as Quizz[],
-          generatedTestId: upload.quizHistory.id, // Use history ID, not upload ID
-        });
-      }
-
-      // Set data vào FlashcardGenerator store nếu có flashcard history
-      if (upload.flashcardHistory) {
-        useFlashcardGeneratorStore.setState({
-          generatedCards: upload.flashcardHistory.flashcards as Flashcard[],
-          generatedCardsId: upload.flashcardHistory.id, // Use history ID, not upload ID
-          currentCard: 0,
-        });
-      }
-    }
   },
 
   deleteUpload: async (uploadId) => {

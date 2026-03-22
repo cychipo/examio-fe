@@ -40,7 +40,7 @@ const EMPTY_DISABLED_MODELS: Partial<Record<AIModelType, string>> = {};
  *
  * Allows users to select between available AI models:
  * - Gemini AI: Fast and accurate cloud-based AI
- * - FayeDark AI: Local Ollama-based AI for privacy
+ * - KMA AI: Local Ollama-based AI for privacy
  */
 export function ModelSelector({
   value = DEFAULT_AI_MODEL,

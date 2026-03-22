@@ -33,8 +33,18 @@ export function SigninForm() {
     const from = searchParams.get("from");
 
     try {
-      await login({ credential, password });
-      router.replace(from || "/k");
+      const response = await login({ credential, password });
+      if (response && response.user) {
+        const role = response.user.role;
+        const targetPath =
+          from ||
+          (role === "teacher"
+            ? "/k/dashboard-teacher"
+            : "/k/dashboard-student");
+        window.location.href = targetPath;
+      } else {
+        window.location.href = from || "/k";
+      }
     } catch (error) {
       console.error("Login failed:", error);
     }

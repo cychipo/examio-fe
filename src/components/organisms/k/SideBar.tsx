@@ -200,7 +200,7 @@ export function SidebarKit() {
 
       {/* Desktop: Sidebar - Only render on desktop */}
       {isDesktop && (
-        <div className="fixed bg-background h-[calc(100%)] w-[288px] flex flex-col justify-between gap-y-3 border border-1/2 px-4 pt-4 py-1">
+        <div className="fixed bg-background h-[calc(100%)] w-[250px] flex flex-col justify-between gap-y-3 border border-1/2 px-4 pt-4 py-1">
           <div className="flex flex-col gap-y-4 mt-2">
             <Logo sizeLogo={28} sizeText={20} />
 
@@ -212,9 +212,7 @@ export function SidebarKit() {
                   variant="ghost"
                   className={`w-full justify-start p-2 hover:bg-[#fef2f2] hover:text-[#e31837]
                      rounded-sm ${
-                       item.active
-                         ? "bg-[#fef2f2] text-[#e31837]"
-                         : ""
+                       item.active ? "bg-[#fef2f2] text-[#e31837]" : ""
                      }`}
                 >
                   <Link href={item.href} className="flex items-center gap-x-3">

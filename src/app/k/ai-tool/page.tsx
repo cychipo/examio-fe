@@ -1,29 +1,24 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TestGenerator } from "@/components/organisms/k/TestGenerator";
-import { FlashcardGenerator } from "@/components/organisms/k/FlashcardGenerator";
-import { RecentFilesList } from "@/components/molecules/RecentFilesList";
-import { FileText, SquareSplitVertical, Sparkles, Cpu } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { FileText, Sparkles, SquareSplitVertical, Cpu } from "lucide-react";
 import { RecentUpload } from "@/apis/aiApi";
-import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
-
-import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
+import { RecentFilesList } from "@/components/molecules/RecentFilesList";
+import { FlashcardGenerator } from "@/components/organisms/k/FlashcardGenerator";
+import { TestGenerator } from "@/components/organisms/k/TestGenerator";
 import { TeacherRoute } from "@/components/organisms/TeacherRoute";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
 
 function AIGeneratorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabFromUrl = searchParams.get("tab") || "test";
   const [activeTab, setActiveTab] = useState(tabFromUrl);
-  const [_selectedModel, _setSelectedModel] =
-    useState<AIModelType>(DEFAULT_AI_MODEL);
   const { loadFromUpload } = useRecentUploadsStore();
 
-  // Sync URL with tab state
   useEffect(() => {
     setActiveTab(tabFromUrl);
   }, [tabFromUrl]);
@@ -34,30 +29,26 @@ function AIGeneratorContent() {
   };
 
   const handleSelectUpload = (upload: RecentUpload) => {
-    // Load upload data into BOTH generators (already handled in loadFromUpload)
     loadFromUpload(upload);
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden max-w-7xl mx-auto">
-      {/* Background Effects */}
-
-      {/* Header Section */}
+    <div className="relative mx-auto min-h-screen max-w-7xl overflow-hidden">
       <section className="relative container mx-auto px-4 pt-8 pb-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-purple-500/30 rounded-2xl blur-lg" />
-              <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 border border-border flex items-center justify-center">
-                <Cpu className="w-7 h-7 text-primary" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/30 to-purple-500/30 blur-lg" />
+              <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-gradient-to-br from-primary/20 to-purple-500/20">
+                <Cpu className="h-7 w-7 text-primary" />
               </div>
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text">
+              <h1 className="bg-gradient-to-r from-foreground via-foreground to-muted-foreground bg-clip-text text-2xl font-bold md:text-3xl">
                 AI Generator
               </h1>
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
+              <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Sparkles className="h-4 w-4 text-primary" />
                 Tạo đề kiểm tra & flashcard từ tài liệu PDF
               </p>
             </div>
@@ -65,55 +56,71 @@ function AIGeneratorContent() {
         </div>
       </section>
 
-      {/* Main Content */}
       <section className="relative container mx-auto px-4 pb-20">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main Generator - Now on the left */}
-          <div className="flex-1 min-w-0">
-            <Tabs
-              id="ai-generator-tabs"
-              value={activeTab}
-              onValueChange={handleTabChange}
-              className="w-full"
-            >
-              <TabsList className="grid grid-cols-2 h-14 p-1.5 bg-white/[0.03] border border-border backdrop-blur-xl w-full md:w-fit rounded-xl">
-                <TabsTrigger
-                  value="test"
-                  className="flex items-center gap-2.5 px-6 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span className="font-medium">Đề kiểm tra</span>
-                </TabsTrigger>
-                <TabsTrigger
-                  value="flashcard"
-                  className="flex items-center gap-2.5 px-6 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
-                >
-                  <SquareSplitVertical className="w-4 h-4" />
-                  <span className="font-medium">Flashcard</span>
-                </TabsTrigger>
-              </TabsList>
+        <Tabs
+          id="ai-generator-tabs"
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="w-full gap-6"
+        >
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_340px] xl:items-start">
+            <div className="min-w-0 space-y-6">
+              <Card className="border-border bg-white/[0.02] backdrop-blur-xl">
+                <CardContent className="space-y-4 px-5 md:px-6">
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
+                        Workspace
+                      </p>
+                      <div>
+                        <h2 className="text-lg font-semibold text-foreground">
+                          Chọn chế độ tạo nội dung
+                        </h2>
+                        <p className="text-sm text-muted-foreground">
+                          Chuyển nhanh giữa tạo đề kiểm tra và flashcard trong cùng
+                          một không gian làm việc.
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="mt-6">
-                <TabsContent value="test" className="m-0">
-                  <TestGenerator />
-                </TabsContent>
+                    <TabsList className="grid h-14 w-full grid-cols-2 rounded-xl border border-border bg-white/[0.03] p-1.5 sm:w-fit">
+                      <TabsTrigger
+                        value="test"
+                        className="flex items-center gap-2.5 rounded-lg px-6 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20"
+                      >
+                        <FileText className="h-4 w-4" />
+                        <span className="font-medium">Đề kiểm tra</span>
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="flashcard"
+                        className="flex items-center gap-2.5 rounded-lg px-6 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20"
+                      >
+                        <SquareSplitVertical className="h-4 w-4" />
+                        <span className="font-medium">Flashcard</span>
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                </CardContent>
+              </Card>
 
-                <TabsContent value="flashcard" className="m-0">
-                  <FlashcardGenerator />
-                </TabsContent>
-              </div>
-            </Tabs>
+              <TabsContent value="test" className="m-0">
+                <TestGenerator />
+              </TabsContent>
+
+              <TabsContent value="flashcard" className="m-0">
+                <FlashcardGenerator />
+              </TabsContent>
+            </div>
+
+            <aside className="min-w-0">
+              <Card className="border-border bg-white/[0.02] backdrop-blur-xl xl:sticky xl:top-6">
+                <CardContent className="px-5 md:px-6">
+                  <RecentFilesList onSelectUpload={handleSelectUpload} />
+                </CardContent>
+              </Card>
+            </aside>
           </div>
-
-          {/* Sidebar - Recent Files - Now on the right */}
-          <aside className="w-full lg:w-xl flex-shrink-0 mt-22">
-            <Card className="border-border bg-white/[0.02] backdrop-blur-xl lg:sticky lg:top-6">
-              <CardContent>
-                <RecentFilesList onSelectUpload={handleSelectUpload} />
-              </CardContent>
-            </Card>
-          </aside>
-        </div>
+        </Tabs>
       </section>
     </div>
   );

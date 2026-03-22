@@ -19,13 +19,13 @@ export interface PDFHistoryItem {
   processingStatus: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
   quizHistory: {
     id: string;
-    quizzes: unknown[];
     createdAt: string;
+    quizCount: number;
   } | null;
   flashcardHistory: {
     id: string;
-    flashcards: unknown[];
     createdAt: string;
+    flashcardCount: number;
   } | null;
 }
 

@@ -77,14 +77,14 @@ export function RecentFileItem({
             <Badge
               variant="secondary"
               className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-red-400 border-primary/20 hover:bg-primary/20 flex items-center">
-              {upload.quizHistory?.quizzes?.length || 0} câu hỏi
+              {upload.quizHistory?.quizCount ?? 0} câu hỏi
             </Badge>
           )}
           {hasFlashcard && (
             <Badge
               variant="secondary"
               className="text-[10px] px-1.5 py-0 h-5 bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20 flex items-center">
-              {upload.flashcardHistory?.flashcards?.length || 0} thẻ
+              {upload.flashcardHistory?.flashcardCount ?? 0} thẻ
             </Badge>
           )}
         </div>

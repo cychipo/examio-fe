@@ -1,6 +1,18 @@
 import { api } from "./api";
 import { Quizz, Flashcard } from "@/types/exam";
 
+interface RecentUploadQuizSummary {
+  id: string;
+  createdAt: string;
+  quizCount: number;
+}
+
+interface RecentUploadFlashcardSummary {
+  id: string;
+  createdAt: string;
+  flashcardCount: number;
+}
+
 export interface RecentUpload {
   id: string;
   filename: string;
@@ -8,16 +20,8 @@ export interface RecentUpload {
   size: number;
   mimeType: string;
   createdAt: string;
-  quizHistory: {
-    id: string;
-    quizzes: Quizz[];
-    createdAt: string;
-  } | null;
-  flashcardHistory: {
-    id: string;
-    flashcards: Flashcard[];
-    createdAt: string;
-  } | null;
+  quizHistory: RecentUploadQuizSummary | null;
+  flashcardHistory: RecentUploadFlashcardSummary | null;
 }
 
 export interface UploadDetail {
@@ -40,7 +44,7 @@ export interface UploadDetail {
 }
 
 export interface RegenerateParams {
-  typeResult: number; // 0 = flashcard, 1 = quiz
+  typeResult: number; // 1 = quiz, 2 = flashcard
   quantityFlashcard?: number;
   quantityQuizz?: number;
   isNarrowSearch?: boolean;
@@ -67,17 +71,11 @@ export interface JobCreateResponse {
 
 export const aiApi = {
   /**
-   * Get recent uploads with optional quiz/flashcard history
-   * @param limit - Number of items to fetch
-   * @param includeHistory - Whether to include quiz/flashcard history (default: true)
+   * Get recent uploads summary with latest quiz/flashcard counts
    */
-  getRecentUploads: async (
-    limit: number = 10,
-    includeHistory: boolean = true
-  ): Promise<RecentUpload[]> => {
+  getRecentUploads: async (limit: number = 10): Promise<RecentUpload[]> => {
     const params = new URLSearchParams({
       limit: limit.toString(),
-      ...(includeHistory === false && { includeHistory: "false" }),
     });
     const response = await api.get(`/ai/recent-uploads?${params}`);
     return response.data;
