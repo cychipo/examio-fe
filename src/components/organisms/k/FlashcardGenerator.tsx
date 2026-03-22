@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 import {
   Card,
   CardContent,
@@ -41,13 +43,13 @@ import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
 import ModernLoader from "@/components/ui/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
 import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
-import { AI_MODELS } from "@/types/ai";
 import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
   DialogAddExamType,
 } from "@/components/organisms/k/DialogAddExam";
 import { useGenerationGuard } from "@/hooks/useGenerationGuard";
+import { useAIModelCatalogStore } from "@/stores/useAIModelCatalogStore";
 
 export function FlashcardGenerator() {
   const {
@@ -74,6 +76,12 @@ export function FlashcardGenerator() {
   useGenerationGuard(isGenerating);
 
   const { toast } = useToast();
+  const generationModels = useAIModelCatalogStore((state) => state.generationModels);
+  const fetchModels = useAIModelCatalogStore((state) => state.fetchModels);
+
+  React.useEffect(() => {
+    void fetchModels();
+  }, [fetchModels]);
 
   const displayFileName = file?.name || fileInfo?.name;
   const displayFileSize = file?.size || fileInfo?.size;
@@ -202,15 +210,19 @@ export function FlashcardGenerator() {
                 <SelectValue placeholder="Chọn model AI" />
               </SelectTrigger>
               <SelectContent>
-                {AI_MODELS.map((model) => (
-                  <SelectItem key={model.id} value={model.id} disabled={false}>
+                {generationModels.map((model) => (
+                  <SelectItem key={model.id} value={model.id} disabled={model.disabled}>
                     <div className="flex items-center gap-2">
-                      <span>{model.icon}</span>
                       <div className="flex flex-col items-start">
                         <span className="font-medium">{model.name}</span>
                         <span className="text-xs text-muted-foreground">
                           {model.description}
                         </span>
+                        {model.specs?.length > 0 && (
+                          <span className="text-[11px] text-muted-foreground">
+                            {model.specs.map((spec) => spec.value).join(" • ")}
+                          </span>
+                        )}
                       </div>
                       {model.badge && (
                         <span className="ml-auto rounded-full bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">

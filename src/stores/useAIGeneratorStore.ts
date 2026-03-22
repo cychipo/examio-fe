@@ -7,7 +7,12 @@ import { toast } from "@/components/ui/toast";
 import { aiApi, RecentUpload } from "@/apis/aiApi";
 import { storeCache } from "@/lib/storeCache";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
+import {
+  AIModelType,
+  DEFAULT_AI_MODEL,
+  MODEL_UNAVAILABLE_MESSAGE,
+} from "@/types/ai";
+import { useAIModelCatalogStore } from "@/stores/useAIModelCatalogStore";
 
 interface FileInfo {
   name: string;
@@ -413,7 +418,8 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
   generatedTest: null,
   generatedTestId: null,
   isGenerating: false,
-  selectedModel: DEFAULT_AI_MODEL,
+  selectedModel:
+    useAIModelCatalogStore.getState().defaultModel || DEFAULT_AI_MODEL,
 
   setFile: (file) => {
     set({ file, uploadId: null, fileInfo: null });
@@ -551,7 +557,10 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
         (error) => {
           set({ isGenerating: false });
           toast.error("Lỗi tạo đề", {
-            description: error,
+            description:
+              error === MODEL_UNAVAILABLE_MESSAGE
+                ? MODEL_UNAVAILABLE_MESSAGE
+                : error,
           });
           console.error("Error generating test:", error);
         },
@@ -561,11 +570,13 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
       );
     } catch (error) {
       set({ isGenerating: false });
+      const errorMessage =
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo đề kiểm tra";
       toast.error("Lỗi tạo đề", {
         description:
-          error instanceof Error
-            ? error.message
-            : "Có lỗi xảy ra khi tạo đề kiểm tra",
+          errorMessage === MODEL_UNAVAILABLE_MESSAGE
+            ? MODEL_UNAVAILABLE_MESSAGE
+            : errorMessage,
       });
       console.error("Error generating test:", error);
     }
@@ -581,7 +592,8 @@ export const useTestGeneratorStore = create<TestGeneratorState>((set, get) => ({
       questionCount: 10,
       isNarrow: false,
       keyword: "",
-      selectedModel: DEFAULT_AI_MODEL,
+      selectedModel:
+        useAIModelCatalogStore.getState().defaultModel || DEFAULT_AI_MODEL,
     }),
 }));
 
@@ -598,7 +610,8 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
     generatedCardsId: null,
     currentCard: 0,
     isGenerating: false,
-    selectedModel: DEFAULT_AI_MODEL,
+    selectedModel:
+      useAIModelCatalogStore.getState().defaultModel || DEFAULT_AI_MODEL,
 
     setFile: (file) => {
       set({ file, uploadId: null, fileInfo: null });
@@ -740,7 +753,10 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
           (error) => {
             set({ isGenerating: false });
             toast.error("Lỗi tạo flashcard", {
-              description: error,
+              description:
+                error === MODEL_UNAVAILABLE_MESSAGE
+                  ? MODEL_UNAVAILABLE_MESSAGE
+                  : error,
             });
             console.error("Error generating flashcards:", error);
           },
@@ -750,11 +766,13 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
         );
       } catch (error) {
         set({ isGenerating: false });
+        const errorMessage =
+          error instanceof Error ? error.message : "Có lỗi xảy ra khi tạo flashcard";
         toast.error("Lỗi tạo flashcard", {
           description:
-            error instanceof Error
-              ? error.message
-              : "Có lỗi xảy ra khi tạo flashcard",
+            errorMessage === MODEL_UNAVAILABLE_MESSAGE
+              ? MODEL_UNAVAILABLE_MESSAGE
+              : errorMessage,
         });
         console.error("Error generating flashcards:", error);
       }
@@ -771,7 +789,8 @@ export const useFlashcardGeneratorStore = create<FlashcardGeneratorState>(
         cardCount: 15,
         isNarrow: false,
         keyword: "",
-        selectedModel: DEFAULT_AI_MODEL,
+        selectedModel:
+          useAIModelCatalogStore.getState().defaultModel || DEFAULT_AI_MODEL,
       }),
   }),
 );

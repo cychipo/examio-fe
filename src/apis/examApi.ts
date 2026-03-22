@@ -8,7 +8,7 @@ export interface CredentialsGenerateExam {
   typeResult: TypeResultGenerateExam;
   isNarrowSearch: boolean;
   keyword?: string; // valuable when valuable isNarrowSearch is true
-  modelType?: string; // 'gemini' or 'fayedark'
+  modelType?: string; // model id tu registry
 }
 
 export interface ResponseGenerateExam {
