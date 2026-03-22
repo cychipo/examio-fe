@@ -9,8 +9,13 @@ import { toast } from "@/components/ui/toast";
 import { RecentUpload } from "@/apis/aiApi";
 import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
-import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
+import {
+  AIModelType,
+  DEFAULT_AI_MODEL,
+  MODEL_UNAVAILABLE_MESSAGE,
+} from "@/types/ai";
 import { Subject, SubjectCategory, subjectApi } from "@/apis/subjectApi";
+import { useAIModelCatalogStore } from "@/stores/useAIModelCatalogStore";
 
 // TTS Configuration
 const TTS_CONFIG = {
@@ -190,7 +195,8 @@ const getChatIdFromUrl = (): string | null => {
 
 export const useAITeacherStore = create<AITeacherState>((set, get) => ({
   // Initial states
-  selectedModel: DEFAULT_AI_MODEL,
+  selectedModel:
+    useAIModelCatalogStore.getState().defaultModel || DEFAULT_AI_MODEL,
   categories: [],
   isLoadingCategories: false,
   selectedSubject: null,
@@ -615,7 +621,11 @@ export const useAITeacherStore = create<AITeacherState>((set, get) => ({
           streamingContent: "",
           abortStream: null,
         });
-        toast.error(error);
+        toast.error(
+          error === MODEL_UNAVAILABLE_MESSAGE
+            ? MODEL_UNAVAILABLE_MESSAGE
+            : error,
+        );
       }
     );
 

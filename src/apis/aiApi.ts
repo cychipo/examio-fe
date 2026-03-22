@@ -1,5 +1,6 @@
 import { api } from "./api";
 import { Quizz, Flashcard } from "@/types/exam";
+import { AIModelCatalog } from "@/types/ai";
 
 interface RecentUploadQuizSummary {
   id: string;
@@ -49,7 +50,7 @@ export interface RegenerateParams {
   quantityQuizz?: number;
   isNarrowSearch?: boolean;
   keyword?: string;
-  modelType?: string; // 'gemini' or 'fayedark'
+  modelType?: string; // model id tu registry
 }
 
 export interface RegenerateResponse {
@@ -70,6 +71,11 @@ export interface JobCreateResponse {
 }
 
 export const aiApi = {
+  getModels: async (): Promise<AIModelCatalog> => {
+    const response = await api.get("/ai/models");
+    return response.data;
+  },
+
   /**
    * Get recent uploads summary with latest quiz/flashcard counts
    */

@@ -44,7 +44,7 @@ export interface SendMessageRequest {
   documentId?: string;
   documentIds?: string[];
   documentName?: string;
-  modelType?: string; // 'gemini' or 'fayedark'
+  modelType?: string; // model id tu registry
 }
 
 export interface SendMessageResponse {

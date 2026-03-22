@@ -4,6 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { getOrCreateDeviceId } from "@/lib/deviceId";
+import { MODEL_UNAVAILABLE_MESSAGE } from "@/types/ai";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -47,8 +48,33 @@ api.interceptors.response.use(
     }
 
     if (error.response?.data) {
-      type ErrorResponseData = { message?: string; error?: string };
+      type ErrorResponseData = {
+        message?: string;
+        error?: string;
+        detail?: string | { message?: string; code?: string };
+      };
       const errorData = error.response.data as ErrorResponseData;
+
+      const detailMessage =
+        typeof errorData.detail === "object"
+          ? errorData.detail?.message
+          : errorData.detail;
+      const detailCode =
+        typeof errorData.detail === "object" ? errorData.detail?.code : undefined;
+
+      if (
+        detailCode === "MODEL_UNAVAILABLE" ||
+        detailCode === "MODEL_INSUFFICIENT_VRAM" ||
+        detailCode === "MODEL_RUNTIME_ERROR"
+      ) {
+        console.log("Backend Error:", detailMessage || MODEL_UNAVAILABLE_MESSAGE);
+        return Promise.reject(new Error(MODEL_UNAVAILABLE_MESSAGE));
+      }
+
+      if (detailMessage) {
+        console.log("Backend Error:", detailMessage);
+        return Promise.reject(new Error(detailMessage));
+      }
 
       if (errorData.message) {
         console.log("Backend Error:", errorData.message);
