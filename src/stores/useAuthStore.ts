@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { User } from "@/types/user";
+import { User, UserRole } from "@/types/user";
 import {
   loginApi,
   signupApi,
@@ -34,10 +34,32 @@ interface AuthState {
   getUser: () => void;
   sendVerificationEmail: () => Promise<void>;
   verifyAccount: (code: string) => Promise<void>;
-  loginWithGoogle?: () => Promise<void>;
-  loginWithFacebook?: () => Promise<void>;
-  loginWithGithub?: () => Promise<void>;
+  loginWithGoogle?: (role: UserRole) => Promise<void>;
+  loginWithFacebook?: (role: UserRole) => Promise<void>;
+  loginWithGithub?: (role: UserRole) => Promise<void>;
   updateWalletBalance: (newBalance: number) => void;
+}
+
+function getOAuthRedirectPath() {
+  const currentPath =
+    typeof window !== "undefined" ? window.location.pathname : "/k";
+  const searchParams =
+    typeof window !== "undefined" ? window.location.search : "";
+  const urlParams = new URLSearchParams(searchParams);
+
+  const fromParam = urlParams.get("from");
+
+  if (fromParam) {
+    return fromParam;
+  }
+
+  const authPaths = ["/login", "/register", "/forgot-password", "/reset-password"];
+
+  if (authPaths.some((path) => currentPath.startsWith(path))) {
+    return "/k";
+  }
+
+  return currentPath;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -236,37 +258,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  loginWithGoogle: async () => {
-    const currentPath =
-      typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams =
-      typeof window !== "undefined" ? window.location.search : "";
-    // Try to get 'from' param from current URL (if on login page), otherwise use current path
-    const urlParams = new URLSearchParams(searchParams);
-    const redirectPath = urlParams.get("from") || currentPath;
-    const redirectParam = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?redirect=${redirectParam}`;
+  loginWithGoogle: async (role) => {
+    const redirectPath = getOAuthRedirectPath();
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?role=${role}&redirect=${redirect}`;
   },
 
-  loginWithFacebook: async () => {
-    const currentPath =
-      typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams =
-      typeof window !== "undefined" ? window.location.search : "";
-    const urlParams = new URLSearchParams(searchParams);
-    const redirectPath = urlParams.get("from") || currentPath;
-    const redirectParam = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook?redirect=${redirectParam}`;
+  loginWithFacebook: async (role) => {
+    const redirectPath = getOAuthRedirectPath();
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook?role=${role}&redirect=${redirect}`;
   },
 
-  loginWithGithub: async () => {
-    const currentPath =
-      typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams =
-      typeof window !== "undefined" ? window.location.search : "";
-    const urlParams = new URLSearchParams(searchParams);
-    const redirectPath = urlParams.get("from") || currentPath;
-    const redirectParam = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github?redirect=${redirectParam}`;
+  loginWithGithub: async (role) => {
+    const redirectPath = getOAuthRedirectPath();
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github?role=${role}&redirect=${redirect}`;
   },
 }));

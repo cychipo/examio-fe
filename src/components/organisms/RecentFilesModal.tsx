@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { FileText, Loader2, FolderOpen, Check } from "lucide-react";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
 import { RecentUpload } from "@/apis/aiApi";
+import { repairVietnameseText } from "@/lib/text";
 
 interface RecentFilesModalProps {
   open: boolean;
@@ -119,9 +120,12 @@ export function RecentFilesModal({
                     <FileText className="w-5 h-5 text-red-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">
-                      {file.filename}
-                    </p>
+                     <p
+                       className="text-sm font-medium break-words line-clamp-2"
+                       title={repairVietnameseText(file.filename)}
+                     >
+                       {repairVietnameseText(file.filename)}
+                     </p>
                     <p className="text-xs text-muted-foreground">
                       {formatFileSize(file.size)} • {formatDate(file.createdAt)}
                     </p>

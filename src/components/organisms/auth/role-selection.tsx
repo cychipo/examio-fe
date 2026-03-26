@@ -6,9 +6,66 @@ import { UserRole } from "@/types/user";
 
 interface RoleSelectionProps {
   onSelectRole: (role: UserRole) => void;
+  compact?: boolean;
 }
 
-export function RoleSelection({ onSelectRole }: RoleSelectionProps) {
+export function RoleSelection({
+  onSelectRole,
+  compact = false,
+}: RoleSelectionProps) {
+  if (compact) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-gray-800">Chọn vai trò</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Vai trò này sẽ được dùng khi tạo tài khoản OAuth mới.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            onClick={() => onSelectRole("teacher")}
+            className="group relative rounded-xl border border-red-200 bg-red-50/70 p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:shadow-lg"
+          >
+            <div className="flex items-start gap-4">
+              <div className="rounded-full bg-white p-3 shadow-sm transition-colors duration-300 group-hover:bg-primary">
+                <GraduationCap className="h-6 w-6 text-primary group-hover:text-white" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-gray-800">
+                  Giáo Viên
+                </h4>
+                <p className="mt-1 text-sm text-gray-600">
+                  Tạo bài kiểm tra, flashcards và quản lý lớp học.
+                </p>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => onSelectRole("student")}
+            className="group relative rounded-xl border border-yellow-200 bg-yellow-50/80 p-5 text-left transition-all duration-300 hover:-translate-y-0.5 hover:border-secondary hover:shadow-lg"
+          >
+            <div className="flex items-start gap-4">
+              <div className="rounded-full bg-white p-3 shadow-sm transition-colors duration-300 group-hover:bg-secondary">
+                <User className="h-6 w-6 text-secondary group-hover:text-gray-800" />
+              </div>
+              <div>
+                <h4 className="text-base font-semibold text-gray-800">
+                  Học Sinh
+                </h4>
+                <p className="mt-1 text-sm text-gray-600">
+                  Học tập, luyện đề và theo dõi tiến độ của bạn.
+                </p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-red-50/30 to-yellow-50/30 py-8">
       <div className="max-w-4xl w-full mx-4 rounded-2xl p-6 md:p-8 shadow-xl bg-white border relative">

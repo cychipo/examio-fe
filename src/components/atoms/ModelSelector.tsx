@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { repairVietnameseText } from "@/lib/text";
 import {
   Tooltip,
   TooltipContent,
@@ -80,6 +81,9 @@ export function ModelSelector({
     || availableModels[0];
   const IconComponent = MODEL_ICONS[value || "gemini"] || (selectedModel?.provider === "gemini" ? Cloud : Cpu);
 
+  const selectedName = repairVietnameseText(selectedModel.name);
+  const selectedDescription = repairVietnameseText(selectedModel.description);
+
   if (!selectedModel) {
     return null;
   }
@@ -111,12 +115,14 @@ export function ModelSelector({
                       )}
                     />
                     <div className="flex min-w-0 flex-col items-start leading-tight">
-                      <span className="truncate font-medium">{selectedModel.name}</span>
-                      <span className="truncate text-[11px] text-muted-foreground">
-                        {PROVIDER_LABELS[selectedModel.provider] || selectedModel.provider}
-                        {selectedModel.specs?.[0]?.value ? ` • ${selectedModel.specs[0].value}` : ""}
-                      </span>
-                    </div>
+                       <span className="truncate font-medium">{selectedName}</span>
+                       <span className="truncate text-[11px] text-muted-foreground">
+                         {PROVIDER_LABELS[selectedModel.provider] || selectedModel.provider}
+                         {selectedModel.specs?.[0]?.value
+                           ? ` • ${repairVietnameseText(selectedModel.specs[0].value)}`
+                           : ""}
+                       </span>
+                     </div>
                   </div>
                 </SelectValue>
               </SelectTrigger>
@@ -149,8 +155,8 @@ export function ModelSelector({
                               isModelDisabled && "opacity-50",
                             )}
                           >
-                            {model.name}
-                          </span>
+                              {repairVietnameseText(model.name)}
+                            </span>
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                             {PROVIDER_LABELS[model.provider] || model.provider}
                           </Badge>
@@ -159,7 +165,7 @@ export function ModelSelector({
                               variant="secondary"
                               className="text-[10px] px-1.5 py-0"
                             >
-                              {model.badge}
+                              {repairVietnameseText(model.badge)}
                             </Badge>
                           )}
                           {isModelDisabled && (
@@ -167,7 +173,7 @@ export function ModelSelector({
                               variant="outline"
                               className="text-[10px] px-1.5 py-0 opacity-60"
                             >
-                              Khong kha dung
+                              Không khả dụng
                             </Badge>
                           )}
                         </div>
@@ -177,13 +183,15 @@ export function ModelSelector({
                             isModelDisabled && "opacity-50",
                           )}
                         >
-                          {model.description}
-                        </span>
-                        {model.specs?.length > 0 && (
-                          <span className="text-[11px] text-muted-foreground">
-                            {model.specs.map((spec) => spec.value).join(" • ")}
-                          </span>
-                        )}
+                           {repairVietnameseText(model.description)}
+                         </span>
+                         {model.specs?.length > 0 && (
+                           <span className="text-[11px] text-muted-foreground">
+                             {model.specs
+                               .map((spec) => repairVietnameseText(spec.value))
+                               .join(" • ")}
+                           </span>
+                         )}
                       </div>
                     </div>
                   );
@@ -226,16 +234,21 @@ export function ModelSelector({
         <TooltipContent side="bottom" className="max-w-[280px]">
           <div className="space-y-1 text-xs">
             <p>
-              <strong>{selectedModel.name}</strong>: {selectedModel.description}
-            </p>
+               <strong>{selectedName}</strong>: {selectedDescription}
+             </p>
             <p className="text-muted-foreground">
               Provider: {PROVIDER_LABELS[selectedModel.provider] || selectedModel.provider}
             </p>
             {selectedModel.specs?.length > 0 && (
               <p className="text-muted-foreground">
-                {selectedModel.specs.map((spec) => `${spec.label}: ${spec.value}`).join(" • ")}
-              </p>
-            )}
+                 {selectedModel.specs
+                   .map(
+                     (spec) =>
+                       `${repairVietnameseText(spec.label)}: ${repairVietnameseText(spec.value)}`,
+                   )
+                   .join(" • ")}
+               </p>
+             )}
           </div>
         </TooltipContent>
       </Tooltip>
