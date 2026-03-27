@@ -212,7 +212,7 @@ export default function GenAIKnowledgePage() {
   }, [loadDatasetImports]);
 
   useEffect(() => {
-    const activeJobs = datasetJobs.filter(job => ["queued", "downloading", "processing"].includes(job.status));
+    const activeJobs = datasetJobs.filter(job => ["queued", "downloading", "processing", "cancelling"].includes(job.status));
     if (activeJobs.length === 0) {
       return;
     }
@@ -228,7 +228,7 @@ export default function GenAIKnowledgePage() {
           return Array.from(map.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         });
 
-        if (refreshed.some(job => job.status === "completed")) {
+        if (refreshed.some(job => ["completed", "cancelled"].includes(job.status))) {
           loadKnowledgeData();
         }
       }
@@ -373,7 +373,10 @@ export default function GenAIKnowledgePage() {
       });
       toast.success("Đã tạo job nạp dataset. Hệ thống sẽ tải và ingest dưới nền.");
       const fullJob = await genaiTutorKnowledgeApi.getDatasetImportJob(job.jobId);
-      setDatasetJobs(current => [fullJob, ...current.filter(item => item.jobId !== fullJob.jobId)]);
+      setDatasetJobs(current => [
+        fullJob,
+        ...current.filter(item => item.jobId !== fullJob.jobId && item.datasetKey !== fullJob.datasetKey),
+      ]);
     }
     catch (error) {
       toast.error((error as Error).message || "Không thể tạo job nạp dataset");
@@ -390,7 +393,7 @@ export default function GenAIKnowledgePage() {
     try {
       const job = await genaiTutorKnowledgeApi.cancelDatasetImportJob(datasetJobToCancel.jobId);
       setDatasetJobs(current => current.map(item => item.jobId === job.jobId ? job : item));
-      toast.success("Đã gửi yêu cầu hủy job nạp dataset");
+      toast.success("Job đang được hủy và dọn dữ liệu...");
       loadKnowledgeData();
     }
     catch (error) {

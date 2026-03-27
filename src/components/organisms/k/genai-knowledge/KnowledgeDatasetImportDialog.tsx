@@ -17,7 +17,10 @@ interface KnowledgeDatasetImportDialogProps {
 }
 
 export function KnowledgeDatasetImportDialog(props: KnowledgeDatasetImportDialogProps) {
-  const jobMap = useMemo(() => new Map(props.jobs.map(job => [job.datasetKey, job])), [props.jobs]);
+  const jobMap = useMemo(() => {
+    const sorted = [...props.jobs].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    return new Map(sorted.map(job => [job.datasetKey, job]));
+  }, [props.jobs]);
 
   return (
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
@@ -65,6 +68,9 @@ export function KnowledgeDatasetImportDialog(props: KnowledgeDatasetImportDialog
                             <Badge variant="outline">{job.metadata.result.relations} relations</Badge>
                           </div>
                         )}
+                        {job.status === "cancelling" && (
+                          <p className="text-xs font-medium text-amber-700">Đang hủy và dọn dữ liệu đã nạp...</p>
+                        )}
                         {["queued", "downloading", "processing"].includes(job.status) && (
                           <Button variant="outline" size="sm" className="mt-2" onClick={() => props.onCancel(job)}>
                             Hủy nạp dataset
@@ -76,7 +82,7 @@ export function KnowledgeDatasetImportDialog(props: KnowledgeDatasetImportDialog
 
                   <Button
                     className="min-w-[144px]"
-                    disabled={props.loading || isImporting || job?.status === "processing" || job?.status === "downloading"}
+                    disabled={props.loading || isImporting || job?.status === "processing" || job?.status === "downloading" || job?.status === "cancelling"}
                     onClick={() => props.onImport(item.datasetKey)}
                   >
                     {isImporting ? "Đang tạo job..." : "Nạp dataset"}
