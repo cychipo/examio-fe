@@ -43,6 +43,7 @@ export function KnowledgeFilterBar(props: KnowledgeFilterBarProps) {
         <option value="extracting">extracting</option>
         <option value="chunking">chunking</option>
         <option value="embedding">embedding</option>
+        <option value="graphing">graphing</option>
         <option value="completed">completed</option>
         <option value="failed">failed</option>
       </select>

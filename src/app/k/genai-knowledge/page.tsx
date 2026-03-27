@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   BrainCircuit,
+  Database,
   FilePlus2,
   Folder,
   FolderOpen,
@@ -45,7 +46,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useGenAIKnowledgeStore } from "@/stores/useGenAIKnowledgeStore";
 import { genaiTutorKnowledgeApi } from "@/apis/genaiTutorKnowledgeApi";
-import { GenAIKnowledgeFolderIcon, PendingKnowledgeUpload } from "@/types/genai-knowledge";
+import { GenAIKnowledgeFolderIcon, GenAIKnowledgeGraphSnapshot, PendingKnowledgeUpload } from "@/types/genai-knowledge";
 import { formatBytes, getIconAccent, iconMap } from "@/components/organisms/k/genai-knowledge/knowledge-constants";
 import { KnowledgeFolderList } from "@/components/organisms/k/genai-knowledge/KnowledgeFolderList";
 import { KnowledgePendingUploadList } from "@/components/organisms/k/genai-knowledge/KnowledgePendingUploadList";
@@ -54,8 +55,8 @@ import { KnowledgeFilterBar } from "@/components/organisms/k/genai-knowledge/Kno
 import { KnowledgeStatsCards } from "@/components/organisms/k/genai-knowledge/KnowledgeStatsCards";
 import { KnowledgeUploadZone } from "@/components/organisms/k/genai-knowledge/KnowledgeUploadZone";
 import { KnowledgeFolderDialog } from "@/components/organisms/k/genai-knowledge/KnowledgeFolderDialog";
-
-
+import { KnowledgeGraphDialog } from "@/components/organisms/k/genai-knowledge/KnowledgeGraphDialog";
+import { KnowledgeDatasetImportDialog } from "@/components/organisms/k/genai-knowledge/KnowledgeDatasetImportDialog";
 export default function GenAIKnowledgePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -86,7 +87,7 @@ export default function GenAIKnowledgePage() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED">((searchParams.get("status") as any) || "ALL");
-  const [stageFilter, setStageFilter] = useState<"ALL" | "queued" | "downloading" | "extracting" | "chunking" | "embedding" | "completed" | "failed">((searchParams.get("stage") as any) || "ALL");
+  const [stageFilter, setStageFilter] = useState<"ALL" | "queued" | "downloading" | "extracting" | "chunking" | "embedding" | "graphing" | "completed" | "failed">((searchParams.get("stage") as any) || "ALL");
   const [sortBy, setSortBy] = useState<"createdAt" | "filename" | "status" | "size">((searchParams.get("sortBy") as any) || "createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">((searchParams.get("sortOrder") as any) || "desc");
   const [page, setPage] = useState(Number(searchParams.get("page") || 1));
@@ -98,7 +99,17 @@ export default function GenAIKnowledgePage() {
   const [confirmBulkDeleteOpen, setConfirmBulkDeleteOpen] = useState(false);
   const [confirmBulkReprocessOpen, setConfirmBulkReprocessOpen] = useState(false);
   const [confirmDeleteFolderOpen, setConfirmDeleteFolderOpen] = useState(false);
+  const [datasetDialogOpen, setDatasetDialogOpen] = useState(false);
+  const [datasetCatalog, setDatasetCatalog] = useState<any[]>([]);
+  const [datasetJobs, setDatasetJobs] = useState<any[]>([]);
+  const [importingDatasetKey, setImportingDatasetKey] = useState<string | null>(null);
+  const [datasetJobToCancel, setDatasetJobToCancel] = useState<any | null>(null);
   const [fileToDelete, setFileToDelete] = useState<null | { id: string; name: string; uploadId?: string }>(null);
+  const [graphDialogOpen, setGraphDialogOpen] = useState(false);
+  const [graphLoading, setGraphLoading] = useState(false);
+  const [graphError, setGraphError] = useState<string | null>(null);
+  const [graphSnapshot, setGraphSnapshot] = useState<GenAIKnowledgeGraphSnapshot | null>(null);
+  const [graphFileName, setGraphFileName] = useState<string | undefined>(undefined);
   const [confirmActionLoading, setConfirmActionLoading] = useState<null | "bulk-delete" | "bulk-reprocess" | "folder-delete" | "file-delete">(null);
   const debouncedSearchQuery = useDebounce(searchQuery, 350);
 
@@ -159,6 +170,7 @@ export default function GenAIKnowledgePage() {
           processingMessage: file.metadata?.message,
           chunkCount: file.chunkCount,
           vectorCount: file.vectorCount,
+          graphDocumentId: file.graphDocumentId,
           errorMessage: file.errorMessage || undefined,
           uploadedAt: file.createdAt,
         }));
@@ -176,6 +188,57 @@ export default function GenAIKnowledgePage() {
   useEffect(() => {
     loadKnowledgeData();
   }, [loadKnowledgeData]);
+
+  const loadDatasetImports = useCallback(async () => {
+    if (!user || user.role !== "teacher") {
+      return;
+    }
+
+    try {
+      const [catalog, jobs] = await Promise.all([
+        genaiTutorKnowledgeApi.listDatasetCatalog(),
+        genaiTutorKnowledgeApi.listDatasetImports(),
+      ]);
+      setDatasetCatalog(catalog);
+      setDatasetJobs(jobs);
+    }
+    catch (error) {
+      console.error("Failed to load dataset imports", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadDatasetImports();
+  }, [loadDatasetImports]);
+
+  useEffect(() => {
+    const activeJobs = datasetJobs.filter(job => ["queued", "downloading", "processing"].includes(job.status));
+    if (activeJobs.length === 0) {
+      return;
+    }
+
+    const timer = window.setInterval(async () => {
+      try {
+        const refreshed = await Promise.all(
+          activeJobs.map(job => genaiTutorKnowledgeApi.getDatasetImportJob(job.jobId)),
+        );
+        setDatasetJobs(current => {
+          const map = new Map(current.map(job => [job.jobId, job]));
+          refreshed.forEach(job => map.set(job.jobId, job));
+          return Array.from(map.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        });
+
+        if (refreshed.some(job => job.status === "completed")) {
+          loadKnowledgeData();
+        }
+      }
+      catch (error) {
+        console.error("Failed to refresh dataset import jobs", error);
+      }
+    }, 3000);
+
+    return () => window.clearInterval(timer);
+  }, [datasetJobs, loadKnowledgeData]);
 
   useEffect(() => {
     setPage(1);
@@ -296,6 +359,72 @@ export default function GenAIKnowledgePage() {
     setVirtualLimit(current => current + 24);
   };
 
+  const handleImportDataset = async (datasetKey: string) => {
+    if (!selectedFolder) {
+      toast.warning("Hãy chọn folder trước khi nạp dataset");
+      return;
+    }
+
+    setImportingDatasetKey(datasetKey);
+    try {
+      const job = await genaiTutorKnowledgeApi.createDatasetImport({
+        folderId: selectedFolder.id,
+        datasetKey,
+      });
+      toast.success("Đã tạo job nạp dataset. Hệ thống sẽ tải và ingest dưới nền.");
+      const fullJob = await genaiTutorKnowledgeApi.getDatasetImportJob(job.jobId);
+      setDatasetJobs(current => [fullJob, ...current.filter(item => item.jobId !== fullJob.jobId)]);
+    }
+    catch (error) {
+      toast.error((error as Error).message || "Không thể tạo job nạp dataset");
+    }
+    finally {
+      setImportingDatasetKey(null);
+    }
+  };
+
+  const handleCancelDatasetImport = async () => {
+    if (!datasetJobToCancel) {
+      return;
+    }
+    try {
+      const job = await genaiTutorKnowledgeApi.cancelDatasetImportJob(datasetJobToCancel.jobId);
+      setDatasetJobs(current => current.map(item => item.jobId === job.jobId ? job : item));
+      toast.success("Đã gửi yêu cầu hủy job nạp dataset");
+      loadKnowledgeData();
+    }
+    catch (error) {
+      toast.error((error as Error).message || "Không thể hủy job nạp dataset");
+    }
+    finally {
+      setDatasetJobToCancel(null);
+    }
+  };
+
+  const handleOpenGraph = async (file: typeof files[number]) => {
+    if (!file.uploadId) {
+      toast.warning("File này chưa có graph để xem");
+      return;
+    }
+
+    setGraphDialogOpen(true);
+    setGraphLoading(true);
+    setGraphError(null);
+    setGraphSnapshot(null);
+    setGraphFileName(file.name);
+
+    try {
+      const snapshot = await genaiTutorKnowledgeApi.getKnowledgeFileGraph(file.uploadId);
+      setGraphSnapshot(snapshot);
+    }
+    catch (error) {
+      setGraphError((error as Error).message || "Không thể tải knowledge graph");
+    }
+    finally {
+      setGraphLoading(false);
+    }
+  };
+
   const openEditFolderDialog = () => {
     if (!selectedFolder) {
       return;
@@ -382,9 +511,22 @@ export default function GenAIKnowledgePage() {
   };
 
   const queueSelectedFiles = (filesToQueue: File[]) => {
+    const supportedFiles = filesToQueue.filter((file) => {
+      const lowered = file.name.toLowerCase();
+      return lowered.endsWith(".pdf") || lowered.endsWith(".json");
+    });
+
+    if (supportedFiles.length !== filesToQueue.length) {
+      toast.warning("Chỉ nhận file PDF hoặc JSON trong kho tri thức này");
+    }
+
+    if (supportedFiles.length === 0) {
+      return;
+    }
+
     setPendingUploads(current => [
       ...current,
-      ...filesToQueue.map(file => ({
+      ...supportedFiles.map(file => ({
         id: `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         file,
         description: "",
@@ -409,7 +551,12 @@ export default function GenAIKnowledgePage() {
         });
 
         if (status.status === "COMPLETED") {
-          toast.success(`File ${status.filename} đã OCR và lưu vector xong`);
+          const sourceType = status.metadata?.sourceType;
+          toast.success(
+            sourceType === "json"
+              ? `Dataset ${status.filename} đã parse, embedding và nối graph xong`
+              : `File ${status.filename} đã OCR/extract, embedding và nối graph xong`,
+          );
           loadKnowledgeData();
           return;
         }
@@ -602,13 +749,14 @@ export default function GenAIKnowledgePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-3 py-6 sm:px-4 sm:py-8">
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        className="hidden"
-        onChange={handleUploadFiles}
-      />
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept=".pdf,.json,application/pdf,application/json,text/json"
+          className="hidden"
+          onChange={handleUploadFiles}
+        />
 
       <section className="mb-6 overflow-hidden rounded-[28px] border border-border bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.10),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.10),_transparent_24%),linear-gradient(135deg,rgba(255,255,255,0.85),rgba(248,250,252,0.70))] p-4 shadow-sm backdrop-blur-xl sm:mb-8 sm:rounded-[32px] sm:p-6 md:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -855,10 +1003,14 @@ export default function GenAIKnowledgePage() {
               <div className="rounded-3xl border border-dashed border-border bg-black/[0.03] px-4 py-14 text-center sm:px-6 sm:py-16">
                 <UploadCloud className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
                 <p className="text-lg font-medium">Folder này chưa có file</p>
-                <p className="mt-2 text-sm text-muted-foreground">Hãy tải lên PDF, DOCX, TXT hoặc source code để bắt đầu xây dựng kho tri thức.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Hãy tải lên PDF, JSON hoặc dùng nút nạp dataset để đưa các benchmark lớn vào kho tri thức GraphRAG.</p>
                 <Button className="mt-5 min-w-[148px] w-full shrink-0 whitespace-nowrap sm:w-auto" onClick={handleSelectFiles}>
                   <UploadCloud className="mr-2 h-4 w-4" />
                   Tải file đầu tiên
+                </Button>
+                <Button variant="outline" className="mt-3 min-w-[148px] w-full shrink-0 whitespace-nowrap sm:mt-5 sm:w-auto" onClick={() => setDatasetDialogOpen(true)}>
+                  <Database className="mr-2 h-4 w-4" />
+                  Nạp dataset
                 </Button>
               </div>
             ) : (
@@ -867,7 +1019,7 @@ export default function GenAIKnowledgePage() {
                   files={visibleFolderFiles}
                   selectedFileIds={selectedFileIds}
                   onToggleSelection={toggleFileSelection}
-                  onReprocess={async (file) => {
+                   onReprocess={async (file) => {
                     try {
                       if (file.uploadId) {
                         await genaiTutorKnowledgeApi.reprocessKnowledgeFile(file.uploadId);
@@ -878,9 +1030,10 @@ export default function GenAIKnowledgePage() {
                     catch (error) {
                       toast.error((error as Error).message || "Không thể xử lý lại file");
                     }
-                  }}
-                  onDelete={(file) => setFileToDelete({ id: file.id, name: file.name, uploadId: file.uploadId })}
-                />
+                   }}
+                   onOpenGraph={handleOpenGraph}
+                   onDelete={(file) => setFileToDelete({ id: file.id, name: file.name, uploadId: file.uploadId })}
+                 />
                 {folderFiles.length > visibleFolderFiles.length && (
                   <div className="flex justify-center pt-2">
                     <Button variant="outline" onClick={handleLoadMoreVisibleFiles}>
@@ -890,6 +1043,26 @@ export default function GenAIKnowledgePage() {
                 )}
               </>
             )}
+
+            <KnowledgeGraphDialog
+              open={graphDialogOpen}
+              loading={graphLoading}
+              snapshot={graphSnapshot}
+              fileName={graphFileName}
+              error={graphError}
+              onOpenChange={setGraphDialogOpen}
+            />
+
+            <KnowledgeDatasetImportDialog
+              open={datasetDialogOpen}
+              loading={false}
+              importingKey={importingDatasetKey}
+              catalog={datasetCatalog}
+              jobs={datasetJobs}
+              onOpenChange={setDatasetDialogOpen}
+              onImport={handleImportDataset}
+              onCancel={(job) => setDatasetJobToCancel(job)}
+            />
 
             {totalFiles > 12 && (
               <div className="flex flex-col gap-3 border-t border-border/70 pt-2 sm:flex-row sm:items-center sm:justify-between">
@@ -920,6 +1093,10 @@ export default function GenAIKnowledgePage() {
             {selectedFolder && (
               <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  <Button variant="outline" onClick={() => setDatasetDialogOpen(true)} disabled={!selectedFolder}>
+                    <Database className="mr-2 h-4 w-4" />
+                    Nạp dataset
+                  </Button>
                   <Button variant="outline" onClick={handleSelectAllCurrentPage} disabled={folderFiles.length === 0}>
                     Chọn tất cả trang này
                   </Button>
@@ -1080,6 +1257,23 @@ export default function GenAIKnowledgePage() {
               className={confirmActionLoading === "file-delete" ? "pointer-events-none opacity-60" : ""}
             >
               {confirmActionLoading === "file-delete" ? "Đang xóa file..." : "Xóa file"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={Boolean(datasetJobToCancel)} onOpenChange={(open) => { if (!open) setDatasetJobToCancel(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hủy job nạp dataset "{datasetJobToCancel?.title}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Nếu bạn hủy, hệ thống sẽ xóa toàn bộ dữ liệu dataset đã nạp một phần hoặc hoàn tất bởi job này trong folder hiện tại. Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Quay lại</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCancelDatasetImport}>
+              Xác nhận hủy và xóa dữ liệu
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

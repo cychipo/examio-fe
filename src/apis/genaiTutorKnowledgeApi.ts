@@ -1,5 +1,6 @@
 import { api } from "@/apis/api";
 import { getCachedValue, invalidateCachedKeys, invalidateCachedValue, setCachedValue } from "@/lib/genai-knowledge-cache";
+import { GenAIKnowledgeDatasetCatalogItem, GenAIKnowledgeDatasetImportJob, GenAIKnowledgeGraphSnapshot } from "@/types/genai-knowledge";
 
 const KNOWLEDGE_FOLDER_CACHE_KEY = "knowledge:folders";
 
@@ -115,6 +116,7 @@ export const genaiTutorKnowledgeApi = {
           folderId?: string;
           chunkCount?: number;
           vectorCount?: number;
+          graphDocumentId?: string;
           errorMessage?: string | null;
           createdAt: string;
         }>;
@@ -151,6 +153,7 @@ export const genaiTutorKnowledgeApi = {
           folderId?: string;
           chunkCount?: number;
           vectorCount?: number;
+          graphDocumentId?: string;
           errorMessage?: string | null;
           createdAt: string;
         }>;
@@ -229,6 +232,7 @@ export const genaiTutorKnowledgeApi = {
       metadata?: { stage?: string; message?: string };
       chunkCount: number;
       vectorCount: number;
+      graphDocumentId?: string;
       errorMessage?: string | null;
       url: string;
       filename: string;
@@ -246,6 +250,7 @@ export const genaiTutorKnowledgeApi = {
       metadata?: { stage?: string; message?: string };
       chunkCount: number;
       vectorCount: number;
+      graphDocumentId?: string;
       errorMessage?: string | null;
       url: string;
       filename: string;
@@ -271,6 +276,7 @@ export const genaiTutorKnowledgeApi = {
       folderDescription?: string;
       chunkCount?: number;
       vectorCount?: number;
+      graphDocumentId?: string;
       errorMessage?: string | null;
       createdAt: string;
       completedAt?: string | null;
@@ -301,6 +307,7 @@ export const genaiTutorKnowledgeApi = {
         folderId?: string;
         chunkCount?: number;
         vectorCount?: number;
+        graphDocumentId?: string;
         errorMessage?: string | null;
         createdAt: string;
       }>;
@@ -322,6 +329,37 @@ export const genaiTutorKnowledgeApi = {
     const response = await api.post(`/ai/tutor/knowledge-files/${fileId}/reprocess`, {});
     invalidateKnowledgeEntityCaches();
     return response.data as { success: boolean; fileId: string; status: string };
+  },
+
+  getKnowledgeFileGraph: async (fileId: string) => {
+    const response = await api.get(`/ai/tutor/knowledge-files/${fileId}/graph`);
+    return response.data as GenAIKnowledgeGraphSnapshot;
+  },
+
+  listDatasetCatalog: async () => {
+    const response = await api.get("/ai/tutor/dataset-imports/catalog");
+    return response.data as GenAIKnowledgeDatasetCatalogItem[];
+  },
+
+  createDatasetImport: async (payload: { folderId?: string; datasetKey: string }) => {
+    const response = await api.post("/ai/tutor/dataset-imports", payload);
+    invalidateKnowledgeEntityCaches(payload.folderId);
+    return response.data as Pick<GenAIKnowledgeDatasetImportJob, "jobId" | "datasetKey" | "status" | "progress" | "stage" | "message">;
+  },
+
+  listDatasetImports: async () => {
+    const response = await api.get("/ai/tutor/dataset-imports");
+    return response.data as GenAIKnowledgeDatasetImportJob[];
+  },
+
+  getDatasetImportJob: async (jobId: string) => {
+    const response = await api.get(`/ai/tutor/dataset-imports/${jobId}`);
+    return response.data as GenAIKnowledgeDatasetImportJob;
+  },
+
+  cancelDatasetImportJob: async (jobId: string) => {
+    const response = await api.post(`/ai/tutor/dataset-imports/${jobId}/cancel`);
+    return response.data as GenAIKnowledgeDatasetImportJob;
   },
 
   bulkDeleteKnowledgeFiles: async (fileIds: string[]) => {

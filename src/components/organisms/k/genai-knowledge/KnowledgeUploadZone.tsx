@@ -48,7 +48,7 @@ export function KnowledgeUploadZone(props: KnowledgeUploadZoneProps) {
               {props.selectedFolderId ? "Kéo thả file vào đây hoặc chọn file từ máy" : "Chọn folder để bật upload zone"}
             </p>
             <p className="text-sm text-muted-foreground">
-              Hỗ trợ upload nhiều file. File sẽ được tải lên R2 ngay sau khi chọn.
+              Hỗ trợ upload nhiều file PDF hoặc JSON. PDF sẽ OCR/extract rồi GraphRAG, JSON sẽ parse trực tiếp để embedding và nối quan hệ tri thức.
             </p>
           </div>
         </div>

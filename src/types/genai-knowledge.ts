@@ -27,8 +27,76 @@ export interface GenAIKnowledgeFile {
   processingMessage?: string;
   chunkCount?: number;
   vectorCount?: number;
+  graphDocumentId?: string;
   errorMessage?: string;
   uploadedAt: string;
+}
+
+export interface GenAIKnowledgeGraphSnapshot {
+  document: {
+    id: string;
+    title: string;
+    sourcePath: string;
+    jobId?: string;
+  };
+  entities: Array<{
+    id: string;
+    name: string;
+    canonicalName?: string;
+    entityType?: string;
+    language?: string;
+    properties?: Record<string, unknown>;
+  }>;
+  relations: Array<{
+    id: string;
+    relationType: string;
+    from_name: string;
+    to_name: string;
+    weight: number;
+    evidenceChunkId?: string;
+  }>;
+}
+
+export interface GenAIKnowledgeDatasetCatalogItem {
+  datasetKey: string;
+  title: string;
+  description: string;
+  source: string;
+  repository: string;
+  courseCode: string;
+  language?: string;
+  topic?: string;
+  difficulty?: string;
+}
+
+export interface GenAIKnowledgeDatasetImportJob {
+  jobId: string;
+  userId: string;
+  folderId?: string;
+  datasetKey: string;
+  title: string;
+  status: string;
+  progress: number;
+  stage: string;
+  message?: string;
+  sourcePath?: string;
+  ingestJobId?: string;
+  downloadedFiles: number;
+  processedFiles: number;
+  totalFiles: number;
+  metadata?: {
+    result?: {
+      documents: number;
+      chunks: number;
+      entities: number;
+      relations: number;
+    };
+    [key: string]: unknown;
+  };
+  errorMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
 }
 
 export interface GenAIKnowledgeFolder {

@@ -1,4 +1,4 @@
-import { FileCode2, RotateCcw, Trash2 } from "lucide-react";
+import { FileCode2, Network, RotateCcw, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ interface KnowledgeFileGridProps {
   onToggleSelection: (fileId: string) => void;
   onReprocess: (file: GenAIKnowledgeFile) => void;
   onDelete: (file: GenAIKnowledgeFile) => void;
+  onOpenGraph: (file: GenAIKnowledgeFile) => void;
 }
 
 export function KnowledgeFileGrid({
@@ -22,6 +23,7 @@ export function KnowledgeFileGrid({
   onToggleSelection,
   onReprocess,
   onDelete,
+  onOpenGraph,
 }: KnowledgeFileGridProps) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
@@ -45,6 +47,9 @@ export function KnowledgeFileGrid({
                 <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => onReprocess(file)} title="Xử lý lại file">
                   <RotateCcw className="h-4 w-4" />
                 </Button>
+                <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => onOpenGraph(file)} title="Xem knowledge graph">
+                  <Network className="h-4 w-4" />
+                </Button>
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-destructive" onClick={() => onDelete(file)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -67,6 +72,9 @@ export function KnowledgeFileGrid({
               </Badge>
               {typeof file.vectorCount === "number" && file.vectorCount > 0 && (
                 <Badge variant="outline">{file.vectorCount} vectors</Badge>
+              )}
+              {file.graphDocumentId && (
+                <Badge variant="outline">graph ready</Badge>
               )}
             </div>
 
