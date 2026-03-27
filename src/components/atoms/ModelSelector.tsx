@@ -81,12 +81,12 @@ export function ModelSelector({
     || availableModels[0];
   const IconComponent = MODEL_ICONS[value || "gemini"] || (selectedModel?.provider === "gemini" ? Cloud : Cpu);
 
-  const selectedName = repairVietnameseText(selectedModel.name);
-  const selectedDescription = repairVietnameseText(selectedModel.description);
-
   if (!selectedModel) {
     return null;
   }
+
+  const selectedName = repairVietnameseText(selectedModel.name || "AI Model");
+  const selectedDescription = repairVietnameseText(selectedModel.description || "Đang tải thông tin model...");
 
   return (
     <div className={cn("flex min-w-0 items-center gap-2", className)}>
@@ -94,7 +94,7 @@ export function ModelSelector({
         <TooltipTrigger asChild>
           <div className="flex min-w-0 items-center">
             <Select
-              value={value}
+              value={selectedModel.id}
               onValueChange={(val) => onChange?.(val as AIModelType)}
               disabled={disabled}
             >
