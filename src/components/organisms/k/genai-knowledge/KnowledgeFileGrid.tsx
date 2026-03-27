@@ -29,7 +29,7 @@ export function KnowledgeFileGrid({
         <Card key={file.id} className="rounded-3xl border-border/80 bg-white/80">
           <CardContent className="p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
+              <div className="flex min-w-0 flex-1 items-start gap-3">
                 <input
                   type="checkbox"
                   checked={selectedFileIds.includes(file.id)}
@@ -41,7 +41,7 @@ export function KnowledgeFileGrid({
                   <div className="absolute inset-[3px] rounded-[14px] border border-white/40" />
                 </div>
               </div>
-              <div className="flex gap-1">
+              <div className="flex shrink-0 gap-1">
                 <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => onReprocess(file)} title="Xử lý lại file">
                   <RotateCcw className="h-4 w-4" />
                 </Button>

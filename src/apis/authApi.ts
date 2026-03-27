@@ -18,6 +18,7 @@ export interface LoginResponse {
   message?: string;
   user?: User;
   token?: string;
+  refreshToken?: string;
 }
 
 export interface SignupResponse {
@@ -102,6 +103,11 @@ export async function verifyAccountApi(
 
 export async function logoutApi(): Promise<{ success: boolean }> {
   const response = await api.post("/auth/logout");
+  return response.data;
+}
+
+export async function refreshTokenApi(): Promise<LoginResponse> {
+  const response = await api.post("/auth/refresh");
   return response.data;
 }
 

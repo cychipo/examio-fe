@@ -3,41 +3,22 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  BookOpen,
-  Bot,
   BrainCircuit,
-  Blocks,
-  Code2,
-  Database,
-  FileCode2,
   FilePlus2,
-  FlaskConical,
   Folder,
   FolderOpen,
-  GraduationCap,
   Library,
   Lock,
   Menu,
   Plus,
-  RotateCcw,
   ShieldCheck,
   Trash2,
   UploadCloud,
 } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Sheet,
   SheetContent,
@@ -65,7 +46,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useGenAIKnowledgeStore } from "@/stores/useGenAIKnowledgeStore";
 import { genaiTutorKnowledgeApi } from "@/apis/genaiTutorKnowledgeApi";
 import { GenAIKnowledgeFolderIcon, PendingKnowledgeUpload } from "@/types/genai-knowledge";
-import { FOLDER_ICON_OPTIONS, formatBytes, getIconAccent, iconMap } from "@/components/organisms/k/genai-knowledge/knowledge-constants";
+import { formatBytes, getIconAccent, iconMap } from "@/components/organisms/k/genai-knowledge/knowledge-constants";
 import { KnowledgeFolderList } from "@/components/organisms/k/genai-knowledge/KnowledgeFolderList";
 import { KnowledgePendingUploadList } from "@/components/organisms/k/genai-knowledge/KnowledgePendingUploadList";
 import { KnowledgeFileGrid } from "@/components/organisms/k/genai-knowledge/KnowledgeFileGrid";
@@ -279,19 +260,6 @@ export default function GenAIKnowledgePage() {
     [files],
   );
 
-  const selectedFolderStats = useMemo(() => {
-    const scopedFiles = selectedFolderId
-      ? filesByFolderId.get(selectedFolderId) || []
-      : files;
-
-    return {
-      total: scopedFiles.length,
-      completed: scopedFiles.filter(file => file.processingStatus === "COMPLETED").length,
-      processing: scopedFiles.filter(file => file.processingStatus === "PROCESSING" || file.processingStatus === "PENDING").length,
-      failed: scopedFiles.filter(file => file.processingStatus === "FAILED").length,
-    };
-  }, [files, filesByFolderId, selectedFolderId]);
-
   const hasActiveProcessing = useMemo(
     () => files.some(file => file.processingStatus === "PROCESSING" || file.processingStatus === "PENDING"),
     [files],
@@ -424,6 +392,44 @@ export default function GenAIKnowledgePage() {
     ]);
   };
 
+  function pollKnowledgeFileStatus(localFileId: string, backendFileId: string) {
+    const poll = async () => {
+      try {
+        const status = await genaiTutorKnowledgeApi.getKnowledgeFileStatus(backendFileId);
+        updateFile(localFileId, {
+          uploadId: backendFileId,
+          processingStatus: status.status as "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED",
+          processingProgress: status.progress,
+          processingStage: status.metadata?.stage,
+          processingMessage: status.metadata?.message,
+          chunkCount: status.chunkCount,
+          vectorCount: status.vectorCount,
+          errorMessage: status.errorMessage || undefined,
+          url: status.url,
+        });
+
+        if (status.status === "COMPLETED") {
+          toast.success(`File ${status.filename} đã OCR và lưu vector xong`);
+          loadKnowledgeData();
+          return;
+        }
+
+        if (status.status === "FAILED") {
+          toast.error(status.errorMessage || `Xử lý file ${status.filename} thất bại`);
+          loadKnowledgeData();
+          return;
+        }
+
+        window.setTimeout(poll, 2500);
+      }
+      catch (error) {
+        console.error("Failed to poll tutor knowledge file status", error);
+      }
+    };
+
+    window.setTimeout(poll, 1500);
+  }
+
   const uploadSelectedFiles = async (queueItems: PendingKnowledgeUpload[]) => {
     if (!selectedFolderId || queueItems.length === 0) {
       return;
@@ -471,44 +477,6 @@ export default function GenAIKnowledgePage() {
       setUploading(false);
       setIsDragOver(false);
     }
-  };
-
-  const pollKnowledgeFileStatus = (localFileId: string, backendFileId: string) => {
-    const poll = async () => {
-      try {
-        const status = await genaiTutorKnowledgeApi.getKnowledgeFileStatus(backendFileId);
-        updateFile(localFileId, {
-          uploadId: backendFileId,
-          processingStatus: status.status as "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED",
-          processingProgress: status.progress,
-          processingStage: status.metadata?.stage,
-          processingMessage: status.metadata?.message,
-          chunkCount: status.chunkCount,
-          vectorCount: status.vectorCount,
-          errorMessage: status.errorMessage || undefined,
-          url: status.url,
-        });
-
-        if (status.status === "COMPLETED") {
-          toast.success(`File ${status.filename} đã OCR và lưu vector xong`);
-          loadKnowledgeData();
-          return;
-        }
-
-        if (status.status === "FAILED") {
-          toast.error(status.errorMessage || `Xử lý file ${status.filename} thất bại`);
-          loadKnowledgeData();
-          return;
-        }
-
-        window.setTimeout(poll, 2500);
-      }
-      catch (error) {
-        console.error("Failed to poll tutor knowledge file status", error);
-      }
-    };
-
-    window.setTimeout(poll, 1500);
   };
 
   const handleUploadFiles = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -581,56 +549,6 @@ export default function GenAIKnowledgePage() {
   const handleClearSelection = () => {
     setSelectedFileIds([]);
   };
-
-  const renderFolderList = () => (
-    <div className="space-y-3">
-      {folders.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-black/5 px-4 py-10 text-center">
-          <FolderOpen className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-          <p className="font-medium">Chưa có folder nào</p>
-          <p className="mt-1 text-sm text-muted-foreground">Tạo folder đầu tiên để bắt đầu tổ chức kho tri thức.</p>
-        </div>
-      ) : (
-        folders.map((folder) => {
-          const FolderIcon = iconMap[folder.icon] || Folder;
-          const fileCount = fileCountByFolderId.get(folder.id) || 0;
-
-          return (
-            <button
-              key={folder.id}
-              type="button"
-              onClick={() => handleSelectFolder(folder.id)}
-              className={cn(
-                "w-full rounded-2xl border px-3 py-3 text-left transition-all sm:px-4 sm:py-4",
-                selectedFolderId === folder.id
-                  ? "border-primary/40 bg-primary/8 shadow-sm"
-                  : "border-border bg-black/[0.03] hover:border-primary/20 hover:bg-primary/[0.04]",
-              )}
-            >
-              <div className="flex items-start gap-3">
-                <div className={cn(
-                  "relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] ring-1 shadow-sm",
-                  getIconAccent(folder.icon),
-                )}>
-                  <FolderIcon className="h-5 w-5" strokeWidth={2.1} />
-                  <div className="absolute inset-[3px] rounded-[14px] border border-white/40" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="truncate font-medium leading-5">{folder.name}</p>
-                    <Badge variant="outline" className="shrink-0 text-[11px]">{fileCount} file</Badge>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {folder.description || "Chưa có mô tả cho folder này."}
-                  </p>
-                </div>
-              </div>
-            </button>
-          );
-        })
-      )}
-    </div>
-  );
 
   if (initializing || !hydrated) {
     return (
@@ -744,20 +662,20 @@ export default function GenAIKnowledgePage() {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[320px_1fr]">
+      <section className="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
         <div className="lg:hidden">
           <Sheet open={folderSheetOpen} onOpenChange={setFolderSheetOpen}>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <SheetTrigger asChild>
                 <Button variant="outline" className="w-full justify-between rounded-2xl bg-white/75">
-                  <span className="flex items-center gap-2">
-                    <Menu className="h-4 w-4" />
-                    {selectedFolder?.name || "Chọn folder"}
+                  <span className="flex min-w-0 items-center gap-2">
+                    <Menu className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{selectedFolder?.name || "Chọn folder"}</span>
                   </span>
                   <Badge variant="outline">{folders.length}</Badge>
                 </Button>
               </SheetTrigger>
-              <Button size="sm" onClick={openCreateFolderDialog} className="min-w-[92px] shrink-0 rounded-2xl px-4 whitespace-nowrap">
+              <Button size="sm" onClick={openCreateFolderDialog} className="min-w-[92px] w-full shrink-0 rounded-2xl px-4 whitespace-nowrap sm:w-auto">
                 <Plus className="mr-1 h-4 w-4" />
                 Tạo
               </Button>
@@ -779,7 +697,7 @@ export default function GenAIKnowledgePage() {
           </Sheet>
         </div>
 
-        <Card className="hidden rounded-[24px] border-border bg-white/[0.75] shadow-sm backdrop-blur-xl sm:rounded-[28px] lg:block">
+        <Card className="hidden self-start rounded-[24px] border-border bg-white/[0.75] shadow-sm backdrop-blur-xl sm:rounded-[28px] lg:sticky lg:top-6 lg:block lg:max-h-[calc(100vh-2.5rem)] lg:overflow-hidden">
           <CardHeader className="space-y-4 pb-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
@@ -792,7 +710,7 @@ export default function GenAIKnowledgePage() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-y-auto pb-6">
             <KnowledgeFolderList
               folders={folders}
               selectedFolderId={selectedFolderId}
@@ -802,7 +720,7 @@ export default function GenAIKnowledgePage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px] border-border bg-white/[0.78] shadow-sm backdrop-blur-xl sm:rounded-[28px]">
+        <Card className="min-w-0 rounded-[24px] border-border bg-white/[0.78] shadow-sm backdrop-blur-xl sm:rounded-[28px]">
           <CardHeader className="space-y-4 pb-4">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="min-w-0">
@@ -828,7 +746,7 @@ export default function GenAIKnowledgePage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:justify-end">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:flex xl:flex-wrap xl:justify-end xl:self-start">
                 <Button variant="outline" onClick={openEditFolderDialog} disabled={!selectedFolder} className="min-w-[132px] w-full shrink-0 whitespace-nowrap xl:w-auto">
                   <Menu className="mr-2 h-4 w-4" />
                   Sửa folder
@@ -888,7 +806,7 @@ export default function GenAIKnowledgePage() {
 
             <div className="rounded-3xl border border-dashed border-sky-300/60 bg-sky-50/70 p-4 sm:p-5">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <p className="font-medium text-slate-900">Cơ chế phân quyền cho tương lai đã được chuẩn bị</p>
                   <p className="text-sm text-muted-foreground">
                     Hiện tại trang dành cho teacher. Khi muốn chỉ cho một vài email truy cập, chỉ cần cấu hình biến môi trường `NEXT_PUBLIC_GENAI_TUTOR_ALLOWED_EMAILS`.
@@ -978,9 +896,10 @@ export default function GenAIKnowledgePage() {
                 <p className="text-sm text-muted-foreground">
                   Trang {page} · Tổng {totalFiles} file
                 </p>
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button
                     variant="outline"
+                    className="w-full sm:w-auto"
                     disabled={page <= 1}
                     onClick={() => setPage(current => Math.max(1, current - 1))}
                   >
@@ -988,6 +907,7 @@ export default function GenAIKnowledgePage() {
                   </Button>
                   <Button
                     variant="outline"
+                    className="w-full sm:w-auto"
                     disabled={page * 12 >= totalFiles}
                     onClick={() => setPage(current => current + 1)}
                   >
@@ -998,7 +918,7 @@ export default function GenAIKnowledgePage() {
             )}
 
             {selectedFolder && (
-              <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                   <Button variant="outline" onClick={handleSelectAllCurrentPage} disabled={folderFiles.length === 0}>
                     Chọn tất cả trang này

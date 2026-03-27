@@ -43,12 +43,12 @@ export function KnowledgePendingUploadList({
         <div className="space-y-3">
           {pendingUploads.map(item => (
             <div key={item.id} className="space-y-2 rounded-2xl border border-border/70 bg-white/70 p-3">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="text-sm font-medium">{item.file.name}</div>
-                  <div className="text-xs text-muted-foreground">{formatBytes(item.file.size)} · {item.file.type || "unknown"}</div>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium">{item.file.name}</div>
+                  <div className="truncate text-xs text-muted-foreground">{formatBytes(item.file.size)} · {item.file.type || "unknown"}</div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => onRemove(item.id)}>
+                <Button variant="ghost" size="sm" onClick={() => onRemove(item.id)} className="shrink-0">
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>

@@ -13,6 +13,7 @@ import {
   sendVerificationEmailApi,
   verifyAccountApi,
   logoutApi,
+  refreshTokenApi,
   LoginResponse,
   SignupResponse,
 } from "@/apis/authApi";
@@ -32,6 +33,7 @@ interface AuthState {
   resetPassword: (credentials: ResetPasswordCredentials) => Promise<void>;
   logout: () => Promise<void>;
   getUser: () => void;
+  refreshSession: () => Promise<string | null>;
   sendVerificationEmail: () => Promise<void>;
   verifyAccount: (code: string) => Promise<void>;
   loginWithGoogle?: (role: UserRole) => Promise<void>;
@@ -185,6 +187,31 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     set({ user: null, isAuthenticated: false });
     clearAuthToken();
+  },
+
+  refreshSession: async () => {
+    try {
+      const response = await refreshTokenApi();
+
+      if (!response.success || !response.token) {
+        throw new Error(response.message || "Làm mới phiên đăng nhập thất bại");
+      }
+
+      if (typeof window !== "undefined") {
+        setAuthToken(response.token);
+      }
+
+      set((state) => ({
+        user: response.user ?? state.user,
+        isAuthenticated: true,
+      }));
+
+      return response.token;
+    } catch (error) {
+      set({ user: null, isAuthenticated: false });
+      clearAuthToken();
+      throw error;
+    }
   },
 
   getUser: async () => {

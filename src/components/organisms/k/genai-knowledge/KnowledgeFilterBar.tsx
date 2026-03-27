@@ -15,7 +15,7 @@ interface KnowledgeFilterBarProps {
 
 export function KnowledgeFilterBar(props: KnowledgeFilterBarProps) {
   return (
-    <div className="grid gap-3 rounded-3xl border border-border bg-black/[0.02] p-4 md:grid-cols-[1fr_180px_180px_160px_160px]">
+    <div className="grid gap-3 rounded-3xl border border-border bg-black/[0.02] p-4 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_180px_180px_160px_160px]">
       <Input
         value={props.searchQuery}
         onChange={event => props.onSearchChange(event.target.value)}

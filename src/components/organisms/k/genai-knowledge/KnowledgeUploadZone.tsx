@@ -63,7 +63,7 @@ export function KnowledgeUploadZone(props: KnowledgeUploadZoneProps) {
             <UploadCloud className="mr-2 h-4 w-4" />
             Chọn file
           </Button>
-          <Badge variant="outline" className="min-h-11 justify-center px-3 py-2 text-xs sm:justify-start">
+          <Badge variant="outline" className="min-h-11 max-w-full justify-center px-3 py-2 text-center text-xs sm:justify-start sm:text-left">
             {props.selectedFolderName ? `Folder đích: ${props.selectedFolderName}` : "Chưa chọn folder"}
           </Badge>
         </div>
