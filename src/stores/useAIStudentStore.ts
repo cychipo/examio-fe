@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 import {
   aiStudentApi,
+  AIStudentEvaluationResult,
   AIStudentMessage,
   AIStudentQueryResponse,
   AIStudentSession,
@@ -19,6 +20,13 @@ export interface AIStudentChatMessage {
   sources?: AIStudentQueryResponse["sources"];
   confidence?: number;
   modelUsed?: string;
+  evaluation?: AIStudentEvaluationResult;
+  evaluationJob?: {
+    id: string;
+    status: string;
+    score?: number;
+  };
+  isEvaluating?: boolean;
 }
 
 interface AIStudentState {
@@ -37,18 +45,19 @@ interface AIStudentState {
   deleteSession: (sessionId: string) => Promise<void>;
   clearMessages: () => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
+  evaluateMessage: (messageId: string) => Promise<void>;
   stopStreaming: () => void;
 }
 
-const STUDENT_TUTOR_TOP_K = 3;
+const STUDENT_TUTOR_TOP_K = 2;
 
 function shouldUseFastMode(query: string, selectedModel: AIModelType) {
   const normalized = query.trim().toLowerCase();
-  if (selectedModel === "qwen3_32b") {
+  if (selectedModel === "qwen3_32b" && normalized.length > 120) {
     return false;
   }
 
-  if (normalized.length <= 180) {
+  if (normalized.length <= 260) {
     return true;
   }
 
@@ -211,6 +220,145 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
     const created = await aiStudentApi.createSession();
     const sessions = [created, ...get().sessions.filter(session => session.id !== selectedSessionId)];
     set({ sessions, selectedSessionId: created.id, messages: getFallbackMessages(), streamingContent: "", abortStream: null });
+  },
+
+  evaluateMessage: async (messageId) => {
+    const state = get();
+    const selectedSessionId = state.selectedSessionId;
+    const targetMessage = state.messages.find(message => message.id === messageId && message.role === "assistant");
+    if (!targetMessage || !selectedSessionId || targetMessage.isEvaluating) {
+      return;
+    }
+
+    const assistantIndex = state.messages.findIndex(message => message.id === messageId);
+    const questionMessage = [...state.messages]
+      .slice(0, assistantIndex)
+      .reverse()
+      .find(message => message.role === "user");
+
+    if (!questionMessage) {
+      toast.error("Không tìm thấy câu hỏi gốc để đánh giá câu trả lời");
+      return;
+    }
+
+    try {
+      set((current) => ({
+        messages: current.messages.map(message =>
+          message.id === messageId
+            ? { ...message, isEvaluating: true }
+            : message,
+        ),
+      }));
+
+      const job = await aiStudentApi.evaluateProgrammingAnswer({
+        sessionId: selectedSessionId,
+        messageId,
+        question: questionMessage.content,
+        answer: targetMessage.content,
+        modelType: targetMessage.modelUsed || state.selectedModel,
+      });
+
+      set((current) => ({
+        messages: current.messages.map(message =>
+          message.id === messageId
+                ? {
+                    ...message,
+                    evaluationJob: {
+                      id: job.id,
+                      status: job.status,
+                },
+                isEvaluating: true,
+              }
+            : message,
+        ),
+      }));
+
+      while (true) {
+        const status = await aiStudentApi.getEvaluationJob(job.id);
+        if (status.status === "completed") {
+          const evaluation: AIStudentEvaluationResult = {
+            id: status.id,
+            score: status.score,
+            status: status.status,
+            language: status.language,
+            rationale: status.rationale,
+            passed: status.passed,
+            total: status.total,
+            executionTimeMs: status.executionTimeMs,
+            stderr: status.stderr,
+            stdout: status.stdout,
+            testCode: status.testCode,
+            modelUsed: status.modelUsed,
+          };
+
+          set((current) => ({
+            messages: current.messages.map(message =>
+              message.id === messageId
+                ? {
+                    ...message,
+                    evaluation,
+                    evaluationJob: {
+                      id: status.id,
+                      status: status.status,
+                      score: status.score,
+                    },
+                    isEvaluating: false,
+                  }
+                : message,
+            ),
+          }));
+
+          toast.success("Đã tính mức độ tín nhiệm câu trả lời");
+          return;
+        }
+
+        if (status.status === "failed") {
+          set((current) => ({
+            messages: current.messages.map(message =>
+              message.id === messageId
+                ? {
+                    ...message,
+                    evaluationJob: {
+                      id: status.id,
+                      status: status.status,
+                    },
+                    isEvaluating: false,
+                  }
+                : message,
+            ),
+          }));
+          throw new Error(status.errorMessage || "Không thể đánh giá câu trả lời");
+        }
+
+        set((current) => ({
+          messages: current.messages.map(message =>
+            message.id === messageId
+              ? {
+                  ...message,
+                  evaluationJob: {
+                    id: status.id,
+                    status: `${status.status}:${status.metadata?.stage || "processing"}`,
+                    score: status.score,
+                  },
+                  isEvaluating: true,
+                }
+              : message,
+          ),
+        }));
+
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    }
+    catch (error) {
+      set((current) => ({
+        messages: current.messages.map(message =>
+          message.id === messageId
+            ? { ...message, isEvaluating: false }
+            : message,
+        ),
+      }));
+      toast.error((error as Error).message || "Không thể đánh giá câu trả lời");
+    }
   },
 
   sendMessage: async (content) => {

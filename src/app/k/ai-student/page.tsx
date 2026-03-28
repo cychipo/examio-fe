@@ -6,6 +6,7 @@ import {
   Code2,
   Copy,
   Database,
+  Gauge,
   Loader2,
   MessageSquarePlus,
   Pencil,
@@ -71,6 +72,19 @@ const quickPromptGroups = [
   },
 ];
 
+function getSourceBadgeLabel(sourcePath: string) {
+  const normalized = sourcePath.toLowerCase();
+  if (normalized.includes("humaneval")) return "HumanEval";
+  if (normalized.includes("mbpp")) return "MBPP";
+  if (normalized.includes("codenet")) return "CodeNet";
+  return "Knowledge";
+}
+
+function getShortSourceName(sourcePath: string, fallbackTitle: string) {
+  const segments = sourcePath.split("/").filter(Boolean);
+  return segments[segments.length - 1] || fallbackTitle;
+}
+
 export default function AIStudentPage() {
   const { user, initializing } = useAuthStore();
   const {
@@ -88,6 +102,7 @@ export default function AIStudentPage() {
     deleteSession,
     sendMessage,
     clearMessages,
+    evaluateMessage,
     stopStreaming,
   } = useAIStudentStore();
   const [input, setInput] = useState("");
@@ -432,6 +447,133 @@ export default function AIStudentPage() {
                             <Copy className="h-4 w-4" />
                             Copy
                           </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => evaluateMessage(message.id)}
+                            disabled={message.isEvaluating}
+                            className="rounded-full border border-[#eed8bd] bg-white/80 text-[#7c5b37] hover:bg-[#fff4e8]"
+                          >
+                            {message.isEvaluating ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Gauge className="h-4 w-4" />
+                            )}
+                            {message.isEvaluating ? "Đang chấm..." : "Tính tín nhiệm"}
+                          </Button>
+                        </div>
+                      )}
+
+                      {message.role === "assistant" && message.isEvaluating && (
+                        <div className="mt-4 rounded-[24px] border border-[#ecd7bd] bg-[linear-gradient(180deg,#fffdf8,#fff5e8)] px-4 py-4 shadow-[0_14px_35px_rgba(217,119,6,0.08)]">
+                          <div className="flex items-center gap-3 text-sm text-[#6f573d]">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm">
+                              <Loader2 className="h-4 w-4 animate-spin text-[#f97316]" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-[#3f3b32]">
+                                Đang chấm độ tín nhiệm câu trả lời
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Hệ thống đang sinh test, chạy sandbox và tổng hợp kết quả ở backend.
+                              </p>
+                              {message.evaluationJob?.status && (
+                                <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-[#a16207]">
+                                  {message.evaluationJob.status}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {message.role === "assistant" && message.evaluation && (
+                        <div className="mt-4 overflow-hidden rounded-[24px] border border-[#ecd7bd] bg-[linear-gradient(180deg,#fffdf8,#fff5e8)] shadow-[0_14px_35px_rgba(217,119,6,0.08)]">
+                          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f1dfca] px-4 py-3">
+                            <div>
+                              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a6b37]">
+                                Đánh giá độ tín nhiệm
+                              </p>
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Chấm bằng bộ test động sinh từ chính câu hỏi lập trình.
+                              </p>
+                            </div>
+                            <div className="rounded-full bg-[linear-gradient(135deg,#fb923c,#f97316)] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]">
+                              {message.evaluation.score}/100
+                            </div>
+                          </div>
+
+                          <div className="grid gap-3 px-4 py-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                            <div className="space-y-3">
+                              {message.evaluation.status === "unavailable" && (
+                                <div className="rounded-2xl border border-dashed border-[#efc78a] bg-[linear-gradient(180deg,#fff8ef,#fff2df)] px-4 py-3 text-sm text-[#6f573d]">
+                                  <p className="font-semibold text-[#8a5a20]">
+                                    Chưa có dữ liệu để đánh giá tự động
+                                  </p>
+                                  <p className="mt-1 text-xs leading-6 text-[#7b6b59]">
+                                    Câu trả lời này hiện chưa match được với bộ benchmark chuẩn trong hệ thống, nên Examio chưa thể chấm điểm một cách xác định.
+                                  </p>
+                                </div>
+                              )}
+
+                              <div className="grid gap-2 sm:grid-cols-3">
+                                <div className="rounded-2xl border border-[#efdfc7] bg-white/80 px-3 py-3">
+                                  <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a6b37]">
+                                    Kết quả
+                                  </p>
+                                  <p className="mt-1 text-sm font-semibold text-[#3f3b32]">
+                                    {message.evaluation.total > 0
+                                      ? `${message.evaluation.passed}/${message.evaluation.total} test`
+                                      : "Chưa chấm được"}
+                                  </p>
+                                </div>
+                                <div className="rounded-2xl border border-[#efdfc7] bg-white/80 px-3 py-3">
+                                  <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a6b37]">
+                                    Ngôn ngữ
+                                  </p>
+                                  <p className="mt-1 text-sm font-semibold text-[#3f3b32]">
+                                    {message.evaluation.language.toUpperCase()}
+                                  </p>
+                                </div>
+                                <div className="rounded-2xl border border-[#efdfc7] bg-white/80 px-3 py-3">
+                                  <p className="text-[11px] uppercase tracking-[0.18em] text-[#9a6b37]">
+                                    Thời gian
+                                  </p>
+                                  <p className="mt-1 text-sm font-semibold text-[#3f3b32]">
+                                    {Math.round(message.evaluation.executionTimeMs)} ms
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="rounded-2xl border border-[#efdfc7] bg-white/80 px-4 py-3 text-sm text-[#4b463d]">
+                                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#9a6b37]">
+                                  Nhận định
+                                </p>
+                                <p>{message.evaluation.rationale}</p>
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-[#efdfc7] bg-[#fffaf2] px-4 py-3">
+                              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#9a6b37]">
+                                Trạng thái thực thi
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                  {message.evaluation.status}
+                                </Badge>
+                                {message.evaluation.modelUsed && (
+                                  <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                    {message.evaluation.modelUsed}
+                                  </Badge>
+                                )}
+                              </div>
+                              {message.evaluation.stderr && (
+                                <div className="mt-3 rounded-2xl bg-[#221815] px-3 py-3 font-mono text-xs leading-5 text-[#fde68a]">
+                                  {message.evaluation.stderr}
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       )}
 
@@ -464,13 +606,21 @@ export default function AIStudentPage() {
                                   key={source.chunkId}
                                   className="min-w-0 rounded-2xl border border-[#eadfce] bg-white/85 px-3 py-3 text-xs text-muted-foreground"
                                 >
-                                  <p className="font-medium text-foreground">
+                                  <div className="mb-2 flex items-center justify-between gap-2">
+                                    <p className="truncate font-medium text-foreground">
+                                      {getShortSourceName(source.sourcePath, source.title)}
+                                    </p>
+                                    <Badge
+                                      variant="outline"
+                                      className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]"
+                                    >
+                                      {getSourceBadgeLabel(source.sourcePath)}
+                                    </Badge>
+                                  </div>
+                                  <p className="line-clamp-2 text-[11px] leading-5 text-[#7b7368]">
                                     {source.title}
                                   </p>
-                                  <p className="break-all text-[11px] leading-5">
-                                    {source.sourcePath}
-                                  </p>
-                                  <p>
+                                  <p className="mt-2">
                                     score: {source.similarityScore.toFixed(3)}
                                   </p>
                                 </div>

@@ -55,6 +55,21 @@ export interface AIStudentSession {
   messageCount?: number;
 }
 
+export interface AIStudentEvaluationResult {
+  id?: string;
+  score: number;
+  status: string;
+  language: string;
+  rationale: string;
+  passed: number;
+  total: number;
+  executionTimeMs: number;
+  stderr?: string;
+  stdout?: string;
+  testCode?: string;
+  modelUsed?: string;
+}
+
 export const aiStudentApi = {
   listSessions: async () => {
     const response = await api.get("/ai/tutor/student-programming/sessions");
@@ -87,6 +102,12 @@ export const aiStudentApi = {
       sources?: AIStudentQueryResponse["sources"];
       confidence?: number;
       modelUsed?: string;
+      evaluation?: AIStudentEvaluationResult;
+      evaluationJob?: {
+        id: string;
+        status: string;
+        score?: number;
+      };
     }>;
   },
 
@@ -107,6 +128,31 @@ export const aiStudentApi = {
   askProgrammingTutor: async (payload: AIStudentQueryRequest) => {
     const response = await api.post("/ai/tutor/query", payload);
     return response.data as AIStudentQueryResponse;
+  },
+
+  evaluateProgrammingAnswer: async (payload: {
+    sessionId: string;
+    messageId: string;
+    question: string;
+    answer: string;
+    modelType?: string;
+    language?: string;
+  }) => {
+    const response = await api.post("/ai/tutor/student-programming/evaluate", payload);
+    return response.data as { id: string; status: string; messageId: string; sessionId: string };
+  },
+
+  getEvaluationJob: async (jobId: string) => {
+    const response = await api.get(`/ai/tutor/student-programming/evaluate/${jobId}`);
+    return response.data as AIStudentEvaluationResult & {
+      id: string;
+      messageId: string;
+      sessionId: string;
+      errorMessage?: string;
+      metadata?: {
+        stage?: string;
+      };
+    };
   },
 
   streamProgrammingTutor: (
