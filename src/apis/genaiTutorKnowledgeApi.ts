@@ -1,6 +1,6 @@
 import { api } from "@/apis/api";
 import { getCachedValue, invalidateCachedKeys, invalidateCachedValue, setCachedValue } from "@/lib/genai-knowledge-cache";
-import { GenAIKnowledgeDatasetCatalogItem, GenAIKnowledgeDatasetImportJob, GenAIKnowledgeGraphSnapshot } from "@/types/genai-knowledge";
+import { GenAIKnowledgeDatasetCatalogItem, GenAIKnowledgeDatasetImportJob, GenAIKnowledgeDatasetState, GenAIKnowledgeGraphSnapshot } from "@/types/genai-knowledge";
 
 const KNOWLEDGE_FOLDER_CACHE_KEY = "knowledge:folders";
 
@@ -352,6 +352,11 @@ export const genaiTutorKnowledgeApi = {
     return response.data as GenAIKnowledgeDatasetImportJob[];
   },
 
+  listDatasetStates: async () => {
+    const response = await api.get("/ai/tutor/dataset-imports/states");
+    return response.data as GenAIKnowledgeDatasetState[];
+  },
+
   getDatasetImportJob: async (jobId: string) => {
     const response = await api.get(`/ai/tutor/dataset-imports/${jobId}`);
     return response.data as GenAIKnowledgeDatasetImportJob;
@@ -360,6 +365,12 @@ export const genaiTutorKnowledgeApi = {
   cancelDatasetImportJob: async (jobId: string) => {
     const response = await api.post(`/ai/tutor/dataset-imports/${jobId}/cancel`);
     return response.data as GenAIKnowledgeDatasetImportJob;
+  },
+
+  clearDataset: async (datasetKey: string) => {
+    const response = await api.post(`/ai/tutor/dataset-imports/${datasetKey}/clear`);
+    invalidateKnowledgeEntityCaches();
+    return response.data as { success: boolean; datasetKey: string; message: string };
   },
 
   bulkDeleteKnowledgeFiles: async (fileIds: string[]) => {

@@ -102,8 +102,10 @@ export default function GenAIKnowledgePage() {
   const [datasetDialogOpen, setDatasetDialogOpen] = useState(false);
   const [datasetCatalog, setDatasetCatalog] = useState<any[]>([]);
   const [datasetJobs, setDatasetJobs] = useState<any[]>([]);
+  const [datasetStates, setDatasetStates] = useState<any[]>([]);
   const [importingDatasetKey, setImportingDatasetKey] = useState<string | null>(null);
   const [datasetJobToCancel, setDatasetJobToCancel] = useState<any | null>(null);
+  const [datasetKeyToClear, setDatasetKeyToClear] = useState<string | null>(null);
   const [fileToDelete, setFileToDelete] = useState<null | { id: string; name: string; uploadId?: string }>(null);
   const [graphDialogOpen, setGraphDialogOpen] = useState(false);
   const [graphLoading, setGraphLoading] = useState(false);
@@ -195,17 +197,23 @@ export default function GenAIKnowledgePage() {
     }
 
     try {
-      const [catalog, jobs] = await Promise.all([
+      const [catalog, jobs, states] = await Promise.all([
         genaiTutorKnowledgeApi.listDatasetCatalog(),
         genaiTutorKnowledgeApi.listDatasetImports(),
+        genaiTutorKnowledgeApi.listDatasetStates(),
       ]);
+      const folderNameById = new Map(folders.map(folder => [folder.id, folder.name]));
       setDatasetCatalog(catalog);
       setDatasetJobs(jobs);
+      setDatasetStates(states.map(state => ({
+        ...state,
+        importedFolderName: state.importedFolderId ? folderNameById.get(state.importedFolderId) : undefined,
+      })));
     }
     catch (error) {
       console.error("Failed to load dataset imports", error);
     }
-  }, [user]);
+  }, [folders, user]);
 
   useEffect(() => {
     loadDatasetImports();
@@ -227,6 +235,12 @@ export default function GenAIKnowledgePage() {
           refreshed.forEach(job => map.set(job.jobId, job));
           return Array.from(map.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         });
+        const states = await genaiTutorKnowledgeApi.listDatasetStates();
+        const folderNameById = new Map(folders.map(folder => [folder.id, folder.name]));
+        setDatasetStates(states.map(state => ({
+          ...state,
+          importedFolderName: state.importedFolderId ? folderNameById.get(state.importedFolderId) : undefined,
+        })));
 
         if (refreshed.some(job => ["completed", "cancelled"].includes(job.status))) {
           loadKnowledgeData();
@@ -238,7 +252,7 @@ export default function GenAIKnowledgePage() {
     }, 3000);
 
     return () => window.clearInterval(timer);
-  }, [datasetJobs, loadKnowledgeData]);
+  }, [datasetJobs, folders, loadKnowledgeData]);
 
   useEffect(() => {
     setPage(1);
@@ -401,6 +415,24 @@ export default function GenAIKnowledgePage() {
     }
     finally {
       setDatasetJobToCancel(null);
+    }
+  };
+
+  const handleClearDataset = async () => {
+    if (!datasetKeyToClear) {
+      return;
+    }
+    try {
+      const result = await genaiTutorKnowledgeApi.clearDataset(datasetKeyToClear);
+      toast.success(result.message);
+      await loadDatasetImports();
+      await loadKnowledgeData();
+    }
+    catch (error) {
+      toast.error((error as Error).message || "Không thể clear dataset");
+    }
+    finally {
+      setDatasetKeyToClear(null);
     }
   };
 
@@ -1062,9 +1094,12 @@ export default function GenAIKnowledgePage() {
               importingKey={importingDatasetKey}
               catalog={datasetCatalog}
               jobs={datasetJobs}
+              states={datasetStates}
+              selectedFolderId={selectedFolderId}
               onOpenChange={setDatasetDialogOpen}
               onImport={handleImportDataset}
               onCancel={(job) => setDatasetJobToCancel(job)}
+              onClear={(datasetKey) => setDatasetKeyToClear(datasetKey)}
             />
 
             {totalFiles > 12 && (
@@ -1277,6 +1312,23 @@ export default function GenAIKnowledgePage() {
             <AlertDialogCancel>Quay lại</AlertDialogCancel>
             <AlertDialogAction onClick={handleCancelDatasetImport}>
               Xác nhận hủy và xóa dữ liệu
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={Boolean(datasetKeyToClear)} onOpenChange={(open) => { if (!open) setDatasetKeyToClear(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear dataset "{datasetKeyToClear}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Hành động này sẽ xóa toàn bộ dữ liệu đã nạp của dataset, bao gồm cache nguồn tải về, lịch sử import và toàn bộ document/chunk/graph đã lưu trong DB. Không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Quay lại</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearDataset}>
+              Xóa toàn bộ dataset
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

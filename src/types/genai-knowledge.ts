@@ -81,6 +81,8 @@ export interface GenAIKnowledgeDatasetImportJob {
   message?: string;
   sourcePath?: string;
   ingestJobId?: string;
+  artifactUrl?: string;
+  artifactKeyR2?: string;
   downloadedFiles: number;
   processedFiles: number;
   totalFiles: number;
@@ -97,6 +99,16 @@ export interface GenAIKnowledgeDatasetImportJob {
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
+}
+
+export interface GenAIKnowledgeDatasetState {
+  datasetKey: string;
+  imported: boolean;
+  importedFolderId?: string;
+  importedFolderName?: string;
+  importedAt?: string;
+  latestJob?: GenAIKnowledgeDatasetImportJob;
+  lastSuccessfulJob?: GenAIKnowledgeDatasetImportJob;
 }
 
 export interface GenAIKnowledgeFolder {
