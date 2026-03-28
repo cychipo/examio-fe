@@ -153,7 +153,7 @@ export function KnowledgeDatasetImportDialog(props: KnowledgeDatasetImportDialog
                             Artifact R2: {job?.artifactKeyR2 || state?.lastSuccessfulJob?.artifactKeyR2}
                           </p>
                         )}
-                        {job.status === "cancelling" && (
+                        {job?.status === "cancelling" && (
                           <p className="text-xs font-medium text-amber-700">Đang hủy và dọn dữ liệu đã nạp...</p>
                         )}
                         {importedInCurrentFolder && !hasActiveJob && (
@@ -161,7 +161,7 @@ export function KnowledgeDatasetImportDialog(props: KnowledgeDatasetImportDialog
                             Xóa dataset
                           </Button>
                         )}
-                        {["queued", "downloading", "processing"].includes(job.status) && (
+                        {job && ["queued", "downloading", "processing"].includes(job.status) && (
                           <Button variant="outline" size="sm" className="mt-2" onClick={() => props.onCancel(job)}>
                             Hủy nạp dataset
                           </Button>

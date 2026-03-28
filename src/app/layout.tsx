@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/provider/ThemeProvider";
 import { ToastProvider } from "@/components/ui/toast";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { ReCaptchaProvider } from "@/provider/ReCaptchaProvider";
+import { AuthSyncBootstrap } from "@/components/auth/AuthSyncBootstrap";
 
 const tikTokSans = TikTok_Sans({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ToastProvider>
+              <AuthSyncBootstrap />
               <div className="min-h-screen [&::-webkit-scrollbar]:w-2">
                 {children}
               </div>

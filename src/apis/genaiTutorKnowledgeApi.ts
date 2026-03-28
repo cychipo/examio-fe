@@ -2,6 +2,13 @@ import { api } from "@/apis/api";
 import { getCachedValue, invalidateCachedKeys, invalidateCachedValue, setCachedValue } from "@/lib/genai-knowledge-cache";
 import { GenAIKnowledgeDatasetCatalogItem, GenAIKnowledgeDatasetImportJob, GenAIKnowledgeDatasetState, GenAIKnowledgeGraphSnapshot } from "@/types/genai-knowledge";
 
+type KnowledgeFileMetadata = {
+  stage?: string;
+  message?: string;
+  sourceType?: string;
+  graphStage?: string;
+};
+
 const KNOWLEDGE_FOLDER_CACHE_KEY = "knowledge:folders";
 
 function invalidateKnowledgeEntityCaches(folderId?: string) {
@@ -112,7 +119,7 @@ export const genaiTutorKnowledgeApi = {
           size: number;
           status: string;
           progress: number;
-          metadata?: { stage?: string; message?: string };
+          metadata?: KnowledgeFileMetadata;
           folderId?: string;
           chunkCount?: number;
           vectorCount?: number;
@@ -149,7 +156,7 @@ export const genaiTutorKnowledgeApi = {
           size: number;
           status: string;
           progress: number;
-          metadata?: { stage?: string; message?: string };
+          metadata?: KnowledgeFileMetadata;
           folderId?: string;
           chunkCount?: number;
           vectorCount?: number;
@@ -229,7 +236,7 @@ export const genaiTutorKnowledgeApi = {
       fileId: string;
       status: string;
       progress: number;
-      metadata?: { stage?: string; message?: string };
+      metadata?: KnowledgeFileMetadata;
       chunkCount: number;
       vectorCount: number;
       graphDocumentId?: string;
@@ -247,7 +254,7 @@ export const genaiTutorKnowledgeApi = {
       fileId: string;
       status: string;
       progress: number;
-      metadata?: { stage?: string; message?: string };
+      metadata?: KnowledgeFileMetadata;
       chunkCount: number;
       vectorCount: number;
       graphDocumentId?: string;
@@ -303,7 +310,7 @@ export const genaiTutorKnowledgeApi = {
         size: number;
         status: string;
         progress: number;
-        metadata?: { stage?: string; message?: string };
+        metadata?: KnowledgeFileMetadata;
         folderId?: string;
         chunkCount?: number;
         vectorCount?: number;

@@ -19,12 +19,17 @@ export interface LoginResponse {
   user?: User;
   token?: string;
   refreshToken?: string;
+  sessionId?: string;
+  deviceId?: string;
 }
 
 export interface SignupResponse {
   success: boolean;
   message: string;
   token?: string;
+  refreshToken?: string;
+  sessionId?: string;
+  deviceId?: string;
   user?: User;
 }
 
@@ -108,6 +113,11 @@ export async function logoutApi(): Promise<{ success: boolean }> {
 
 export async function refreshTokenApi(): Promise<LoginResponse> {
   const response = await api.post("/auth/refresh");
+  return response.data;
+}
+
+export async function syncRefreshTokenApi(sessionId?: string): Promise<{ success: boolean; refreshToken?: string }> {
+  const response = await api.post("/auth/sync-refresh-token", sessionId ? { sessionId } : undefined);
   return response.data;
 }
 

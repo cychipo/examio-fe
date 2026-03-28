@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   BrainCircuit,
@@ -57,7 +57,8 @@ import { KnowledgeUploadZone } from "@/components/organisms/k/genai-knowledge/Kn
 import { KnowledgeFolderDialog } from "@/components/organisms/k/genai-knowledge/KnowledgeFolderDialog";
 import { KnowledgeGraphDialog } from "@/components/organisms/k/genai-knowledge/KnowledgeGraphDialog";
 import { KnowledgeDatasetImportDialog } from "@/components/organisms/k/genai-knowledge/KnowledgeDatasetImportDialog";
-export default function GenAIKnowledgePage() {
+
+function GenAIKnowledgePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1347,5 +1348,13 @@ export default function GenAIKnowledgePage() {
         onSave={handleSaveFolder}
       />
     </div>
+  );
+}
+
+export default function GenAIKnowledgePage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-muted-foreground">Đang tải kho tri thức...</div>}>
+      <GenAIKnowledgePageContent />
+    </Suspense>
   );
 }

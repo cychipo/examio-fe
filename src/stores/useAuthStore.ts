@@ -18,7 +18,14 @@ import {
   SignupResponse,
 } from "@/apis/authApi";
 import { toast } from "@/components/ui/toast";
-import { setAuthToken, clearAuthToken } from "@/hooks/useAuthSync";
+import {
+  setAuthToken,
+  clearAuthToken,
+  setStoredRefreshToken,
+  clearStoredRefreshToken,
+  setStoredSessionId,
+  clearStoredSessionId,
+} from "@/hooks/useAuthSync";
 
 interface AuthState {
   user: User | null;
@@ -86,6 +93,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         if (response.token && typeof window !== "undefined") {
           setAuthToken(response.token);
         }
+        if (response.refreshToken && typeof window !== "undefined") {
+          setStoredRefreshToken(response.refreshToken);
+        }
+        if (response.sessionId && typeof window !== "undefined") {
+          setStoredSessionId(response.sessionId);
+        }
 
         return response; // Return response for UI to use role/token
       } else {
@@ -120,6 +133,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         // Set token to both localStorage and cookie
         if (response.token && typeof window !== "undefined") {
           setAuthToken(response.token);
+        }
+        if (response.refreshToken && typeof window !== "undefined") {
+          setStoredRefreshToken(response.refreshToken);
+        }
+        if (response.sessionId && typeof window !== "undefined") {
+          setStoredSessionId(response.sessionId);
         }
 
         return response; // Return response for UI to use role/token
@@ -187,6 +206,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     set({ user: null, isAuthenticated: false });
     clearAuthToken();
+    clearStoredRefreshToken();
+    clearStoredSessionId();
   },
 
   refreshSession: async () => {
@@ -199,6 +220,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (typeof window !== "undefined") {
         setAuthToken(response.token);
+        if (response.refreshToken) {
+          setStoredRefreshToken(response.refreshToken);
+        }
       }
 
       set((state) => ({
@@ -210,25 +234,42 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (error) {
       set({ user: null, isAuthenticated: false });
       clearAuthToken();
+      clearStoredRefreshToken();
+      clearStoredSessionId();
       throw error;
     }
   },
 
   getUser: async () => {
+    if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+      console.warn("[auth-store] skip getUser because auth_token is missing");
+      set({ user: null, isAuthenticated: false, initializing: false });
+      return;
+    }
+
+    console.log("[auth-store] getUser start", {
+      authToken: typeof window !== "undefined" ? localStorage.getItem("auth_token") : null,
+      refreshToken: typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null,
+      sessionId: typeof window !== "undefined" ? localStorage.getItem("session_id") : null,
+    });
+
     set((state) => ({
       initializing: !state.isAuthenticated,
     }));
     try {
       const user = await getUserApi(true);
       if (user) {
+        console.log("[auth-store] getUser success", user);
         set({ user: user.user, isAuthenticated: true });
       } else {
+        console.warn("[auth-store] getUser returned empty payload");
         set({ user: null, isAuthenticated: false });
       }
     } catch (error) {
-      console.error("Failed to get user:", error);
+      console.error("[auth-store] getUser failed", error);
       set({ user: null, isAuthenticated: false });
     } finally {
+      console.log("[auth-store] getUser finished");
       set({ initializing: false });
     }
   },

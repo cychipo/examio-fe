@@ -6,7 +6,16 @@ import axios, {
 } from "axios";
 import { getOrCreateDeviceId } from "@/lib/deviceId";
 import { MODEL_UNAVAILABLE_MESSAGE } from "@/types/ai";
-import { setAuthToken, clearAuthToken } from "@/hooks/useAuthSync";
+import {
+  setAuthToken,
+  clearAuthToken,
+  getStoredRefreshToken,
+  getStoredSessionId,
+  setStoredRefreshToken,
+  clearStoredRefreshToken,
+  clearStoredSessionId,
+} from "@/hooks/useAuthSync";
+import { syncRefreshTokenApi } from "@/apis/authApi";
 
 type RetryableRequestConfig = AxiosRequestConfig & {
   _retry?: boolean;
@@ -16,7 +25,16 @@ type RetryableRequestConfig = AxiosRequestConfig & {
 let refreshPromise: Promise<string | null> | null = null;
 
 function handleAuthFailure() {
+  console.warn("[auth-api] handleAuthFailure triggered", {
+    pathname: typeof window !== "undefined" ? window.location.pathname : null,
+    authToken: typeof window !== "undefined" ? localStorage.getItem("auth_token") : null,
+    refreshToken: typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null,
+    sessionId: typeof window !== "undefined" ? localStorage.getItem("session_id") : null,
+  });
+
   clearAuthToken();
+  clearStoredRefreshToken();
+  clearStoredSessionId();
 
   if (typeof window === "undefined") {
     return;
@@ -34,21 +52,48 @@ export const api = axios.create({
 
 async function refreshAccessToken() {
   if (!refreshPromise) {
+    let refreshToken = getStoredRefreshToken();
+
+    console.log("[auth-api] refreshAccessToken start", {
+      refreshToken,
+      sessionId: getStoredSessionId(),
+    });
+
+    const sessionId = getStoredSessionId();
+
+    if (!refreshToken && sessionId) {
+      console.log("[auth-api] no refresh_token, attempting sync-refresh-token");
+      const syncResponse = await syncRefreshTokenApi(sessionId);
+      refreshToken = syncResponse.refreshToken || null;
+      if (refreshToken) {
+        setStoredRefreshToken(refreshToken);
+        console.log("[auth-api] sync-refresh-token returned refresh_token");
+      } else {
+        console.warn("[auth-api] sync-refresh-token returned no refresh_token", syncResponse);
+      }
+    } else if (!refreshToken) {
+      console.warn("[auth-api] cannot sync refresh token because session_id is missing");
+    }
+
     refreshPromise = api
-      .post("/auth/refresh", undefined, {
+      .post("/auth/refresh", refreshToken ? { refreshToken } : undefined, {
         skipAuthRefresh: true,
       } as RetryableRequestConfig)
       .then((response) => {
+        console.log("[auth-api] /auth/refresh success", response.data);
         const token = response.data?.token;
         if (!token) {
           throw new Error("Làm mới phiên đăng nhập thất bại");
         }
 
         setAuthToken(token);
+        if (response.data?.refreshToken) {
+          setStoredRefreshToken(response.data.refreshToken);
+        }
         return token as string;
       })
       .catch((error) => {
-        clearAuthToken();
+        console.error("[auth-api] /auth/refresh failed", error);
         throw error;
       })
       .finally(() => {
@@ -89,6 +134,10 @@ api.interceptors.response.use(
       !originalRequest._retry &&
       !originalRequest.skipAuthRefresh
     ) {
+      console.warn("[auth-api] interceptor caught 401, attempting refresh", {
+        url: originalRequest.url,
+        method: originalRequest.method,
+      });
       try {
         originalRequest._retry = true;
         const newToken = await refreshAccessToken();
@@ -99,6 +148,7 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch {
+        console.error("[auth-api] refresh attempt failed, forcing auth failure");
         handleAuthFailure();
         return Promise.reject(new Error("Phiên đăng nhập đã hết hạn"));
       }
