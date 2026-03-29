@@ -67,6 +67,17 @@ export interface AIStudentEvaluationResult {
   stderr?: string;
   stdout?: string;
   testCode?: string;
+  benchmark?: {
+    datasetName?: string;
+    sampleId?: string;
+    entryPoint?: string | null;
+    source?: string;
+    candidateCount?: number;
+    signals?: {
+      function_name?: string | null;
+      task_id?: string | null;
+    };
+  } | null;
   modelUsed?: string;
 }
 

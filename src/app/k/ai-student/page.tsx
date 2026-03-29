@@ -511,8 +511,27 @@ export default function AIStudentPage() {
                                     Chưa có dữ liệu để đánh giá tự động
                                   </p>
                                   <p className="mt-1 text-xs leading-6 text-[#7b6b59]">
-                                    Câu trả lời này hiện chưa match được với bộ benchmark chuẩn trong hệ thống, nên Examio chưa thể chấm điểm một cách xác định.
+                                    {message.evaluation.rationale}
                                   </p>
+                                  {(message.evaluation.benchmark?.candidateCount || message.evaluation.benchmark?.signals?.function_name || message.evaluation.benchmark?.signals?.task_id) && (
+                                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-[#7b6b59]">
+                                      {typeof message.evaluation.benchmark?.candidateCount === "number" && (
+                                        <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                          {message.evaluation.benchmark.candidateCount} benchmark
+                                        </Badge>
+                                      )}
+                                      {message.evaluation.benchmark?.signals?.function_name && (
+                                        <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                          function: {message.evaluation.benchmark.signals.function_name}
+                                        </Badge>
+                                      )}
+                                      {message.evaluation.benchmark?.signals?.task_id && (
+                                        <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                          task: {message.evaluation.benchmark.signals.task_id}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
                               )}
 
@@ -551,6 +570,27 @@ export default function AIStudentPage() {
                                 </p>
                                 <p>{message.evaluation.rationale}</p>
                               </div>
+
+                              {message.evaluation.benchmark?.datasetName && message.evaluation.benchmark?.sampleId && (
+                                <div className="rounded-2xl border border-[#efdfc7] bg-white/80 px-4 py-3 text-sm text-[#4b463d]">
+                                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#9a6b37]">
+                                    Benchmark đối chiếu
+                                  </p>
+                                  <div className="flex flex-wrap gap-2 text-xs text-[#6b4f32]">
+                                    <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                      {message.evaluation.benchmark.datasetName}
+                                    </Badge>
+                                    <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                      {message.evaluation.benchmark.sampleId}
+                                    </Badge>
+                                    {message.evaluation.benchmark.entryPoint && (
+                                      <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                        {message.evaluation.benchmark.entryPoint}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
                             </div>
 
                             <div className="rounded-2xl border border-[#efdfc7] bg-[#fffaf2] px-4 py-3">

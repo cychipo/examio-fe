@@ -87,6 +87,13 @@ export interface GenAIKnowledgeDatasetImportJob {
   processedFiles: number;
   totalFiles: number;
   metadata?: {
+    benchmarkIndexing?: {
+      seeded: number;
+      parsed: number;
+      datasetKey: string;
+      sourcePath?: string;
+      sourcePaths?: string[];
+    };
     result?: {
       documents: number;
       chunks: number;

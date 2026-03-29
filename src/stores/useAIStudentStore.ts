@@ -288,6 +288,7 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
             stderr: status.stderr,
             stdout: status.stdout,
             testCode: status.testCode,
+            benchmark: status.benchmark,
             modelUsed: status.modelUsed,
           };
 

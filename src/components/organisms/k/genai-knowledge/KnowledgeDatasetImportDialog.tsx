@@ -95,6 +95,12 @@ export function KnowledgeDatasetImportDialog(props: KnowledgeDatasetImportDialog
           {props.catalog.map(item => {
             const state = stateMap.get(item.datasetKey);
             const job = state?.latestJob || jobMap.get(item.datasetKey);
+            const benchmarkIndexing = (job?.metadata?.benchmarkIndexing || state?.lastSuccessfulJob?.metadata?.benchmarkIndexing) as
+              | {
+                seeded?: number;
+                parsed?: number;
+              }
+              | undefined;
             const isImporting = props.importingKey === item.datasetKey;
             const importedInCurrentFolder = Boolean(state?.imported && state.importedFolderId === props.selectedFolderId);
             const importedElsewhere = Boolean(state?.imported && state.importedFolderId && state.importedFolderId !== props.selectedFolderId);
@@ -146,6 +152,12 @@ export function KnowledgeDatasetImportDialog(props: KnowledgeDatasetImportDialog
                             <Badge variant="outline">{(job?.metadata?.result || state?.lastSuccessfulJob?.metadata?.result)?.chunks} chunks</Badge>
                             <Badge variant="outline">{(job?.metadata?.result || state?.lastSuccessfulJob?.metadata?.result)?.entities} entities</Badge>
                             <Badge variant="outline">{(job?.metadata?.result || state?.lastSuccessfulJob?.metadata?.result)?.relations} relations</Badge>
+                          </div>
+                        )}
+                        {benchmarkIndexing && (
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <Badge variant="outline">{benchmarkIndexing.seeded || 0} benchmark</Badge>
+                            <Badge variant="outline">{benchmarkIndexing.parsed || 0} parsed</Badge>
                           </div>
                         )}
                         {(job?.artifactUrl || state?.lastSuccessfulJob?.artifactUrl) && (
