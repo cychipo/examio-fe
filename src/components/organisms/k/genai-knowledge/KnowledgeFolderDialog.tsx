@@ -44,7 +44,7 @@ export function KnowledgeFolderDialog(props: KnowledgeFolderDialogProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">Tên folder</label>
             <Input
-              placeholder="Ví dụ: Python Cơ Bản, Thuật toán C, Debugging Patterns"
+              placeholder="Ví dụ: Python Cơ Bản, Thuật toán C++, Debugging Patterns"
               value={props.folderName}
               onChange={event => props.onFolderNameChange(event.target.value)}
             />

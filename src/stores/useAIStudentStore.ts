@@ -82,7 +82,7 @@ function getFallbackMessages() {
   return [
     createLocalMessage(
       "assistant",
-      "Xin chào! Mình là trợ lý AI hỗ trợ học lập trình. Bạn có thể hỏi về Python, C, thuật toán, debug, độ phức tạp hoặc gửi đoạn code để mình giải thích.",
+      "Xin chào! Mình là trợ lý AI hỗ trợ học lập trình. Bạn có thể hỏi về Python, C++, thuật toán, debug, độ phức tạp hoặc gửi đoạn code để mình giải thích.",
     ),
   ];
 }

@@ -8,7 +8,7 @@ export interface AIStudentMessage {
 export interface AIStudentQueryRequest {
   query: string;
   history?: AIStudentMessage[];
-  language?: string;
+  language?: "python" | "cpp" | string;
   topic?: string;
   difficulty?: "basic" | "intermediate" | "advanced";
   topK?: number;
@@ -59,7 +59,7 @@ export interface AIStudentEvaluationResult {
   id?: string;
   score: number;
   status: string;
-  language: string;
+  language: "python" | "cpp" | string;
   rationale: string;
   passed: number;
   total: number;

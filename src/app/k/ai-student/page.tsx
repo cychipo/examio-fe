@@ -53,13 +53,13 @@ const quickPromptGroups = [
     title: "Giải thích",
     prompts: [
       "Giải thích cho mình thuật toán binary search bằng Python thật dễ hiểu.",
-      "So sánh vòng lặp for và while trong C và Python khi nào nên dùng.",
+      "So sánh vòng lặp for và while trong C++ và Python khi nào nên dùng.",
     ],
   },
   {
     title: "Debug",
     prompts: [
-      "Tìm lỗi trong đoạn code C bị segmentation fault khi duyệt mảng.",
+      "Tìm lỗi trong đoạn code C++ bị segmentation fault khi duyệt mảng.",
       "Giải thích vì sao chương trình Python này bị lỗi IndexError và cách sửa.",
     ],
   },
@@ -67,10 +67,46 @@ const quickPromptGroups = [
     title: "Lời giải",
     prompts: [
       "Viết lời giải Python cho bài đọc N số và in ra số lớn nhất, kèm giải thích độ phức tạp.",
-      "Hướng dẫn từng bước cách giải bài kiểm tra số nguyên tố bằng C mà chưa đưa full code ngay.",
+      "Hướng dẫn từng bước cách giải bài kiểm tra số nguyên tố bằng C++ mà chưa đưa full code ngay.",
     ],
   },
 ];
+
+function formatProgrammingLanguage(language?: string) {
+  if (!language) return "Không rõ";
+  if (language.toLowerCase() === "cpp") return "C++";
+  if (language.toLowerCase() === "python") return "Python";
+  return language.toUpperCase();
+}
+
+function formatBenchmarkDatasetName(datasetName?: string) {
+  if (!datasetName) return "Benchmark";
+  if (datasetName === "multipl_e_humaneval_cpp") return "MultiPL-E HumanEval C++";
+  if (datasetName === "multipl_e_mbpp_cpp") return "MultiPL-E MBPP C++";
+  if (datasetName === "humaneval") return "HumanEval Python";
+  if (datasetName === "mbpp") return "MBPP Python";
+  if (datasetName === "rule_based_fallback") return "Rule-based fallback";
+  return datasetName;
+}
+
+function getEvaluationSummary(evaluation?: {
+  status?: string;
+  benchmark?: {
+    datasetName?: string;
+    synthetic?: boolean;
+  };
+}) {
+  if (!evaluation) {
+    return "Đang chờ đánh giá tự động.";
+  }
+  if (evaluation.status === "unavailable") {
+    return "Chưa có benchmark hoặc rule phù hợp để chấm tự động.";
+  }
+  if (evaluation.benchmark?.datasetName === "rule_based_fallback" || evaluation.benchmark?.synthetic) {
+    return "Chấm bằng rule-based fallback phase 1 cho các bài pure-function đơn giản.";
+  }
+  return "Chấm bằng benchmark đối chiếu và sandbox thực thi.";
+}
 
 function getSourceBadgeLabel(sourcePath: string) {
   const normalized = sourcePath.toLowerCase();
@@ -265,7 +301,7 @@ export default function AIStudentPage() {
               <div>
                 <CardTitle className="text-lg">AI Hỏi Lập Trình</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Trợ lý học tập cho học sinh với C, Python và thuật toán.
+                  Trợ lý học tập cho học sinh với C++, Python và thuật toán.
                 </p>
               </div>
             </div>
@@ -495,7 +531,7 @@ export default function AIStudentPage() {
                                 Đánh giá độ tín nhiệm
                               </p>
                               <p className="mt-1 text-xs text-muted-foreground">
-                                Chấm bằng bộ test động sinh từ chính câu hỏi lập trình.
+                                {getEvaluationSummary(message.evaluation)}
                               </p>
                             </div>
                             <div className="rounded-full bg-[linear-gradient(135deg,#fb923c,#f97316)] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]">
@@ -508,7 +544,7 @@ export default function AIStudentPage() {
                               {message.evaluation.status === "unavailable" && (
                                 <div className="rounded-2xl border border-dashed border-[#efc78a] bg-[linear-gradient(180deg,#fff8ef,#fff2df)] px-4 py-3 text-sm text-[#6f573d]">
                                   <p className="font-semibold text-[#8a5a20]">
-                                    Chưa có dữ liệu để đánh giá tự động
+                                    Chưa có benchmark hoặc rule phù hợp để đánh giá tự động
                                   </p>
                                   <p className="mt-1 text-xs leading-6 text-[#7b6b59]">
                                     {message.evaluation.rationale}
@@ -551,7 +587,7 @@ export default function AIStudentPage() {
                                     Ngôn ngữ
                                   </p>
                                   <p className="mt-1 text-sm font-semibold text-[#3f3b32]">
-                                    {message.evaluation.language.toUpperCase()}
+                                    {formatProgrammingLanguage(message.evaluation.language)}
                                   </p>
                                 </div>
                                 <div className="rounded-2xl border border-[#efdfc7] bg-white/80 px-3 py-3">
@@ -574,11 +610,13 @@ export default function AIStudentPage() {
                               {message.evaluation.benchmark?.datasetName && message.evaluation.benchmark?.sampleId && (
                                 <div className="rounded-2xl border border-[#efdfc7] bg-white/80 px-4 py-3 text-sm text-[#4b463d]">
                                   <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#9a6b37]">
-                                    Benchmark đối chiếu
+                                    {message.evaluation.benchmark?.datasetName === "rule_based_fallback"
+                                      ? "Fallback đối chiếu"
+                                      : "Benchmark đối chiếu"}
                                   </p>
                                   <div className="flex flex-wrap gap-2 text-xs text-[#6b4f32]">
                                     <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
-                                      {message.evaluation.benchmark.datasetName}
+                                      {formatBenchmarkDatasetName(message.evaluation.benchmark.datasetName)}
                                     </Badge>
                                     <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
                                       {message.evaluation.benchmark.sampleId}
