@@ -1,44 +1,32 @@
-/**
- * AI Model Types for ExamIO
- *
- * Available AI models that can be selected when generating content:
- * - gemini: Google Gemini AI with automatic key/model rotation to avoid rate limits
- * - fayedark: KMA AI using Ollama local LLM for on-premise processing
- */
+export type AIModelType = string;
 
-export type AIModelType = "gemini" | "fayedark";
+export interface AIModelSpec {
+  label: string;
+  value: string;
+}
 
 export interface AIModel {
   id: AIModelType;
   name: string;
   description: string;
-  icon: string;
-  badge?: string;
+  provider: string;
+  runtimeModelName: string;
+  badge?: string | null;
   disabled: boolean;
+  available?: boolean;
+  availabilityReason?: string | null;
+  isDefault: boolean;
+  supportsStructuredOutput?: boolean;
+  specs: AIModelSpec[];
 }
 
-/**
- * Available AI models configuration
- */
-export const AI_MODELS: AIModel[] = [
-  {
-    id: "fayedark",
-    name: "KMA AI",
-    description: "Ollama Local - Bảo mật cao",
-    icon: "🌙",
-    badge: "Recommended",
-    disabled: false,
-  },
-  {
-    id: "gemini",
-    name: "Gemini AI",
-    description: "Google Gemini - Nhanh và chính xác",
-    icon: "✨",
-    disabled: false,
-  },
-];
+export interface AIModelCatalog {
+  embeddingModel: AIModel;
+  generationModels: AIModel[];
+  defaultGenerationModel: AIModelType;
+}
 
-/**
- * Default AI model
- */
-export const DEFAULT_AI_MODEL: AIModelType = "fayedark";
+export const DEFAULT_AI_MODEL: AIModelType = "qwen3_8b";
+
+export const MODEL_UNAVAILABLE_MESSAGE =
+  "Model hiện tại không khả dụng, thử model khác.";

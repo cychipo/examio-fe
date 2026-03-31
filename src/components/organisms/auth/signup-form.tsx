@@ -11,7 +11,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "@/components/ui/toast";
 import { RoleSelection } from "./role-selection";
 import { UserRole } from "@/types/user";
-import { useRouter } from "next/navigation";
 
 function BottomGradient() {
   return (
@@ -37,9 +36,9 @@ function LabelInputContainer({
 }
 
 export function SignupForm() {
-  const { signup } = useAuthStore();
+  const { signup, loginWithGoogle, loginWithFacebook, loginWithGithub } =
+    useAuthStore();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-  const router = useRouter();
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
@@ -200,6 +199,7 @@ export function SignupForm() {
               <button
                 className="relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-gray-700 rounded-lg h-10 font-medium bg-gray-50 border border-gray-200 hover:bg-gray-100 cursor-pointer transition-all"
                 type="button"
+                onClick={() => loginWithGithub?.(selectedRole)}
               >
                 <IconBrandGithub className="h-4 w-4" />
                 <span className="text-sm">GitHub</span>
@@ -208,6 +208,7 @@ export function SignupForm() {
               <button
                 className="relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-gray-700 rounded-lg h-10 font-medium bg-gray-50 border border-gray-200 hover:bg-gray-100 cursor-pointer transition-all"
                 type="button"
+                onClick={() => loginWithGoogle?.(selectedRole)}
               >
                 <IconBrandGoogle className="h-4 w-4" />
                 <span className="text-sm">Google</span>
@@ -216,6 +217,7 @@ export function SignupForm() {
               <button
                 className="relative group/btn flex space-x-2 items-center justify-center px-4 w-full text-gray-700 rounded-lg h-10 font-medium bg-gray-50 border border-gray-200 hover:bg-gray-100 cursor-pointer transition-all"
                 type="button"
+                onClick={() => loginWithFacebook?.(selectedRole)}
               >
                 <FacebookIcon className="h-4 w-4" />
                 <span className="text-sm">Facebook</span>

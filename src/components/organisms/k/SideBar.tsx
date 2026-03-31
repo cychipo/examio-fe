@@ -9,15 +9,16 @@ import {
   ClockIcon,
   DashboardIcon,
 } from "@radix-ui/react-icons";
-import { Bot, BookOpen, GraduationCap } from "lucide-react";
+import { Bot, BookOpen, GraduationCap, Library } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FloatingDock } from "@/components/atoms/k/FloatingDock";
 import ProfileDropdown from "@/components/atoms/ProfileDropdown";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useLayoutEffect, useEffect } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
+import { canAccessGenAIKnowledgeManager } from "@/lib/genai-knowledge-access";
 
 interface Profile {
   name: string;
@@ -42,8 +43,10 @@ export function SidebarKit() {
     setMounted(true);
   }, []);
 
-  useLayoutEffect(() => {
-    getUser();
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem("auth_token")) {
+      getUser();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -83,12 +86,29 @@ export function SidebarKit() {
       teacherOnly: true, // Add teacher-only flag
     },
     {
+      name: "GenAI Knowledge",
+      href: "/k/genai-knowledge",
+      icon: <Library className="w-5 h-5" />,
+      label: "Kho tri thức GenAI",
+      active: pathname === "/k/genai-knowledge",
+      teacherOnly: true,
+      allowlistedTeacherOnly: true,
+    },
+    {
       name: "AI Teacher",
       href: "/k/ai-teacher",
       icon: <Bot />,
       label: "Giáo viên AI",
       active: pathname === "/k/ai-teacher",
-      studentOnly: true, // Only students can access
+      hidden: true,
+    },
+    {
+      name: "AI Student",
+      href: "/k/ai-student",
+      icon: <Bot />,
+      label: "Hỏi lập trình AI",
+      active: pathname === "/k/ai-student",
+      studentOnly: true,
     },
     {
       name: "My Materials",
@@ -148,8 +168,16 @@ export function SidebarKit() {
 
   // Filter sidebar items based on user role
   const filteredSidebarItems = itemSiderbar.filter((item) => {
+    if (item.hidden) {
+      return false;
+    }
+
     // Hide teacher-only items for anyone who is not a teacher (including admin and student)
     if (item.teacherOnly) {
+      if (item.allowlistedTeacherOnly) {
+        return canAccessGenAIKnowledgeManager(user);
+      }
+
       return user?.role === "teacher";
     }
     // Hide student-only items for anyone who is not a student

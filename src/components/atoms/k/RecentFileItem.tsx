@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { RecentUpload } from "@/apis/aiApi";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { repairVietnameseText } from "@/lib/text";
 
 interface RecentFileItemProps {
   upload: RecentUpload;
@@ -44,6 +45,7 @@ export function RecentFileItem({
 
   const hasQuiz = !!upload.quizHistory;
   const hasFlashcard = !!upload.flashcardHistory;
+  const displayFilename = repairVietnameseText(upload.filename);
 
   return (
     <div
@@ -61,10 +63,13 @@ export function RecentFileItem({
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground truncate pr-8">
-          {upload.filename}
+        <p
+          className="pr-8 text-sm font-medium text-foreground leading-5 break-words line-clamp-2"
+          title={displayFilename}
+        >
+          {displayFilename}
         </p>
-        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <Clock className="w-3 h-3" />
           <span>{formatTimeAgo(upload.createdAt)}</span>
           <span>•</span>
@@ -72,7 +77,7 @@ export function RecentFileItem({
         </div>
 
         {/* Tags */}
-        <div className="flex items-center gap-1.5 mt-2">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
           {hasQuiz && (
             <Badge
               variant="secondary"

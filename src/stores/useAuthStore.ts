@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { User } from "@/types/user";
+import { User, UserRole } from "@/types/user";
 import {
   loginApi,
   signupApi,
@@ -13,11 +13,19 @@ import {
   sendVerificationEmailApi,
   verifyAccountApi,
   logoutApi,
+  refreshTokenApi,
   LoginResponse,
   SignupResponse,
 } from "@/apis/authApi";
 import { toast } from "@/components/ui/toast";
-import { setAuthToken, clearAuthToken } from "@/hooks/useAuthSync";
+import {
+  setAuthToken,
+  clearAuthToken,
+  setStoredRefreshToken,
+  clearStoredRefreshToken,
+  setStoredSessionId,
+  clearStoredSessionId,
+} from "@/hooks/useAuthSync";
 
 interface AuthState {
   user: User | null;
@@ -32,12 +40,35 @@ interface AuthState {
   resetPassword: (credentials: ResetPasswordCredentials) => Promise<void>;
   logout: () => Promise<void>;
   getUser: () => void;
+  refreshSession: () => Promise<string | null>;
   sendVerificationEmail: () => Promise<void>;
   verifyAccount: (code: string) => Promise<void>;
-  loginWithGoogle?: () => Promise<void>;
-  loginWithFacebook?: () => Promise<void>;
-  loginWithGithub?: () => Promise<void>;
+  loginWithGoogle?: (role: UserRole) => Promise<void>;
+  loginWithFacebook?: (role: UserRole) => Promise<void>;
+  loginWithGithub?: (role: UserRole) => Promise<void>;
   updateWalletBalance: (newBalance: number) => void;
+}
+
+function getOAuthRedirectPath() {
+  const currentPath =
+    typeof window !== "undefined" ? window.location.pathname : "/k";
+  const searchParams =
+    typeof window !== "undefined" ? window.location.search : "";
+  const urlParams = new URLSearchParams(searchParams);
+
+  const fromParam = urlParams.get("from");
+
+  if (fromParam) {
+    return fromParam;
+  }
+
+  const authPaths = ["/login", "/register", "/forgot-password", "/reset-password"];
+
+  if (authPaths.some((path) => currentPath.startsWith(path))) {
+    return "/k";
+  }
+
+  return currentPath;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -61,6 +92,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         // Set token to both localStorage and cookie
         if (response.token && typeof window !== "undefined") {
           setAuthToken(response.token);
+        }
+        if (response.refreshToken && typeof window !== "undefined") {
+          setStoredRefreshToken(response.refreshToken);
+        }
+        if (response.sessionId && typeof window !== "undefined") {
+          setStoredSessionId(response.sessionId);
         }
 
         return response; // Return response for UI to use role/token
@@ -96,6 +133,12 @@ export const useAuthStore = create<AuthState>((set) => ({
         // Set token to both localStorage and cookie
         if (response.token && typeof window !== "undefined") {
           setAuthToken(response.token);
+        }
+        if (response.refreshToken && typeof window !== "undefined") {
+          setStoredRefreshToken(response.refreshToken);
+        }
+        if (response.sessionId && typeof window !== "undefined") {
+          setStoredSessionId(response.sessionId);
         }
 
         return response; // Return response for UI to use role/token
@@ -163,23 +206,70 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     set({ user: null, isAuthenticated: false });
     clearAuthToken();
+    clearStoredRefreshToken();
+    clearStoredSessionId();
+  },
+
+  refreshSession: async () => {
+    try {
+      const response = await refreshTokenApi();
+
+      if (!response.success || !response.token) {
+        throw new Error(response.message || "Làm mới phiên đăng nhập thất bại");
+      }
+
+      if (typeof window !== "undefined") {
+        setAuthToken(response.token);
+        if (response.refreshToken) {
+          setStoredRefreshToken(response.refreshToken);
+        }
+      }
+
+      set((state) => ({
+        user: response.user ?? state.user,
+        isAuthenticated: true,
+      }));
+
+      return response.token;
+    } catch (error) {
+      set({ user: null, isAuthenticated: false });
+      clearAuthToken();
+      clearStoredRefreshToken();
+      clearStoredSessionId();
+      throw error;
+    }
   },
 
   getUser: async () => {
+    if (typeof window !== "undefined" && !localStorage.getItem("auth_token")) {
+      console.warn("[auth-store] skip getUser because auth_token is missing");
+      set({ user: null, isAuthenticated: false, initializing: false });
+      return;
+    }
+
+    console.log("[auth-store] getUser start", {
+      authToken: typeof window !== "undefined" ? localStorage.getItem("auth_token") : null,
+      refreshToken: typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null,
+      sessionId: typeof window !== "undefined" ? localStorage.getItem("session_id") : null,
+    });
+
     set((state) => ({
       initializing: !state.isAuthenticated,
     }));
     try {
       const user = await getUserApi(true);
       if (user) {
+        console.log("[auth-store] getUser success", user);
         set({ user: user.user, isAuthenticated: true });
       } else {
+        console.warn("[auth-store] getUser returned empty payload");
         set({ user: null, isAuthenticated: false });
       }
     } catch (error) {
-      console.error("Failed to get user:", error);
+      console.error("[auth-store] getUser failed", error);
       set({ user: null, isAuthenticated: false });
     } finally {
+      console.log("[auth-store] getUser finished");
       set({ initializing: false });
     }
   },
@@ -236,37 +326,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  loginWithGoogle: async () => {
-    const currentPath =
-      typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams =
-      typeof window !== "undefined" ? window.location.search : "";
-    // Try to get 'from' param from current URL (if on login page), otherwise use current path
-    const urlParams = new URLSearchParams(searchParams);
-    const redirectPath = urlParams.get("from") || currentPath;
-    const redirectParam = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?redirect=${redirectParam}`;
+  loginWithGoogle: async (role) => {
+    const redirectPath = getOAuthRedirectPath();
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?role=${role}&redirect=${redirect}`;
   },
 
-  loginWithFacebook: async () => {
-    const currentPath =
-      typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams =
-      typeof window !== "undefined" ? window.location.search : "";
-    const urlParams = new URLSearchParams(searchParams);
-    const redirectPath = urlParams.get("from") || currentPath;
-    const redirectParam = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook?redirect=${redirectParam}`;
+  loginWithFacebook: async (role) => {
+    const redirectPath = getOAuthRedirectPath();
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook?role=${role}&redirect=${redirect}`;
   },
 
-  loginWithGithub: async () => {
-    const currentPath =
-      typeof window !== "undefined" ? window.location.pathname : "/k";
-    const searchParams =
-      typeof window !== "undefined" ? window.location.search : "";
-    const urlParams = new URLSearchParams(searchParams);
-    const redirectPath = urlParams.get("from") || currentPath;
-    const redirectParam = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github?redirect=${redirectParam}`;
+  loginWithGithub: async (role) => {
+    const redirectPath = getOAuthRedirectPath();
+    const redirect = encodeURIComponent(redirectPath);
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github?role=${role}&redirect=${redirect}`;
   },
 }));

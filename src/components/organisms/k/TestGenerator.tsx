@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+
 import {
   Card,
   CardContent,
@@ -9,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import ModelSelector from "@/components/atoms/ModelSelector";
 import { Slider } from "@/components/ui/slider";
 import {
   Loader2,
@@ -31,17 +34,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import ModernLoader from "@/components/ui/modern-loader";
 import { Quizz } from "@/types/exam";
 import { useTestGeneratorStore } from "@/stores/useAIGeneratorStore";
-import { AI_MODELS } from "@/types/ai";
 import { validatePdfPageCount } from "@/lib/pdfUtils";
 import {
   DialogAddExam,
@@ -73,7 +68,6 @@ export function TestGenerator() {
   useGenerationGuard(isGenerating);
 
   const { toast } = useToast();
-
   const displayFileName = file?.name || fileInfo?.name;
   const displayFileSize = file?.size || fileInfo?.size;
   const hasFile = !!file || !!uploadId;
@@ -179,34 +173,11 @@ export function TestGenerator() {
 
           <div className="space-y-3">
             <Label className="text-muted-foreground">AI Model</Label>
-            <Select
+            <ModelSelector
               value={selectedModel}
-              onValueChange={(value) => setSelectedModel(value as any)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Chọn model AI" />
-              </SelectTrigger>
-              <SelectContent>
-                {AI_MODELS.map((model) => (
-                  <SelectItem key={model.id} value={model.id} disabled={false}>
-                    <div className="flex items-center gap-2">
-                      <span>{model.icon}</span>
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium">{model.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {model.description}
-                        </span>
-                      </div>
-                      {model.badge && (
-                        <span className="ml-auto rounded-full bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                          {model.badge}
-                        </span>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onChange={(value) => setSelectedModel(value as any)}
+              className="w-full"
+            />
           </div>
 
           <div className="space-y-3">
