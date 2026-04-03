@@ -1,7 +1,6 @@
 "use client";
 import * as React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Menu, User, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
@@ -30,13 +29,13 @@ const menuItems = [
 export default function HeaderSection() {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
   const { user, isAuthenticated, initializing, getUser, logout } =
     useAuthStore();
 
   const handleLogout = async () => {
     await logout();
-    router.push("/");
+    navigate("/");
   };
 
   useLayoutEffect(() => {
@@ -66,7 +65,7 @@ export default function HeaderSection() {
           <div className="relative flex flex-wrap items-center justify-between gap-6 py-2 lg:gap-0 lg:py-2.5">
             <div className="flex w-full justify-between lg:w-auto">
               <Link
-                href="/"
+                to="/"
                 aria-label="home"
                 className="flex items-center space-x-2"
               >
@@ -88,7 +87,7 @@ export default function HeaderSection() {
                 {menuItems.map((item, index) => (
                   <li key={index}>
                     <Link
-                      href={item.href}
+                      to={item.href}
                       className="text-muted-foreground hover:text-accent-foreground block duration-150"
                     >
                       <span>{item.name}</span>
@@ -98,7 +97,7 @@ export default function HeaderSection() {
                 {isAuthenticated && (
                   <li>
                     <Link
-                      href="/k"
+                      to="/k"
                       className="text-muted-foreground hover:text-accent-foreground block duration-150"
                     >
                       <span>Công cụ</span>
@@ -114,7 +113,7 @@ export default function HeaderSection() {
                   {menuItems.map((item, index) => (
                     <li key={index}>
                       <Link
-                        href={item.href}
+                        to={item.href}
                         className="text-muted-foreground hover:text-accent-foreground block duration-150"
                       >
                         <span>{item.name}</span>
@@ -124,7 +123,7 @@ export default function HeaderSection() {
                   {isAuthenticated && (
                     <li>
                       <Link
-                        href="/k"
+                        to="/k"
                         className="text-muted-foreground hover:text-accent-foreground block duration-150"
                       >
                         <span>Công cụ</span>
@@ -146,7 +145,7 @@ export default function HeaderSection() {
                     size="sm"
                     className={cn(isScrolled && "lg:hidden")}
                   >
-                    <Link href="/login">
+                    <Link to="/login">
                       <span>Đăng nhập</span>
                     </Link>
                   </Button>
@@ -158,7 +157,7 @@ export default function HeaderSection() {
                       "bg-primary hover:bg-red-700 text-white",
                     )}
                   >
-                    <Link href="/register">
+                    <Link to="/register">
                       <span>Đăng ký</span>
                     </Link>
                   </Button>
@@ -170,7 +169,7 @@ export default function HeaderSection() {
                       "bg-primary hover:bg-red-700 text-white",
                     )}
                   >
-                    <Link href="/login">
+                    <Link to="/login">
                       <span>Bắt đầu ngay</span>
                     </Link>
                   </Button>
@@ -191,14 +190,14 @@ export default function HeaderSection() {
                     </DropdownMenuLabel>
                     <DropdownMenuGroup>
                       <DropdownMenuItem
-                        onClick={() => router.push("/k/profile")}
+                        onClick={() => navigate("/k/profile")}
                       >
                         <User className="h-4 w-4" />
                         Hồ sơ
                       </DropdownMenuItem>
                       {/* FREE_MODE: Ẩn menu Thanh toán - uncomment để bật lại
                       <DropdownMenuItem
-                        onClick={() => router.push("/k/subscription")}
+                        onClick={() => navigate("/k/subscription")}
                       >
                         <CreditCard className="h-4 w-4" />
                         Thanh toán

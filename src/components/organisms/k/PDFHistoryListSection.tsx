@@ -3,7 +3,7 @@ import {
   PDFHistoryListItem,
   type PDFHistoryListItemData,
 } from "@/components/molecules/PDFHistoryListItem";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 interface PDFHistoryListSectionProps {
   items: PDFHistoryListItemData[];
@@ -33,7 +33,7 @@ export function PDFHistoryListSection({
             </p>
           </div>
           <Link
-            href="/k/history/pdf"
+            to="/k/history/pdf"
             className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Xem tất cả

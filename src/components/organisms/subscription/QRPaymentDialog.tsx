@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -171,13 +170,10 @@ export function QRPaymentDialog({
                 {/* QR Code */}
                 <div className="flex justify-center">
                   <div className="bg-white p-3 rounded-xl">
-                    <Image
+                    <img
                       src={paymentData.qrUrl}
                       alt="QR Code thanh toán"
-                      width={192}
-                      height={192}
-                      unoptimized
-                      className="w-48 h-48"
+                      className="h-48 w-48"
                     />
                   </div>
                 </div>

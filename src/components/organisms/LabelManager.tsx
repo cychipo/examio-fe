@@ -34,6 +34,7 @@ import {
   getQuestionsByLabelApi,
 } from "@/apis/quizsetApi";
 import { toast } from "@/components/ui/toast";
+import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
 
 const LABEL_COLORS = [
@@ -403,9 +404,9 @@ export function LabelManager({ quizSetId }: LabelManagerProps) {
                       <span className="text-sm font-medium text-muted-foreground">
                         {index + 1}.
                       </span>
-                      <span
+                      <RichTextViewer
+                        content={question.question}
                         className="text-sm"
-                        dangerouslySetInnerHTML={{ __html: question.question }}
                       />
                     </div>
                   </div>

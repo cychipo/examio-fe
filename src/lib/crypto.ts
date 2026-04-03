@@ -1,8 +1,8 @@
 import CryptoJS from "crypto-js";
+import { env } from "@/lib/env";
 
 // AES key from environment - MUST match backend key
-const QUIZ_AES_KEY =
-  process.env.NEXT_PUBLIC_QUIZ_AES_KEY || "default-aes-256-key-32-chars!!!";
+const QUIZ_AES_KEY = env.quizAesKey;
 
 /**
  * Decrypt quiz content using AES-256-CBC

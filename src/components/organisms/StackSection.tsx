@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
   FaFileArchive,
   FaFileWord,
@@ -58,10 +57,9 @@ export default function StackSection() {
             variant="default"
             className="bg-primary hover:bg-red-700 text-white"
           >
-            <Link href="https://ruixen.com" target="_blank">
-              {" "}
+            <a href="https://ruixen.com" target="_blank" rel="noreferrer">
               Bắt đầu ngay
-            </Link>
+            </a>
           </Button>
           <Button variant="outline">Xem thêm</Button>
         </div>
@@ -136,7 +134,7 @@ export default function StackSection() {
       </div>
 
       {/* Animation keyframes */}
-      <style jsx>
+      <style>
         {`
         @keyframes spin {
           from {

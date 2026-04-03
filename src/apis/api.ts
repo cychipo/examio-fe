@@ -16,6 +16,9 @@ import {
   clearStoredSessionId,
 } from "@/hooks/useAuthSync";
 import { syncRefreshTokenApi } from "@/apis/authApi";
+import { env } from "@/lib/env";
+import { clearRedirectBackTarget, getCurrentReturnPath, setRedirectBackTarget } from "@/lib/authRedirect";
+import { navigateTo } from "@/lib/navigation";
 
 type RetryableRequestConfig = AxiosRequestConfig & {
   _retry?: boolean;
@@ -41,12 +44,14 @@ function handleAuthFailure() {
   }
 
   if (window.location.pathname !== "/login") {
-    window.location.href = "/login";
+    setRedirectBackTarget(getCurrentReturnPath());
+    clearRedirectBackTarget();
+    navigateTo("/login", true);
   }
 }
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: env.apiUrl,
   withCredentials: true,
 });
 
@@ -160,10 +165,13 @@ api.interceptors.response.use(
       const errorData = error.response.data as SessionErrorData;
 
       if (errorData.code === "SESSION_INVALIDATED") {
-        // Clear auth state and redirect to login
         clearAuthToken();
+        clearStoredRefreshToken();
+        clearStoredSessionId();
+        clearRedirectBackTarget();
+        setRedirectBackTarget(getCurrentReturnPath());
         alert("Bạn đã bị đăng xuất từ thiết bị khác");
-        window.location.href = "/login";
+        navigateTo("/login", true);
         return Promise.reject(new Error("Session invalidated"));
       }
 

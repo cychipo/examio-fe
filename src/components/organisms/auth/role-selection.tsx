@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import { GraduationCap, User } from "lucide-react";
 import { UserRole } from "@/types/user";
 
@@ -74,7 +73,7 @@ export function RoleSelection({
 
         <div className="relative text-center mb-8">
           <div className="flex justify-center mb-4">
-            <Image
+            <img
               src="/Logo_KMA.png"
               alt="KMA Edu Logo"
               width={60}

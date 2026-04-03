@@ -1,11 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import Image from "next/image";
+import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
-import Link from "next/link";
 import { FacebookIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { toast } from "@/components/ui/toast";
@@ -70,10 +69,7 @@ export function SignupForm() {
         role: selectedRole,
       });
       if (response && response.user) {
-        const role = response.user.role;
-        const targetPath =
-          role === "teacher" ? "/k/dashboard-teacher" : "/k/dashboard-student";
-        window.location.href = targetPath;
+        window.location.href = response.redirectTo || "/k";
       } else {
         window.location.href = "/k";
       }
@@ -96,7 +92,7 @@ export function SignupForm() {
         <div className="relative">
           {/* Logo and Title */}
           <div className="flex flex-col items-center mb-6">
-            <Image
+            <img
               src="/Logo_KMA.png"
               alt="KMA Edu Logo"
               width={60}
@@ -228,7 +224,7 @@ export function SignupForm() {
             <div className="text-muted-foreground flex justify-center gap-1 text-sm mt-4">
               <p>Đã có tài khoản? </p>
               <Link
-                href="/login"
+                to="/login"
                 className="text-primary font-medium hover:underline"
               >
                 Đăng Nhập

@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 interface LogoProps {
   className?: string;
@@ -16,13 +15,13 @@ export default function Logo({
 }: LogoProps) {
   return (
     <div className={cn("flex items-center space-x-3", className)}>
-      <Image
+      <img
         src="/Logo_KMA.png"
         alt="KMA Edu Logo"
         width={sizeLogo}
         height={sizeLogo}
         className="object-contain"
-      />
+       />
       {showText && (
         <span className="font-bold whitespace-pre text-foreground">
           <p
@@ -48,13 +47,13 @@ export function LogoOnly({
 }) {
   return (
     <div className={cn("flex items-center", className)}>
-      <Image
+      <img
         src="/Logo_KMA.png"
         alt="KMA Edu Logo"
         width={sizeIcon}
         height={sizeIcon}
         className="object-contain"
-      />
+       />
     </div>
   );
 }

@@ -44,6 +44,7 @@ export default antfu(
       ".next/**",
       "out/**",
       "build/**",
+      "dist/**",
       "next-env.d.ts",
       "src/components/kokonutui",
       "src/components/magicui",

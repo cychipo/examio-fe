@@ -21,6 +21,7 @@ export interface LoginResponse {
   refreshToken?: string;
   sessionId?: string;
   deviceId?: string;
+  redirectTo?: string;
 }
 
 export interface SignupResponse {
@@ -31,6 +32,7 @@ export interface SignupResponse {
   sessionId?: string;
   deviceId?: string;
   user?: User;
+  redirectTo?: string;
 }
 
 export interface SendCodeResetPassWordCredentials {

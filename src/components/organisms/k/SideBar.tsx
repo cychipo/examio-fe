@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "@/components/atoms/Logo";
 import {
   TokensIcon,
@@ -10,13 +11,11 @@ import {
   DashboardIcon,
 } from "@radix-ui/react-icons";
 import { Bot, BookOpen, GraduationCap, Library } from "lucide-react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FloatingDock } from "@/components/atoms/k/FloatingDock";
 import ProfileDropdown from "@/components/atoms/ProfileDropdown";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import { canAccessGenAIKnowledgeManager } from "@/lib/genai-knowledge-access";
 
@@ -35,7 +34,7 @@ export function SidebarKit() {
     email: "",
     avatar: "",
   });
-  const pathname = usePathname();
+  const { pathname: currentPath } = useLocation();
   const isDesktop = useIsDesktop();
   const [mounted, setMounted] = React.useState(false);
 
@@ -66,7 +65,7 @@ export function SidebarKit() {
       href: "/k/dashboard-teacher",
       icon: <DashboardIcon className="w-5 h-5" />,
       label: "Dashboard",
-      active: pathname === "/k/dashboard-teacher",
+      active: currentPath === "/k/dashboard-teacher",
       teacherOnly: true,
     },
     {
@@ -74,7 +73,7 @@ export function SidebarKit() {
       href: "/k/dashboard-student",
       icon: <DashboardIcon className="w-5 h-5" />,
       label: "Dashboard",
-      active: pathname === "/k/dashboard-student",
+      active: currentPath === "/k/dashboard-student",
       studentOnly: true,
     },
     {
@@ -82,7 +81,7 @@ export function SidebarKit() {
       href: "/k/ai-tool",
       icon: <RocketIcon className="w-5 h-5" />,
       label: "Công cụ AI",
-      active: pathname === "/k/ai-tool",
+      active: currentPath === "/k/ai-tool",
       teacherOnly: true, // Add teacher-only flag
     },
     {
@@ -90,7 +89,7 @@ export function SidebarKit() {
       href: "/k/genai-knowledge",
       icon: <Library className="w-5 h-5" />,
       label: "Kho tri thức GenAI",
-      active: pathname === "/k/genai-knowledge",
+      active: currentPath === "/k/genai-knowledge",
       teacherOnly: true,
       allowlistedTeacherOnly: true,
     },
@@ -99,15 +98,7 @@ export function SidebarKit() {
       href: "/k/ai-teacher",
       icon: <Bot />,
       label: "Giáo viên AI",
-      active: pathname === "/k/ai-teacher",
-      hidden: true,
-    },
-    {
-      name: "AI Student",
-      href: "/k/ai-student",
-      icon: <Bot />,
-      label: "Hỏi lập trình AI",
-      active: pathname === "/k/ai-student",
+      active: currentPath === "/k/ai-teacher",
       studentOnly: true,
     },
     {
@@ -115,7 +106,7 @@ export function SidebarKit() {
       href: "/k/my-materials",
       icon: <BookOpen className="w-5 h-5" />,
       label: "Tài liệu của tôi",
-      active: pathname === "/k/my-materials",
+      active: currentPath === "/k/my-materials",
       studentOnly: true,
     },
     {
@@ -123,7 +114,7 @@ export function SidebarKit() {
       href: "/k/my-exams",
       icon: <GraduationCap className="w-5 h-5" />,
       label: "Bài thi của tôi",
-      active: pathname === "/k/my-exams",
+      active: currentPath === "/k/my-exams",
       studentOnly: true,
     },
     {
@@ -132,9 +123,9 @@ export function SidebarKit() {
       icon: <ReaderIcon className="w-5 h-5" />,
       label: "Quản lý Đề thi",
       active:
-        pathname === "/k/manage-exam" ||
-        pathname.startsWith("/k/manage-quiz-set") ||
-        pathname.startsWith("/k/practice-quiz"),
+        currentPath === "/k/manage-exam" ||
+        currentPath.startsWith("/k/manage-quiz-set") ||
+        currentPath.startsWith("/k/practice-quiz"),
       teacherOnly: true, // Add teacher-only flag
     },
     {
@@ -143,8 +134,8 @@ export function SidebarKit() {
       icon: <CardStackIcon className="w-5 h-5" />,
       label: "Quản lý Flashcard",
       active:
-        pathname === "/k/flash-card" ||
-        pathname.startsWith("/k/manage-flashcard-set"),
+        currentPath === "/k/flash-card" ||
+        currentPath.startsWith("/k/manage-flashcard-set"),
       teacherOnly: true, // Add teacher-only flag
     },
     {
@@ -153,8 +144,8 @@ export function SidebarKit() {
       icon: <TokensIcon className="w-5 h-5" />,
       label: "Quản lý Phòng thi",
       active:
-        pathname === "/k/manage-exam-room" ||
-        pathname.startsWith("/k/manage-exam-room"),
+        currentPath === "/k/manage-exam-room" ||
+        currentPath.startsWith("/k/manage-exam-room"),
       teacherOnly: true, // Add teacher-only flag
     },
     {
@@ -162,16 +153,12 @@ export function SidebarKit() {
       href: "/k/history",
       icon: <ClockIcon className="w-5 h-5" />,
       label: "Lịch sử",
-      active: pathname === "/k/history",
+      active: currentPath === "/k/history",
     },
   ];
 
   // Filter sidebar items based on user role
   const filteredSidebarItems = itemSiderbar.filter((item) => {
-    if (item.hidden) {
-      return false;
-    }
-
     // Hide teacher-only items for anyone who is not a teacher (including admin and student)
     if (item.teacherOnly) {
       if (item.allowlistedTeacherOnly) {
@@ -243,7 +230,7 @@ export function SidebarKit() {
                        item.active ? "bg-[#fef2f2] text-[#e31837]" : ""
                      }`}
                 >
-                  <Link href={item.href} className="flex items-center gap-x-3">
+                  <Link to={item.href} className="flex items-center gap-x-3">
                     {item.icon}
                     {item.label}
                   </Link>

@@ -1,24 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export function TeacherRoute({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { user, isAuthenticated, initializing } = useAuthStore();
 
   useEffect(() => {
     if (!initializing) {
       if (!isAuthenticated) {
-        // Redirect to login if not authenticated
-        router.replace("/login");
+        navigate("/login", { replace: true });
       } else if (user?.role !== "teacher") {
-        // Redirect to home if not a teacher
-        router.replace("/k");
+        navigate("/k", { replace: true });
       }
     }
-  }, [isAuthenticated, user, initializing, router]);
+  }, [isAuthenticated, user, initializing, navigate]);
 
   // Show nothing while checking authentication
   if (initializing || !isAuthenticated || user?.role !== "teacher") {

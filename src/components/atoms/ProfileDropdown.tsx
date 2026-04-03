@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { PersonIcon } from "@radix-ui/react-icons";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
   DropdownMenu,
@@ -49,12 +48,12 @@ export default function ProfileDropdown({
   ...props
 }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
   const { logout } = useAuthStore();
 
   const handleLogout = async () => {
     await logout();
-    router.push("/");
+    navigate("/");
   };
 
   const menuItems: MenuItem[] = [
@@ -150,7 +149,7 @@ export default function ProfileDropdown({
                   className="hover:bg-[#fef2f2] hover:text-[#e31837] rounded-sm focus:bg-[#fef2f2] focus-visible:bg-[#fef2f2]"
                 >
                   <Link
-                    href={item.href}
+                    to={item.href}
                     className="flex items-center p-3 transition-all duration-200 cursor-pointer group hover:bg-[#fef2f2] hover:text-[#e31837] rounded-sm focus:outline-none focus-visible:outline-none"
                   >
                     <div className="flex items-center gap-2 flex-1">
