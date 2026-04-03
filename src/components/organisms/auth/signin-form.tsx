@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { Link, useSearchParams } from "react-router-dom";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { Eye, EyeOff, FacebookIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { useSearchParams } from "next/navigation";
 import { UserRole } from "@/types/user";
 import {
   Dialog,
@@ -33,7 +31,7 @@ export function SigninForm() {
   >(null);
   const { loginWithGoogle, loginWithFacebook, loginWithGithub, login } =
     useAuthStore();
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const handleOauthRoleSelect = async (role: UserRole) => {
     const provider = oauthProvider;
@@ -67,6 +65,7 @@ export function SigninForm() {
       if (response && response.user) {
         const role = response.user.role;
         const targetPath =
+          response.redirectTo ||
           from ||
           (role === "teacher"
             ? "/k/dashboard-teacher"
@@ -89,7 +88,7 @@ export function SigninForm() {
         <div className="p-8 relative">
           <div className="flex flex-col items-center mb-8">
             <div>
-              <Image
+              <img
                 src="/Logo_KMA.png"
                 alt="KMA Edu Logo"
                 width={80}
@@ -125,7 +124,7 @@ export function SigninForm() {
                     Mật Khẩu
                   </label>
                   <Link
-                    href="/forgot-password"
+                    to="/forgot-password"
                     className="text-xs text-primary hover:underline"
                   >
                     Quên mật khẩu?
@@ -200,7 +199,7 @@ export function SigninForm() {
           <div className="text-muted-foreground flex justify-center gap-1 text-sm mt-4">
             <p>Bạn chưa có tài khoản? </p>
             <Link
-              href="/register"
+              to="/register"
               className="text-primary font-medium hover:underline"
             >
               Đăng ký ngay

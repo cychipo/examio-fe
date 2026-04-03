@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { env } from "@/lib/env";
 
 interface StatsData {
   totalGroups: number;
@@ -46,7 +47,7 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
     set({ loadingFlashcardStats: true });
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/flashcardsets/stats`,
+        `${env.apiUrl}/flashcardsets/stats`,
         {
           credentials: "include",
         }
@@ -76,7 +77,7 @@ export const useStatsStore = create<StatsStore>((set, get) => ({
     set({ loadingQuizStats: true });
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/quizsets/stats`,
+        `${env.apiUrl}/quizsets/stats`,
         {
           credentials: "include",
         }

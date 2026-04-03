@@ -26,6 +26,8 @@ import {
   setStoredSessionId,
   clearStoredSessionId,
 } from "@/hooks/useAuthSync";
+import { clearRedirectBackTarget, getRedirectBackTarget } from "@/lib/authRedirect";
+import { env } from "@/lib/env";
 
 interface AuthState {
   user: User | null;
@@ -89,7 +91,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         });
         toast.success("Đăng nhập thành công");
 
-        // Set token to both localStorage and cookie
         if (response.token && typeof window !== "undefined") {
           setAuthToken(response.token);
         }
@@ -100,7 +101,13 @@ export const useAuthStore = create<AuthState>((set) => ({
           setStoredSessionId(response.sessionId);
         }
 
-        return response; // Return response for UI to use role/token
+        const redirectTo = getRedirectBackTarget();
+        clearRedirectBackTarget();
+
+        return {
+          ...response,
+          redirectTo,
+        } as typeof response & { redirectTo: string };
       } else {
         toast.error(response.message || "Đăng nhập thất bại");
         console.error(response.message || "Đăng nhập thất bại");
@@ -122,7 +129,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await signupApi(credentials);
       if (response.success && response.token) {
-        // Auto-login after successful registration
         set({
           user: response.user,
           isAuthenticated: true,
@@ -130,7 +136,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         });
         toast.success(response.message || "Đăng ký thành công");
 
-        // Set token to both localStorage and cookie
         if (response.token && typeof window !== "undefined") {
           setAuthToken(response.token);
         }
@@ -141,7 +146,13 @@ export const useAuthStore = create<AuthState>((set) => ({
           setStoredSessionId(response.sessionId);
         }
 
-        return response; // Return response for UI to use role/token
+        const redirectTo = getRedirectBackTarget();
+        clearRedirectBackTarget();
+
+        return {
+          ...response,
+          redirectTo,
+        } as typeof response & { redirectTo: string };
       } else {
         toast.error(response.message || "Đăng ký tài khoản thất bại");
         console.error("Đăng ký tài khoản thất bại");
@@ -329,18 +340,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   loginWithGoogle: async (role) => {
     const redirectPath = getOAuthRedirectPath();
     const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google?role=${role}&redirect=${redirect}`;
+    window.location.href = `${env.apiUrl}/auth/google?role=${role}&redirect=${redirect}`;
   },
 
   loginWithFacebook: async (role) => {
     const redirectPath = getOAuthRedirectPath();
     const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook?role=${role}&redirect=${redirect}`;
+    window.location.href = `${env.apiUrl}/auth/facebook?role=${role}&redirect=${redirect}`;
   },
 
   loginWithGithub: async (role) => {
     const redirectPath = getOAuthRedirectPath();
     const redirect = encodeURIComponent(redirectPath);
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github?role=${role}&redirect=${redirect}`;
+    window.location.href = `${env.apiUrl}/auth/github?role=${role}&redirect=${redirect}`;
   },
 }));

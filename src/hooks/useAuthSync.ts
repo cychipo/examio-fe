@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-
+import { useLocation } from "react-router-dom";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { syncRefreshTokenApi } from "@/apis/authApi";
 
 const AUTH_COOKIE_NAME = "token";
@@ -48,6 +49,9 @@ function getCookie(name: string): string | null {
  * This enables middleware to access the token
  */
 export function useAuthSync() {
+  const location = useLocation();
+  const getUser = useAuthStore((state) => state.getUser);
+
   useEffect(() => {
     console.log("[auth-sync] bootstrap start", {
       href: window.location.href,
@@ -56,17 +60,6 @@ export function useAuthSync() {
       sessionId: localStorage.getItem(SESSION_STORAGE_KEY),
       cookieToken: getCookie(AUTH_COOKIE_NAME),
     });
-
-    // Sync token from localStorage to cookie on mount
-    const token = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (token) {
-      // Only set cookie if it doesn't exist or is different
-      const existingCookie = getCookie(AUTH_COOKIE_NAME);
-      if (!existingCookie || existingCookie !== token) {
-        setCookie(AUTH_COOKIE_NAME, token);
-        console.log("[auth-sync] synced auth_token to cookie");
-      }
-    }
 
     const url = new URL(window.location.href);
     const tokenFromQuery = url.searchParams.get("token");
@@ -94,6 +87,17 @@ export function useAuthSync() {
     if (tokenFromQuery || refreshTokenFromQuery || sessionIdFromQuery) {
       console.log("[auth-sync] cleaned auth query params from url");
       window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+
+    const token = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (token) {
+      const existingCookie = getCookie(AUTH_COOKIE_NAME);
+      if (!existingCookie || existingCookie !== token) {
+        setCookie(AUTH_COOKIE_NAME, token);
+        console.log("[auth-sync] synced auth_token to cookie");
+      }
+
+      getUser();
     }
 
     const storedToken = localStorage.getItem(AUTH_STORAGE_KEY);
@@ -124,7 +128,7 @@ export function useAuthSync() {
     } else if (storedToken && !storedRefreshToken) {
       console.warn("[auth-sync] skip sync-refresh-token because session_id is missing");
     }
-  }, []);
+  }, [getUser, location.key]);
 }
 
 /**

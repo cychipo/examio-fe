@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState, MouseEvent } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Particles } from "@/components/ui/particles";
 import { Button } from "@/components/ui/button";
 
@@ -91,19 +90,15 @@ export default function NotFound({
         ref={imageRef}
         className="absolute inset-0 w-full h-full transition-transform duration-300 ease-out will-change-transform pointer-events-none z-10"
       >
-        <Image
+        <img
           src={imageLight}
           alt="404 Light"
-          fill
-          className="object-contain"
-          priority
+          className="absolute inset-0 h-full w-full object-contain"
         />
-        <Image
+        <img
           src={imageDark}
           alt="404 Dark"
-          fill
-          className="object-contain hidden"
-          priority
+          className="absolute inset-0 hidden h-full w-full object-contain"
         />
       </div>
 
@@ -116,7 +111,7 @@ export default function NotFound({
       />
 
       <div className="relative z-30 mt-16 md:mt-0">
-        <Link href={buttonHref} onClick={onButtonClick}>
+        <Link to={buttonHref} onClick={onButtonClick}>
           <Button variant="default">{buttonText}</Button>
         </Link>
       </div>

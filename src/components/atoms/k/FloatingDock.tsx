@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { createPortal } from "react-dom";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -74,7 +74,7 @@ export function FloatingDock({
                 </button>
               ) : (
                 <Link
-                  href={item.href}
+                  to={item.href}
                   className={cn(
                     "flex flex-col items-center justify-center",
                     "w-14 h-14 rounded-xl",
@@ -138,7 +138,7 @@ export function FloatingDock({
               {secondaryItems.map((item) => (
                 <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   onClick={() => setShowSecondary(false)}
                   className={cn(
                     "flex items-center gap-3 p-2 rounded-xl transition-colors",

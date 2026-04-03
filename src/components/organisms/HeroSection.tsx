@@ -1,5 +1,5 @@
 import React from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { RetroGrid } from "../ui/retro-grid";
@@ -106,7 +106,7 @@ export function HeroSection() {
                       asChild
                       size="lg"
                       className="rounded-xl px-5 text-base bg-primary hover:bg-red-700 text-white">
-                      <Link href="/k">
+                      <Link to="/k">
                         <span className="text-nowrap">Bắt đầu ngay</span>
                       </Link>
                     </Button>
@@ -117,7 +117,7 @@ export function HeroSection() {
                     size="lg"
                     variant="ghost"
                     className="h-10.5 rounded-xl px-5">
-                    <Link href="/k">
+                    <Link to="/k">
                       <span className="text-nowrap text-base">Xem thêm</span>
                     </Link>
                   </Button>

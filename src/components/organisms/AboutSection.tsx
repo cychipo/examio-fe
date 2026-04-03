@@ -11,7 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -67,7 +67,7 @@ const cultureImages = [
 ];
 
 export default function AboutSection() {
-  const router = useRouter();
+  const navigate = useNavigate();
   return (
     <div className="relative min-h-screen pt-12">
       {/* Ambient Background Blobs */}
@@ -355,13 +355,13 @@ export default function AboutSection() {
                 <div className="flex flex-col sm:flex-row gap-4 w-full justify-center pt-4">
                   <button
                     className="h-12 px-8 bg-primary hover:bg-red-700 text-white font-bold rounded-lg shadow-lg shadow-red-500/30 transition-all cursor-pointer"
-                    onClick={() => router.push("/k")}
+                    onClick={() => navigate("/k")}
                   >
                     Bắt đầu miễn phí
                   </button>
                   <button
                     className="h-12 px-8 bg-white border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
-                    onClick={() => router.push("/contact")}
+                    onClick={() => navigate("/contact")}
                   >
                     Liên hệ với chúng tôi
                   </button>

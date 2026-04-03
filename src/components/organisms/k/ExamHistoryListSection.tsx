@@ -3,7 +3,7 @@ import {
   ExamHistoryListItem,
   type ExamHistoryListItemData,
 } from "@/components/molecules/ExamHistoryListItem";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 interface ExamHistoryListSectionProps {
   items: ExamHistoryListItemData[];
@@ -31,7 +31,7 @@ export function ExamHistoryListSection({
             </p>
           </div>
           <Link
-            href="/k/history/exam"
+            to="/k/history/exam"
             className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
           >
             Xem tất cả
