@@ -201,13 +201,13 @@ export default function ExamRoomSessionAnalyticsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><BarChart3 className="h-5 w-5 text-primary" />Phân bố điểm số</CardTitle></CardHeader>
-            <CardContent><div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={scoreDistribution}><CartesianGrid strokeDasharray="3 3" opacity={0.3} /><XAxis dataKey="range" fontSize={12} /><YAxis fontSize={12} allowDecimals={false} /><Tooltip formatter={(value: number) => [`${value} thí sinh`, "Số lượng"]} labelFormatter={(label) => `Điểm ${Number(label) * 10 - 10}-${Number(label) * 10}%`} /><Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div></CardContent>
+            <CardContent><div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={scoreDistribution}><CartesianGrid strokeDasharray="3 3" opacity={0.3} /><XAxis dataKey="range" fontSize={12} /><YAxis fontSize={12} allowDecimals={false} /><Tooltip formatter={(value) => [`${Number(value ?? 0)} thí sinh`, "Số lượng"]} labelFormatter={(label) => `Điểm ${Number(label) * 10 - 10}-${Number(label) * 10}%`} /><Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div></CardContent>
           </Card>
 
           {cheatingStats.length > 0 && (
             <Card>
               <CardHeader><CardTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-red-500" />Thống kê vi phạm</CardTitle></CardHeader>
-              <CardContent><div className="h-64"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={violationPieData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${(name || "").substring(0, 10)}... ${(((percent || 0) * 100)).toFixed(0)}%`} outerRadius={80} fill="#8884d8" dataKey="value">{violationPieData.map((entry, index) => <Cell key={entry.type + index} fill={VIOLATION_COLORS[entry.type] || CHART_COLORS[index % CHART_COLORS.length]} />)}</Pie><Tooltip formatter={(value: number, name: string) => [`${value} lần`, name]} /><Legend /></PieChart></ResponsiveContainer></div></CardContent>
+              <CardContent><div className="h-64"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={violationPieData} cx="50%" cy="50%" labelLine={false} label={({ name, percent }) => `${(name || "").substring(0, 10)}... ${(((percent || 0) * 100)).toFixed(0)}%`} outerRadius={80} fill="#8884d8" dataKey="value">{violationPieData.map((entry, index) => <Cell key={entry.type + index} fill={VIOLATION_COLORS[entry.type] || CHART_COLORS[index % CHART_COLORS.length]} />)}</Pie><Tooltip formatter={(value, name) => [`${Number(value ?? 0)} lần`, String(name ?? "")] } /><Legend /></PieChart></ResponsiveContainer></div></CardContent>
             </Card>
           )}
         </div>
