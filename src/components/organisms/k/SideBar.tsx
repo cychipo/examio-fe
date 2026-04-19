@@ -94,11 +94,11 @@ export function SidebarKit() {
       allowlistedTeacherOnly: true,
     },
     {
-      name: "AI Teacher",
-      href: "/k/ai-teacher",
+      name: "Student Programming",
+      href: "/k/student-programming",
       icon: <Bot />,
-      label: "Giáo viên AI",
-      active: currentPath === "/k/ai-teacher",
+      label: "Lập trình AI",
+      active: currentPath === "/k/student-programming",
       studentOnly: true,
     },
     {

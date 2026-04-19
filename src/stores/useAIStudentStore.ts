@@ -25,6 +25,8 @@ export interface AIStudentChatMessage {
     id: string;
     status: string;
     score?: number;
+    scorePhase?: "quick" | "final" | string;
+    isFinal?: boolean;
   };
   isEvaluating?: boolean;
 }
@@ -273,35 +275,43 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
         ),
       }));
 
-      while (true) {
+      let pollAttempt = 0;
+      while (pollAttempt < 40) {
+        pollAttempt += 1;
         const status = await aiStudentApi.getEvaluationJob(job.id);
-        if (status.status === "completed") {
-          const evaluation: AIStudentEvaluationResult = {
-            id: status.id,
-            score: status.score,
-            status: status.status,
-            language: status.language,
-            rationale: status.rationale,
-            passed: status.passed,
-            total: status.total,
-            executionTimeMs: status.executionTimeMs,
-            stderr: status.stderr,
-            stdout: status.stdout,
-            testCode: status.testCode,
-            benchmark: status.benchmark,
-            modelUsed: status.modelUsed,
-          };
+        const evaluation: AIStudentEvaluationResult | undefined = typeof status.score === "number"
+          ? {
+              id: status.id,
+              score: status.score,
+              status: status.status,
+              language: status.language,
+              rationale: status.rationale,
+              passed: status.passed,
+              total: status.total,
+              executionTimeMs: status.executionTimeMs,
+              stderr: status.stderr,
+              stdout: status.stdout,
+              testCode: status.testCode,
+              benchmark: status.benchmark,
+              modelUsed: status.modelUsed,
+              scorePhase: status.scorePhase,
+              isFinal: status.isFinal,
+            }
+          : undefined;
 
+        if (status.status === "completed") {
           set((current) => ({
             messages: current.messages.map(message =>
               message.id === messageId
                 ? {
                     ...message,
-                    evaluation,
+                    evaluation: evaluation || message.evaluation,
                     evaluationJob: {
                       id: status.id,
                       status: status.status,
                       score: status.score,
+                      scorePhase: status.scorePhase,
+                      isFinal: status.isFinal,
                     },
                     isEvaluating: false,
                   }
@@ -319,9 +329,13 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
               message.id === messageId
                 ? {
                     ...message,
+                    evaluation: evaluation || message.evaluation,
                     evaluationJob: {
                       id: status.id,
                       status: status.status,
+                      score: status.score,
+                      scorePhase: status.scorePhase,
+                      isFinal: status.isFinal,
                     },
                     isEvaluating: false,
                   }
@@ -336,10 +350,13 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
             message.id === messageId
               ? {
                   ...message,
+                  evaluation: evaluation || message.evaluation,
                   evaluationJob: {
                     id: status.id,
                     status: `${status.status}:${status.metadata?.stage || "processing"}`,
                     score: status.score,
+                    scorePhase: status.scorePhase,
+                    isFinal: status.isFinal,
                   },
                   isEvaluating: true,
                 }
@@ -349,6 +366,8 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
 
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
+
+      throw new Error("Hết thời gian chờ đánh giá tự động");
     }
     catch (error) {
       set((current) => ({

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   BrainCircuit,
   Database,
@@ -59,8 +59,8 @@ import { KnowledgeGraphDialog } from "@/components/organisms/k/genai-knowledge/K
 import { KnowledgeDatasetImportDialog } from "@/components/organisms/k/genai-knowledge/KnowledgeDatasetImportDialog";
 
 function GenAIKnowledgePageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, initializing, getUser } = useAuthStore();
   const {
@@ -274,17 +274,17 @@ function GenAIKnowledgePageContent() {
     if (page > 1) params.set("page", String(page));
 
     const query = params.toString();
-    router.replace(query ? `/k/genai-knowledge?${query}` : "/k/genai-knowledge");
-  }, [router, selectedFolderId, searchQuery, statusFilter, stageFilter, sortBy, sortOrder, page]);
+    navigate(query ? `/k/genai-knowledge?${query}` : "/k/genai-knowledge", { replace: true });
+  }, [navigate, selectedFolderId, searchQuery, statusFilter, stageFilter, sortBy, sortOrder, page]);
 
   const canAccess = canAccessGenAIKnowledgeManager(user);
   const accessRestrictedByEmail = isGenAIKnowledgeRestrictedByEmail();
 
   useEffect(() => {
     if (!initializing && user && user.role !== "teacher") {
-      router.replace("/k");
+      navigate("/k", { replace: true });
     }
-  }, [initializing, router, user]);
+  }, [initializing, navigate, user]);
 
   useEffect(() => {
     if (!selectedFolderId && folders.length > 0) {
@@ -775,7 +775,7 @@ function GenAIKnowledgePageContent() {
                   )}
                 </div>
               </div>
-              <Button onClick={() => router.push("/k")}>Quay lại workspace</Button>
+              <Button onClick={() => navigate("/k")}>Quay lại workspace</Button>
             </div>
           </CardContent>
         </Card>

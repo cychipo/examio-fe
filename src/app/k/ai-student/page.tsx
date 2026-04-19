@@ -91,13 +91,18 @@ function formatBenchmarkDatasetName(datasetName?: string) {
 
 function getEvaluationSummary(evaluation?: {
   status?: string;
+  scorePhase?: string;
+  isFinal?: boolean;
   benchmark?: {
     datasetName?: string;
     synthetic?: boolean;
-  };
+  } | null;
 }) {
   if (!evaluation) {
     return "Đang chờ đánh giá tự động.";
+  }
+  if (evaluation.scorePhase === "quick" || evaluation.isFinal === false) {
+    return "Điểm tạm thời dựa trên khả năng trích code, testability và tín hiệu match benchmark.";
   }
   if (evaluation.status === "unavailable") {
     return "Chưa có benchmark hoặc rule phù hợp để chấm tự động.";
@@ -511,7 +516,7 @@ export default function AIStudentPage() {
                                 Đang chấm độ tín nhiệm câu trả lời
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Hệ thống đang sinh test, chạy sandbox và tổng hợp kết quả ở backend.
+                                Hệ thống đang tính điểm tạm trước, rồi tiếp tục chạy benchmark và sandbox ở backend.
                               </p>
                               {message.evaluationJob?.status && (
                                 <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-[#a16207]">
@@ -528,14 +533,23 @@ export default function AIStudentPage() {
                           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f1dfca] px-4 py-3">
                             <div>
                               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#9a6b37]">
-                                Đánh giá độ tín nhiệm
+                                {message.evaluation?.scorePhase === "quick" || message.evaluation?.isFinal === false
+                                  ? "Điểm tín nhiệm tạm thời"
+                                  : "Đánh giá độ tín nhiệm"}
                               </p>
                               <p className="mt-1 text-xs text-muted-foreground">
                                 {getEvaluationSummary(message.evaluation)}
                               </p>
                             </div>
-                            <div className="rounded-full bg-[linear-gradient(135deg,#fb923c,#f97316)] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]">
-                              {message.evaluation.score}/100
+                            <div className="flex items-center gap-2">
+                              {(message.evaluation?.scorePhase === "quick" || message.evaluation?.isFinal === false) && (
+                                <Badge variant="outline" className="border-[#e6d7c3] bg-white/80 text-[#6b4f32]">
+                                  Tạm thời
+                                </Badge>
+                              )}
+                              <div className="rounded-full bg-[linear-gradient(135deg,#fb923c,#f97316)] px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(249,115,22,0.25)]">
+                                {message.evaluation.score}/100
+                              </div>
                             </div>
                           </div>
 

@@ -1,9 +1,8 @@
+import { env } from "@/lib/env";
 import { User } from "@/types/user";
 
 function getAllowedEmails(): string[] {
-  const raw = process.env.NEXT_PUBLIC_GENAI_TUTOR_ALLOWED_EMAILS || "";
-
-  return raw
+  return env.genAITutorAllowedEmails
     .split(",")
     .map(item => item.trim().toLowerCase())
     .filter(Boolean);

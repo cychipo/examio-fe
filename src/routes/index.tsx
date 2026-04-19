@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import HomePage from "@/pages/landing/HomePage";
 import AboutPage from "@/pages/landing/AboutPage";
 import ContactPage from "@/pages/landing/ContactPage";
@@ -16,6 +16,7 @@ import MyMaterialsPage from "@/pages/k/MyMaterialsPage";
 import FlashcardsPage from "@/pages/k/FlashcardsPage";
 import HistoryPage from "@/pages/k/HistoryPage";
 import AITeacherPage from "@/pages/k/AITeacherPage";
+import AIStudentPage from "@/app/k/ai-student/page";
 import ExamHistoryPage from "@/pages/k/ExamHistoryPage";
 import PDFHistoryPage from "@/pages/k/PDFHistoryPage";
 import FlashcardStudyPage from "@/pages/study-flashcard/FlashcardStudyPage";
@@ -29,6 +30,7 @@ import ManageExamRoomPage from "@/pages/k/ManageExamRoomPage";
 import ManageExamRoomDetailPage from "@/pages/k/ManageExamRoomDetailPage";
 import ExamRoomSessionAnalyticsPage from "@/pages/k/ExamRoomSessionAnalyticsPage";
 import MyExamsPage from "@/pages/k/MyExamsPage";
+import GenAIKnowledgePage from "@/app/k/genai-knowledge/page";
 import { PublicLayout } from "@/routes/layouts/PublicLayout";
 import { AuthLayout } from "@/routes/layouts/AuthLayout";
 import { KLayout } from "@/routes/layouts/KLayout";
@@ -201,10 +203,14 @@ export const router = createBrowserRouter([
   },
   {
     path: "/k/ai-teacher",
+    element: <Navigate to="/k/student-programming" replace />,
+  },
+  {
+    path: "/k/student-programming",
     element: (
       <ProtectedRoute>
         <KLayout>
-          <AITeacherPage />
+          <AIStudentPage />
         </KLayout>
       </ProtectedRoute>
     ),
@@ -277,6 +283,16 @@ export const router = createBrowserRouter([
       <ProtectedRoute>
         <KLayout>
           <AIToolPage />
+        </KLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/k/genai-knowledge",
+    element: (
+      <ProtectedRoute>
+        <KLayout>
+          <GenAIKnowledgePage />
         </KLayout>
       </ProtectedRoute>
     ),

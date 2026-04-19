@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { syncRefreshTokenApi } from "@/apis/authApi";
 
@@ -49,7 +48,6 @@ function getCookie(name: string): string | null {
  * This enables middleware to access the token
  */
 export function useAuthSync() {
-  const location = useLocation();
   const getUser = useAuthStore((state) => state.getUser);
 
   useEffect(() => {
@@ -128,7 +126,7 @@ export function useAuthSync() {
     } else if (storedToken && !storedRefreshToken) {
       console.warn("[auth-sync] skip sync-refresh-token because session_id is missing");
     }
-  }, [getUser, location.key]);
+  }, [getUser]);
 }
 
 /**

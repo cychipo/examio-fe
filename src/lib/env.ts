@@ -21,4 +21,5 @@ export const env = {
   recaptchaSiteKey: readEnv("VITE_RECAPTCHA_SITE_KEY") ?? readEnv("NEXT_PUBLIC_RECAPTCHA_SITE_KEY") ?? "",
   measurementId: readEnv("VITE_MEASUREMENT_ID") ?? readEnv("NEXT_PUBLIC_MEASUREMENT_ID") ?? "",
   quizAesKey: readEnv("VITE_QUIZ_AES_KEY") ?? readEnv("NEXT_PUBLIC_QUIZ_AES_KEY") ?? "default-aes-256-key-32-chars!!!",
+  genAITutorAllowedEmails: readEnv("VITE_GENAI_TUTOR_ALLOWED_EMAILS") ?? readEnv("NEXT_PUBLIC_GENAI_TUTOR_ALLOWED_EMAILS") ?? "",
 };

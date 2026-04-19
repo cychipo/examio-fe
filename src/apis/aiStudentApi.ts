@@ -1,4 +1,5 @@
 import { api } from "@/apis/api";
+import { env } from "@/lib/env";
 
 export interface AIStudentMessage {
   role: "assistant" | "user";
@@ -45,6 +46,9 @@ export interface AIStudentStreamDonePayload {
   retrievalCount?: number;
 }
 
+const EVALUATION_POLL_LIMIT = 40;
+const EVALUATION_POLL_INTERVAL_MS = 1500;
+
 export interface AIStudentSession {
   id: string;
   userId: string;
@@ -67,11 +71,16 @@ export interface AIStudentEvaluationResult {
   stderr?: string;
   stdout?: string;
   testCode?: string;
+  scorePhase?: "quick" | "final" | string;
+  isFinal?: boolean;
   benchmark?: {
     datasetName?: string;
     sampleId?: string;
     entryPoint?: string | null;
     source?: string;
+    ruleId?: string;
+    phase?: number;
+    synthetic?: boolean;
     candidateCount?: number;
     signals?: {
       function_name?: string | null;
@@ -172,7 +181,7 @@ export const aiStudentApi = {
     onComplete: (payload?: AIStudentStreamDonePayload) => void,
     onError: (error: string) => void,
   ) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const baseUrl = env.apiUrl || "http://localhost:4000";
     const controller = new AbortController();
 
     fetch(`${baseUrl}/ai/tutor/stream`, {
@@ -218,7 +227,7 @@ export const aiStudentApi = {
                 onChunk(event.data || "");
               }
               else if (event.type === "done") {
-                onComplete(event.data || undefined);
+                await onComplete(event.data || undefined);
               }
               else if (event.type === "error") {
                 onError(event.data || "Lỗi stream tutor");
