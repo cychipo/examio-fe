@@ -192,7 +192,7 @@ toast.dismiss = (id?: string) => {
 };
 
 const toastVariants = cva(
-  "toast-base fixed z-[100] pointer-events-auto flex w-[calc(100%-2rem)] max-w-md min-h-20 items-start justify-between space-x-4 rounded-lg p-4 pr-8 shadow-lg",
+  "toast-base fixed z-[100] pointer-events-auto flex w-[calc(100%-2rem)] max-w-md items-start justify-between space-x-4 rounded-lg px-4 py-3 pr-8 shadow-lg",
   {
     variants: {
       variant: {
