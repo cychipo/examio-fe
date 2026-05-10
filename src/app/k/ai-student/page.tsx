@@ -18,6 +18,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+import type { AIStudentEvaluationResult, AIStudentEvaluationScoreSource } from "@/apis/aiStudentApi";
 import { ModelSelector } from "@/components/atoms/ModelSelector";
 import { Badge } from "@/components/antd/badge";
 import { Button } from "@/components/antd/button";
@@ -90,28 +91,46 @@ function formatBenchmarkDatasetName(datasetName?: string) {
   return datasetName;
 }
 
-function getEvaluationSummary(evaluation?: {
-  status?: string;
-  scorePhase?: string;
-  isFinal?: boolean;
-  benchmark?: {
-    datasetName?: string;
-    synthetic?: boolean;
-  } | null;
-}) {
+function getEvaluationScoreSource(evaluation?: Pick<AIStudentEvaluationResult, "scoreSource" | "status" | "benchmark">): AIStudentEvaluationScoreSource | undefined {
+  if (!evaluation) return undefined;
+  if (evaluation.scoreSource) return evaluation.scoreSource;
+  if (evaluation.status === "unavailable") return "unavailable";
+  if (evaluation.benchmark?.datasetName === "rule_based_fallback" || evaluation.benchmark?.synthetic) return "synthetic_tests";
+  if (evaluation.benchmark?.datasetName) return "benchmark";
+  return undefined;
+}
+
+function getEvaluationSourceLabel(evaluation?: AIStudentEvaluationResult) {
+  const source = getEvaluationScoreSource(evaluation);
+  if (source === "benchmark") return "Chấm bằng benchmark";
+  if (source === "synthetic_tests") return "Chấm bằng rule fallback";
+  if (source === "llm_judge") return "Điểm tín nhiệm ước lượng";
+  if (source === "static_only") return "Điểm phân tích tĩnh";
+  if (source === "unavailable") return "Chưa đủ dữ liệu để chấm";
+  return "Đánh giá độ tín nhiệm";
+}
+
+function getEvaluationSummary(evaluation?: AIStudentEvaluationResult) {
   if (!evaluation) {
     return "Đang chờ đánh giá tự động.";
   }
   if (evaluation.scorePhase === "quick" || evaluation.isFinal === false) {
     return "Điểm tạm thời dựa trên khả năng trích code, testability và tín hiệu match benchmark.";
   }
-  if (evaluation.status === "unavailable") {
-    return "Chưa có benchmark hoặc rule phù hợp để chấm tự động.";
+  if (evaluation.isEstimated) {
+    return "Không có benchmark/testcase chuẩn, điểm này được tính bằng phân tích code + AI judge.";
   }
-  if (evaluation.benchmark?.datasetName === "rule_based_fallback" || evaluation.benchmark?.synthetic) {
-    return "Chấm bằng rule-based fallback phase 1 cho các bài pure-function đơn giản.";
+  const source = getEvaluationScoreSource(evaluation);
+  if (source === "unavailable") {
+    return "Chưa đủ dữ liệu code/answer để chấm tự động.";
   }
-  return "Chấm bằng benchmark đối chiếu và sandbox thực thi.";
+  if (source === "synthetic_tests") {
+    return "Chấm bằng rule fallback phase 1 cho các bài pure-function đơn giản.";
+  }
+  if (source === "benchmark") {
+    return "Chấm bằng benchmark đối chiếu và sandbox thực thi.";
+  }
+  return "Đánh giá độ tín nhiệm câu trả lời.";
 }
 
 function getSourceBadgeLabel(sourcePath: string) {
@@ -605,16 +624,26 @@ export default function AIStudentPage() {
                                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                                   {message.evaluation?.scorePhase === "quick" || message.evaluation?.isFinal === false
                                     ? "Điểm tín nhiệm tạm thời"
-                                    : "Đánh giá độ tín nhiệm"}
+                                    : getEvaluationSourceLabel(message.evaluation)}
                                 </p>
                                 <p className="mt-1 text-xs text-muted-foreground">
                                   {getEvaluationSummary(message.evaluation)}
                                 </p>
                               </div>
                               <div className="flex items-center gap-2">
+                                {message.evaluation?.isEstimated && (
+                                  <Badge variant="warning" className="border-yellow-200 bg-yellow-50 text-yellow-700">
+                                    Ước lượng
+                                  </Badge>
+                                )}
                                 {(message.evaluation?.scorePhase === "quick" || message.evaluation?.isFinal === false) && (
                                   <Badge variant="outline" className="border-border/70 bg-white text-primary">
                                     Tạm thời
+                                  </Badge>
+                                )}
+                                {message.evaluation?.confidenceLevel && (
+                                  <Badge variant="outline" className="border-border/70 bg-white text-muted-foreground">
+                                    {message.evaluation.confidenceLevel}
                                   </Badge>
                                 )}
                                 <div className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(227,24,55,0.20)]">
@@ -689,7 +718,33 @@ export default function AIStudentPage() {
                                     Nhận định
                                   </p>
                                   <p>{message.evaluation.rationale}</p>
+                                  {message.evaluation.isEstimated && (
+                                    <p className="mt-2 text-xs leading-5 text-yellow-700">
+                                      Không có benchmark/testcase chuẩn, điểm này được tính bằng phân tích code + AI judge.
+                                    </p>
+                                  )}
                                 </div>
+
+                                {((message.evaluation.strengths?.length || 0) > 0 || (message.evaluation.issues?.length || 0) > 0) && (
+                                  <div className="grid gap-3 md:grid-cols-2">
+                                    {(message.evaluation.strengths?.length || 0) > 0 && (
+                                      <div className="rounded-2xl border border-green-100 bg-green-50 px-4 py-3 text-xs leading-5 text-green-800">
+                                        <p className="mb-1 font-semibold uppercase tracking-[0.16em]">Điểm mạnh</p>
+                                        <ul className="list-disc space-y-1 pl-4">
+                                          {message.evaluation.strengths?.slice(0, 3).map(item => <li key={item}>{item}</li>)}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    {(message.evaluation.issues?.length || 0) > 0 && (
+                                      <div className="rounded-2xl border border-yellow-100 bg-yellow-50 px-4 py-3 text-xs leading-5 text-yellow-800">
+                                        <p className="mb-1 font-semibold uppercase tracking-[0.16em]">Lưu ý</p>
+                                        <ul className="list-disc space-y-1 pl-4">
+                                          {message.evaluation.issues?.slice(0, 3).map(item => <li key={item}>{item}</li>)}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
 
                                 {message.evaluation.benchmark?.datasetName && message.evaluation.benchmark?.sampleId && (
                                   <div className="rounded-2xl border border-border/70 bg-white px-4 py-3 text-sm text-foreground">

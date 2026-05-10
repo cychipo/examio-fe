@@ -27,6 +27,9 @@ export interface AIStudentChatMessage {
     score?: number;
     scorePhase?: "quick" | "final" | string;
     isFinal?: boolean;
+    scoreSource?: AIStudentEvaluationResult["scoreSource"];
+    isEstimated?: boolean;
+    confidenceLevel?: AIStudentEvaluationResult["confidenceLevel"];
   };
   isEvaluating?: boolean;
 }
@@ -296,6 +299,11 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
               modelUsed: status.modelUsed,
               scorePhase: status.scorePhase,
               isFinal: status.isFinal,
+              scoreSource: status.scoreSource,
+              isEstimated: status.isEstimated,
+              confidenceLevel: status.confidenceLevel,
+              issues: status.issues,
+              strengths: status.strengths,
             }
           : undefined;
 
@@ -312,6 +320,9 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
                       score: status.score,
                       scorePhase: status.scorePhase,
                       isFinal: status.isFinal,
+                      scoreSource: status.scoreSource,
+                      isEstimated: status.isEstimated,
+                      confidenceLevel: status.confidenceLevel,
                     },
                     isEvaluating: false,
                   }
@@ -336,6 +347,9 @@ export const useAIStudentStore = create<AIStudentState>((set, get) => ({
                       score: status.score,
                       scorePhase: status.scorePhase,
                       isFinal: status.isFinal,
+                      scoreSource: status.scoreSource,
+                      isEstimated: status.isEstimated,
+                      confidenceLevel: status.confidenceLevel,
                     },
                     isEvaluating: false,
                   }

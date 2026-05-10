@@ -49,6 +49,9 @@ export interface AIStudentStreamDonePayload {
 const EVALUATION_POLL_LIMIT = 40;
 const EVALUATION_POLL_INTERVAL_MS = 1500;
 
+export type AIStudentEvaluationScoreSource = "benchmark" | "synthetic_tests" | "llm_judge" | "static_only" | "unavailable";
+export type AIStudentEvaluationConfidenceLevel = "high" | "medium" | "low";
+
 export interface AIStudentSession {
   id: string;
   userId: string;
@@ -73,6 +76,11 @@ export interface AIStudentEvaluationResult {
   testCode?: string;
   scorePhase?: "quick" | "final" | string;
   isFinal?: boolean;
+  scoreSource?: AIStudentEvaluationScoreSource;
+  isEstimated?: boolean;
+  confidenceLevel?: AIStudentEvaluationConfidenceLevel;
+  issues?: string[];
+  strengths?: string[];
   benchmark?: {
     datasetName?: string;
     sampleId?: string;
