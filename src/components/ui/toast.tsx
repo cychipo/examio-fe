@@ -192,7 +192,7 @@ toast.dismiss = (id?: string) => {
 };
 
 const toastVariants = cva(
-  "toast-base fixed z-[100] pointer-events-auto flex w-[calc(100%-2rem)] max-w-sm h-20 items-center justify-between space-x-4 rounded-lg p-4 pr-8 shadow-lg",
+  "toast-base fixed z-[100] pointer-events-auto flex w-[calc(100%-2rem)] max-w-md min-h-20 items-start justify-between space-x-4 rounded-lg p-4 pr-8 shadow-lg",
   {
     variants: {
       variant: {
@@ -569,15 +569,15 @@ const ToastComponent: React.FC<ToastProps> = ({
         pointerEvents: "auto",
       }}
     >
-      <div className="flex items-center space-x-3 w-full min-w-0">
+      <div className="flex items-start space-x-3 w-full min-w-0">
         {variant !== "default" &&
           ToastIcons[variant as keyof typeof ToastIcons]}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 break-words">
           {title && (
-            <div className="font-semibold text-sm truncate">{title}</div>
+            <div className="font-semibold text-sm whitespace-pre-wrap break-words">{title}</div>
           )}
           {description && (
-            <div className="text-xs opacity-70 truncate mt-1">
+            <div className="text-xs opacity-70 whitespace-pre-wrap break-words mt-1">
               {description}
             </div>
           )}

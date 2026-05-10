@@ -28,7 +28,7 @@ AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, children, ...props }, _ref) => {
+>(({ className, children, ...props }, ref) => {
   const contentRef = React.useRef<HTMLDivElement>(null);
   const [shakeKey, setShakeKey] = React.useState(0);
 
@@ -54,20 +54,22 @@ const AlertDialogContent = React.forwardRef<
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
-      <AlertDialogPrimitive.Content asChild {...props}>
-        <div className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 sm:rounded-lg">
-          <motion.div
-            key={shakeKey}
-            ref={contentRef}
-            animate={{ x: [0, -10, 10, -8, 8, -4, 4, 0] }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className={cn(
-              "grid gap-4 border bg-background p-6 shadow-lg",
-              className
-            )}>
-            {children}
-          </motion.div>
-        </div>
+      <AlertDialogPrimitive.Content
+        ref={ref}
+        className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 sm:rounded-lg"
+        {...props}
+      >
+        <motion.div
+          key={shakeKey}
+          ref={contentRef}
+          animate={{ x: [0, -10, 10, -8, 8, -4, 4, 0] }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className={cn(
+            "grid gap-4 border bg-background p-6 shadow-lg",
+            className
+          )}>
+          {children}
+        </motion.div>
       </AlertDialogPrimitive.Content>
     </AlertDialogPortal>
   );

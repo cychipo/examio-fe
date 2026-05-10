@@ -319,24 +319,24 @@ const pollJobStatus = async (
         onProgress(jobStatus.progress);
       }
 
-      if (jobStatus.status === "completed" && jobStatus.result) {
+      if (jobStatus.status === "completed") {
+        useJobStore.getState().setCurrentJobId(null);
+
+        if (!jobStatus.result) {
+          onError(jobStatus.message || "Tác vụ đã hoàn tất nhưng không tìm thấy kết quả đã tạo");
+          return;
+        }
+
         const actualResultType = getGenerationResultType(jobStatus.result);
 
         if (
           expectedResultType &&
           (!actualResultType || actualResultType !== expectedResultType)
         ) {
-          attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(poll, pollInterval);
-          } else {
-            useJobStore.getState().setCurrentJobId(null);
-            onError("Timeout: Job took too long to complete");
-          }
+          onError("Tác vụ đã hoàn tất nhưng kết quả không đúng loại yêu cầu");
           return;
         }
 
-        useJobStore.getState().setCurrentJobId(null);
         onSuccess(jobStatus.result);
         return;
       }

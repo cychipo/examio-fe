@@ -96,6 +96,12 @@ export function useAuthSync() {
       }
 
       getUser();
+    } else {
+      useAuthStore.setState({
+        user: null,
+        isAuthenticated: false,
+        initializing: false,
+      });
     }
 
     const storedToken = localStorage.getItem(AUTH_STORAGE_KEY);
