@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { ScrollArea } from "@/components/antd/scroll-area";
 import { cn } from "@/lib/utils";
 import {
   MessageSquare,
@@ -22,7 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +32,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/antd/alert-dialog";
 import { AIChat } from "@/apis/aiChatApi";
 
 interface ChatHistoryCardProps {

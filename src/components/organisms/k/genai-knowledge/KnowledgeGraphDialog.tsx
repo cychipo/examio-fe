@@ -1,6 +1,6 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/antd/dialog";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
 import { GenAIKnowledgeGraphSnapshot } from "@/types/genai-knowledge";
 
 interface KnowledgeGraphDialogProps {

@@ -3,15 +3,18 @@ import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import Logo from "@/components/atoms/Logo";
 import {
-  TokensIcon,
-  ReaderIcon,
-  CardStackIcon,
-  RocketIcon,
-  ClockIcon,
-  DashboardIcon,
-} from "@radix-ui/react-icons";
-import { Bot, BookOpen, GraduationCap, Library } from "lucide-react";
-import { Button } from "@/components/ui/button";
+  Bot,
+  BookOpen,
+  Clock as ClockIcon,
+  Coins as TokensIcon,
+  GraduationCap,
+  LayoutDashboard as DashboardIcon,
+  Library,
+  PanelsTopLeft as CardStackIcon,
+  Rocket as RocketIcon,
+  ScrollText as ReaderIcon,
+} from "lucide-react";
+import { Button } from "@/components/antd/button";
 import { FloatingDock } from "@/components/atoms/k/FloatingDock";
 import ProfileDropdown from "@/components/atoms/ProfileDropdown";
 import { useAuthStore } from "@/stores/useAuthStore";

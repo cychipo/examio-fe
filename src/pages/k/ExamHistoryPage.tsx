@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   ExamHistoryListItem,
@@ -16,7 +16,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@/components/antd/breadcrumb";
 
 function transformExamHistory(items: ExamHistoryItem[]): ExamHistoryListItemData[] {
   return items.map((item) => ({

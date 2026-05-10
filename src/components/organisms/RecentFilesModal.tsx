@@ -7,15 +7,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "@/components/antd/drawer";
+import { Button } from "@/components/antd/button";
+import { ScrollArea } from "@/components/antd/scroll-area";
 import { cn } from "@/lib/utils";
 import { FileText, Loader2, FolderOpen, Check } from "lucide-react";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";

@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
+import { Textarea } from "@/components/antd/textarea";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/antd/avatar";
 import { User, Save, Loader2, ImageIcon, Camera, Upload } from "lucide-react";
 import type { UserProfile, UpdateProfileData } from "@/apis/profileApi";
 import { uploadAvatarApi, uploadBannerApi } from "@/apis/profileApi";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 
 interface ProfileFormProps {
   profile: UserProfile;

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { TaskCheckItem } from "@/components/atoms/k/TaskCheckItem";
 
 export interface Task {

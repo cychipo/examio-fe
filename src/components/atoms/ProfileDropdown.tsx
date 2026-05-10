@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { PersonIcon } from "@radix-ui/react-icons";
+import { User as PersonIcon } from "lucide-react";
 import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/solid";
 import { useAuthStore } from "@/stores/useAuthStore";
 import {
@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 
 interface Profile {
   name: string;

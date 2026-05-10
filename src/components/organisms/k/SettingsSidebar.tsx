@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { SettingsSidebarItem } from "@/components/molecules/SettingsSidebarItem";
 import {
   Palette,

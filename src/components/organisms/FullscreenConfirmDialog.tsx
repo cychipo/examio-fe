@@ -7,11 +7,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "@/components/antd/alert-dialog";
+import { Button } from "@/components/antd/button";
 import { Maximize, XCircle, ShieldCheck, Loader2 } from "lucide-react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 interface FullscreenConfirmDialogProps {
   open: boolean;

@@ -17,7 +17,7 @@ import {
   LoginResponse,
   SignupResponse,
 } from "@/apis/authApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import {
   setAuthToken,
   clearAuthToken,

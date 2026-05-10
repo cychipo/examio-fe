@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { UpcomingExamItem } from "@/components/atoms/k/UpcomingExamItem";
 
 export interface UpcomingExam {

@@ -1,13 +1,13 @@
 import { FileText, Loader2, Check, MoreVertical, Download, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 
 export interface PDFHistoryListItemData {
   id: string;

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import { UserAvatar } from "@/components/atoms/k/UserAvatar";
 import { ContributorBadge } from "@/components/atoms/k/ContributorBadge";
 

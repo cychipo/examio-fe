@@ -1,5 +1,5 @@
 import { FileText, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import {
   Item,
   ItemActions,
@@ -7,7 +7,7 @@ import {
   ItemDescription,
   ItemMedia,
   ItemTitle,
-} from "@/components/ui/item";
+} from "@/components/antd/item";
 
 interface ItemFileDetailProps {
   fileName: string;

@@ -1,11 +1,11 @@
 /* eslint-disable react-dom/no-dangerously-set-innerhtml */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/antd/button";
+import { Card, CardContent } from "@/components/antd/card";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
+import { Avatar, AvatarImage } from "@/components/antd/avatar";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   ChevronLeft,
   ChevronRight,

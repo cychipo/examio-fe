@@ -1,14 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Label } from "@/components/antd/label";
+import { Switch } from "@/components/antd/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+} from "@/components/antd/select";
+import { Slider } from "@/components/antd/slider";
 
 interface InterfaceSettings {
   compactMode: boolean;

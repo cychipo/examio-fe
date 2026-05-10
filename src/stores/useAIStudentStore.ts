@@ -8,7 +8,7 @@ import {
   AIStudentSession,
   AIStudentStreamDonePayload,
 } from "@/apis/aiStudentApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { useAIModelCatalogStore } from "@/stores/useAIModelCatalogStore";
 import { AIModelType, DEFAULT_AI_MODEL } from "@/types/ai";
 

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Input } from "@/components/antd/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/antd/avatar";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
+import { Card } from "@/components/antd/card";
 import { Loader2, X, Search, Users } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { searchUsersForWhitelistApi } from "@/apis/examSessionApi";

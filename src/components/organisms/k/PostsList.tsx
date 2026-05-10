@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader } from "@/components/antd/card";
+import { ScrollArea } from "@/components/antd/scroll-area";
 import { PostCard, type Post } from "@/components/molecules/PostCard";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/antd/tabs";
 
 interface PostsListProps {
   posts: Post[];

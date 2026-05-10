@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { Card } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { RadioGroup, RadioGroupItem } from "@/components/antd/radio-group";
+import { Label } from "@/components/antd/label";
 import { X } from "lucide-react";
 import { Quizz } from "@/types/quizset";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";

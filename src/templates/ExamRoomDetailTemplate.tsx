@@ -3,9 +3,9 @@ import { ExamInstructionsSection } from "@/components/organisms/k/ExamInstructio
 import { SystemCheckSection } from "@/components/molecules/SystemCheckSection";
 import { CountdownTimer } from "@/components/atoms/k/CountdownTimer";
 import { ExamProgressSection } from "@/components/organisms/k/ExamProgressSection";
-import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/antd/card";
+import { Checkbox } from "@/components/antd/checkbox";
+import { Button } from "@/components/antd/button";
 import { useState } from "react";
 
 interface ExamInfo {

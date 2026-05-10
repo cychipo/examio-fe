@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/antd/card";
 
 import { formatBytes } from "./knowledge-constants";
 

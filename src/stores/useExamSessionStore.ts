@@ -11,7 +11,7 @@ import {
 } from "@/apis/examSessionApi";
 import { ExamSession } from "@/types/examSession";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 interface ExamSessionStore {
   examSessions: ExamSession[];

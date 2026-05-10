@@ -1,8 +1,8 @@
 import { FileCode2, Network, RotateCcw, Trash2 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
+import { Card, CardContent } from "@/components/antd/card";
 import { GenAIKnowledgeFile } from "@/types/genai-knowledge";
 import { cn } from "@/lib/utils";
 

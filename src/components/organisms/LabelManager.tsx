@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/antd/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Badge } from "@/components/antd/badge";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
+import { Textarea } from "@/components/antd/textarea";
 import {
   Dialog,
   DialogContent,
@@ -15,14 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/antd/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/antd/tabs";
 import { Tag, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -33,7 +33,7 @@ import {
   deleteLabelApi,
   getQuestionsByLabelApi,
 } from "@/apis/quizsetApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { RichTextViewer } from "@/components/molecules/RichTextViewer";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
 

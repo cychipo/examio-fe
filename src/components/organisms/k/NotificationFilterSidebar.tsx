@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { NotificationFilterButton } from "@/components/molecules/NotificationFilterButton";
 import { NotificationActions } from "@/components/molecules/NotificationActions";
 import { Bell, Circle, User, Shield, CreditCard, Settings } from "lucide-react";

@@ -1,26 +1,26 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
+import { Switch } from "@/components/antd/switch";
+import { Badge } from "@/components/antd/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/antd/select";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import { AlertTriangle, Plus, Minus, Shuffle, Target, Tag } from "lucide-react";
 import {
   QUESTION_SELECTION_MODE,

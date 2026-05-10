@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { ProgressCircle } from "@/components/atoms/k/ProgressCircle";
 
 interface ExamProgress {

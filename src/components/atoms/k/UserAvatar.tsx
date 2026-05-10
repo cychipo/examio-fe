@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/antd/avatar";
 import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {

@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Label } from "@/components/antd/label";
+import { Input } from "@/components/antd/input";
 import { cn } from "@/lib/utils";
 import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
 import { FacebookIcon } from "lucide-react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { RoleSelection } from "./role-selection";
 import { UserRole } from "@/types/user";
 

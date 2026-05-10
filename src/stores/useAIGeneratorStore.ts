@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { Quizz, Flashcard, TypeResultGenerateExam } from "@/types/exam";
 import { generateExamApi } from "@/apis/examApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { aiApi, RecentUpload } from "@/apis/aiApi";
 import { storeCache } from "@/lib/storeCache";
 import { useAuthStore } from "@/stores/useAuthStore";

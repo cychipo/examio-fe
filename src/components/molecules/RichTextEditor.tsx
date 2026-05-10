@@ -19,7 +19,7 @@ import {
   Code,
   ImageIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { ImageUrlDialog } from "@/components/organisms/ImageUrlDialog";
 
 interface RichTextEditorProps {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import {
   Dialog,
   DialogClose,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import { FormSelectQuizSet } from "@/components/atoms/k/FormSelectQuizSet";
 import { FormSelectFlashcardSet } from "@/components/atoms/k/FormSelectFlashcardSet";
 import { LabelSelector } from "@/components/molecules/LabelSelector";

@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Label } from "@/components/antd/label";
+import { Input } from "@/components/antd/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@/components/antd/select";
+import { RadioGroup, RadioGroupItem } from "@/components/antd/radio-group";
 import { Loader2, Tag, Palette } from "lucide-react";
 import { getQuizSetLabelsApi, QuizSetLabel } from "@/apis/quizsetApi";
 import {

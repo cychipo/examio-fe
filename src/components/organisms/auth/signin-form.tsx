@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import { RoleSelection } from "./role-selection";
 
 function BottomGradient() {

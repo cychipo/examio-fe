@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { CheckIcon } from "@radix-ui/react-icons";
+import { Check as CheckIcon } from "lucide-react";
 import NumberFlow from "@number-flow/react";
 
 export type PlanLevel = "starter" | "pro" | "all" | string;

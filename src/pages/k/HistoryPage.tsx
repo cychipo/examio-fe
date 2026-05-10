@@ -15,7 +15,7 @@ import {
   type ExamHistoryItem,
 } from "@/apis/historyApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] {

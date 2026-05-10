@@ -10,7 +10,7 @@ import {
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
+} from "@/components/antd/drawer";
 
 interface FloatingDockItem {
   name: string;

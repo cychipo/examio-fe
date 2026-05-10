@@ -8,14 +8,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/antd/dialog";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
 import { Loader2, ImageIcon, Upload, Link2 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/antd/tabs";
 import { mediaApi } from "@/apis/mediaApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 interface ImageUrlDialogProps {
   open: boolean;

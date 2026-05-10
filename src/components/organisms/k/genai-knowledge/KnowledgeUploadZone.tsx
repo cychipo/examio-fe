@@ -1,7 +1,7 @@
 import { UploadCloud } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
 import { cn } from "@/lib/utils";
 
 interface KnowledgeUploadZoneProps {

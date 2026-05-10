@@ -3,8 +3,8 @@
 import { FileText, Clock, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RecentUpload } from "@/apis/aiApi";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
 import { repairVietnameseText } from "@/lib/text";
 
 interface RecentFileItemProps {

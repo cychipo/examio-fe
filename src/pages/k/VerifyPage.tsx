@@ -7,7 +7,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
   InputOTPSeparator,
-} from "@/components/ui/input-otp";
+} from "@/components/antd/input-otp";
 
 export default function VerifyPage() {
   const [code, setCode] = useState("");

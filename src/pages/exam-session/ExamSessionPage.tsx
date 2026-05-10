@@ -8,24 +8,24 @@ import {
 } from "@/apis/examSessionApi";
 import { EXAM_SESSION_STATUS, type AccessCheckResult } from "@/types/examSession";
 import { ExamRoomDetailTemplate } from "@/templates/ExamRoomDetailTemplate";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/antd/skeleton";
+import { Button } from "@/components/antd/button";
+import { Card, CardContent } from "@/components/antd/card";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@/components/ui/input-otp";
+} from "@/components/antd/input-otp";
 import { KeyRound, Loader2, Lock, XCircle } from "lucide-react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { cn } from "@/lib/utils";
 
 export default function ExamSessionPage() {

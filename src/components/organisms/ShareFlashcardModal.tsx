@@ -7,12 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@/components/antd/dialog";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
+import { Switch } from "@/components/antd/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/antd/radio-group";
 import {
   Copy,
   RefreshCw,
@@ -24,7 +24,7 @@ import {
   Loader2,
   Search,
 } from "lucide-react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import {
   getSharingSettings,
   updateSharingSettings,
@@ -32,7 +32,7 @@ import {
   searchUsersForWhitelist,
   SearchUser,
 } from "@/apis/flashcardSetApi";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/antd/avatar";
 
 interface ShareFlashcardModalProps {
   open: boolean;

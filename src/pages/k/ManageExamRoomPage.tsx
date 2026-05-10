@@ -7,7 +7,7 @@ import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog"
 import { RoomStatsSection } from "@/components/organisms/k/RoomStatsSection";
 import { ExamRoomList, type ExamRoom as ExamRoomListType } from "@/components/organisms/k/ExamRoomList";
 import { RecentParticipantsList, type Participant } from "@/components/organisms/k/RecentParticipantsList";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { TeacherRoute } from "@/components/organisms/TeacherRoute";
 import type { ExamRoomFormData } from "@/components/molecules/ExamRoomForm";
 import { useExamRoomStore } from "@/stores/useExamRoomStore";

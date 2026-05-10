@@ -8,11 +8,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Label } from "@/components/antd/label";
 import ModelSelector from "@/components/atoms/ModelSelector";
-import { Slider } from "@/components/ui/slider";
+import { Slider } from "@/components/antd/slider";
 import {
   Loader2,
   Sparkles,
@@ -22,19 +22,19 @@ import {
   CircleHelp,
   CheckCircle2,
 } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import FileUpload from "@/components/kokonutui/file-upload";
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
-import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/antd/scroll-area";
+import { Switch } from "@/components/antd/switch";
+import { Field, FieldContent, FieldLabel } from "@/components/antd/field";
+import { Input } from "@/components/antd/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import ModernLoader from "@/components/ui/modern-loader";
+} from "@/components/antd/tooltip";
+import ModernLoader from "@/components/antd/modern-loader";
 import { Quizz } from "@/types/exam";
 import { useTestGeneratorStore } from "@/stores/useAIGeneratorStore";
 import { validatePdfPageCount } from "@/lib/pdfUtils";

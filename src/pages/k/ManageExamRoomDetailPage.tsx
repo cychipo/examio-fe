@@ -20,9 +20,9 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { toast } from "@/components/ui/toast";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { toast } from "@/components/antd/toast";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,24 +30,24 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from "@/components/antd/breadcrumb";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import { DeleteConfirmDialog } from "@/components/organisms/DeleteConfirmDialog";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 import { ExamSessionFormModal } from "@/components/organisms/ExamSessionFormModal";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/antd/skeleton";
 import {
   Table,
   TableBody,
@@ -55,7 +55,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/antd/table";
 import { ASSESS_TYPE } from "@/types/examSession";
 import type { ExamSessionBasic } from "@/types/examRoom";
 import { TeacherRoute } from "@/components/organisms/TeacherRoute";

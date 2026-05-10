@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { ScrollArea } from "@/components/antd/scroll-area";
+import { Badge } from "@/components/antd/badge";
+import { Skeleton } from "@/components/antd/skeleton";
 import { cn } from "@/lib/utils";
 import {
   ChevronRight,
@@ -63,7 +63,7 @@ import {
   Sparkles,
   Lightbulb,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/antd/input";
 import { subjectApi, Subject, SubjectCategory } from "@/apis/subjectApi";
 
 // Icon mapping for dynamic rendering

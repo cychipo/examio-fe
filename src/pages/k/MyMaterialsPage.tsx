@@ -11,19 +11,19 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Skeleton } from "@/components/antd/skeleton";
 import { BookOpen, Share2, Eye, Clock, User } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from "@/components/antd/dialog";
+import { Input } from "@/components/antd/input";
 
 export default function MyMaterialsPage() {
   const navigate = useNavigate();

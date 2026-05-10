@@ -17,9 +17,9 @@ import {
   UploadCloud,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import {
   Sheet,
   SheetContent,
@@ -27,9 +27,9 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "@/components/ui/toast";
+} from "@/components/antd/sheet";
+import { Skeleton } from "@/components/antd/skeleton";
+import { toast } from "@/components/antd/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,7 +39,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/antd/alert-dialog";
 import { cn } from "@/lib/utils";
 import { canAccessGenAIKnowledgeManager, isGenAIKnowledgeRestrictedByEmail } from "@/lib/genai-knowledge-access";
 import { useDebounce } from "@/hooks/useDebounce";

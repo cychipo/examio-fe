@@ -1,6 +1,6 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { CategoryIcon } from "@/components/atoms/k/CategoryIcon";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/antd/badge";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
 import {
   Monitor,
   Smartphone,
@@ -20,7 +20,7 @@ import {
   logoutAllOthersApi,
   type Device,
 } from "@/apis/devicesApi";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/components/antd/alert-dialog";
 
 export function DeviceList() {
   const [devices, setDevices] = useState<Device[]>([]);

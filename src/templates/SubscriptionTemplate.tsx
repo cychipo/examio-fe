@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/antd/tabs";
 import { CreditSlider } from "@/components/molecules/subscription/CreditSlider";
 import { CreditStatisticsCard } from "@/components/molecules/subscription/CreditStatisticsCard";
 import { UsageBreakdownCard } from "@/components/molecules/subscription/UsageBreakdownCard";
@@ -25,7 +25,7 @@ import {
   getSubscriptionPlansApi,
   cancelPaymentApi,
 } from "@/apis/subscriptionApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { Crown } from "lucide-react";
 
 interface SubscriptionTemplateProps {

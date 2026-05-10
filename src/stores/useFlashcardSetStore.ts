@@ -17,7 +17,7 @@ import {
 } from "@/apis/flashcardSetApi";
 import { FlashcardSet } from "@/types/flashcardSet";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 interface FlashcardSetStore {
   flashcardSetsK: Omit<FlashcardSet, "flashcards">[];

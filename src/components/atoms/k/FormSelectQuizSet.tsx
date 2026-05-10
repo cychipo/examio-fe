@@ -1,15 +1,15 @@
 "use client";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
 import { useEffect, useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { PlusIcon, Cross2Icon } from "@radix-ui/react-icons";
-import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import { Item } from "@/components/ui/item";
+import { Label } from "@/components/antd/label";
+import { Checkbox } from "@/components/antd/checkbox";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Plus as PlusIcon, X as Cross2Icon } from "lucide-react";
+import { Card, CardContent } from "@/components/antd/card";
+import { Switch } from "@/components/antd/switch";
+import { Field, FieldContent, FieldLabel } from "@/components/antd/field";
+import { Item } from "@/components/antd/item";
 import { ThumbnailUpload } from "@/components/atoms/k/ThumbnailUpload";
 
 interface FormSelectQuizSetProps {

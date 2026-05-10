@@ -7,16 +7,16 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   Drawer,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@/components/antd/drawer";
+import { Button } from "@/components/antd/button";
+import { Label } from "@/components/antd/label";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Flashcard } from "@/types/flashcardSet";

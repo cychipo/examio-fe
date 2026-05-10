@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/antd/badge";
 import { GenAIKnowledgeFolder } from "@/types/genai-knowledge";
 import { cn } from "@/lib/utils";
 

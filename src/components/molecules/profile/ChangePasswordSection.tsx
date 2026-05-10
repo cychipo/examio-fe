@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
 import { Lock, Loader2, Mail, Eye, EyeOff, Check } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import { sendCodeChangePasswordApi, changePasswordApi } from "@/apis/authApi";
 import { AxiosError } from "axios";
 

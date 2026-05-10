@@ -8,11 +8,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+} from "@/components/antd/dialog";
+import { Button } from "@/components/antd/button";
+import { Label } from "@/components/antd/label";
+import { Input } from "@/components/antd/input";
+import { RadioGroup, RadioGroupItem } from "@/components/antd/radio-group";
 import { Clock, Infinity as InfinityIcon } from "lucide-react";
 
 interface PracticeSettingsModalProps {

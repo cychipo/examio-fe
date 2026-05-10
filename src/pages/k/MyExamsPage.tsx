@@ -12,12 +12,12 @@ import {
   XCircle,
 } from "lucide-react";
 import { getRecentExamAttemptsApi, type RecentExamAttempt } from "@/apis/studentMaterialsApi";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/components/ui/toast";
+import { Card, CardContent, CardHeader } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/antd/dialog";
+import { Progress } from "@/components/antd/progress";
+import { Skeleton } from "@/components/antd/skeleton";
+import { useToast } from "@/components/antd/toast";
 
 export default function MyExamsPage() {
   const { toast } = useToast();

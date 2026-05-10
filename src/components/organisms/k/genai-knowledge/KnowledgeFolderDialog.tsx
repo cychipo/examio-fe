@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import {
   Dialog,
   DialogContent,
@@ -6,9 +6,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/components/antd/dialog";
+import { Input } from "@/components/antd/input";
+import { Textarea } from "@/components/antd/textarea";
 import { cn } from "@/lib/utils";
 import { GenAIKnowledgeFolderIcon } from "@/types/genai-knowledge";
 

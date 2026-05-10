@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import {
   TrendingTopicItem,
   type TrendingTopic,
@@ -7,7 +7,7 @@ import {
   UpcomingSessionCard,
   type StudySession,
 } from "@/components/molecules/UpcomingSessionCard";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 
 interface TrendingSidebarProps {
   trendingTopics: TrendingTopic[];

@@ -1,17 +1,17 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/antd/card";
+import { ScrollArea } from "@/components/antd/scroll-area";
 import {
   NotificationItem,
   type NotificationItemData,
 } from "@/components/molecules/NotificationItem";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { Filter, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 
 interface NotificationListProps {
   title: string;

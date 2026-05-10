@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/antd/tooltip";
 import {
   Facebook,
   Instagram,

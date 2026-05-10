@@ -5,19 +5,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from "@/components/antd/table";
+import { Button } from "@/components/antd/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/antd/tooltip";
 import {
   ExamStatusBadge,
   ExamStatus,
 } from "@/components/atoms/k/ExamStatusBadge";
 import { Edit, Trash2, LucideIcon, BookOpenCheck, Eye } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/antd/badge";
 
 export interface ManagementTableData {
   id: string;

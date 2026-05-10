@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,8 +17,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from "@/components/antd/alert-dialog";
+import { Button } from "@/components/antd/button";
 import { Loader2, CheckCircle2, XCircle, Copy, Check } from "lucide-react";
 
 interface PaymentWithQR {

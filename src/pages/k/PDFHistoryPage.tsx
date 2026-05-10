@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   PDFHistoryListItem,
@@ -9,7 +9,7 @@ import {
 } from "@/components/molecules/PDFHistoryListItem";
 import { getPDFHistoryApi, type PDFHistoryItem } from "@/apis/historyApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,7 +17,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@/components/antd/breadcrumb";
 
 function transformPDFHistory(items: PDFHistoryItem[]): PDFHistoryListItemData[] {
   return items.map((item) => {

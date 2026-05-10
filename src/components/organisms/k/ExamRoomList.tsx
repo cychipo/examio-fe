@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { ExamRoomCardItem } from "@/components/molecules/ExamRoomCardItem";
 
 export interface ExamRoom {

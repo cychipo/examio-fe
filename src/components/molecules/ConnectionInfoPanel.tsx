@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import { ConnectionStatus } from "@/components/atoms/k/ConnectionStatus";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { X } from "lucide-react";
 
 interface ConnectionInfo {

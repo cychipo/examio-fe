@@ -1,5 +1,5 @@
 import { Heart, MessageSquare, Share, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 
 interface PostStatsProps {
   likes: number;

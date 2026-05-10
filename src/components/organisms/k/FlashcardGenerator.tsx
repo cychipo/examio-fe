@@ -8,8 +8,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
 import {
   SquareSplitVertical,
   ChevronLeft,
@@ -20,21 +20,21 @@ import {
   Loader2,
   SaveAll,
 } from "lucide-react";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import FileUpload from "@/components/kokonutui/file-upload";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/antd/label";
 import ModelSelector from "@/components/atoms/ModelSelector";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Field, FieldContent, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/antd/slider";
+import { Switch } from "@/components/antd/switch";
+import { Field, FieldContent, FieldLabel } from "@/components/antd/field";
+import { Input } from "@/components/antd/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/antd/tooltip";
 import { ItemFileDetail } from "@/components/atoms/k/ItemFileDetail";
-import ModernLoader from "@/components/ui/modern-loader";
+import ModernLoader from "@/components/antd/modern-loader";
 import { FlipCard } from "@/components/atoms/k/FlipCard";
 import { useFlashcardGeneratorStore } from "@/stores/useAIGeneratorStore";
 import { validatePdfPageCount } from "@/lib/pdfUtils";

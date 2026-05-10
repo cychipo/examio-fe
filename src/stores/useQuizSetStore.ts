@@ -22,7 +22,7 @@ import {
   UpdateQuestionData,
   getAllQuizSetsApi,
 } from "@/apis/quizsetApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
 
 interface QuizSetState {

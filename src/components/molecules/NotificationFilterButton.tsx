@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { NotificationBadge } from "@/components/atoms/k/NotificationBadge";
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";

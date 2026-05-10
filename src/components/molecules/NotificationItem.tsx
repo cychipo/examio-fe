@@ -1,7 +1,7 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { NotificationIcon } from "@/components/atoms/k/NotificationIcon";
 import { NotificationTimestamp } from "@/components/atoms/k/NotificationTimestamp";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { cn } from "@/lib/utils";
 
 export interface NotificationItemData {

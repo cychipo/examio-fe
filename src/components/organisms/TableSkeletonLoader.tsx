@@ -1,7 +1,7 @@
 "use client";
 
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/antd/skeleton";
+import { Card } from "@/components/antd/card";
 
 interface TableSkeletonLoaderProps {
   /**

@@ -12,7 +12,7 @@ import {
 } from "@/apis/examRoomApi";
 import { ExamRoom } from "@/types/examRoom";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 interface ExamRoomStore {
   examRooms: ExamRoom[];

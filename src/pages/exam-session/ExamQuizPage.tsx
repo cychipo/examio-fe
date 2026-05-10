@@ -1,11 +1,11 @@
 /* eslint-disable react-dom/no-dangerously-set-innerhtml */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/antd/button";
+import { Card, CardContent } from "@/components/antd/card";
+import { RadioGroup, RadioGroupItem } from "@/components/antd/radio-group";
+import { Label } from "@/components/antd/label";
+import { Progress } from "@/components/antd/progress";
 import {
   AlertTriangle,
   BarChart3,
@@ -20,7 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/organisms/ConfirmDialog";
 import { FullscreenConfirmDialog } from "@/components/organisms/FullscreenConfirmDialog";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useCheatingDetection } from "@/hooks/useCheatingDetection";
 import { CheatingWarningModal } from "@/components/molecules/CheatingWarningModal";

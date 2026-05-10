@@ -2,12 +2,12 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Menu, User, X } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/antd/button";
 import { cn } from "@/lib/utils";
 import Logo from "../atoms/Logo";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useLayoutEffect } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/antd/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 
 const menuItems = [
   { name: "Tính năng", href: "/#features" },

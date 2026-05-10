@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { SystemCheckItem } from "@/components/atoms/k/SystemCheckItem";
 import { Monitor, Wifi, Camera, Mic } from "lucide-react";
 

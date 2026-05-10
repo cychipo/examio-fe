@@ -13,8 +13,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from "@/components/antd/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/antd/avatar";
 
 export function AuthLayoutShell({ children }: { children: React.ReactNode }) {
   useAuthSync();

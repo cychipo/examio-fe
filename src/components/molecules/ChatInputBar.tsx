@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, KeyboardEvent } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { cn } from "@/lib/utils";
 import {
   Send,
@@ -18,7 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 
 interface ChatInputBarProps {
   onSendMessage: (message: string) => void;

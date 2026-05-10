@@ -1,6 +1,6 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { UserAvatar } from "@/components/atoms/k/UserAvatar";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/antd/badge";
 import { cn } from "@/lib/utils";
 
 export interface Conversation {

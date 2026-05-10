@@ -8,15 +8,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/antd/select";
+import { Badge } from "@/components/antd/badge";
 import { cn } from "@/lib/utils";
 import { repairVietnameseText } from "@/lib/text";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/antd/tooltip";
 import { Brain, Cloud, Cpu, Sparkles } from "lucide-react";
 import { useAIModelCatalogStore } from "@/stores/useAIModelCatalogStore";
 

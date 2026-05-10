@@ -5,7 +5,7 @@ import {
   AIChatMessage,
   SendMessageRequest,
 } from "@/apis/aiChatApi";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 import { RecentUpload } from "@/apis/aiApi";
 import { virtualTeacherApi } from "@/apis/virtualTeacherApi";
 import { storeCache, CacheTTL } from "@/lib/storeCache";

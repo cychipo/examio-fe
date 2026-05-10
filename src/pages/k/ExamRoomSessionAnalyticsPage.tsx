@@ -34,8 +34,8 @@ import {
   type UserAttemptWithLogs,
 } from "@/apis/cheatingLogApi";
 import { getExamSessionByIdApi } from "@/apis/examSessionApi";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -43,10 +43,10 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/antd/breadcrumb";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/antd/sheet";
+import { Skeleton } from "@/components/antd/skeleton";
 import {
   Table,
   TableBody,
@@ -54,8 +54,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { toast } from "@/components/ui/toast";
+} from "@/components/antd/table";
+import { toast } from "@/components/antd/toast";
 import { TeacherRoute } from "@/components/organisms/TeacherRoute";
 
 const ATTEMPT_STATUS = {

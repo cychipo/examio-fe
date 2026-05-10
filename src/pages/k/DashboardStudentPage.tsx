@@ -24,9 +24,9 @@ import {
   TrendingUp,
   ChevronDown,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Skeleton } from "@/components/antd/skeleton";
 import { getStudentStats, StudentDashboardStats } from "@/apis/statisticsApi";
 import { StatCard } from "@/components/molecules/StatCard";
 import {
@@ -34,7 +34,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/antd/dropdown-menu";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
 

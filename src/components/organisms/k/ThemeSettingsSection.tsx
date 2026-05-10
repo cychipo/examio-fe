@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import { ColorSchemeSelector } from "@/components/molecules/ColorSchemeSelector";
 import { AccentColorPicker } from "@/components/molecules/AccentColorPicker";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 
 interface ThemeSettingsSectionProps {
   colorScheme: "light" | "dark" | "auto";

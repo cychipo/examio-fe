@@ -1,4 +1,4 @@
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/antd/checkbox";
 import { cn } from "@/lib/utils";
 
 interface TaskCheckItemProps {

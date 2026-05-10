@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/antd/badge";
 import { Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 

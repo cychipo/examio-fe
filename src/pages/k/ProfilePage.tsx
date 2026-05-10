@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { updateProfileApi, type UpdateProfileData } from "@/apis/profileApi";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/components/antd/toast";
 import { storeCache } from "@/lib/storeCache";
 import { useAuthStore } from "@/stores/useAuthStore";
 

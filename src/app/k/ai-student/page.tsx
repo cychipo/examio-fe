@@ -19,11 +19,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { ModelSelector } from "@/components/atoms/ModelSelector";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { ScrollArea } from "@/components/antd/scroll-area";
+import { Textarea } from "@/components/antd/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,7 +33,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/antd/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -41,12 +41,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+} from "@/components/antd/dialog";
+import { Input } from "@/components/antd/input";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAIStudentStore } from "@/stores/useAIStudentStore";
 import { cn } from "@/lib/utils";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 const quickPromptGroups = [
   {
@@ -617,7 +617,7 @@ export default function AIStudentPage() {
                                     Tạm thời
                                   </Badge>
                                 )}
-                                <div className="rounded-full bg-black/[0.03]0 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(227,24,55,0.20)]">
+                                <div className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_10px_24px_rgba(227,24,55,0.20)]">
                                   {message.evaluation.score}/100
                                 </div>
                               </div>

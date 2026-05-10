@@ -1,7 +1,7 @@
 import { Trash2, UploadCloud } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
 import { PendingKnowledgeUpload } from "@/types/genai-knowledge";
 
 import { formatBytes } from "./knowledge-constants";

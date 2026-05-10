@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuizSetStore } from "@/stores/useQuizSetStore";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/antd/button";
+import { Card } from "@/components/antd/card";
+import { Badge } from "@/components/antd/badge";
+import { Skeleton } from "@/components/antd/skeleton";
 import {
   Plus,
   Trash2,
@@ -25,7 +25,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+} from "@/components/antd/breadcrumb";
 import { getQuizSetQuestionsApi, type PaginationInfo } from "@/apis/quizsetApi";
 
 export default function ManageQuizSetDetailPage() {

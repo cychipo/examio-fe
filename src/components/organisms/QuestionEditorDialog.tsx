@@ -7,25 +7,25 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   Drawer,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
+} from "@/components/antd/drawer";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+} from "@/components/antd/select";
+import { Button } from "@/components/antd/button";
+import { Label } from "@/components/antd/label";
 import { RichTextEditor } from "@/components/molecules/RichTextEditor";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/antd/radio-group";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Plus, X, Tag } from "lucide-react";
 import { Quizz } from "@/types/quizset";

@@ -12,7 +12,7 @@ import {
 } from "@/apis/examSessionApi";
 import { ExamSessionBasic } from "@/types/examRoom";
 import { storeCache, CacheTTL } from "@/lib/storeCache";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 interface ExamRoomDetailStore {
   // Sessions data

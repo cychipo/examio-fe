@@ -6,13 +6,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
+} from "@/components/antd/drawer";
 import {
   FlashcardSetForm,
   FlashcardSetFormData,

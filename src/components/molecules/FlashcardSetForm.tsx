@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
+import { Switch } from "@/components/antd/switch";
 import { Loader2 } from "lucide-react";
 import { ThumbnailUpload } from "@/components/atoms/k/ThumbnailUpload";
 

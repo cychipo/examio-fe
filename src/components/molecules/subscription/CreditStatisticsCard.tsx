@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 
 interface CreditStatisticsCardProps {

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Slider } from "@/components/ui/slider";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/antd/slider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
 import { Coins, ShoppingCart } from "lucide-react";
 
 interface CreditSliderProps {

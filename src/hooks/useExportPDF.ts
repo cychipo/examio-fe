@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "@/components/ui/toast";
+import { toast } from "@/components/antd/toast";
 
 /**
  * Hook để xuất dữ liệu ra file PDF

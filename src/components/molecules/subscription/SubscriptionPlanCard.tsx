@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
+import { Badge } from "@/components/antd/badge";
 import { Check, Sparkles, Zap, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 

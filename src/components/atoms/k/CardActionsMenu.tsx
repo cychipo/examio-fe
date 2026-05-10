@@ -4,8 +4,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+} from "@/components/antd/dropdown-menu";
+import { Button } from "@/components/antd/button";
 import { MoreVertical, Eye, Edit, Pin, Trash2 } from "lucide-react";
 
 interface CardActionsMenuProps {

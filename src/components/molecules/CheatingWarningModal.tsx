@@ -9,7 +9,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+} from "@/components/antd/alert-dialog";
 import { CHEATING_TYPE, CHEATING_TYPE_LABELS } from "@/apis/cheatingLogApi";
 
 interface CheatingWarningModalProps {

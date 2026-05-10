@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { History, FolderOpen, Loader2 } from "lucide-react";
 import { RecentUpload } from "@/apis/aiApi";
 import { RecentFileItem } from "@/components/atoms/k/RecentFileItem";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/antd/scroll-area";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,7 +14,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/antd/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
 

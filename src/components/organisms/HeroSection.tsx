@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { AnimatedGroup } from "@/components/ui/animated-group";
-import { RetroGrid } from "../ui/retro-grid";
+import { Button } from "@/components/antd/button";
+import { AnimatedGroup } from "@/components/antd/animated-group";
+import { RetroGrid } from "@/components/antd/retro-grid";
 import { Highlighter } from "../magicui/highlighter";
 
 const transitionVariants = {

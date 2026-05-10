@@ -6,14 +6,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/antd/dialog";
 import {
   Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
-} from "@/components/ui/drawer";
+} from "@/components/antd/drawer";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import {
   ExamRoomForm,

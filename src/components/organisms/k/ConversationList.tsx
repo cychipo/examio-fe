@@ -1,12 +1,12 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader } from "@/components/antd/card";
+import { Input } from "@/components/antd/input";
+import { ScrollArea } from "@/components/antd/scroll-area";
 import {
   ConversationItem,
   type Conversation,
 } from "@/components/molecules/ConversationItem";
 import { Search, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { ConnectionStatus } from "@/components/atoms/k/ConnectionStatus";
 import { useState } from "react";
 

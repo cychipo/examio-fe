@@ -1,5 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
 import { Calendar, Users, Clock } from "lucide-react";
 
 export interface StudySession {

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { Card } from "@/components/antd/card";
 import { Sun, Moon, Monitor, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 

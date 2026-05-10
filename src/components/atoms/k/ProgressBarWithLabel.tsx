@@ -1,4 +1,4 @@
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/components/antd/progress";
 import { GradientText } from "./GradientText";
 import { cn } from "@/lib/utils";
 

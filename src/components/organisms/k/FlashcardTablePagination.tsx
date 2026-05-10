@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface FlashcardTablePaginationProps {

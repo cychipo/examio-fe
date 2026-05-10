@@ -6,8 +6,8 @@ import { RecentFilesList } from "@/components/molecules/RecentFilesList";
 import { FlashcardGenerator } from "@/components/organisms/k/FlashcardGenerator";
 import { TestGenerator } from "@/components/organisms/k/TestGenerator";
 import { TeacherRoute } from "@/components/organisms/TeacherRoute";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/antd/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/antd/tabs";
 import { useRecentUploadsStore } from "@/stores/useAIGeneratorStore";
 
 function AIGeneratorContent() {

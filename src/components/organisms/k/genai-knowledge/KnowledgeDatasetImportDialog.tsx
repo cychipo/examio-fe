@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/antd/badge";
+import { Button } from "@/components/antd/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/antd/dialog";
 import { GenAIKnowledgeDatasetCatalogItem, GenAIKnowledgeDatasetImportJob, GenAIKnowledgeDatasetState } from "@/types/genai-knowledge";
 
 interface KnowledgeDatasetImportDialogProps {

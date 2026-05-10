@@ -1,5 +1,5 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/antd/card";
+import { Button } from "@/components/antd/button";
 import { HelpCircle, BookOpen, Wrench } from "lucide-react";
 
 interface NeedHelpSectionProps {

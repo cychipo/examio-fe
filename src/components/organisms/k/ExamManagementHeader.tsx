@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/antd/button";
 import { Plus } from "lucide-react";
 
 interface ExamManagementHeaderProps {

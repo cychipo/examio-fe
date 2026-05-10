@@ -4,7 +4,7 @@ import {
 } from "@/components/organisms/k/SettingsSidebar";
 import { ThemeSettingsSection } from "@/components/organisms/k/ThemeSettingsSection";
 import { InterfaceSettingsSection } from "@/components/organisms/k/InterfaceSettingsSection";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/antd/card";
 
 interface InterfaceSettings {
   compactMode: boolean;

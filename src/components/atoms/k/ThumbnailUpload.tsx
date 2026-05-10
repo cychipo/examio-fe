@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
 import { X, Image as ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/antd/button";
+import { Input } from "@/components/antd/input";
+import { Label } from "@/components/antd/label";
 import { cn } from "@/lib/utils";
 
 interface ThumbnailUploadProps {
